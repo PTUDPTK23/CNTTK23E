@@ -40,6 +40,14 @@ Trả lời câu hỏi:
 
 Debug tương tác cần người học thực hiện thêm: mở đúng thư mục BasicWebApi trong VS Code, dừng API đang chạy, đặt breakpoint ở var greeting = service.Create(...), chọn Debug → Start New Instance trong Solution Explorer. Gửi POST, xem request.Name, dùng F10 bước tiếp, F5 tiếp tục và Shift+F5 dừng. Cổng thực tế khi debug có thể theo launch profile; sửa @api cho khớp.
 
+### Ảnh kết quả người học đã cung cấp
+
+![Kết quả 200 do người học cung cấp](evidence/basic-200.png)
+
+![Kết quả 201 do người học cung cấp](evidence/basic-201.png)
+
+![Kết quả 400 do người học cung cấp](evidence/basic-400.png)
+
 ## 4. MiniDistributedSystem
 
 API và Client là hai tiến trình độc lập.
