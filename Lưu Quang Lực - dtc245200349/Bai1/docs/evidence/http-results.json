@@ -1,0 +1,227 @@
+[
+  {
+    "method": "GET",
+    "url": "http://localhost:15081/",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:47:08 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"application\":\"BasicWebApi\",\"message\":\"ASP.NET Core Web API is running.\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15081/hello/An?language=vi",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:47:08 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Xin chào, An!\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15081/hello/An?language=en",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:47:08 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Hello, An!\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15081/hello/An?language=ja",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:47:08 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Konnichiwa, An!\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15081/greetings",
+    "status": 201,
+    "expected": 201,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:47:08 GMT",
+      "Server": "Kestrel",
+      "Location": "/greetings/1",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"id\":1,\"name\":\"Binh\",\"createdAt\":\"2026-11-04T07:47:08.5251724+00:00\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15081/greetings",
+    "status": 400,
+    "expected": 400,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:47:08 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Name must not be empty.\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15000/",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"service\":\"Submission.Api\",\"status\":\"running\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15000/api/assignments",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "[{\"id\":1,\"title\":\"Bai tap 1\",\"description\":\"Tao API dau tien\"},{\"id\":2,\"title\":\"Bai tap 2\",\"description\":\"Goi API tu client\"}]"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15000/api/submissions",
+    "status": 201,
+    "expected": 201,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Location": "/api/submissions/24537097-c326-4769-9d0c-244502012760",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"id\":\"24537097-c326-4769-9d0c-244502012760\",\"assignmentId\":1,\"studentCode\":\"DTC245200349\",\"status\":\"received\",\"receivedAt\":\"2026-11-04T07:48:06.0067381+00:00\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15000/api/submissions/24537097-c326-4769-9d0c-244502012760",
+    "status": 200,
+    "expected": 200,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"id\":\"24537097-c326-4769-9d0c-244502012760\",\"assignmentId\":1,\"studentCode\":\"DTC245200349\",\"status\":\"received\",\"receivedAt\":\"2026-11-04T07:48:06.0067381+00:00\"}"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:15000/api/submissions/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "expected": 404,
+    "headers": {
+      "Content-Length": "0",
+      "Connection": "close",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel"
+    },
+    "body": ""
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15000/api/submissions",
+    "status": 400,
+    "expected": 400,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Du lieu nop bai khong hop le\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15000/api/submissions",
+    "status": 400,
+    "expected": 400,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Du lieu nop bai khong hop le\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15000/api/submissions",
+    "status": 400,
+    "expected": 400,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Du lieu nop bai khong hop le\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15000/api/submissions",
+    "status": 400,
+    "expected": 400,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Du lieu nop bai khong hop le\"}"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:15000/api/submissions",
+    "status": 400,
+    "expected": 400,
+    "headers": {
+      "Connection": "close",
+      "Content-Type": "application/json; charset=utf-8",
+      "Date": "Wed, 04 Nov 2026 07:48:05 GMT",
+      "Server": "Kestrel",
+      "Transfer-Encoding": "chunked"
+    },
+    "body": "{\"message\":\"Du lieu nop bai khong hop le\"}"
+  }
+]
