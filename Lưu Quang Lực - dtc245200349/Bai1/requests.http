@@ -1,0 +1,38 @@
+@api = http://localhost:5000
+
+### Kiem tra API -> 200
+GET {{api}}/
+
+### Danh sach bai tap -> 200
+GET {{api}}/api/assignments
+
+### Nop bai -> 201; request co ten de doc ID tu response
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "DTC245200349", "repositoryUrl": "https://example.com/DTC245200349/EduSubmit" }
+
+### Thieu ma sinh vien -> 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://example.com/repo" }
+
+### AssignmentId khong hop le -> 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 0, "studentCode": "DTC245200349", "repositoryUrl": "https://example.com/repo" }
+
+### Thieu repositoryUrl -> 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "DTC245200349" }
+
+### Doc lai luot nop -> 200; gui createSubmission truoc
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Ma khong ton tai -> 404
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
