@@ -1,5 +1,7 @@
 # EduSubmit – Bài 1
 
+Họ tên: Lưu Quang Lực
+
 MSSV: DTC245200349 | Lớp: CNTT K23E
 
 Yêu cầu: .NET 10 SDK. Mở thư mục này trong VS Code.

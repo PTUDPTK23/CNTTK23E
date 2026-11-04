@@ -1,6 +1,6 @@
 # Bài 1 – Tổng quan hệ thống và MEP
 
-- Họ tên: **Chưa cung cấp – cần bổ sung trước khi nộp**
+- Họ tên: Lưu Quang Lực
 - MSSV: DTC245200349
 - Lớp: CNTT K23E
 - Ngày thực hành: 04/11/2026
@@ -99,7 +99,6 @@ Phần tham khảo: Codex đã đọc Program.cs của cả ba chương trình m
 
 ## 8. Việc còn cần trước khi nộp
 
-- Bổ sung họ tên.
 - Tự chạy lại, làm debug breakpoint và lưu ảnh thực tế của mình vào docs.
 - Tạo repository GitHub; thay URL ví dụ trong client và requests.http bằng link thật.
 - Commit phần bổ sung, chuyển tag bai1 tới commit cuối nếu có sửa, rồi đẩy main và tag lên repository.
