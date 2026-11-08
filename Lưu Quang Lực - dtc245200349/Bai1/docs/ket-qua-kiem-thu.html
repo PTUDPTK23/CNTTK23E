@@ -1,5 +1,5 @@
-<!doctype html><meta charset="utf-8"><title>Kết quả Bài 1</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;background:#f5f7fb;color:#17233a}section{background:white;padding:20px;margin:20px 0;border-radius:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px Consolas}b{color:#087443}</style><h1>Bài 1 – Kết quả kiểm thử</h1><p>DTC245200349 · CNTT K23E · Kiểm thử do Codex thực hiện.</p><p>Cổng kiểm thử: 15081, 15000, 15050 để tránh API người học đang chạy. Lệnh sử dụng thường ngày giữ cổng 5081, 5000.</p><h2>HTTP: 16 / 16 đạt</h2><p><b>200</b> GET http://localhost:15081/</p><p><b>200</b> GET http://localhost:15081/hello/An?language=vi</p><p><b>200</b> GET http://localhost:15081/hello/An?language=en</p><p><b>200</b> GET http://localhost:15081/hello/An?language=ja</p><p><b>201</b> POST http://localhost:15081/greetings</p><p><b>400</b> POST http://localhost:15081/greetings</p><p><b>200</b> GET http://localhost:15000/</p><p><b>200</b> GET http://localhost:15000/api/assignments</p><p><b>201</b> POST http://localhost:15000/api/submissions</p><p><b>200</b> GET http://localhost:15000/api/submissions/24537097-c326-4769-9d0c-244502012760</p><p><b>404</b> GET http://localhost:15000/api/submissions/00000000-0000-0000-0000-000000000000</p><p><b>400</b> POST http://localhost:15000/api/submissions</p><p><b>400</b> POST http://localhost:15000/api/submissions</p><p><b>400</b> POST http://localhost:15000/api/submissions</p><p><b>400</b> POST http://localhost:15000/api/submissions</p><p><b>400</b> POST http://localhost:15000/api/submissions</p><section><h2>basic-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:15081
+<!doctype html><meta charset="utf-8"><title>Kết quả Bài 1</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;background:#f5f7fb;color:#17233a}section{background:white;padding:20px;margin:20px 0;border-radius:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px Consolas}b{color:#087443}</style><h1>Bài 1 – Kết quả kiểm thử</h1><p>DTC245200349 · CNTT K23E · Kiểm thử do Codex thực hiện.</p><p>Cổng kiểm thử: 25081, 25000, 25050 để tránh API người học đang chạy. Lệnh sử dụng thường ngày giữ cổng 5081, 5000.</p><h2>HTTP: 16 / 16 đạt</h2><p><b>200</b> GET http://localhost:25081/</p><p><b>200</b> GET http://localhost:25081/hello/An?language=vi</p><p><b>200</b> GET http://localhost:25081/hello/An?language=en</p><p><b>200</b> GET http://localhost:25081/hello/An?language=ja</p><p><b>201</b> POST http://localhost:25081/greetings</p><p><b>400</b> POST http://localhost:25081/greetings</p><p><b>200</b> GET http://localhost:25000/</p><p><b>200</b> GET http://localhost:25000/api/assignments</p><p><b>201</b> POST http://localhost:25000/api/submissions</p><p><b>200</b> GET http://localhost:25000/api/submissions/10165b7c-c06c-4059-8ae3-e9917bfa393e</p><p><b>404</b> GET http://localhost:25000/api/submissions/00000000-0000-0000-0000-000000000000</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><section><h2>basic-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:25081
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
@@ -7,7 +7,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\BasicWebApi\src\BasicWebApi
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15081/ - application/json -
+      Request starting HTTP/1.1 GET http://localhost:25081/ - application/json -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -17,9 +17,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15081/ - 200 - application/json;+charset=utf-8 94.7257ms
+      Request finished HTTP/1.1 GET http://localhost:25081/ - 200 - application/json;+charset=utf-8 87.4115ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15081/hello/An?language=vi - application/json -
+      Request starting HTTP/1.1 GET http://localhost:25081/hello/An?language=vi - application/json -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /hello/{name}&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -29,9 +29,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /hello/{name}&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15081/hello/An?language=vi - 200 - application/json;+charset=utf-8 6.7080ms
+      Request finished HTTP/1.1 GET http://localhost:25081/hello/An?language=vi - 200 - application/json;+charset=utf-8 6.6679ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15081/hello/An?language=en - application/json -
+      Request starting HTTP/1.1 GET http://localhost:25081/hello/An?language=en - application/json -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /hello/{name}&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -41,9 +41,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /hello/{name}&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15081/hello/An?language=en - 200 - application/json;+charset=utf-8 0.6770ms
+      Request finished HTTP/1.1 GET http://localhost:25081/hello/An?language=en - 200 - application/json;+charset=utf-8 0.9334ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15081/hello/An?language=ja - application/json -
+      Request starting HTTP/1.1 GET http://localhost:25081/hello/An?language=ja - application/json -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /hello/{name}&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -53,9 +53,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /hello/{name}&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15081/hello/An?language=ja - 200 - application/json;+charset=utf-8 1.2610ms
+      Request finished HTTP/1.1 GET http://localhost:25081/hello/An?language=ja - 200 - application/json;+charset=utf-8 0.2920ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:15081/greetings - application/json 16
+      Request starting HTTP/1.1 POST http://localhost:25081/greetings - application/json 16
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: POST /greetings&#x27;
 info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
@@ -65,9 +65,9 @@ info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: POST /greetings&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:15081/greetings - 201 - application/json;+charset=utf-8 19.7395ms
+      Request finished HTTP/1.1 POST http://localhost:25081/greetings - 201 - application/json;+charset=utf-8 18.3602ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:15081/greetings - application/json 12
+      Request starting HTTP/1.1 POST http://localhost:25081/greetings - application/json 12
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: POST /greetings&#x27;
 info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]
@@ -77,7 +77,7 @@ info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: POST /greetings&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:15081/greetings - 400 - application/json;+charset=utf-8 1.7498ms
+      Request finished HTTP/1.1 POST http://localhost:25081/greetings - 400 - application/json;+charset=utf-8 1.8562ms
 </pre></section><section><h2>BasicWebApi-build.txt</h2><pre>  Determining projects to restore...
   All projects are up-to-date for restore.
   BasicWebApi -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\BasicWebApi\src\BasicWebApi\bin\Debug\net10.0\BasicWebApi.dll
@@ -86,34 +86,41 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:02.04
-</pre></section><section><h2>build.txt</h2><pre>Determining projects to restore...
-  Restored C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\EduSubmit-DTC245200349\src\Submission.Api\Submission.Api.csproj (in 125 ms).
-  Restored C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\EduSubmit-DTC245200349\src\Submission.Client\Submission.Client.csproj (in 125 ms).
-  Submission.Client -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\EduSubmit-DTC245200349\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
-  Submission.Api -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\EduSubmit-DTC245200349\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+Time Elapsed 00:00:01.94
+</pre></section><section><h2>build.txt</h2><pre>  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Submission.Api -&gt; D:\PTUD\EduSubmit-DTC245200349\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+  Submission.Client -&gt; D:\PTUD\EduSubmit-DTC245200349\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:04.25
+Time Elapsed 00:00:02.35
 </pre></section><section><h2>edusubmit-client.txt</h2><pre>Danh sach bai tap:
 - 1: Bai tap 1
 - 2: Bai tap 2
-Da nop bai. Ma luot nop: 649e3ebb-4eb0-47c2-84bb-fd69b69ffb4c
+Da nop bai. Ma luot nop: 421f4603-a640-41b8-b851-97c16d806a7a
 Trang thai: received
-Doc lai luot nop: 649e3ebb-4eb0-47c2-84bb-fd69b69ffb4c | DTC245200349 | received
+Doc lai luot nop: 421f4603-a640-41b8-b851-97c16d806a7a | DTC245200349 | received
 </pre></section><section><h2>edusubmit-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:15000
+      Now listening on: http://localhost:25000
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\EduSubmit-DTC245200349\src\Submission.Api
+      Content root path: D:\PTUD\EduSubmit-DTC245200349\src\Submission.Api
+</pre></section><section><h2>environment.txt</h2><pre>$ dotnet --version
+10.0.401
+
+$ git --version
+git version 2.55.0.windows.5
+
+$ dotnet run --project HelloPtudpt
+Hello, World!
 </pre></section><section><h2>experiment-a-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:15000
+      Now listening on: http://localhost:25000
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
@@ -121,7 +128,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15000/api/assignments - - -
+      Request starting HTTP/1.1 GET http://localhost:25000/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -131,9 +138,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15000/api/assignments - 200 - application/json;+charset=utf-8 85.5222ms
+      Request finished HTTP/1.1 GET http://localhost:25000/api/assignments - 200 - application/json;+charset=utf-8 115.3335ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:15000/api/submissions - application/json;+charset=utf-8 -
+      Request starting HTTP/1.1 POST http://localhost:25000/api/submissions - application/json;+charset=utf-8 -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
@@ -143,14 +150,14 @@ info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:15000/api/submissions - 201 - application/json;+charset=utf-8 28.9495ms
+      Request finished HTTP/1.1 POST http://localhost:25000/api/submissions - 201 - application/json;+charset=utf-8 27.2843ms
 </pre></section><section><h2>experiment-a.txt</h2><pre>Danh sach bai tap:
 - 1: Bai tap 1
 - 2: Bai tap 2
 - 3: Bai tap 3
-Da nop bai. Ma luot nop: 7e19323a-3041-4c08-bdc4-6c657b7eb349
+Da nop bai. Ma luot nop: 65572276-6376-4fb0-9e18-70963adb4563
 Trang thai: received
-</pre></section><section><h2>experiment-b.txt</h2><pre>Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:15000)
+</pre></section><section><h2>experiment-b.txt</h2><pre>Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:25000)
  ---&gt; System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
    at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
    at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
@@ -169,7 +176,7 @@ Trang thai: received
    at Program.&lt;Main&gt;$(String[] args) in C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 14
    at Program.&lt;Main&gt;(String[] args)
 </pre></section><section><h2>experiment-c-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:15000
+      Now listening on: http://localhost:25000
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
@@ -177,7 +184,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15000/api/assignments - - -
+      Request starting HTTP/1.1 GET http://localhost:25000/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -187,9 +194,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15000/api/assignments - 200 - application/json;+charset=utf-8 96.7176ms
+      Request finished HTTP/1.1 GET http://localhost:25000/api/assignments - 200 - application/json;+charset=utf-8 114.0522ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:15000/api/submissions - application/json;+charset=utf-8 -
+      Request starting HTTP/1.1 POST http://localhost:25000/api/submissions - application/json;+charset=utf-8 -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]
@@ -199,7 +206,7 @@ info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:15000/api/submissions - 400 - application/json;+charset=utf-8 16.0107ms
+      Request finished HTTP/1.1 POST http://localhost:25000/api/submissions - 400 - application/json;+charset=utf-8 18.8423ms
 </pre></section><section><h2>experiment-c.txt</h2><pre>Danh sach bai tap:
 - 1: Bai tap 1
 - 2: Bai tap 2
@@ -208,7 +215,7 @@ Unhandled exception. System.Net.Http.HttpRequestException: Response status code 
    at Program.&lt;Main&gt;$(String[] args) in C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 28
    at Program.&lt;Main&gt;(String[] args)
 </pre></section><section><h2>experiment-d-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:15050
+      Now listening on: http://localhost:25050
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
@@ -216,7 +223,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15050/api/assignments - - -
+      Request starting HTTP/1.1 GET http://localhost:25050/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -226,9 +233,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15050/api/assignments - 200 - application/json;+charset=utf-8 182.0997ms
+      Request finished HTTP/1.1 GET http://localhost:25050/api/assignments - 200 - application/json;+charset=utf-8 198.6566ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:15050/api/submissions - application/json;+charset=utf-8 -
+      Request starting HTTP/1.1 POST http://localhost:25050/api/submissions - application/json;+charset=utf-8 -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
@@ -238,9 +245,9 @@ info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:15050/api/submissions - 201 - application/json;+charset=utf-8 41.6061ms
+      Request finished HTTP/1.1 POST http://localhost:25050/api/submissions - 201 - application/json;+charset=utf-8 32.6754ms
 </pre></section><section><h2>experiment-d.txt</h2><pre>SAI CONG:
-Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:15000)
+Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:25000)
  ---&gt; System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
    at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
    at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
@@ -263,7 +270,7 @@ DUNG CONG:
 Danh sach bai tap:
 - 1: Bai tap 1
 - 2: Bai tap 2
-Da nop bai. Ma luot nop: 8cb7c9b6-1b07-40e9-9aa7-c3f552c9b463
+Da nop bai. Ma luot nop: ba17efcf-cf12-4b9f-9f03-5691415cf3b5
 Trang thai: received
 </pre></section><section><h2>MepDemo-build.txt</h2><pre>  Determining projects to restore...
   All projects are up-to-date for restore.
@@ -273,7 +280,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.49
+Time Elapsed 00:00:01.52
 </pre></section><section><h2>MepDemo-output.txt</h2><pre>
 ================================================================
 1. Request–Response: gửi yêu cầu và CHỜ phản hồi
@@ -306,8 +313,8 @@ Time Elapsed 00:00:01.49
    [Worker-B] bắt đầu chấm sub-3
    [Worker-A] chấm xong sub-1
    [Worker-A] bắt đầu chấm sub-4
-   [Worker-B] chấm xong sub-3
    [Worker-A] chấm xong sub-4
+   [Worker-B] chấm xong sub-3
 
 ================================================================
 4. Publish–Subscribe: 1 sự kiện → nhiều bên đăng ký
@@ -327,10 +334,10 @@ Time Elapsed 00:00:01.49
 </pre></section><section><h2>mini-client.txt</h2><pre>Danh sach bai tap:
 - 1: Bai tap 1
 - 2: Bai tap 2
-Da nop bai. Ma luot nop: 52f9495d-d25a-46c6-913b-477237ccceb8
+Da nop bai. Ma luot nop: 819d9a47-041b-4770-9530-cc98b9cd75a7
 Trang thai: received
 </pre></section><section><h2>mini-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:15000
+      Now listening on: http://localhost:25000
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
@@ -338,7 +345,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:15000/api/assignments - - -
+      Request starting HTTP/1.1 GET http://localhost:25000/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
@@ -348,9 +355,9 @@ info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: GET /api/assignments&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:15000/api/assignments - 200 - application/json;+charset=utf-8 82.9699ms
+      Request finished HTTP/1.1 GET http://localhost:25000/api/assignments - 200 - application/json;+charset=utf-8 97.4402ms
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:15000/api/submissions - application/json;+charset=utf-8 -
+      Request starting HTTP/1.1 POST http://localhost:25000/api/submissions - application/json;+charset=utf-8 -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
       Executing endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
@@ -360,16 +367,15 @@ info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint &#x27;HTTP: POST /api/submissions&#x27;
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:15000/api/submissions - 201 - application/json;+charset=utf-8 33.6555ms
+      Request finished HTTP/1.1 POST http://localhost:25000/api/submissions - 201 - application/json;+charset=utf-8 25.1080ms
 </pre></section><section><h2>MiniDistributedSystem-build.txt</h2><pre>  Determining projects to restore...
-  Restored C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Submission.Client.csproj (in 106 ms).
-  Restored C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api\Submission.Api.csproj (in 106 ms).
-  Submission.Client -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+  All projects are up-to-date for restore.
   Submission.Api -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+  Submission.Client -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:02.74
+Time Elapsed 00:00:02.16
 </pre></section>

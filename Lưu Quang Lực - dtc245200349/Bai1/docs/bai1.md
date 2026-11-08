@@ -9,9 +9,17 @@
 
 Người học đã chạy MepDemo và BasicWebApi, cung cấp kết quả console và ảnh GET tiếng Anh, POST 201, POST 400 trong cuộc trò chuyện. Codex đã chuẩn bị mã EduSubmit, phần tiếng Nhật, chạy kiểm thử và thí nghiệm trên bản sao code mẫu. Không khai báo đây là code người học tự gõ. Người học cần đọc lại, tự chạy và giải thích được code trước khi nộp. Chưa thực hiện buổi debug tương tác với breakpoint; hướng dẫn ở mục 3.
 
+### Bộ minh chứng cập nhật ngày 08/11/2026
+
+Các ảnh cũ do người học gửi đã được thay bằng 13 ảnh báo cáo dựng từ lần chạy lại thực tế của trợ lý: môi trường và Hello World, MEP, HTTP 200/201/400, tiếng Nhật, API/Client, bốn thí nghiệm lỗi, EduSubmit và đọc lại 200/404. Đây là ảnh trình bày log và phản hồi HTTP, **không phải ảnh chụp giao diện REST Client hoặc hai cửa sổ Terminal**. Nội dung kiểm tra tương ứng mẫu; nếu giảng viên yêu cầu đúng giao diện, cần chụp trực tiếp bổ sung. Không có ảnh debug breakpoint vì chưa thực hiện buổi debug tương tác.
+
+[Danh mục lần chạy](evidence/run-2026-11-08/manifest.json) · [Phản hồi HTTP nguyên bản](evidence/run-2026-11-08/http-results.json).
+
 ## 1. Cài đặt
 
 Đã kiểm tra máy có .NET SDK 10.0.401 và Git 2.55.0.windows.5. C# Dev Kit và REST Client đã được quan sát trong ảnh người học cung cấp. Build EduSubmit thành công: [log](evidence/build.txt). Tên thư mục có khoảng trắng vẫn build thành công; khi gõ đường dẫn đầy đủ cần đặt trong dấu nháy.
+
+![Môi trường, Git và Hello World](evidence/run-2026-11-08/01-environment.png)
 
 ## 2. MepDemo
 
@@ -24,6 +32,8 @@ Người học đã chạy MepDemo và BasicWebApi, cung cấp kết quả conso
 Queue dùng để chia việc giữa các worker; publish–subscribe dùng để phát cùng sự kiện cho nhiều bên có trách nhiệm khác nhau. Demo dùng các thành phần trong một tiến trình để mô phỏng, không phải broker hay hệ thống mạng thực.
 
 [Kết quả chạy lại của Codex](evidence/MepDemo-output.txt).
+
+![Đầu ra 5 MEP](evidence/run-2026-11-08/02-mep.png)
 
 ## 3. BasicWebApi
 
@@ -40,13 +50,13 @@ Trả lời câu hỏi:
 
 Debug tương tác cần người học thực hiện thêm: mở đúng thư mục BasicWebApi trong VS Code, dừng API đang chạy, đặt breakpoint ở var greeting = service.Create(...), chọn Debug → Start New Instance trong Solution Explorer. Gửi POST, xem request.Name, dùng F10 bước tiếp, F5 tiếp tục và Shift+F5 dừng. Cổng thực tế khi debug có thể theo launch profile; sửa @api cho khớp.
 
-### Ảnh kết quả người học đã cung cấp
+![Phản hồi BasicWebApi 200](evidence/run-2026-11-08/03-basic-200.png)
 
-![Kết quả 200 do người học cung cấp](evidence/basic-200.png)
+![Phản hồi BasicWebApi 201](evidence/run-2026-11-08/03-basic-201.png)
 
-![Kết quả 201 do người học cung cấp](evidence/basic-201.png)
+![Phản hồi BasicWebApi 400](evidence/run-2026-11-08/03-basic-400.png)
 
-![Kết quả 400 do người học cung cấp](evidence/basic-400.png)
+![Lời chào tiếng Nhật](evidence/run-2026-11-08/03-basic-ja.png)
 
 ## 4. MiniDistributedSystem
 
@@ -61,6 +71,8 @@ Client không tham chiếu project API. Hai bên thống nhất qua HTTP, endpoi
 
 [Kết quả API + Client mẫu](evidence/mini-client.txt).
 
+![API và Client mẫu — hai tiến trình](evidence/run-2026-11-08/04-mini-api-client.png)
+
 ## 5. Thí nghiệm lỗi
 
 Các dự đoán dưới đây do Codex đặt trước khi thực hiện thí nghiệm trên bản sao MiniDistributedSystem. Cổng 15000/15050 dùng thay cho 5000/5050 để tránh ảnh hưởng API đang chạy trên máy; cơ chế tương đương. Sau mỗi thí nghiệm, mã nguồn mẫu được hoàn nguyên và build lại.
@@ -73,6 +85,14 @@ Các dự đoán dưới đây do Codex đặt trước khi thực hiện thí n
 | d | API đổi cổng, client gọi cổng cũ sẽ lỗi | Cổng cũ kết nối thất bại; truyền URL mới thì thành công | Đúng | Đổi tham số sau --, không cần sửa code |
 
 Log: [a](evidence/experiment-a.txt), [b](evidence/experiment-b.txt), [c](evidence/experiment-c.txt), [d](evidence/experiment-d.txt).
+
+![Thí nghiệm a](evidence/run-2026-11-08/05-experiment-a.png)
+
+![Thí nghiệm b](evidence/run-2026-11-08/05-experiment-b.png)
+
+![Thí nghiệm c](evidence/run-2026-11-08/05-experiment-c.png)
+
+![Thí nghiệm d](evidence/run-2026-11-08/05-experiment-d.png)
 
 ## 6. EduSubmit và phần mở rộng
 
@@ -90,6 +110,10 @@ Phần tham khảo: Codex đã đọc Program.cs của cả ba chương trình m
 
 [Client EduSubmit](evidence/edusubmit-client.txt) · [HTTP chi tiết](evidence/http-results.json) · [Trang xem kết quả](ket-qua-kiem-thu.html).
 
+![EduSubmit — tạo và đọc lại lượt nộp](evidence/run-2026-11-08/06-edusubmit.png)
+
+![Đọc lại 200 và không tìm thấy 404](evidence/run-2026-11-08/06-readback-200-404.png)
+
 ## 7. Khó khăn và cách giải quyết
 
 - Mở file BasicWebApi trong workspace MepDemo khiến C# Dev Kit cảnh báo project chưa thuộc workspace: thêm project hoặc mở đúng thư mục solution.
@@ -99,7 +123,7 @@ Phần tham khảo: Codex đã đọc Program.cs của cả ba chương trình m
 
 ## 8. Việc còn cần trước khi nộp
 
-- Tự chạy lại, làm debug breakpoint và lưu ảnh thực tế của mình vào docs.
-- Tạo repository GitHub; thay URL ví dụ trong client và requests.http bằng link thật.
+- Làm debug breakpoint; bổ sung ảnh chụp giao diện REST Client/Terminal nếu giảng viên yêu cầu đúng định dạng đó.
+- Repository GitHub đã có; URL ví dụ trong client và requests.http vẫn cần thay bằng link thật nếu dùng làm thông tin nộp bài.
 - Commit phần bổ sung, chuyển tag bai1 tới commit cuối nếu có sửa, rồi đẩy main và tag lên repository.
 - Nộp link lên LMS theo yêu cầu giảng viên. Chưa thực hiện thao tác nộp bài.
