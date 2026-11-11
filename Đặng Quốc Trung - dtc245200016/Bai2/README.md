@@ -139,7 +139,7 @@ Mở một trong hai tệp `requests.http`, bảo đảm API tương ứng đang
 | POST thiếu `Content-Type` | 415 | PASS |
 | POST JSON hỏng | 400 | PASS |
 | Catalog.Client | In đủ danh sách → tạo → đọc chi tiết → lỗi 400 | PASS |
-| Client gọi cổng 5999 | `HttpRequestException: Connection refused`, đúng thí nghiệm tài liệu | PASS |
+| Client gọi cổng 5999 | In lỗi mạng có kiểm soát, không còn unhandled exception | PASS |
 | Khởi động lại API | Danh sách trở về 3 sản phẩm | PASS |
 
 ### Submission API và Client
@@ -185,17 +185,17 @@ Mở một trong hai tệp `requests.http`, bảo đảm API tương ứng đang
 | 12 | `Location` đọc lại được | Đạt | POST + GET submission |
 | 13 | EduSubmit `requests.http` đủ ca bắt buộc/mở rộng | Đạt | `RestfulClientServer/requests.http` |
 | 14 | Client xử lý lỗi HTTP | Đạt | `PrintApiErrorAsync` |
-| 15 | Client phân biệt lỗi mạng | Đạt | `HttpRequestException`/`TaskCanceledException` |
+| 15 | Cả hai Client phân biệt lỗi mạng | Đạt | `HttpRequestException`/`TaskCanceledException` |
 | 16 | Build cả hai solution | Đạt | 0 warning, 0 error |
 | 17 | Test HTTP thực tế | Đạt | Bảng kết quả mục 7 |
 | 18 | Kiểm tra dữ liệu RAM sau restart | Đạt | Catalog về 3 sản phẩm; ID submission cũ trả 404 |
 | 19 | README có lệnh, endpoint, kiểm thử, câu hỏi | Đạt | Tệp này |
 | 20 | Không đưa `bin/`, `obj/`, tệp tạm vào Git | Đạt | `.gitignore` |
-| 21 | Kiểm tra `git status` và `git log` | Chưa thể kiểm chứng | Workspace hiện không có thư mục `.git` |
+| 21 | Kiểm tra `git status` và `git log` | Đạt | Nhánh `bai2-dtc245200016`, working tree sạch trước khi rà soát |
 | 22 | Ảnh minh chứng | Chưa thực hiện | Cần chụp thủ công theo mục 11 |
-| 23 | Fork/push/PR repo lớp | Chưa thực hiện | Cần tài khoản GitHub và repo lớp |
+| 23 | Fork/push/PR repo lớp | Chưa hoàn tất | Commit ban đầu đã push; các commit rà soát còn local và PR chưa mở |
 
-Tổng hợp: **20 đạt, 0 chưa đạt, 3 chưa thể kiểm chứng/thực hiện trong workspace hiện tại**.
+Tổng hợp: **21 đạt, 0 chưa đạt, 2 chưa hoàn tất** (ảnh minh chứng và push/PR cuối cùng).
 
 ## 9. Trả lời ba câu hỏi trang 90
 
@@ -235,9 +235,9 @@ Không tạo ảnh giả. Nên chụp các ảnh sau sau khi chạy đúng lện
 9. GET một submission cũ sau khi khởi động lại API trả 404 `SUBMISSION_NOT_FOUND`.
 10. Cây thư mục nộp bài và `git status` không chứa `bin/`, `obj/`, `tmp/`.
 
-## 12. Các bước GitHub cần tự thực hiện
+## 12. Trạng thái Git và các bước GitHub còn lại
 
-Workspace hiện tại chưa phải Git repository. Trong fork repo lớp, đặt thư mục theo cấu trúc:
+Bài nằm đúng cấu trúc trong fork:
 
 ```text
 Đặng Quốc Trung - dtc245200016/
@@ -248,14 +248,13 @@ Workspace hiện tại chưa phải Git repository. Trong fork repo lớp, đặ
     └── RestfulClientServer/
 ```
 
-Sau đó tự thực hiện:
+Trước đợt rà soát cuối, nhánh `bai2-dtc245200016` có một commit Bài 2 đã push. Các commit sửa lỗi và cập nhật tài liệu được giữ ở local để kiểm tra trước khi nộp. Chạy:
 
 ```powershell
 git status
-git add "Đặng Quốc Trung - dtc245200016/Bai2"
-git status
-git commit -m "Bai2: hoan thien Catalog API va EduSubmit"
-git push origin <ten-nhanh-cua-ban>
+git log --oneline origin/main..HEAD
+git diff origin/bai2-dtc245200016..HEAD
+git push origin bai2-dtc245200016
 ```
 
 Kiểm tra lần cuối rằng Git không theo dõi `bin/`, `obj/`, `tmp/`, khóa API hoặc mật khẩu. Mở Pull Request vào repo lớp với tiêu đề:
