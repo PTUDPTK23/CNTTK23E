@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v11.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v11.0": {
+      "Catalog.Api/1.0.0": {
+        "runtime": {
+          "Catalog.Api.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Catalog.Api/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
