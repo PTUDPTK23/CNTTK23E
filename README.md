@@ -36,22 +36,26 @@ Dự án CatalogApi xây dựng RESTful API để quản lý danh sách sản ph
 
 ## 6. Kết quả kiểm thử
 
-| Trường hợp              | HTTP Status                |
-| ----------------------- | -------------------------- |
-| GET /                   | 200 OK                     |
-| GET danh sách           | 200 OK                     |
-| GET chi tiết            | 200 OK                     |
-| ID không tồn tại        | 404 Not Found              |
-| ID không hợp lệ         | 404 Not Found              |
-| POST hợp lệ             | 201 Created                |
-| POST giá âm             | 400 Bad Request            |
-| POST thiếu Content-Type | 415 Unsupported Media Type |
+| Trường hợp                       | HTTP Status                |
+| -------------------------------- | -------------------------- |
+| GET /                            | 200 OK                     |
+| GET danh sách                    | 200 OK                     |
+| GET chi tiết                     | 200 OK                     |
+| ID không tồn tại                 | 404 Not Found              |
+| ID không hợp lệ                  | 404 Not Found              |
+| POST hợp lệ                      | 201 Created                |
+| POST giá âm                      | 400 Bad Request            |
+| POST thiếu Content-Type          | 415 Unsupported Media Type |
+| POST tên sản phẩm để trống       | 400 Bad Request            |
+| POST tên sản phẩm trên 100 ký tự | 400 Bad Request            |
+
+API kiểm tra tên sản phẩm không được để trống và không được vượt quá 100 ký tự.
 
 ## 7. Câu hỏi lý thuyết
 
 ### Câu 1: Vì sao URI nên dùng danh từ, còn hành động nằm trong HTTP method?
 
-URI nên mô tả tài nguyên bằng danh từ. HTTP method thể hiện hành động như GET, POST, PUT và DELETE.
+URI nên mô tả tài nguyên bằng danh từ. HTTP method thể hiện hành động như GET, POST, PUT và DELETE. Cách thiết kế này giúp API rõ ràng, dễ hiểu và thống nhất.
 
 ### Câu 2: Stateless được thể hiện ở đâu trong code?
 
