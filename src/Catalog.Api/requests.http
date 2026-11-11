@@ -1,4 +1,3 @@
-
 @baseUrl = http://localhost:5100
 
 ### 1. Kiem tra API
@@ -44,4 +43,3 @@ POST {{baseUrl}}/api/products
   "description": "Test 415",
   "price": 100000
 }
- 
