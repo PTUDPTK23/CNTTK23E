@@ -27,12 +27,16 @@ Bai2/
 │       ├── requests.http
 │       ├── sp-hop-le.json
 │       ├── sp-sai.json
+│       ├── tests/
+│       │   └── Test-Catalog.ps1
 │       └── src/
 │           ├── Catalog.Api/
 │           └── Catalog.Client/
 └── RestfulClientServer/
     ├── RestfulClientServer.slnx
     ├── requests.http
+    ├── tests/
+    │   └── Test-Submission.ps1
     └── src/
         ├── Submission.Api/
         └── Submission.Client/
@@ -107,13 +111,48 @@ dotnet run --project src/Submission.Client -- http://localhost:5000
 
 Thứ tự kiểm tra POST là: bài tập tồn tại → bài tập còn mở → body hợp lệ → không trùng sinh viên/bài tập → tạo lượt nộp.
 
-## 6. Chạy bộ request
+## 6. Chạy kiểm thử
+
+### 6.1. Kiểm thử thủ công bằng requests.http
 
 Mở một trong hai tệp `requests.http`, bảo đảm API tương ứng đang chạy, rồi bấm **Send Request** theo thứ tự từ trên xuống.
 
 - Catalog có 8 ca chính, bao phủ 200, 201, 400, 404, 405 và 415.
 - EduSubmit có 16 ca, bao phủ 200, 201, 204, 400, 404, 405, 409 và 415.
 - Ca EduSubmit số 9 phải chạy trước các ca 10-13 vì những ca sau lấy `id` từ phản hồi `createSubmission`.
+
+### 6.2. Kiểm thử tích hợp tự động
+
+Hai script PowerShell tự thực hiện toàn bộ chu trình: kiểm tra cổng trống, build solution, khởi động API ẩn, chờ health endpoint, gửi request thật, chạy Client và dừng tiến trình API trong khối `finally`.
+
+Chạy từ thư mục `Bai2` khi không có API nào đang chiếm cổng 5100 hoặc 5000:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\CataLogApi\CatalogApi\tests\Test-Catalog.ps1
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\RestfulClientServer\tests\Test-Submission.ps1
+```
+
+Kết quả đã quan sát ngày 11/11/2026:
+
+```text
+Catalog integration tests passed: 20 assertions.
+Submission integration tests passed: 35 assertions.
+```
+
+Script Catalog bao phủ đủ 10 tiêu chí Bước 10, bao gồm ba sản phẩm ban đầu, `ApiError`, `Location`, 415, Client bốn nấc và lỗi kết nối. Script Submission bao phủ 200, 201, 204, 400, 404, 409, 415, đọc lại theo `Location`, chống nộp trùng, DELETE và các tình huống Client.
+
+### 6.3. Xử lý lỗi khi chạy kiểm thử
+
+| Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |
+|---|---|---|
+| `Port 5100 is already in use` | Catalog.Api đang chạy ở terminal khác | Dừng API bằng `Ctrl+C`, rồi chạy lại script Catalog |
+| `Port 5000 is already in use` | Submission.Api đang chạy ở terminal khác | Dừng API bằng `Ctrl+C`, rồi chạy lại script Submission |
+| PowerShell chặn script | Execution Policy không cho chạy tệp `.ps1` | Dùng đúng lệnh có `-ExecutionPolicy Bypass` ở trên |
+| `NETSDK1045` | Máy chưa có .NET 10 SDK | Cài .NET 10 SDK và kiểm tra lại `dotnet --version` |
+| Client báo không kết nối được | API chưa chạy, sai cổng hoặc tiến trình đã dừng | Kiểm tra URL, cổng 5100/5000 và dòng `Now listening on` |
+
+Không chạy song song hai bản của cùng một API trên cùng cổng. Các script chỉ dừng tiến trình do chính script tạo ra và không tác động tới dịch vụ khác.
 
 ## 7. Kết quả kiểm thử thực tế
 
@@ -123,6 +162,11 @@ Mở một trong hai tệp `requests.http`, bảo đảm API tương ứng đang
 |---|---|
 | `CatalogApi.slnx` | PASS - 0 warning, 0 error |
 | `RestfulClientServer.slnx` | PASS - 0 warning, 0 error |
+
+| Bộ kiểm thử tự động | Kết quả |
+|---|---|
+| `Test-Catalog.ps1` | PASS - 20 assertions |
+| `Test-Submission.ps1` | PASS - 35 assertions |
 
 ### Catalog API và Client
 
@@ -224,7 +268,7 @@ Hai tiến trình không chia sẻ lớp C# hay bộ nhớ. Chúng khớp nhau n
 
 Không tạo ảnh giả. Nên chụp các ảnh sau sau khi chạy đúng lệnh:
 
-1. `dotnet --version` và build hai solution đều `Build succeeded`, 0 warning, 0 error.
+1. `dotnet --version`, build hai solution và dòng tổng kết 20/35 assertions đều PASS.
 2. Hai terminal Catalog: API lắng nghe cổng 5100 và Client in đủ 4 nấc.
 3. `requests.http` Catalog: phản hồi 201 có `Location`, 400 có `INVALID_PRODUCT`, 404 có `PRODUCT_NOT_FOUND`, 415 khi thiếu `Content-Type`.
 4. Hai terminal EduSubmit: API lắng nghe cổng 5000 và Client lần đầu in đủ 4 bước.
