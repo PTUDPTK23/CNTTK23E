@@ -1,20 +1,16 @@
-@api = http://localhost:5100
+@api = http://localhost:5000
 
-### 1. Danh sách sản phẩm (200 OK)
-GET {{api}}/api/products
+### Bài tập không tồn tại → 404
+GET {{api}}/api/assignments/999
 
-### 2. Chi tiết sản phẩm (200 OK)
-GET {{api}}/api/products/1
-
-### 3. Sản phẩm không tồn tại (404 Not Found)
-GET {{api}}/api/products/999
-
-### 4. Tạo sản phẩm hợp lệ (201 Created)
-POST {{api}}/api/products
+### Nộp bài cho bài tập 1 → 201
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
 Content-Type: application/json
 
-{
-  "name": "Lap trinh gRPC",
-  "description": "Tai lieu bai 5",
-  "price": 80000
-}
+{ "studentCode": "SV001", "repositoryUrl": "https://..." }
+
+### Đọc lại lượt nộp vừa tạo → 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+
