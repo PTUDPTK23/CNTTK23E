@@ -2,122 +2,160 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-// Du lieu mau trong bo nho
-var products = new List<ProductDto>
+// Du lieu bai tap mau
+var assignments = new List<AssignmentDto>
 {
-    new(1, "Giao trinh Lap trinh phan tan", "Giao trinh chinh thuc", 150000),
-    new(2, "Tai lieu RESTful API", "Huong dan thiet ke API", 90000),
-    new(3, "Bai tap thuc hanh .NET", "Bo bai tap kem loi giai", 120000)
+    new(1, "Bai tap RESTful API",
+        "Xay dung API quan ly san pham", true),
+
+    new(2, "Bai tap EduSubmit",
+        "Xay dung API quan ly bai tap va nop bai", true),
+
+    new(3, "Bai tap nang cao",
+        "Thuc hanh kiem tra va xu ly loi API", false)
 };
 
+// Du lieu bai nop trong bo nho
+var submissions = new List<SubmissionDto>();
+
 // GET /
-app.MapGet("/", () => Results.Json(new
+app.MapGet("/", () =>
 {
-    service = "Catalog.Api",
-    status = "running"
-}));
-
-// GET /api/products
-app.MapGet("/api/products", () => Results.Ok(products));
-
-// GET /api/products/{id:int}
-app.MapGet("/api/products/{id:int}", (int id) =>
-{
-    var product = products.FirstOrDefault(p => p.Id == id);
-
-    return product is null
-        ? Results.NotFound(new ApiError(
-            "PRODUCT_NOT_FOUND",
-            "Khong tim thay san pham."
-        ))
-        : Results.Ok(product);
-});
-
-// POST /api/products : them san pham
-app.MapPost("/api/products", (CreateProductRequest request) =>
-{
-    if (string.IsNullOrWhiteSpace(request.Name))
+    return Results.Json(new
     {
-        return Results.BadRequest(new ApiError(
-            "INVALID_NAME",
-            "Ten san pham khong duoc de trong."
-        ));
-    }
-
-    if (request.Price <= 0)
-    {
-        return Results.BadRequest(new ApiError(
-            "INVALID_PRICE",
-            "Gia san pham phai lon hon 0."
-        ));
-    }
-
-    int newId = products.Max(p => p.Id) + 1;
-
-    var product = new ProductDto(
-        newId,
-        request.Name,
-        request.Description ?? "",
-        request.Price
-    );
-
-    products.Add(product);
-
-    return Results.Created(
-        $"/api/products/{product.Id}",
-        product
-    );
-});
-// PUT /api/products/{id} : cap nhat san pham
-app.MapPut("/api/products/{id:int}", (int id, CreateProductRequest request) =>
-{
-    var index = products.FindIndex(p => p.Id == id);
-
-    if (index == -1)
-    {
-        return Results.NotFound(new ApiError(
-            "PRODUCT_NOT_FOUND",
-            "Khong tim thay san pham."
-        ));
-    }
-
-    var updatedProduct = new ProductDto(
-        id,
-        request.Name,
-        request.Description ?? "",
-        request.Price
-    );
-
-    products[index] = updatedProduct;
-
-    return Results.Ok(updatedProduct);
-});
-// DELETE /api/products/{id} : xoa san pham
-app.MapDelete("/api/products/{id:int}", (int id) =>
-{
-    var product = products.FirstOrDefault(p => p.Id == id);
-
-    if (product is null)
-    {
-        return Results.NotFound(new ApiError(
-            "PRODUCT_NOT_FOUND",
-            "Khong tim thay san pham."
-        ));
-    }
-
-    products.Remove(product);
-
-    return Results.Ok(new
-    {
-        message = "Xoa san pham thanh cong.",
-        product
+        service = "EduSubmit.Api",
+        status = "running"
     });
 });
+
+// GET /api/assignments
+app.MapGet("/api/assignments", () =>
+{
+    return Results.Ok(assignments);
+});
+
+// GET /api/assignments/{assignmentId:int}
+app.MapGet("/api/assignments/{assignmentId:int}", (int assignmentId) =>
+{
+    var assignment = assignments.FirstOrDefault(
+        a => a.Id == assignmentId
+    );
+
+    if (assignment == null)
+    {
+        return Results.NotFound(new ApiError(
+            "ASSIGNMENT_NOT_FOUND",
+            "Khong tim thay bai tap."
+        ));
+    }
+
+    return Results.Ok(assignment);
+});
+
+// POST /api/assignments/{assignmentId:int}/submissions
+app.MapPost(
+    "/api/assignments/{assignmentId:int}/submissions",
+    (int assignmentId, CreateSubmissionRequest request) =>
+{
+    var assignment = assignments.FirstOrDefault(
+        a => a.Id == assignmentId
+    );
+
+    if (assignment == null)
+    {
+        return Results.NotFound(new ApiError(
+            "ASSIGNMENT_NOT_FOUND",
+            "Khong tim thay bai tap."
+        ));
+    }
+
+    if (!assignment.IsOpen)
+    {
+        return Results.BadRequest(new ApiError(
+            "ASSIGNMENT_CLOSED",
+            "Bai tap da dong, khong the nop bai."
+        ));
+    }
+
+    if (string.IsNullOrWhiteSpace(request.StudentCode) ||
+        string.IsNullOrWhiteSpace(request.RepositoryUrl) ||
+        !Uri.TryCreate(
+            request.RepositoryUrl,
+            UriKind.Absolute,
+            out var uri
+        ) ||
+        (uri.Scheme != Uri.UriSchemeHttp &&
+         uri.Scheme != Uri.UriSchemeHttps))
+    {
+        return Results.BadRequest(new ApiError(
+            "INVALID_SUBMISSION",
+            "Ma sinh vien hoac RepositoryUrl khong hop le."
+        ));
+    }
+
+    // Tao bai nop moi
+    var submission = new SubmissionDto(
+        Guid.NewGuid(),
+        assignmentId,
+        request.StudentCode.Trim(),
+        request.RepositoryUrl.Trim(),
+        "received",
+        DateTimeOffset.UtcNow
+    );
+
+    submissions.Add(submission);
+
+    return Results.Created(
+        $"/api/submissions/{submission.Id}",
+        submission
+    );
+});
+
+// GET /api/submissions/{submissionId:guid}
+app.MapGet(
+    "/api/submissions/{submissionId:guid}",
+    (Guid submissionId) =>
+{
+    var submission = submissions.FirstOrDefault(
+        s => s.Id == submissionId
+    );
+
+    if (submission == null)
+    {
+        return Results.NotFound(new ApiError(
+            "SUBMISSION_NOT_FOUND",
+            "Khong tim thay bai nop."
+        ));
+    }
+
+    return Results.Ok(submission);
+});
+
 app.Run();
 
 // DTO
-record ProductDto(int Id, string Name, string Description, decimal Price);
+record AssignmentDto(
+    int Id,
+    string Title,
+    string Description,
+    bool IsOpen
+);
 
-record CreateProductRequest(string Name, string? Description, decimal Price);
+record CreateSubmissionRequest(
+    string StudentCode,
+    string RepositoryUrl
+);
 
-record ApiError(string Code, string Message);
+record SubmissionDto(
+    Guid Id,
+    int AssignmentId,
+    string StudentCode,
+    string RepositoryUrl,
+    string Status,
+    DateTimeOffset ReceivedAt
+);
+
+record ApiError(
+    string Code,
+    string Message
+);

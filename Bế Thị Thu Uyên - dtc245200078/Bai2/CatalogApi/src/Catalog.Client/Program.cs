@@ -20,80 +20,95 @@ var jsonOptions = new JsonSerializerOptions
 
 try
 {
-    // BUOC 1: Lay danh sach san pham
-    Console.WriteLine("===== DANH SACH SAN PHAM =====");
+    // BUOC 1: Lay danh sach bai tap
+    Console.WriteLine("===== DANH SACH BAI TAP =====");
 
-    var products = await http.GetFromJsonAsync<List<ProductDto>>(
-        "/api/products", jsonOptions);
+    var assignments = await http.GetFromJsonAsync<List<AssignmentDto>>(
+        "/api/assignments", jsonOptions);
 
-    if (products != null)
+    if (assignments != null)
     {
-        foreach (var p in products)
+        foreach (var a in assignments)
         {
             Console.WriteLine(
-                $"[{p.Id}] {p.Name} - {p.Price:N0} VND");
+                $"[{a.Id}] {a.Title} - Trang thai: {(a.IsOpen ? "Dang mo" : "Da dong")}");
         }
     }
 
-    // BUOC 2: Tao san pham moi
-    Console.WriteLine("\n===== TAO SAN PHAM MOI =====");
+    // BUOC 2: Nop bai tap
+    Console.WriteLine("\n===== GUI BAI NOP =====");
 
-    var createRequest = new CreateProductRequest(
-        "Nhap mon REST API",
-        "Sach tham khao",
-        120000
+    var createRequest = new CreateSubmissionRequest(
+        "SV001",
+        "https://github.com/SV001/EduSubmit"
     );
 
     var createResponse = await http.PostAsJsonAsync(
-        "/api/products", createRequest);
+        "/api/assignments/1/submissions",
+        createRequest
+    );
+
+    Guid submissionId = Guid.Empty;
 
     if (createResponse.StatusCode == HttpStatusCode.Created)
     {
         var created = await createResponse.Content
-            .ReadFromJsonAsync<ProductDto>(jsonOptions);
+            .ReadFromJsonAsync<SubmissionDto>(jsonOptions);
 
-        Console.WriteLine(
-            $"Da tao san pham: [{created?.Id}] {created?.Name}");
+        if (created != null)
+        {
+            submissionId = created.Id;
 
-        Console.WriteLine(
-            $"Doc lai tai: {createResponse.Headers.Location}");
+            Console.WriteLine("Nop bai thanh cong!");
+            Console.WriteLine($"Ma bai nop: {created.Id}");
+            Console.WriteLine($"Ma sinh vien: {created.StudentCode}");
+            Console.WriteLine($"Trang thai: {created.Status}");
+            Console.WriteLine($"Thoi gian: {created.ReceivedAt}");
+        }
     }
     else
     {
         await ShowError(createResponse);
     }
 
-    // BUOC 3: Doc chi tiet san pham
-    Console.WriteLine("\n===== CHI TIET SAN PHAM =====");
-
-    var detailResponse = await http.GetAsync("/api/products/1");
-
-    if (detailResponse.IsSuccessStatusCode)
+    // BUOC 3: Doc lai bai nop
+    if (submissionId != Guid.Empty)
     {
-        var detail = await detailResponse.Content
-            .ReadFromJsonAsync<ProductDto>(jsonOptions);
+        Console.WriteLine("\n===== DOC LAI BAI NOP =====");
 
-        Console.WriteLine($"Ma SP: {detail?.Id}");
-        Console.WriteLine($"Ten SP: {detail?.Name}");
-        Console.WriteLine($"Mo ta: {detail?.Description}");
-        Console.WriteLine($"Gia: {detail?.Price:N0} VND");
-    }
-    else
-    {
-        await ShowError(detailResponse);
+        var detailResponse = await http.GetAsync(
+            $"/api/submissions/{submissionId}"
+        );
+
+        if (detailResponse.IsSuccessStatusCode)
+        {
+            var detail = await detailResponse.Content
+                .ReadFromJsonAsync<SubmissionDto>(jsonOptions);
+
+            Console.WriteLine($"Ma bai nop: {detail?.Id}");
+            Console.WriteLine($"Ma bai tap: {detail?.AssignmentId}");
+            Console.WriteLine($"Ma sinh vien: {detail?.StudentCode}");
+            Console.WriteLine($"Repository: {detail?.RepositoryUrl}");
+            Console.WriteLine($"Trang thai: {detail?.Status}");
+        }
+        else
+        {
+            await ShowError(detailResponse);
+        }
     }
 
     // BUOC 4: Gui du lieu sai de kiem tra loi 400
     Console.WriteLine("\n===== KIEM TRA DU LIEU SAI =====");
 
-    var invalidRequest = new CreateProductRequest(
+    var invalidRequest = new CreateSubmissionRequest(
         "",
-        "",
-        -1
+        "https://github.com/SV001/EduSubmit"
     );
 
     var invalidResponse = await http.PostAsJsonAsync(
-        "/api/products", invalidRequest);
+        "/api/assignments/1/submissions",
+        invalidRequest
+    );
 
     Console.WriteLine(
         $"Trang thai: {(int)invalidResponse.StatusCode} {invalidResponse.StatusCode}");
@@ -103,8 +118,28 @@ try
         await ShowError(invalidResponse);
     }
 
-    // BUOC 5: Ket thuc
-    Console.WriteLine("\n===== HOAN THANH =====");
+    // BUOC 5: Kiem tra bai tap da dong
+    Console.WriteLine("\n===== KIEM TRA BAI TAP DA DONG =====");
+
+    var closedRequest = new CreateSubmissionRequest(
+        "SV002",
+        "https://github.com/SV002/EduSubmit"
+    );
+
+    var closedResponse = await http.PostAsJsonAsync(
+        "/api/assignments/3/submissions",
+        closedRequest
+    );
+
+    Console.WriteLine(
+        $"Trang thai: {(int)closedResponse.StatusCode} {closedResponse.StatusCode}");
+
+    if (!closedResponse.IsSuccessStatusCode)
+    {
+        await ShowError(closedResponse);
+    }
+
+    Console.WriteLine("\n===== HOAN THANH CLIENT =====");
 }
 catch (HttpRequestException ex)
 {
@@ -140,12 +175,6 @@ static async Task ShowError(HttpResponseMessage response)
 
         if (root.TryGetProperty("message", out var message))
             Console.WriteLine($"Message: {message}");
-
-        if (root.TryGetProperty("title", out var title))
-            Console.WriteLine($"Title: {title}");
-
-        if (root.TryGetProperty("detail", out var detail))
-            Console.WriteLine($"Detail: {detail}");
     }
     catch (JsonException)
     {
@@ -154,15 +183,23 @@ static async Task ShowError(HttpResponseMessage response)
 }
 
 // DTO
-record ProductDto(
+record AssignmentDto(
     int Id,
-    string Name,
+    string Title,
     string Description,
-    decimal Price
+    bool IsOpen
 );
 
-record CreateProductRequest(
-    string Name,
-    string? Description,
-    decimal Price
+record CreateSubmissionRequest(
+    string StudentCode,
+    string RepositoryUrl
+);
+
+record SubmissionDto(
+    Guid Id,
+    int AssignmentId,
+    string StudentCode,
+    string RepositoryUrl,
+    string Status,
+    DateTimeOffset ReceivedAt
 );
