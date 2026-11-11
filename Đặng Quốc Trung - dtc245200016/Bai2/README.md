@@ -156,6 +156,8 @@ Không chạy song song hai bản của cùng một API trên cùng cổng. Các
 
 ## 7. Kết quả kiểm thử thực tế
 
+Nhật ký lần chạy cuối và đối chiếu yêu cầu nộp bài được lưu tại [NHAT-KY-KIEM-THU.md](NHAT-KY-KIEM-THU.md).
+
 ### Build
 
 | Solution | Kết quả |
