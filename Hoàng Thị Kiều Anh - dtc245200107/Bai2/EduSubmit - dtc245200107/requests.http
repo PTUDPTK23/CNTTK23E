@@ -1,0 +1,79 @@
+
+@baseUrl = http://localhost:5000
+
+### 1. Kiem tra may chu - 200
+GET {{baseUrl}}/
+
+### 2. Lay danh sach bai tap - 200
+GET {{baseUrl}}/api/assignments
+
+### 3. Lay chi tiet bai tap 1 - 200
+GET {{baseUrl}}/api/assignments/1
+
+### 4. Bai tap khong ton tai - 404
+GET {{baseUrl}}/api/assignments/999
+
+### 5. Nop bai hop le - 201
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "dtc245200107",
+    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
+}
+
+### 6. Nop bai thieu du lieu - 400
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "",
+    "repositoryUrl": ""
+}
+
+### 7. Nop vao bai tap khong ton tai - 404
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "dtc245200107",
+    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
+}
+
+### 8. POST khong co Content-Type - 415
+POST {{baseUrl}}/api/assignments/1/submissions
+
+{"studentCode":"SV002","repositoryUrl":"https://example.com/repo"}
+
+### 9. GET bai nop khong ton tai - 404
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 10. GET bai nop vua tao - 200
+# Thay ID ben duoi bang ID nhan duoc tu POST
+GET {{baseUrl}}/api/submissions/THAY_ID_MOI_VAO_DAY
+
+### 11. Nop bai lan dau - 201
+POST {{baseUrl}}/api/assignments/2/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "dtc245200107",
+    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
+}
+
+### 12. Nop trung - 409
+POST {{baseUrl}}/api/assignments/2/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "dtc245200107",
+    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
+}
+
+### 13. Rut bai nop - 204
+# Thay bang ID nhan duoc tu POST o muc 11
+DELETE {{baseUrl}}/api/submissions/908de73f-6b06-4017-ae87-a0710fd71c92
+
+### 14. GET bai nop sau khi xoa - 404
+# Su dung cung ID da DELETE o muc 13
+GET {{baseUrl}}/api/submissions/908de73f-6b06-4017-ae87-a0710fd71c92
