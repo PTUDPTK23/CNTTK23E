@@ -17,8 +17,6 @@ foreach (var p in products ?? []) {
 
 var createRequest = new CreateProductRequest("Nhap mon REST API", "Sach tham khao", 120000);
 var createResponse = await http.PostAsJsonAsync("/api/products", createRequest);
-
-var createResponse = await http.PostAsJsonAsync("/api/products", createRequest);
 if (createResponse.StatusCode == HttpStatusCode.Created) {
 var created = await createResponse.Content.ReadFromJsonAsync<ProductDto>();
 Console.WriteLine($"\nDa tao san pham moi: [{created?.Id}] {created?.Name}");
@@ -27,15 +25,6 @@ Console.WriteLine($"Doc lai tai: {createResponse.Headers.Location}");
 var error = await createResponse.Content.ReadFromJsonAsync<ApiError>();
 Console.WriteLine($"\nLoi: {error?.Code} -{error?.Message}");
 return;
-}
-if (createResponse.StatusCode == HttpStatusCode.Created) {
-    var created = await createResponse.Content.ReadFromJsonAsync<ProductDto>();
-    Console.WriteLine($"\nDa tao san pham moi: [{created?.Id}] {created?.Name}");
-    Console.WriteLine($"Doc lai tai: {createResponse.Headers.Location}");
-} else {
-    var error = await createResponse.Content.ReadFromJsonAsync<ApiError>();
-    Console.WriteLine($"\nLoi: {error?.Code} - {error?.Message}");
-    return;
 }
 
 var detail = await http.GetFromJsonAsync<ProductDto>("/api/products/1");
