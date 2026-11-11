@@ -1,0 +1,81 @@
+GET / -> 200
+GET /api/products -> 200
+GET /api/products/1 -> 200
+GET /api/products/999 -> 404 PRODUCT_NOT_FOUND
+GET /api/products/abc -> 404
+POST /api/products -> 201
+GET /api/products/4 -> 200
+POST /api/products -> 400 INVALID_PRODUCT
+POST /api/products -> 415
+
+Catalog client lan 1
+1. Danh sach san pham:
+[1] Giao trinh Lap trinh phan tan - 150,000 VND
+[2] Tai lieu RESTful API - 90,000 VND
+[3] Bai tap thuc hanh .NET - 120,000 VND
+[4] Lap trinh gRC - 80,000 VND
+2. Da tao: [5] Nhap mon REST API; Location: /api/products/5
+3. Doc lai: [5] Nhap mon REST API
+4. Thu gui du lieu sai:
+HTTP 400 BadRequest
+INVALID_PRODUCT: Ten san pham khong duoc de trong va gia phai lon hon 0
+
+
+Catalog client lan 2
+1. Danh sach san pham:
+[1] Giao trinh Lap trinh phan tan - 150,000 VND
+[2] Tai lieu RESTful API - 90,000 VND
+[3] Bai tap thuc hanh .NET - 120,000 VND
+[4] Lap trinh gRC - 80,000 VND
+[5] Nhap mon REST API - 120,000 VND
+2. Da tao: [6] Nhap mon REST API; Location: /api/products/6
+3. Doc lai: [6] Nhap mon REST API
+4. Thu gui du lieu sai:
+HTTP 400 BadRequest
+INVALID_PRODUCT: Ten san pham khong duoc de trong va gia phai lon hon 0
+
+Catalog: API tat -> client bao Loi ket noi (exit 1)
+GET /api/products -> 200
+Catalog: khoi dong lai -> du lieu RAM duoc reset
+GET / -> 200
+GET /api/assignments -> 200
+GET /api/assignments/1 -> 200
+GET /api/assignments/999 -> 404 ASSIGNMENT_NOT_FOUND
+GET /api/assignments/abc -> 404
+POST /api/assignments/1/submissions -> 201
+GET /api/submissions/fabc95ed-2291-45ef-89e0-308f73b24be3 -> 200
+POST /api/assignments/1/submissions -> 400 INVALID_SUBMISSION
+POST /api/assignments/1/submissions -> 400 INVALID_SUBMISSION
+POST /api/assignments/3/submissions -> 400 ASSIGNMENT_CLOSED
+POST /api/assignments/999/submissions -> 404 ASSIGNMENT_NOT_FOUND
+POST /api/assignments/1/submissions -> 415
+POST /api/assignments/1/submissions -> 400
+PUT /api/assignments/1 -> 405
+GET /api/submissions/00000000-0000-0000-0000-000000000000 -> 404 SUBMISSION_NOT_FOUND
+
+Submission client lan 1
+1. Danh sach bai tap dang mo:
+- 1: Bai tap REST API
+- 2: Bai tap Client
+2. Da tao luot nop: 59606feb-d847-4eb3-bd29-853826183994; trang thai: received
+Location: /api/submissions/59606feb-d847-4eb3-bd29-853826183994
+3. Doc lai luot nop: SV001 - https://example.com/sv001/rest-api
+4. Thu gui yeu cau loi:
+HTTP 400 BadRequest
+INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
+
+
+Submission client lan 2
+1. Danh sach bai tap dang mo:
+- 1: Bai tap REST API
+- 2: Bai tap Client
+2. Da tao luot nop: c8c344e3-f675-4bfd-b7eb-a7dc72a50d8d; trang thai: received
+Location: /api/submissions/c8c344e3-f675-4bfd-b7eb-a7dc72a50d8d
+3. Doc lai luot nop: SV001 - https://example.com/sv001/rest-api
+4. Thu gui yeu cau loi:
+HTTP 400 BadRequest
+INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
+
+Submission: API tat -> client bao Loi ket noi (exit 1)
+GET /api/submissions/fabc95ed-2291-45ef-89e0-308f73b24be3 -> 404 SUBMISSION_NOT_FOUND
+Submission: khoi dong lai -> du lieu RAM duoc reset
