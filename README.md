@@ -51,7 +51,7 @@ Dự án CatalogApi xây dựng RESTful API để quản lý danh sách sản ph
 
 ### Câu 1: Vì sao URI nên dùng danh từ, còn hành động nằm trong HTTP method?
 
-URI nên mô tả tài nguyên bằng danh từ. HTTP method thể hiện hành động như GET, POST, PUT và DELETE. Cách thiết kế này giúp API rõ ràng, dễ hiểu và thống nhất.
+URI nên mô tả tài nguyên bằng danh từ. HTTP method thể hiện hành động như GET, POST, PUT và DELETE.
 
 ### Câu 2: Stateless được thể hiện ở đâu trong code?
 
