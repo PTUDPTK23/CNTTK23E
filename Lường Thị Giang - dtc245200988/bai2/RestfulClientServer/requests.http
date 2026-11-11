@@ -1,0 +1,53 @@
+@api = http://localhost:5000
+
+### 1. Lấy danh sách bài tập (200)
+GET {{api}}/api/assignments
+
+
+### 2. Bài tập không tồn tại (404)
+GET {{api}}/api/assignments/999
+
+
+### 3. Nộp bài (201)
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV003",
+  "repositoryUrl": "https://github.com/test/repo"
+}
+
+
+### 4. Đọc lại lượt nộp (200)
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+
+### 5. Nộp thiếu dữ liệu (400)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+
+### 6. Bài tập không tồn tại (404)
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV004",
+  "repositoryUrl": "https://github.com/test/repo"
+}
+
+
+### 7. Nộp trùng (400)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV003",
+  "repositoryUrl": "https://github.com/test/repo"
+}
