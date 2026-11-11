@@ -1,0 +1,50 @@
+@api = http://localhost:5100
+
+### 1. Kiem tra may chu dang chay -> 200 OK
+GET {{api}}/
+
+### 2. Danh sach san pham -> 200 OK
+GET {{api}}/api/products
+
+### 3. Chi tiet san pham ton tai -> 200 OK
+GET {{api}}/api/products/1
+
+### 4. San pham khong ton tai -> 404 Not Found + ApiError
+GET {{api}}/api/products/999
+
+### 5. Id khong hop le (chuoi abc) -> 404 Not Found (Framework)
+GET {{api}}/api/products/abc
+
+### 6. Tao san pham hop le -> 201 Created + Location
+# @name createProduct
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Tao san pham loi (ten rong, gia am) -> 400 Bad Request + ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 8. Thieu Content-Type khi gui body -> 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 9. Sai phuong thuc HTTP -> 405 Method Not Allowed
+PUT {{api}}/api/products
+
