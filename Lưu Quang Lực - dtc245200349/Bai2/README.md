@@ -1,5 +1,7 @@
 # Bài 2 – Catalog RESTful API
 
+Phần nộp bài qua REST API nằm trong [EduSubmit](EduSubmit/README.md).
+
 **Sinh viên:** Lưu Quang Lực – dtc245200349
 
 ## Chạy bài
