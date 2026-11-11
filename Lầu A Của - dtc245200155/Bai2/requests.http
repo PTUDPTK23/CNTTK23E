@@ -1,0 +1,45 @@
+@api = http://localhost:5100
+
+### 1. Kiểm tra máy chủ → 200
+GET {{api}}/
+
+### 2. Lấy danh sách sản phẩm → 200
+GET {{api}}/api/products
+
+### 3. Lấy chi tiết sản phẩm có ID = 1 → 200
+GET {{api}}/api/products/1
+
+### 4. Lấy sản phẩm không tồn tại → 404
+GET {{api}}/api/products/999
+
+### 5. Tạo sản phẩm hợp lệ → 201
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham test",
+  "description": "Kiem tra requests.http",
+  "price": 50000
+}
+
+### 6. Tạo sản phẩm có giá âm → 400
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 7. Gửi POST thiếu Content-Type → 415
+POST {{api}}/api/products
+
+{
+  "name": "San pham test",
+  "description": "Thieu Content-Type",
+  "price": 50000
+}
+
+### 8. Gửi sai phương thức HTTP → 405
+PUT {{api}}/api/products
