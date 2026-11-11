@@ -1,0 +1,48 @@
+@api = http://localhost:5100
+
+### GET danh sach san pham - mong doi 200 OK
+GET {{api}}/api/products
+
+### GET san pham 1 - mong doi 200 OK
+GET {{api}}/api/products/1
+
+### GET san pham khong ton tai - mong doi 404 Not Found va ApiError
+GET {{api}}/api/products/999
+
+### GET id khong phai so nguyen - mong doi 404 Not Found va body rong
+GET {{api}}/api/products/abc
+
+### POST san pham hop le - mong doi 201 Created va Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### POST san pham khong hop le - mong doi 400 Bad Request va ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "",
+  "price": -1
+}
+
+### POST thieu Content-Type - mong doi 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### PUT khong duoc ho tro - mong doi 405 Method Not Allowed
+PUT {{api}}/api/products
+Content-Type: application/json
+
+{}
