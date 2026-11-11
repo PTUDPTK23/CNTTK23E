@@ -1,0 +1,15 @@
+D:\CatalogPractice\Catalog.Client\bin\Debug\net10.0\Catalog.Client.exe
+D:\CatalogPractice\Catalog.Client\bin\Debug\net10.0\Catalog.Client.deps.json
+D:\CatalogPractice\Catalog.Client\bin\Debug\net10.0\Catalog.Client.runtimeconfig.json
+D:\CatalogPractice\Catalog.Client\bin\Debug\net10.0\Catalog.Client.dll
+D:\CatalogPractice\Catalog.Client\bin\Debug\net10.0\Catalog.Client.pdb
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.GeneratedMSBuildEditorConfig.editorconfig
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.AssemblyInfoInputs.cache
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.AssemblyInfo.cs
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.csproj.CoreCompileInputs.cache
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.dll
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\refint\Catalog.Client.dll
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.pdb
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.genruntimeconfig.cache
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\ref\Catalog.Client.dll
+D:\CatalogPractice\Catalog.Client\obj\Debug\net10.0\Catalog.Client.sourcelink.json
