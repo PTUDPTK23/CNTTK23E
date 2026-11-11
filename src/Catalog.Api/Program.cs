@@ -42,6 +42,7 @@ app.MapGet("/api/products/{id:int}", (int id) =>
 // POST them san pham
 app.MapPost("/api/products", (CreateProductRequest request) =>
 {
+    // Kiem tra ten khong duoc de trong
     if (string.IsNullOrWhiteSpace(request.Name))
     {
         return Results.BadRequest(new ApiError(
@@ -50,6 +51,16 @@ app.MapPost("/api/products", (CreateProductRequest request) =>
         ));
     }
 
+    // Kiem tra ten toi da 100 ky tu
+    if (request.Name.Length > 100)
+    {
+        return Results.BadRequest(new ApiError(
+            "INVALID_NAME",
+            "Ten san pham khong duoc vuot qua 100 ky tu."
+        ));
+    }
+
+    // Kiem tra gia phai lon hon 0
     if (request.Price <= 0)
     {
         return Results.BadRequest(new ApiError(
@@ -58,10 +69,12 @@ app.MapPost("/api/products", (CreateProductRequest request) =>
         ));
     }
 
+    // Tao ID moi
     var newId = products.Count == 0
         ? 1
         : products.Max(p => p.Id) + 1;
 
+    // Tao san pham moi
     var product = new ProductDto(
         newId,
         request.Name,
@@ -71,6 +84,7 @@ app.MapPost("/api/products", (CreateProductRequest request) =>
 
     products.Add(product);
 
+    // Tra ve 201 Created
     return Results.Created(
         $"/api/products/{product.Id}",
         product
@@ -79,6 +93,7 @@ app.MapPost("/api/products", (CreateProductRequest request) =>
 
 app.Run();
 
+// DTO san pham
 record ProductDto(
     int Id,
     string Name,
@@ -86,12 +101,14 @@ record ProductDto(
     decimal Price
 );
 
+// DTO nhan du lieu them san pham
 record CreateProductRequest(
     string Name,
     string Description,
     decimal Price
 );
 
+// DTO thong bao loi
 record ApiError(
     string Code,
     string Message
