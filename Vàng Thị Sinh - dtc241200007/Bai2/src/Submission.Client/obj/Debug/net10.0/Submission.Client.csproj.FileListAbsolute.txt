@@ -1,0 +1,14 @@
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\bin\Debug\net10.0\Submission.Client.exe
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\bin\Debug\net10.0\Submission.Client.deps.json
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\bin\Debug\net10.0\Submission.Client.runtimeconfig.json
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\bin\Debug\net10.0\Submission.Client.pdb
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.GeneratedMSBuildEditorConfig.editorconfig
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.AssemblyInfoInputs.cache
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.AssemblyInfo.cs
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.csproj.CoreCompileInputs.cache
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.dll
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\refint\Submission.Client.dll
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.pdb
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\Submission.Client.genruntimeconfig.cache
+D:\ThuchanhPTUDPT\Bai2\RestfulClientServer\src\Submission.Client\obj\Debug\net10.0\ref\Submission.Client.dll
