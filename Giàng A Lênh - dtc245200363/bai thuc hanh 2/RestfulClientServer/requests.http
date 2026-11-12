@@ -1,0 +1,79 @@
+@api = http://localhost:5000
+
+### Server is running -> 200
+GET {{api}}/
+
+### Assignment list -> 200
+GET {{api}}/api/assignments
+
+### Assignment detail -> 200
+GET {{api}}/api/assignments/1
+
+### Assignment does not exist -> 404 ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### Non-integer route value -> 404 from routing, empty body
+GET {{api}}/api/assignments/abc
+
+### Create a submission -> 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/rest-api"
+}
+
+### Read the created submission -> 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Invalid submission body -> 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### Closed assignment -> 400 ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/2/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002/rest-api"
+}
+
+### Duplicate submission -> 409 DUPLICATE_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/rest-api"
+}
+
+### Delete the created submission -> 204 No Content
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Deleted submission -> 404 SUBMISSION_NOT_FOUND
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Missing Content-Type -> 415 Unsupported Media Type
+POST {{api}}/api/assignments/1/submissions
+
+{
+  "studentCode": "SV003",
+  "repositoryUrl": "https://example.com/sv003/rest-api"
+}
+
+### Unsupported method -> 405 Method Not Allowed
+PUT {{api}}/api/assignments/1
+
+### Malformed JSON -> 400 from the framework
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV004",
