@@ -1,0 +1,36 @@
+@api = http://localhost:5100
+
+### 1. Kiểm tra máy chủ đang chạy -> 200
+GET {{api}}/
+
+### 2. Danh sách sản phẩm -> 200
+GET {{api}}/api/products
+
+### 3. Chi tiết một sản phẩm -> 200
+GET {{api}}/api/products/1
+
+### 4. Sản phẩm không tồn tại -> 404 + ApiError
+GET {{api}}/api/products/999
+
+### 5. Tạo sản phẩm hợp lệ -> 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
+
+### 6. Tạo sản phẩm không có mô tả (description null) -> 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "Lap trinh REST API nang cao", "price": 95000 }
+
+### 7. Tạo sản phẩm lỗi giá <= 0 -> 400 Bad Request + ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "San pham loi", "description": "", "price": -1 }
+
+### 8. Tạo sản phẩm thiếu Content-Type -> 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
