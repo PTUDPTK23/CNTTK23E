@@ -1,0 +1,70 @@
+@api = http://localhost:5200
+
+### 1. Kiem tra may chu -> 200 OK
+GET {{api}}/
+
+### 2. Danh sach sach -> 200 OK
+GET {{api}}/api/books
+
+### 3. Chi tiet sach 1 -> 200 OK
+GET {{api}}/api/books/1
+
+### 4. Sach khong ton tai -> 404 Not Found + ApiError (BOOK_NOT_FOUND)
+GET {{api}}/api/books/999
+
+### 5. Id khong phai so -> 404 Not Found rong (Framework)
+GET {{api}}/api/books/abc
+
+### 6. Them sach hop le -> 201 Created + Location
+# @name createBook
+POST {{api}}/api/books
+Content-Type: application/json
+
+{
+  "title": "The Pragmatic Programmer",
+  "author": "Andrew Hunt",
+  "publishYear": 1999
+}
+
+### 7. Doc lai sach vua tao theo Location/id -> 200 OK
+GET {{api}}/api/books/{{createBook.response.body.$.id}}
+
+### 8. Du lieu khong hop le -> 400 Bad Request + ApiError (INVALID_BOOK)
+POST {{api}}/api/books
+Content-Type: application/json
+
+{
+  "title": "",
+  "author": "",
+  "publishYear": -1
+}
+
+### 9. Them trung tieu de sach -> 409 Conflict + ApiError (DUPLICATE_BOOK)
+POST {{api}}/api/books
+Content-Type: application/json
+
+{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "publishYear": 2008
+}
+
+### 10. Phuong thuc khong ho tro -> 405 Method Not Allowed
+PUT {{api}}/api/books/1
+Content-Type: application/json
+
+{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "publishYear": 2008
+}
+
+### 11. Thieu Content-Type -> 415 Unsupported Media Type
+POST {{api}}/api/books
+
+{
+  "title": "Refactoring",
+  "author": "Martin Fowler",
+  "publishYear": 2018
+}
+
