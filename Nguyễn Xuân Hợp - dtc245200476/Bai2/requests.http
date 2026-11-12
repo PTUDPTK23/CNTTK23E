@@ -1,0 +1,63 @@
+@api = http://localhost:5000
+
+### 1. Kiem tra may chu dang chay -> 200 OK
+GET {{api}}/
+
+### 2. Lay danh sach bai tap -> 200 OK
+GET {{api}}/api/assignments
+
+### 3. Chi tiet bai tap hop le (id = 1) -> 200 OK
+GET {{api}}/api/assignments/1
+
+### 4. Chi tiet bai tap khong ton tai (id = 999) -> 404 Not Found + ApiError (ASSIGNMENT_NOT_FOUND)
+GET {{api}}/api/assignments/999
+
+### 5. Chi tiet bai tap sai kieu route constraint (abc) -> 404 Not Found (Framework chan)
+GET {{api}}/api/assignments/abc
+
+### 6. Nop bai cho bai tap 1 hop le -> 201 Created + Header Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/rest-api"
+}
+
+### 7. Doc lai luot nop vua tao theo ID (Guid) -> 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 8. Nop bai thieu thong tin (ma SV rong, repo rong) -> 400 Bad Request + ApiError (INVALID_SUBMISSION)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 9. Nop vao bai tap da dong (Bai tap 3 IsOpen = false) -> 400 Bad Request + ApiError (ASSIGNMENT_CLOSED)
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002/rest-api"
+}
+
+### 10. Nop trung lap (SV001 nop lai bai tap 1) -> 409 Conflict + ApiError (DUPLICATE_SUBMISSION)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/rest-api"
+}
+
+### 11. Xoa / rut luot nop da tao -> 204 No Content
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 12. Doc lai luot nop da xoa / khong ton tai -> 404 Not Found + ApiError (SUBMISSION_NOT_FOUND)
+DELETE {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
