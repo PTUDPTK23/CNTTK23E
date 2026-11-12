@@ -1,0 +1,45 @@
+@api = http://localhost:5100
+
+### Trang kiểm tra dịch vụ → 200
+GET {{api}}/
+
+### Danh sách sản phẩm → 200
+GET {{api}}/api/products
+
+### Chi tiết sản phẩm tồn tại → 200
+GET {{api}}/api/products/1
+
+### Sản phẩm không tồn tại → 404 + ApiError
+GET {{api}}/api/products/999
+
+### ID không phải số → 404 framework
+GET {{api}}/api/products/abc
+
+### Tạo sản phẩm hợp lệ → 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### Dữ liệu không hợp lệ → 400 + ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "",
+  "price": -1
+}
+
+### Thiếu Content-Type → 415 framework
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
