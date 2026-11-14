@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Chay Submission.Api (Cong 5000)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Submission.Api/bin/Debug/net10.0/Submission.Api.dll",
+      "args": ["--urls", "http://localhost:5000"],
+      "cwd": "${workspaceFolder}/src/Submission.Api",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Chay Submission.Client (Console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Submission.Client/bin/Debug/net10.0/Submission.Client.dll",
+      "args": ["http://localhost:5000"],
+      "cwd": "${workspaceFolder}/src/Submission.Client",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Chay ca hai (Api + Client)",
+      "configurations": [
+        "Chay Submission.Api (Cong 5000)",
+        "Chay Submission.Client (Console)"
+      ],
+      "stopAll": true
+    }
+  ]
+}

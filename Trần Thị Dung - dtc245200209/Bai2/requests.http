@@ -1,0 +1,70 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra trạng thái máy chủ -> 200 OK
+GET {{api}}/
+
+### 2. Lấy danh sách bài tập -> 200 OK
+GET {{api}}/api/assignments
+
+### 3. Xem chi tiết bài tập 1 -> 200 OK
+GET {{api}}/api/assignments/1
+
+### 4. Xem chi tiết bài tập không tồn tại -> 404 ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### 5. Xem chi tiết bài tập với id không phải số (:int) -> 404 Framework
+GET {{api}}/api/assignments/abc
+
+### 6. Nộp bài hợp lệ cho bài tập 1 -> 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/sv001/EduSubmit"
+}
+
+### 7. Đọc lại lượt nộp vừa tạo theo ID -> 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 8. Nộp bài thiếu thông tin (dữ liệu rỗng) -> 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 9. Nộp bài cho bài tập đã đóng -> 400 ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://github.com/sv002/EduSubmit"
+}
+
+### 10. Nộp bài thiếu header Content-Type -> 415 Unsupported Media Type
+POST {{api}}/api/assignments/1/submissions
+
+{
+  "studentCode": "SV003",
+  "repositoryUrl": "https://github.com/sv003/EduSubmit"
+}
+
+### 11. Nộp trùng bài đã nộp -> 409 DUPLICATE_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/sv001/EduSubmit"
+}
+
+### 12. Xóa lượt nộp vừa tạo -> 204 No Content
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 13. Đọc lại lượt nộp sau khi đã xóa -> 404 SUBMISSION_NOT_FOUND
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
