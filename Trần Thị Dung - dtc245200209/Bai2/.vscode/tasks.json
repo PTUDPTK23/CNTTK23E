@@ -8,7 +8,7 @@
       "args": [
         "build",
         "-m:1",
-        "${workspaceFolder}/RestfulClientServer/RestfulClientServer.slnx"
+        "${workspaceFolder}/RestfulClientServer.slnx"
       ],
       "problemMatcher": "$msCompile",
       "group": {
@@ -18,4 +18,3 @@
     }
   ]
 }
-

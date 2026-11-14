@@ -6,9 +6,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/RestfulClientServer/src/Submission.Api/bin/Debug/net10.0/Submission.Api.dll",
+      "program": "${workspaceFolder}/src/Submission.Api/bin/Debug/net10.0/Submission.Api.dll",
       "args": ["--urls", "http://localhost:5000"],
-      "cwd": "${workspaceFolder}/RestfulClientServer/src/Submission.Api",
+      "cwd": "${workspaceFolder}/src/Submission.Api",
       "stopAtEntry": false,
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -19,9 +19,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/RestfulClientServer/src/Submission.Client/bin/Debug/net10.0/Submission.Client.dll",
+      "program": "${workspaceFolder}/src/Submission.Client/bin/Debug/net10.0/Submission.Client.dll",
       "args": ["http://localhost:5000"],
-      "cwd": "${workspaceFolder}/RestfulClientServer/src/Submission.Client",
+      "cwd": "${workspaceFolder}/src/Submission.Client",
       "console": "integratedTerminal",
       "stopAtEntry": false
     }
@@ -37,4 +37,3 @@
     }
   ]
 }
-

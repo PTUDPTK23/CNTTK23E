@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 
-// Nhận URL server từ tham số dòng lệnh hoặc mặc định localhost:5000
+// Nhận URL máy chủ từ tham số dòng lệnh hoặc mặc định http://localhost:5000
 var apiBaseUrl = args.Length > 0 ? args[0] : "http://localhost:5000";
 
 using var http = new HttpClient
@@ -10,22 +10,22 @@ using var http = new HttpClient
 };
 
 // ==========================================
-// NẤC 1: Lấy danh sách bài tập đang mở
+// NẤC 1: Lấy và in danh sách bài tập
 // ==========================================
 var assignments = await http.GetFromJsonAsync<List<AssignmentDto>>("/api/assignments");
 Console.WriteLine("Danh sach bai tap dang mo:");
-foreach (var a in assignments?.Where(x => x.IsOpen) ?? [])
+foreach (var a in assignments ?? [])
 {
-    Console.WriteLine($" - {a.Id}: {a.Title}");
+    Console.WriteLine($"- {a.Id}: {a.Title}");
 }
 
 // ==========================================
-// NẤC 2: Nộp bài cho bài tập 1
+// NẤC 2: Nộp bài hợp lệ cho bài tập 1
 // ==========================================
 var selectedAssignmentId = assignments?.FirstOrDefault(a => a.IsOpen)?.Id ?? 1;
 var createResponse = await http.PostAsJsonAsync(
     $"/api/assignments/{selectedAssignmentId}/submissions",
-    new CreateSubmissionRequest("SV001", "https://example.com/sv001/rest-api"));
+    new CreateSubmissionRequest("SV001", "https://github.com/sv001/EduSubmit"));
 
 if (createResponse.StatusCode != HttpStatusCode.Created)
 {
@@ -38,16 +38,16 @@ Console.WriteLine($"\nDa tao luot nop: {created?.Id}");
 Console.WriteLine($"Trang thai ban dau: {created?.Status}");
 
 // ==========================================
-// NẤC 3: Đọc lại lượt nộp theo URL trong header Location
+// NẤC 3: Đọc lại lượt nộp vừa tạo
 // ==========================================
 if (createResponse.Headers.Location != null)
 {
     var readBack = await http.GetFromJsonAsync<SubmissionDto>(createResponse.Headers.Location);
-    Console.WriteLine($"Doc lai luot nop: {readBack?.StudentCode} - {readBack?.RepositoryUrl}");
+    Console.WriteLine($"Doc lai luot nop: {readBack?.Id} - {readBack?.StudentCode} - {readBack?.RepositoryUrl}");
 }
 
 // ==========================================
-// NẤC 4: Thử gửi yêu cầu sai để quan sát lỗi 400
+// NẤC 4: Thử gửi dữ liệu sai để quan sát lỗi 400
 // ==========================================
 var invalidResponse = await http.PostAsJsonAsync(
     $"/api/assignments/{selectedAssignmentId}/submissions",
@@ -56,7 +56,6 @@ var invalidResponse = await http.PostAsJsonAsync(
 Console.WriteLine($"\nThu gui yeu cau loi: {(int)invalidResponse.StatusCode} {invalidResponse.StatusCode}");
 await PrintApiErrorAsync(invalidResponse);
 
-// Hàm xử lý và in thông tin lỗi thống nhất
 static async Task PrintApiErrorAsync(HttpResponseMessage r)
 {
     if (r.IsSuccessStatusCode) return;
@@ -64,7 +63,7 @@ static async Task PrintApiErrorAsync(HttpResponseMessage r)
     Console.WriteLine($"{error?.Code}: {error?.Message}");
 }
 
-// Khai báo lại DTO ở phía Client (chỉ chia sẻ hợp đồng JSON)
+// Khai báo DTO ở phía Client
 record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
 record CreateSubmissionRequest(string StudentCode, string RepositoryUrl);
 record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, string RepositoryUrl, string Status, DateTimeOffset ReceivedAt);
