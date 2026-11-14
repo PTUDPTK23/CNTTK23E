@@ -1,0 +1,17 @@
+@api = http://localhost:5100
+
+GET {{api}}/
+
+###danh sách sản phẩm
+GET {{api}}/api/products
+###
+GET {{api}}/api/products/999
+###
+POST {{api}}/api/products
+Content-Type: application/json
+
+{   
+    "name": "Lap trinh grpc",
+    "description": "Tai lieu bai grpc",
+    "price": 8000
+}
