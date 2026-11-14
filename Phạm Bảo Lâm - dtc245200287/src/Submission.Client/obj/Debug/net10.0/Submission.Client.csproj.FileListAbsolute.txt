@@ -1,0 +1,15 @@
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\bin\Debug\net10.0\Submission.Client.exe
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\bin\Debug\net10.0\Submission.Client.deps.json
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\bin\Debug\net10.0\Submission.Client.runtimeconfig.json
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\bin\Debug\net10.0\Submission.Client.pdb
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.GeneratedMSBuildEditorConfig.editorconfig
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.AssemblyInfoInputs.cache
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.AssemblyInfo.cs
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.csproj.CoreCompileInputs.cache
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.dll
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\refint\Submission.Client.dll
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.pdb
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.genruntimeconfig.cache
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\ref\Submission.Client.dll
+D:\Code_demo\EduSubmit-DTC245200287\src\Submission.Client\obj\Debug\net10.0\Submission.Client.sourcelink.json
