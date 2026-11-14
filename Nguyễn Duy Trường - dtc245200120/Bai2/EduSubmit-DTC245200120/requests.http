@@ -1,0 +1,81 @@
+
+@api = http://localhost:5000
+
+### TEST 1: Kiem tra API - 200 OK
+GET {{api}}/
+
+### TEST 2: Danh sach bai tap - 200 OK
+GET {{api}}/api/assignments
+
+### TEST 3: Chi tiet bai tap - 200 OK
+GET {{api}}/api/assignments/1
+
+### TEST 4: Bai tap khong ton tai - 404
+GET {{api}}/api/assignments/999
+
+### TEST 5: Nop bai hop le - 201 Created
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "DTC245200120",
+    "repositoryUrl": "https://github.com/truong256/EduSubmit-DTC245200120"
+}
+
+### TEST 6: Doc lai luot nop vua tao - 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### TEST 7: Nop bai thieu du lieu - 400 Bad Request
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "",
+    "repositoryUrl": ""
+}
+
+### TEST 8: Nop vao bai tap khong ton tai - 404
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "DTC245200120",
+    "repositoryUrl": "https://github.com/truong256/EduSubmit-DTC245200120"
+}
+
+### TEST 9: Luot nop khong ton tai - 404
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### TEST 10: Nop trung bai tap - 409
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "DTC245200120",
+    "repositoryUrl": "https://github.com/truong256/EduSubmit-DTC245200120"
+}
+
+### TEST 11: Xoa luot nop - 204
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### TEST 12: Xoa lai luot nop - 404
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### TEST 13: Nop lai sau khi xoa - 201
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "DTC245200120",
+    "repositoryUrl": "https://github.com/truong256/EduSubmit-DTC245200120"
+}
+
+### TEST 14: Nop vao bai tap da dong - 400
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+    "studentCode": "DTC245200120",
+    "repositoryUrl": "https://github.com/truong256/EduSubmit-DTC245200120"
+}
