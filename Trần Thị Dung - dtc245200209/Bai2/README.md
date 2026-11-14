@@ -22,6 +22,10 @@ Trần Thị Dung - dtc245200209/Bai2/
 ├── run-client.bat                     # Batch script chạy nhanh Submission.Client
 ├── README.md                          # Báo cáo thực hành chi tiết
 ├── Bai2.md                            # Nhật ký & bảng phá thử
+├── images/                            # Ảnh chụp màn hình kết quả chạy thực tế
+│   ├── 01_api_run.png                 # Ảnh máy chủ API khởi động cổng 5000
+│   ├── 02_client_run.png              # Ảnh máy khách Client chạy 4 nấc
+│   └── 03_test_http.png               # Ảnh kiểm thử requests.http
 ├── .vscode/                           # Cấu hình Visual Studio Code
 │   ├── launch.json                   # Cấu hình F5 Debug/Run cả API và Client
 │   ├── tasks.json                    # Cấu hình task build chuẩn dotnet
@@ -66,9 +70,11 @@ Mở 2 cửa sổ dòng lệnh tại thư mục `Trần Thị Dung - dtc24520020
 
 ---
 
-## 3. Kết quả chạy thực tế
+## 3. Kết quả chạy thực tế (Ảnh chụp màn hình & Log)
 
 ### 3.1. Kết quả máy chủ `Submission.Api` khởi động
+![Ảnh kết quả chạy Submission.Api](images/01_api_run.png)
+
 ```text
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:5000
@@ -81,6 +87,8 @@ info: Microsoft.Hosting.Lifetime[0]
 ```
 
 ### 3.2. Kết quả máy khách `Submission.Client` (Đủ 4 nấc theo Slide 87)
+![Ảnh kết quả chạy Submission.Client](images/02_client_run.png)
+
 ```text
 Danh sach bai tap dang mo:
 - 1: Bai tap REST API
@@ -94,6 +102,9 @@ Doc lai luot nop: d8e5f642-000b-4182-9382-723658210351 - SV001 - https://github.
 Thu gui yeu cau loi: 400 BadRequest
 INVALID_SUBMISSION: Thieu ma sinh vien hoac kho ma nguon.
 ```
+
+### 3.3. Kết quả kiểm thử REST Client qua file `requests.http`
+![Ảnh kết quả kiểm thử requests.http](images/03_test_http.png)
 
 ---
 
