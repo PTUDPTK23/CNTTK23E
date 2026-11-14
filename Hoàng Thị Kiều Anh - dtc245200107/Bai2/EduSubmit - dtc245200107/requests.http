@@ -1,79 +1,102 @@
-
 @baseUrl = http://localhost:5000
 
-### 1. Kiem tra may chu - 200
+### 2. Kiem tra server - 200
 GET {{baseUrl}}/
 
-### 2. Lay danh sach bai tap - 200
+### 3. Danh sach bai tap - 200
 GET {{baseUrl}}/api/assignments
 
-### 3. Lay chi tiet bai tap 1 - 200
+### 4a. Chi tiet bai tap - 200
 GET {{baseUrl}}/api/assignments/1
 
-### 4. Bai tap khong ton tai - 404
+### 4b. Khong ton tai - 404 ASSIGNMENT_NOT_FOUND
 GET {{baseUrl}}/api/assignments/999
 
-### 5. Nop bai hop le - 201
+### 4c. Sai rang buoc route - 404 framework
+GET {{baseUrl}}/api/assignments/abc
+
+### 5a. Nop hop le - 201 + Location (chay API moi truoc khi lap lai)
+# @name createSubmission
 POST {{baseUrl}}/api/assignments/1/submissions
 Content-Type: application/json
 
-{
-    "studentCode": "dtc245200107",
-    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
-}
+{"studentCode":"dtc245200107","repositoryUrl":"https://github.com/hoangthikieuanh5-debug/CNTTK23E"}
 
-### 6. Nop bai thieu du lieu - 400
+### 5b. Body rong - 400 INVALID_SUBMISSION
 POST {{baseUrl}}/api/assignments/1/submissions
 Content-Type: application/json
 
-{
-    "studentCode": "",
-    "repositoryUrl": ""
-}
+{"studentCode":"","repositoryUrl":""}
 
-### 7. Nop vao bai tap khong ton tai - 404
+### 5c. Bai tap khong ton tai - 404
 POST {{baseUrl}}/api/assignments/999/submissions
 Content-Type: application/json
 
-{
-    "studentCode": "dtc245200107",
-    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
-}
+{"studentCode":"SV001","repositoryUrl":"https://example.com/repo"}
 
-### 8. POST khong co Content-Type - 415
+### 5d. Khong co Content-Type - 415
 POST {{baseUrl}}/api/assignments/1/submissions
 
-{"studentCode":"SV002","repositoryUrl":"https://example.com/repo"}
+{"studentCode":"SV001","repositoryUrl":"https://example.com/repo"}
 
-### 9. GET bai nop khong ton tai - 404
+### 5e. JSON hong - 400 framework
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001",
+
+### 5f. Thieu repositoryUrl - 400 INVALID_SUBMISSION
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001"}
+
+### 5g. Sai method - 405, Allow: GET
+PUT {{baseUrl}}/api/assignments/1
+
+### 5h. Bai tap 2 da dong (IsOpen=false) - 400 ASSIGNMENT_CLOSED
+POST {{baseUrl}}/api/assignments/2/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/repo"}
+
+### 6a. Doc lai bai vua tao (gui 5a truoc) - 200
+GET {{baseUrl}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 6b. GUID khong ton tai - 404
 GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
 
-### 10. GET bai nop vua tao - 200
-# Thay ID ben duoi bang ID nhan duoc tu POST
-GET {{baseUrl}}/api/submissions/THAY_ID_MOI_VAO_DAY
+### 6c. Sau khi khoi dong lai API, gui lai 6a voi ID cu - 404
+# Khong gui lai 5a truoc ca nay; ID cu van nam trong response cua REST Client.
+GET {{baseUrl}}/api/submissions/{{createSubmission.response.body.$.id}}
 
-### 11. Nop bai lan dau - 201
-POST {{baseUrl}}/api/assignments/2/submissions
+### 9a. Bai tap 3 da dong - 400
+POST {{baseUrl}}/api/assignments/3/submissions
 Content-Type: application/json
 
-{
-    "studentCode": "dtc245200107",
-    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
-}
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
 
-### 12. Nop trung - 409
-POST {{baseUrl}}/api/assignments/2/submissions
+### 9b. Nop lan dau - 201
+# @name createForDelete
+POST {{baseUrl}}/api/assignments/1/submissions
 Content-Type: application/json
 
-{
-    "studentCode": "dtc245200107",
-    "repositoryUrl": "https://github.com/hoangthikieuanh5-debug/CNTTK23E"
-}
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
 
-### 13. Rut bai nop - 204
-# Thay bang ID nhan duoc tu POST o muc 11
-DELETE {{baseUrl}}/api/submissions/908de73f-6b06-4017-ae87-a0710fd71c92
+### 9c. Gui lai 9b - 409 DUPLICATE_SUBMISSION
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
 
-### 14. GET bai nop sau khi xoa - 404
-# Su dung cung ID da DELETE o muc 13
-GET {{baseUrl}}/api/submissions/908de73f-6b06-4017-ae87-a0710fd71c92
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
+
+### 9d. Rut bai (gui 9b truoc) - 204 khong body
+DELETE {{baseUrl}}/api/submissions/{{createForDelete.response.body.$.id}}
+
+### 9e. Gui lai DELETE - 404 SUBMISSION_NOT_FOUND
+DELETE {{baseUrl}}/api/submissions/{{createForDelete.response.body.$.id}}
+
+### 9f. Nop lai sau khi rut - 201 voi ID moi
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}

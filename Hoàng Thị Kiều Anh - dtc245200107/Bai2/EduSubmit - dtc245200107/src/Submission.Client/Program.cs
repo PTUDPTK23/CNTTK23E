@@ -16,8 +16,13 @@ try
     // 1. Lay danh sach bai tap
     Console.WriteLine("Danh sach bai tap dang mo:");
 
-    var assignments = await http.GetFromJsonAsync<List<AssignmentDto>>(
-        "/api/assignments");
+    using var listResponse = await http.GetAsync("/api/assignments");
+    if (!listResponse.IsSuccessStatusCode)
+    {
+        await PrintApiErrorAsync(listResponse);
+        return;
+    }
+    var assignments = await listResponse.Content.ReadFromJsonAsync<List<AssignmentDto>>();
 
     foreach (var item in assignments ?? new List<AssignmentDto>())
     {
@@ -54,8 +59,14 @@ try
     Console.WriteLine($"Trang thai ban dau: {created.Status}");
 
     // 3. Doc lai bai nop
-    var saved = await http.GetFromJsonAsync<SubmissionDto>(
-        $"/api/submissions/{created.Id}");
+    using var readResponse = await http.GetAsync(
+        createResponse.Headers.Location?.ToString() ?? $"/api/submissions/{created.Id}");
+    if (!readResponse.IsSuccessStatusCode)
+    {
+        await PrintApiErrorAsync(readResponse);
+        return;
+    }
+    var saved = await readResponse.Content.ReadFromJsonAsync<SubmissionDto>();
 
     if (saved is not null)
     {
@@ -90,10 +101,19 @@ static async Task PrintApiErrorAsync(HttpResponseMessage response)
     if (response.IsSuccessStatusCode)
         return;
 
-    var error = await response.Content
-        .ReadFromJsonAsync<ApiError>();
-
-    Console.WriteLine($"{error?.Code}: {error?.Message}");
+    var body = await response.Content.ReadAsStringAsync();
+    try
+    {
+        var error = System.Text.Json.JsonSerializer.Deserialize<ApiError>(body,
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        if (error is not null && !string.IsNullOrWhiteSpace(error.Code))
+        {
+            Console.WriteLine($"{error.Code}: {error.Message}");
+            return;
+        }
+    }
+    catch (System.Text.Json.JsonException) { }
+    Console.WriteLine($"HTTP {(int)response.StatusCode} {response.StatusCode}: {body}");
 }
 
 // DTO

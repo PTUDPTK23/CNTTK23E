@@ -6,7 +6,8 @@ var app = builder.Build();
 var assignments = new List<AssignmentDto>
 {
     new(1, "Bai tap REST API", "Thiet ke endpoint...", true),
-    new(2, "Bai tap Client", "Viet console client...", true)
+    new(2, "Bai tap Client", "Viet console client...", false),
+    new(3, "Bai tap mo rong", "Bai tap da dong cho ca 9a.", false)
 };
 
 var submissions = new List<SubmissionDto>();
@@ -57,7 +58,7 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
     // Bai tap da dong
     if (!assignment.IsOpen)
     {
-        return Results.Conflict(new ApiError(
+        return Results.BadRequest(new ApiError(
             "ASSIGNMENT_CLOSED",
             "Bai tap da dong."));
     }
@@ -75,7 +76,7 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
     var existing = submissions.FirstOrDefault(
         s => s.AssignmentId == assignmentId &&
              s.StudentCode.Equals(
-                 request.StudentCode,
+                 request.StudentCode.Trim(),
                  StringComparison.OrdinalIgnoreCase));
 
     if (existing is not null)
@@ -89,8 +90,8 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
     var submission = new SubmissionDto(
         Guid.NewGuid(),
         assignmentId,
-        request.StudentCode,
-        request.RepositoryUrl,
+        request.StudentCode.Trim(),
+        request.RepositoryUrl.Trim(),
         "received",
         DateTimeOffset.UtcNow
     );
