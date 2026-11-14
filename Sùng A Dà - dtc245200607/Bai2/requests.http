@@ -1,0 +1,44 @@
+@api = http://localhost:5100
+
+### GET / — trạng thái API (200)
+GET {{api}}/
+
+### GET danh sách sản phẩm (200)
+GET {{api}}/api/products
+
+### GET sản phẩm có tồn tại (200)
+GET {{api}}/api/products/1
+
+### GET ID không tồn tại (404 + ApiError)
+GET {{api}}/api/products/999
+
+GET {{api}}/api/products/abc
+
+### POST sản phẩm hợp lệ (201 + Location)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### POST dữ liệu không hợp lệ (400 + ApiError)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "",
+  "price": -1
+}
+
+### POST thiếu Content-Type (415)
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
