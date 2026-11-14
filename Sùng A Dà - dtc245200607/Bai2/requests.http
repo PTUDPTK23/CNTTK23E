@@ -12,7 +12,6 @@ GET {{api}}/api/products/1
 ### GET ID không tồn tại (404 + ApiError)
 GET {{api}}/api/products/999
 
-GET {{api}}/api/products/abc
 
 ### POST sản phẩm hợp lệ (201 + Location)
 POST {{api}}/api/products
