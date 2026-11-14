@@ -1,12 +1,3 @@
-# BÁO CÁO THỰC HÀNH BÀI 2: RESTful API CHO TƯƠNG TÁC CLIENT - SERVER (EduSubmit)
-
-- **Họ và tên**: Trần Thị Dung
-- **Mã sinh viên**: dtc245200209
-- **Lớp**: CNTT K23E - Trường Đại học Công nghệ Thông tin & Truyền thông (ICTU)
-- **Môn học**: Phát triển ứng dụng phân tán
-
----
-
 ## 1. Cấu trúc thư mục bài làm
 
 Toàn bộ bài tập được đóng gói đầy đủ trong thư mục `Trần Thị Dung - dtc245200209/Bai2/`:
@@ -45,25 +36,13 @@ Trần Thị Dung - dtc245200209/Bai2/
 
 ---
 
-## 2. Hướng dẫn chạy chương trình
+## 2. Lệnh chạy chương trình
 
-### Cách 1: Chạy trực tiếp trong Visual Studio Code (Khuyên dùng)
-1. Mở thư mục `Trần Thị Dung - dtc245200209/Bai2` bằng Visual Studio Code.
-2. Bấm phím **F5** hoặc vào tab **Run & Debug**, chọn profile **"Chay ca hai (Api + Client)"** rồi bấm nút Play.
-3. VS Code sẽ tự động build cả hai project, bật máy chủ API tại `http://localhost:5000` và khởi chạy Console Client trên Integrated Terminal.
-
-### Cách 2: Sử dụng các file script `.bat`
-- **Bước 1**: Nháy đúp file `run-api.bat` để bật máy chủ API lắng nghe tại `http://localhost:5000`.
-- **Bước 2**: Nháy đúp file `run-client.bat` để chạy máy khách Client gọi và nộp bài lên API.
-
-### Cách 3: Chạy bằng lệnh qua Terminal / PowerShell
-Mở 2 cửa sổ dòng lệnh tại thư mục `Trần Thị Dung - dtc245200209/Bai2`:
-
-- **Terminal 1 (Máy chủ API)**:
+- **Lệnh chạy máy chủ API (lắng nghe cổng 5000)**:
   ```powershell
   dotnet run --project src/Submission.Api --urls http://localhost:5000
   ```
-- **Terminal 2 (Máy khách Console Client)**:
+- **Lệnh chạy máy khách Console Client**:
   ```powershell
   dotnet run --project src/Submission.Client -- http://localhost:5000
   ```

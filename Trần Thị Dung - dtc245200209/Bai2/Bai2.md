@@ -1,12 +1,3 @@
-# BÁO CÁO THỰC HÀNH BÀI 2: RESTful API CHO TƯƠNG TÁC CLIENT - SERVER (EduSubmit)
-
-- **Họ và tên**: Trần Thị Dung
-- **Mã sinh viên**: dtc245200209
-- **Lớp**: CNTT K23E - Trường Đại học Công nghệ Thông tin & Truyền thông (ICTU)
-- **Môn học**: Phát triển ứng dụng phân tán
-
----
-
 ## 1. Cấu trúc thư mục bài làm
 
 Toàn bộ bài tập được đóng gói đầy đủ trong thư mục `Trần Thị Dung - dtc245200209/Bai2/`:
