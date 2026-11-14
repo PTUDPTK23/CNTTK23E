@@ -1,0 +1,63 @@
+@api = http://localhost:5100
+
+### 1. Kiểm tra trạng thái máy chủ -> 200 OK
+GET {{api}}/
+
+### 2. Danh sách toàn bộ sản phẩm -> 200 OK (3 sản phẩm ban đầu)
+GET {{api}}/api/products
+
+### 3. Lọc sản phẩm theo từ khóa -> 200 OK (Vận dụng 1 - Slide 104)
+GET {{api}}/api/products?keyword=REST
+
+### 4. Chi tiết sản phẩm tồn tại -> 200 OK
+GET {{api}}/api/products/1
+
+### 5. Chi tiết sản phẩm không tồn tại -> 404 Not Found + ApiError (Handler trả)
+GET {{api}}/api/products/999
+
+### 6. Sai định dạng tham số id (không phải số) -> 404 Not Found (Framework trả, body rỗng)
+GET {{api}}/api/products/abc
+
+### 7. Tạo sản phẩm hợp lệ -> 201 Created + Header Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 8. Tạo sản phẩm lỗi: giá âm -> 400 Bad Request + INVALID_PRODUCT (Handler trả)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 9. Tạo sản phẩm lỗi: tên quá dài (> 100 ký tự) -> 400 Bad Request + NAME_TOO_LONG (Vận dụng 3 - Slide 104)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Ten san pham sieu dai vuot qua 100 ky tu de kiem tra tinh nang bat loi nghiep vu tai bien he thong xem he thong co tu choi hay khong",
+  "description": "Mo ta san pham",
+  "price": 50000
+}
+
+### 10. Tạo sản phẩm thiếu Content-Type header -> 415 Unsupported Media Type (Framework chặn trước handler)
+POST {{api}}/api/products
+
+{
+  "name": "Khong co header Content-Type",
+  "price": 50000
+}
+
+### 11. Xóa sản phẩm tồn tại -> 204 No Content (Vận dụng 2 - Slide 104)
+DELETE {{api}}/api/products/1
+
+### 12. Xóa sản phẩm không tồn tại -> 404 Not Found + PRODUCT_NOT_FOUND
+DELETE {{api}}/api/products/999
