@@ -1,0 +1,43 @@
+﻿EduSubmit - dtc245200107 | HTTP verification
+Run: 2026-11-14 09:18:23 +07:00
+Base URL: http://127.0.0.1:5197
+List | GET /api/assignments | expected=200 actual=200
+[{"id":1,"title":"Bai tap REST API","description":"Thiet ke endpoint...","isOpen":true},{"id":2,"title":"Bai tap Client","description":"Viet console client...","isOpen":false},{"id":3,"title":"Bai tap mo rong","description":"Bai tap da dong cho ca 9a.","isOpen":false}]
+5a | POST /api/assignments/1/submissions | expected=201 actual=201
+Location: /api/submissions/875ad812-cbb6-4575-834c-4e352f7ba46d
+{"id":"875ad812-cbb6-4575-834c-4e352f7ba46d","assignmentId":1,"studentCode":"verify-35fa207110ea475bbce8a9de0fdd10c2","repositoryUrl":"https://github.com/hoangthikieuanh5-debug/CNTTK23E","status":"received","receivedAt":"2026-11-14T02:18:23.9945757+00:00"}
+5b | POST /api/assignments/1/submissions | expected=400 actual=400
+{"code":"INVALID_SUBMISSION","message":"Ma sinh vien va link bai nop khong duoc de trong."}
+5c | POST /api/assignments/999/submissions | expected=404 actual=404
+{"code":"ASSIGNMENT_NOT_FOUND","message":"Khong tim thay bai tap."}
+5d | POST /api/assignments/1/submissions | expected=415 actual=415
+5e | POST /api/assignments/1/submissions | expected=400 actual=400
+5f | POST /api/assignments/1/submissions | expected=400 actual=400
+{"code":"INVALID_SUBMISSION","message":"Ma sinh vien va link bai nop khong duoc de trong."}
+5g | PUT /api/assignments/1 | expected=405 actual=405
+Allow: GET
+5h | POST /api/assignments/2/submissions | expected=400 actual=400
+{"code":"ASSIGNMENT_CLOSED","message":"Bai tap da dong."}
+6a read created | GET /api/submissions/875ad812-cbb6-4575-834c-4e352f7ba46d | expected=200 actual=200
+{"id":"875ad812-cbb6-4575-834c-4e352f7ba46d","assignmentId":1,"studentCode":"verify-35fa207110ea475bbce8a9de0fdd10c2","repositoryUrl":"https://github.com/hoangthikieuanh5-debug/CNTTK23E","status":"received","receivedAt":"2026-11-14T02:18:23.9945757+00:00"}
+6b missing submission | GET /api/submissions/00000000-0000-0000-0000-000000000000 | expected=404 actual=404
+{"code":"SUBMISSION_NOT_FOUND","message":"Khong tim thay bai nop."}
+4a | GET /api/assignments/1 | expected=200 actual=200
+{"id":1,"title":"Bai tap REST API","description":"Thiet ke endpoint...","isOpen":true}
+4b | GET /api/assignments/999 | expected=404 actual=404
+{"code":"ASSIGNMENT_NOT_FOUND","message":"Khong tim thay bai tap."}
+4c | GET /api/assignments/abc | expected=404 actual=404
+9a closed assignment 3 | POST /api/assignments/3/submissions | expected=400 actual=400
+{"code":"ASSIGNMENT_CLOSED","message":"Bai tap da dong."}
+9c duplicate (case and spaces) | POST /api/assignments/1/submissions | expected=409 actual=409
+{"code":"DUPLICATE_SUBMISSION","message":"Sinh vien da nop bai tap nay."}
+9d delete | DELETE /api/submissions/875ad812-cbb6-4575-834c-4e352f7ba46d | expected=204 actual=204
+9e repeat delete | DELETE /api/submissions/875ad812-cbb6-4575-834c-4e352f7ba46d | expected=404 actual=404
+{"code":"SUBMISSION_NOT_FOUND","message":"Khong tim thay bai nop."}
+Read after delete | GET /api/submissions/875ad812-cbb6-4575-834c-4e352f7ba46d | expected=404 actual=404
+{"code":"SUBMISSION_NOT_FOUND","message":"Khong tim thay bai nop."}
+9f resubmit | POST /api/assignments/1/submissions | expected=201 actual=201
+Location: /api/submissions/fad0760a-7fb0-4166-8a84-923736766f70
+{"id":"fad0760a-7fb0-4166-8a84-923736766f70","assignmentId":1,"studentCode":"verify-35fa207110ea475bbce8a9de0fdd10c2","repositoryUrl":"https://github.com/hoangthikieuanh5-debug/CNTTK23E","status":"received","receivedAt":"2026-11-14T02:18:24.1304983+00:00"}
+Cleanup | DELETE /api/submissions/fad0760a-7fb0-4166-8a84-923736766f70 | expected=204 actual=204
+PASS: all HTTP status assertions matched.

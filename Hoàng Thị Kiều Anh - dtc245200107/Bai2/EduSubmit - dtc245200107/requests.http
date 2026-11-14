@@ -1,0 +1,102 @@
+@baseUrl = http://localhost:5000
+
+### 2. Kiem tra server - 200
+GET {{baseUrl}}/
+
+### 3. Danh sach bai tap - 200
+GET {{baseUrl}}/api/assignments
+
+### 4a. Chi tiet bai tap - 200
+GET {{baseUrl}}/api/assignments/1
+
+### 4b. Khong ton tai - 404 ASSIGNMENT_NOT_FOUND
+GET {{baseUrl}}/api/assignments/999
+
+### 4c. Sai rang buoc route - 404 framework
+GET {{baseUrl}}/api/assignments/abc
+
+### 5a. Nop hop le - 201 + Location (chay API moi truoc khi lap lai)
+# @name createSubmission
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"dtc245200107","repositoryUrl":"https://github.com/hoangthikieuanh5-debug/CNTTK23E"}
+
+### 5b. Body rong - 400 INVALID_SUBMISSION
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"","repositoryUrl":""}
+
+### 5c. Bai tap khong ton tai - 404
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/repo"}
+
+### 5d. Khong co Content-Type - 415
+POST {{baseUrl}}/api/assignments/1/submissions
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/repo"}
+
+### 5e. JSON hong - 400 framework
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001",
+
+### 5f. Thieu repositoryUrl - 400 INVALID_SUBMISSION
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001"}
+
+### 5g. Sai method - 405, Allow: GET
+PUT {{baseUrl}}/api/assignments/1
+
+### 5h. Bai tap 2 da dong (IsOpen=false) - 400 ASSIGNMENT_CLOSED
+POST {{baseUrl}}/api/assignments/2/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/repo"}
+
+### 6a. Doc lai bai vua tao (gui 5a truoc) - 200
+GET {{baseUrl}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 6b. GUID khong ton tai - 404
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 6c. Sau khi khoi dong lai API, gui lai 6a voi ID cu - 404
+# Khong gui lai 5a truoc ca nay; ID cu van nam trong response cua REST Client.
+GET {{baseUrl}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 9a. Bai tap 3 da dong - 400
+POST {{baseUrl}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
+
+### 9b. Nop lan dau - 201
+# @name createForDelete
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
+
+### 9c. Gui lai 9b - 409 DUPLICATE_SUBMISSION
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
+
+### 9d. Rut bai (gui 9b truoc) - 204 khong body
+DELETE {{baseUrl}}/api/submissions/{{createForDelete.response.body.$.id}}
+
+### 9e. Gui lai DELETE - 404 SUBMISSION_NOT_FOUND
+DELETE {{baseUrl}}/api/submissions/{{createForDelete.response.body.$.id}}
+
+### 9f. Nop lai sau khi rut - 201 voi ID moi
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"https://example.com/sv002"}
