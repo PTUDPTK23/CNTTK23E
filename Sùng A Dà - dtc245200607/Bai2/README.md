@@ -15,7 +15,10 @@ CNTTK23E/
         ├── images/
         ├── CatalogApi.slnx
         ├── Catalog.Api/
-        └── Catalog.Client/
+        ├── Catalog.Client/
+        ├── EduSubmit.Api/
+        ├── EduSubmit.Client/
+        └── EduSubmit.requests.http
 ```
 
 Toàn bộ mã nguồn và tài liệu của bài nằm trong thư mục `Bai2` của sinh viên. `.gitignore` loại `bin/` và `obj/` khỏi Git.
@@ -53,6 +56,30 @@ Chạy console client ở Terminal 2 (thay vì lệnh gọi nhanh):
 ```powershell
 dotnet run --project Catalog.Client -- http://localhost:5100
 ```
+
+## Phần mở rộng EduSubmit theo slide
+
+EduSubmit minh họa cùng cách thiết kế REST cho tài nguyên bài tập và lượt nộp. Phần này có API riêng chạy ở cổng `5000`, client console riêng và tệp request riêng; các tệp `requests.http` ở gốc vẫn giữ đúng 7 ca thử Catalog theo yêu cầu nộp Bài 2.
+
+Build cả Catalog và EduSubmit:
+
+```powershell
+dotnet build CatalogApi.slnx
+```
+
+Chạy EduSubmit API ở Terminal 1:
+
+```powershell
+dotnet run --project EduSubmit.Api --urls http://localhost:5000
+```
+
+Chạy client EduSubmit ở Terminal 2:
+
+```powershell
+dotnet run --project EduSubmit.Client -- http://localhost:5000
+```
+
+Mở `EduSubmit.requests.http` rồi gửi lần lượt các request. Bốn endpoint nghiệp vụ là `GET /api/assignments`, `GET /api/assignments/{id}`, `POST /api/assignments/{id}/submissions` và `GET /api/submissions/{id}`; endpoint `/` chỉ kiểm tra trạng thái API. Khi nộp, server kiểm tra bài tập tồn tại, còn mở và body đủ mã sinh viên/link repository; nếu hợp lệ, server tự tạo ID, trạng thái `received`, thời điểm nhận và trả `201 Created` cùng `Location` để đọc lại lượt nộp. Lỗi nghiệp vụ trả `ApiError` với mã `ASSIGNMENT_NOT_FOUND`, `ASSIGNMENT_CLOSED`, `INVALID_SUBMISSION` hoặc `SUBMISSION_NOT_FOUND`. Bài tập và lượt nộp mẫu được lưu trong bộ nhớ; khởi động lại API sẽ đặt lại dữ liệu.
 
 ## Bảng phá thử và kết quả chạy
 
