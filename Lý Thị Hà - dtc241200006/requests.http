@@ -1,0 +1,16 @@
+@api = http://localhost:5000
+
+### Bài tập không tồn tại → 404
+GET {{api}}/api/assignments/999
+
+### Nộp bài cho bài tập 1 → 201
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{ "studentCode": "SV001", "repositoryUrl": "https://..." }
+
+### Đọc lại lượt nộp vừa tạo → 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+
