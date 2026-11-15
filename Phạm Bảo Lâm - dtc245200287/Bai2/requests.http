@@ -1,0 +1,25 @@
+@api = http://localhost:5000
+
+### Kiem tra API
+GET {{api}}/
+
+### Danh sach 3 bai tap
+GET {{api}}/api/assignments
+
+### Tao luot nop hop le
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/bai-tap-1" }
+
+### Loi 400 khi thieu StudentCode
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://example.com/x" }
+
+### Tra cuu: thay <id> bang id tu response POST
+GET {{api}}/api/submissions/<id>
+
+### Loi 404 voi id khong ton tai
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
