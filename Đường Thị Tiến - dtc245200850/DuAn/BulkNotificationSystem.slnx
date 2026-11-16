@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Admin.Client/Admin.Client.csproj" />
+    <Project Path="src/Campaign.API/Campaign.API.csproj" />
+    <Project Path="src/Notification.Worker/Notification.Worker.csproj" />
+    <Project Path="src/Shared.Contracts/Shared.Contracts.csproj" />
+  </Folder>
+</Solution>
