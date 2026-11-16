@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. DATABASE & CACHE LAYER
+  # ==========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: autograder-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: autograder_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./services/core-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - autograder-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: autograder-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - autograder-net
+
+  # ==========================================
+  # 2. MESSAGE BROKER LAYER
+  # ==========================================
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: autograder-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"     # AMQP Protocol
+      - "15672:15672"   # Management Web UI
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    networks:
+      - autograder-net
+
+  # ==========================================
+  # 3. BACKEND CORE SERVICE (API & AUTH)
+  # ==========================================
+  core-service:
+    build:
+      context: ./services/core-service
+      dockerfile: Dockerfile
+    container_name: autograder-core-service
+    restart: always
+    environment:
+      PORT: 5000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
+      DB_NAME: autograder_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      JWT_SECRET: supersecret_ptudpt_jwt_key_2026
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    ports:
+      - "5000:5000"
+    volumes:
+      - submissions_data:/app/uploads
+    networks:
+      - autograder-net
+
+  # ==========================================
+  # 4. DISTRIBUTED GRADER WORKER
+  # (Scale this with: docker compose up --scale grader-worker=3)
+  # ==========================================
+  grader-worker:
+    build:
+      context: ./services/grader-worker
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      WORKER_ID: worker-1
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      CORE_SERVICE_URL: http://core-service:5000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
+      DB_NAME: autograder_db
+    depends_on:
+      - rabbitmq
+      - postgres
+    volumes:
+      - submissions_data:/app/uploads
+      - /var/run/docker.sock:/var/run/docker.sock # Cho phép worker tạo sandbox container
+    networks:
+      - autograder-net
+
+  # ==========================================
+  # 5. FRONTEND WEB CLIENT
+  # ==========================================
+  web-client:
+    build:
+      context: ./services/web-client
+      dockerfile: Dockerfile
+    container_name: autograder-web-client
+    restart: always
+    environment:
+      REACT_APP_API_URL: http://localhost:8080/api
+      REACT_APP_WS_URL: ws://localhost:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - core-service
+    networks:
+      - autograder-net
+
+  # ==========================================
+  # 6. API GATEWAY & REVERSE PROXY
+  # ==========================================
+  api-gateway:
+    image: nginx:alpine
+    container_name: autograder-gateway
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./services/api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - core-service
+      - web-client
+    networks:
+      - autograder-net
+
+networks:
+  autograder-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  rabbitmqdata:
+  submissions_data:

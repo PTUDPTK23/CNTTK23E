@@ -1,0 +1,12 @@
+{
+  "name": "autograder-web-client",
+  "version": "1.0.0",
+  "description": "Frontend UI for Distributed AutoGrader",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx serve -s public -l 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.3"
+  }
+}
