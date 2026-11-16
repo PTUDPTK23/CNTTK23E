@@ -1,0 +1,245 @@
+@page "/events/{id:guid}"
+@rendermode InteractiveServer
+@inject EventApiClient EventApi
+@inject NavigationManager Navigation
+
+<PageTitle>@(ev?.Name ?? "Chi tiết Sự kiện") - EventFlow</PageTitle>
+
+<div style="margin-bottom: 1.5rem;">
+    <a href="events" class="btn-ef-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Quay lại danh sách</span>
+    </a>
+</div>
+
+@if (isLoading)
+{
+    <div style="text-align: center; padding: 4rem 1rem;">
+        <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <p class="mt-2" style="font-size: 0.9rem;">Đang tải thông tin sự kiện...</p>
+    </div>
+}
+else if (ev == null)
+{
+    <div class="card-modern" style="text-align: center; padding: 3rem 1rem;">
+        <h3 style="color: var(--danger); margin-bottom: 0.5rem;">Không tìm thấy sự kiện</h3>
+        <p>Sự kiện này không tồn tại hoặc đã bị xóa khỏi hệ thống.</p>
+        <a href="events" class="btn-ef-primary mt-2">Xem các sự kiện khác</a>
+    </div>
+}
+else
+{
+    var remaining = ev.RemainingSpots;
+    var percent = ev.MaxCapacity > 0 ? (int)((double)ev.RegisteredCount / ev.MaxCapacity * 100) : 0;
+    var isFull = remaining <= 0;
+    var canRegister = ev.Status == EventStatus.Upcoming && !isFull;
+
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 1.75rem; align-items: start;">
+        <!-- Left: Event Details -->
+        <div>
+            <div class="card-modern mb-4">
+                <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.85rem;">
+                    <span class="badge-modern @GetStatusBadgeClass(ev.Status)">@GetStatusName(ev.Status)</span>
+                    @if (isFull)
+                    {
+                        <span class="badge-modern badge-danger">Hết chỗ</span>
+                    }
+                    else
+                    {
+                        <span class="badge-modern badge-success">Còn @remaining chỗ</span>
+                    }
+                </div>
+
+                <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary);">
+                    @ev.Name
+                </h1>
+
+                <!-- Key Info Grid -->
+                <div style="background-color: var(--background); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">
+                            Thời gian bắt đầu
+                        </div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">
+                            @ev.StartTime.ToString("HH:mm - dd/MM/yyyy")
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">
+                            Thời gian kết thúc
+                        </div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">
+                            @ev.EndTime.ToString("HH:mm - dd/MM/yyyy")
+                        </div>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">
+                            Địa điểm tổ chức
+                        </div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">
+                            @ev.Location
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">Mô tả chi tiết sự kiện</h3>
+                <div style="color: var(--text-secondary); line-height: 1.7; white-space: pre-line;">
+                    @ev.Description
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Registration Box -->
+        <div>
+            <div class="card-modern" style="position: sticky; top: 80px;">
+                <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Đăng ký tham dự</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+                    Điền thông tin bên dưới để nhận vé điện tử (mã QR) gửi vào hệ thống.
+                </p>
+
+                <!-- Capacity Info -->
+                <div style="background-color: var(--background); border-radius: var(--radius-sm); padding: 0.85rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.825rem; font-weight: 600; margin-bottom: 0.4rem;">
+                        <span>Sức chứa:</span>
+                        <span>@ev.RegisteredCount / @ev.MaxCapacity người</span>
+                    </div>
+                    <div style="height: 6px; background-color: var(--border); border-radius: 9999px; overflow: hidden;">
+                        <div style="height: 100%; width: @percent%; background-color: @(isFull ? "var(--danger)" : "var(--primary)"); border-radius: 9999px;"></div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div style="background-color: var(--danger-light); color: var(--danger); border: 1px solid #FECACA; border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.85rem; margin-bottom: 1.25rem;">
+                        @errorMessage
+                    </div>
+                }
+
+                @if (!canRegister)
+                {
+                    <div style="text-align: center; padding: 1.5rem 0.5rem;">
+                        <div class="badge-modern badge-danger mb-2" style="font-size: 0.85rem;">
+                            @(isFull ? "Sự kiện đã hết chỗ đăng ký" : "Sự kiện hiện không nhận đăng ký")
+                        </div>
+                        <p style="font-size: 0.85rem;">Bạn có thể theo dõi sự kiện qua kênh trực tuyến hoặc tìm các sự kiện sắp tới.</p>
+                    </div>
+                }
+                else
+                {
+                    <EditForm Model="registerModel" OnValidSubmit="HandleRegistration">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group">
+                            <label class="form-label">Họ và tên *</label>
+                            <InputText class="form-control-ef" placeholder="Nguyễn Văn A" @bind-Value="registerModel.FullName" />
+                            <ValidationMessage For="@(() => registerModel.FullName)" class="text-danger" style="font-size: 0.775rem;" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Địa chỉ Email *</label>
+                            <InputText class="form-control-ef" type="email" placeholder="email@domain.com" @bind-Value="registerModel.Email" />
+                            <ValidationMessage For="@(() => registerModel.Email)" class="text-danger" style="font-size: 0.775rem;" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại *</label>
+                            <InputText class="form-control-ef" placeholder="0912345678" @bind-Value="registerModel.PhoneNumber" />
+                            <ValidationMessage For="@(() => registerModel.PhoneNumber)" class="text-danger" style="font-size: 0.775rem;" />
+                        </div>
+
+                        <button type="submit" class="btn-ef-primary w-100" style="justify-content: center; padding: 0.75rem;" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span>Đang xử lý đăng ký...</span>
+                            }
+                            else
+                            {
+                                <span>Xác nhận Đăng ký Ngay</span>
+                            }
+                        </button>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EventDto? ev;
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private RegisterParticipantRequest registerModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventAsync();
+    }
+
+    private async Task LoadEventAsync()
+    {
+        isLoading = true;
+        try
+        {
+            ev = await EventApi.GetEventByIdAsync(Id);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleRegistration()
+    {
+        errorMessage = null;
+        isSubmitting = true;
+
+        try
+        {
+            var (success, data, error) = await EventApi.RegisterParticipantAsync(Id, registerModel);
+            if (success && data != null)
+            {
+                Navigation.NavigateTo($"registration-success/{data.RegistrationCode}");
+            }
+            else
+            {
+                errorMessage = error ?? "Đăng ký không thành công. Vui lòng thử lại.";
+                // Refresh event to get latest remaining capacity
+                await LoadEventAsync();
+            }
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private static string GetStatusBadgeClass(EventStatus status) => status switch
+    {
+        EventStatus.Upcoming => "badge-primary",
+        EventStatus.Ongoing => "badge-success",
+        EventStatus.Completed => "badge-secondary",
+        EventStatus.Cancelled => "badge-danger",
+        _ => "badge-secondary"
+    };
+
+    private static string GetStatusName(EventStatus status) => status switch
+    {
+        EventStatus.Upcoming => "Sắp diễn ra",
+        EventStatus.Ongoing => "Đang diễn ra",
+        EventStatus.Completed => "Đã kết thúc",
+        EventStatus.Cancelled => "Đã hủy",
+        _ => "Không rõ"
+    };
+}

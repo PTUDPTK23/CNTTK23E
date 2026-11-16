@@ -1,0 +1,177 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. DATABASE: PostgreSQL
+  # ==========================================
+  postgres:
+    image: postgres:17-alpine
+    container_name: eventflow-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: eventflow_db
+      POSTGRES_USER: eventflow
+      POSTGRES_PASSWORD: eventflow_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventflow -d eventflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eventflow-net
+
+  # ==========================================
+  # 2. MESSAGE BROKER: RabbitMQ with Management
+  # ==========================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: eventflow-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"     # AMQP protocol
+      - "15672:15672"   # Management Web UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eventflow-net
+
+  # ==========================================
+  # 3. BACKEND SERVICE: Event API (Minimal API)
+  # ==========================================
+  event-api:
+    build:
+      context: .
+      dockerfile: src/EventFlow.EventApi/Dockerfile
+    container_name: eventflow-event-api
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DatabaseProvider=PostgreSQL
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=eventflow_db;Username=eventflow;Password=eventflow_password
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - eventflow-net
+
+  # ==========================================
+  # 4. DASHBOARD SERVICE: SignalR Hub & Aggregator
+  # ==========================================
+  dashboard-service:
+    build:
+      context: .
+      dockerfile: src/EventFlow.DashboardService/Dockerfile
+    container_name: eventflow-dashboard-service
+    restart: on-failure
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      event-api:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - Services__EventApiUrl=http://event-api:5000
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - eventflow-net
+
+  # ==========================================
+  # 5. AUDIT WORKER: Independent Event Logger
+  # ==========================================
+  audit-worker:
+    build:
+      context: .
+      dockerfile: src/EventFlow.AuditWorker/Dockerfile
+    container_name: eventflow-audit-worker
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DatabaseProvider=PostgreSQL
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=eventflow_audit_db;Username=eventflow;Password=eventflow_password
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    ports:
+      - "5002:5002"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5002/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - eventflow-net
+
+  # ==========================================
+  # 6. WEB CLIENT: Blazor Web App (Interactive Server)
+  # ==========================================
+  web-client:
+    build:
+      context: .
+      dockerfile: src/EventFlow.WebClient/Dockerfile
+    container_name: eventflow-web-client
+    restart: on-failure
+    depends_on:
+      - event-api
+      - dashboard-service
+      - audit-worker
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Services__EventApiUrl=http://event-api:5000
+      - Services__DashboardServiceUrl=http://dashboard-service:5001
+      - Services__AuditWorkerUrl=http://audit-worker:5002
+    ports:
+      - "5003:5003"
+    networks:
+      - eventflow-net
+
+networks:
+  eventflow-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:

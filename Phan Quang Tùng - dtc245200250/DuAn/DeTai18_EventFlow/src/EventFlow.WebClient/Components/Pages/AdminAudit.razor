@@ -1,0 +1,197 @@
+@page "/admin/audit"
+@rendermode InteractiveServer
+@inject AuditApiClient AuditApi
+
+<PageTitle>Nhật ký Hoạt động (Audit Logs) - EventFlow</PageTitle>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem;">Nhật ký Hoạt động (Audit Logs)</h1>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0;">
+            Ghi nhận toàn bộ biến động nghiệp vụ từ AuditWorker qua RabbitMQ Topic Exchange độc lập.
+        </p>
+    </div>
+
+    <button class="btn-ef-secondary" @onclick="LoadAuditLogsAsync">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Làm mới</span>
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="card-modern mb-3" style="padding: 1rem 1.25rem;">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="flex: 1; min-width: 280px;">
+            <input type="text" class="form-control-ef" placeholder="Tìm theo mã vé, tên sự kiện, người tham dự hoặc Correlation ID..."
+                   @bind="searchQuery" @bind:event="oninput" @bind:after="OnFilterChanged" />
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn-ef-secondary @(string.IsNullOrEmpty(selectedEventType) ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="FilterAll">
+                Tất cả
+            </button>
+            <button class="btn-ef-secondary @(selectedEventType == "ParticipantRegistered" ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="FilterRegistered">
+                Đăng ký mới
+            </button>
+            <button class="btn-ef-secondary @(selectedEventType == "ParticipantCheckedIn" ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="FilterCheckedIn">
+                Check-in
+            </button>
+            <button class="btn-ef-secondary @(selectedEventType == "ParticipantCancelled" ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="FilterCancelled">
+                Hủy đăng ký
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="table-modern-wrapper">
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Thời điểm (UTC)</th>
+                <th>Loại sự kiện</th>
+                <th>Sự kiện</th>
+                <th>Mã vé</th>
+                <th>Người tham dự</th>
+                <th>Correlation ID</th>
+                <th style="text-align: right;">Chi tiết</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (isLoading)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem;">Đang tải nhật ký kiểm toán...</td>
+                </tr>
+            }
+            else if (logs.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy bản ghi nhật ký nào.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var log in logs)
+                {
+                    <tr>
+                        <td style="font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap;">
+                            @log.Timestamp.ToString("HH:mm:ss dd/MM/yyyy")
+                        </td>
+                        <td>
+                            <span class="badge-modern @GetEventTypeBadgeClass(log.EventType)">
+                                @GetEventTypeName(log.EventType)
+                            </span>
+                        </td>
+                        <td style="font-weight: 500;">@log.EventName</td>
+                        <td style="font-family: monospace; font-weight: 600; color: var(--primary);">
+                            @(string.IsNullOrEmpty(log.RegistrationCode) ? "—" : log.RegistrationCode)
+                        </td>
+                        <td>@(string.IsNullOrEmpty(log.ParticipantName) ? "—" : log.ParticipantName)</td>
+                        <td style="font-family: monospace; font-size: 0.75rem; color: var(--text-muted);">
+                            @log.CorrelationId
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn-ef-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.775rem;" @onclick="() => ViewPayload(log)">
+                                JSON
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Raw JSON Payload -->
+@if (selectedLog != null)
+{
+    <div style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+        <div class="card-modern" style="max-width: 600px; width: 100%;">
+            <div class="card-header-modern">
+                <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">
+                    Bản ghi Kiểm toán: @selectedLog.EventType
+                </h3>
+                <button class="btn-ef-secondary" style="padding: 0.25rem 0.5rem; border: none;" @onclick="() => selectedLog = null">✕</button>
+            </div>
+
+            <div style="font-size: 0.825rem; margin-bottom: 0.75rem;">
+                <strong>Correlation ID:</strong> <code>@selectedLog.CorrelationId</code>
+            </div>
+
+            <pre style="background-color: var(--background); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; font-size: 0.8rem; max-height: 350px; overflow: auto; white-space: pre-wrap; font-family: monospace;">@selectedLog.PayloadJson</pre>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn-ef-secondary" @onclick="() => selectedLog = null">Đóng</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<AuditLogDto> logs = new();
+    private string searchQuery = string.Empty;
+    private string? selectedEventType = null;
+    private bool isLoading = true;
+    private AuditLogDto? selectedLog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAuditLogsAsync();
+    }
+
+    private async Task LoadAuditLogsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            logs = await AuditApi.GetAuditLogsAsync(selectedEventType, searchQuery, 100);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void FilterByType(string? type)
+    {
+        selectedEventType = type;
+        _ = LoadAuditLogsAsync();
+    }
+
+    private void FilterAll() => FilterByType(null);
+    private void FilterRegistered() => FilterByType("ParticipantRegistered");
+    private void FilterCheckedIn() => FilterByType("ParticipantCheckedIn");
+    private void FilterCancelled() => FilterByType("ParticipantCancelled");
+
+    private void OnFilterChanged()
+    {
+        _ = LoadAuditLogsAsync();
+    }
+
+    private void ViewPayload(AuditLogDto log)
+    {
+        selectedLog = log;
+    }
+
+    private static string GetEventTypeBadgeClass(string type) => type switch
+    {
+        "ParticipantRegistered" => "badge-primary",
+        "ParticipantCheckedIn" => "badge-success",
+        "ParticipantCancelled" => "badge-danger",
+        _ => "badge-secondary"
+    };
+
+    private static string GetEventTypeName(string type) => type switch
+    {
+        "ParticipantRegistered" => "Đăng ký",
+        "ParticipantCheckedIn" => "Check-in",
+        "ParticipantCancelled" => "Hủy vé",
+        _ => type
+    };
+}

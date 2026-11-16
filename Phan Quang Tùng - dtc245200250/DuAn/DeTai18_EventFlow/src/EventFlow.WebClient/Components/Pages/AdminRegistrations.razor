@@ -1,0 +1,190 @@
+@page "/admin/registrations"
+@rendermode InteractiveServer
+@inject EventApiClient EventApi
+
+<PageTitle>Danh sách Người tham dự - EventFlow</PageTitle>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem;">Danh sách Người tham dự & Đăng ký</h1>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0;">
+            Quản lý tất cả lượt đăng ký, tình trạng check-in và thông tin liên hệ của người tham gia.
+        </p>
+    </div>
+
+    <button class="btn-ef-secondary" @onclick="LoadRegistrationsAsync">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Làm mới</span>
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="card-modern mb-3" style="padding: 1rem 1.25rem;">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="flex: 1; min-width: 280px;">
+            <input type="text" class="form-control-ef" placeholder="Tìm theo tên, email, mã vé hoặc sự kiện..."
+                   @bind="searchQuery" @bind:event="oninput" @bind:after="OnFilterChanged" />
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn-ef-secondary @(selectedStatus == null ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(null)">
+                Tất cả
+            </button>
+            <button class="btn-ef-secondary @(selectedStatus == RegistrationStatus.Confirmed ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(RegistrationStatus.Confirmed)">
+                Chưa Check-in
+            </button>
+            <button class="btn-ef-secondary @(selectedStatus == RegistrationStatus.CheckedIn ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(RegistrationStatus.CheckedIn)">
+                Đã Check-in
+            </button>
+            <button class="btn-ef-secondary @(selectedStatus == RegistrationStatus.Cancelled ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(RegistrationStatus.Cancelled)">
+                Đã hủy
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(actionAlert))
+{
+    <div class="card-modern mb-3" style="background-color: var(--success-light); color: var(--success); border: 1px solid #BBF7D0; padding: 0.75rem 1rem;">
+        @actionAlert
+    </div>
+}
+
+<div class="table-modern-wrapper">
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Mã vé</th>
+                <th>Người tham dự</th>
+                <th>Sự kiện</th>
+                <th>Thời điểm đăng ký</th>
+                <th>Trạng thái</th>
+                <th>Check-in lúc</th>
+                <th style="text-align: right;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (isLoading)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem;">Đang tải danh sách người tham dự...</td>
+                </tr>
+            }
+            else if (registrations.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không có dữ liệu đăng ký phù hợp.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var r in registrations)
+                {
+                    <tr>
+                        <td style="font-family: monospace; font-weight: 700; color: var(--primary);">
+                            @r.RegistrationCode
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">@r.ParticipantName</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">@r.ParticipantEmail | @r.ParticipantPhone</div>
+                        </td>
+                        <td style="font-weight: 500;">@r.EventName</td>
+                        <td style="font-size: 0.8rem; color: var(--text-secondary);">
+                            @r.RegisteredAt.ToString("HH:mm dd/MM/yyyy")
+                        </td>
+                        <td>
+                            <span class="badge-modern @GetStatusBadgeClass(r.Status)">
+                                @GetStatusName(r.Status)
+                            </span>
+                        </td>
+                        <td style="font-size: 0.8rem; color: var(--text-secondary);">
+                            @(r.CheckedInAt.HasValue ? r.CheckedInAt.Value.ToString("HH:mm:ss dd/MM/yyyy") : "—")
+                        </td>
+                        <td style="text-align: right;">
+                            @if (r.Status == RegistrationStatus.Confirmed)
+                            {
+                                <button class="btn-ef-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" @onclick="() => CheckInAttendee(r.Id)">
+                                    Check-in
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<RegistrationDto> registrations = new();
+    private string searchQuery = string.Empty;
+    private RegistrationStatus? selectedStatus = null;
+    private bool isLoading = true;
+    private string? actionAlert;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRegistrationsAsync();
+    }
+
+    private async Task LoadRegistrationsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            registrations = await EventApi.GetAllRegistrationsAsync(searchQuery, selectedStatus);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void FilterByStatus(RegistrationStatus? status)
+    {
+        selectedStatus = status;
+        _ = LoadRegistrationsAsync();
+    }
+
+    private void OnFilterChanged()
+    {
+        _ = LoadRegistrationsAsync();
+    }
+
+    private async Task CheckInAttendee(Guid id)
+    {
+        actionAlert = null;
+        var (success, data, msg) = await EventApi.CheckInByIdAsync(id);
+        if (success)
+        {
+            actionAlert = $"Check-in thành công cho {data?.ParticipantName} (Mã: {data?.RegistrationCode})!";
+            await LoadRegistrationsAsync();
+        }
+        else
+        {
+            actionAlert = msg;
+        }
+    }
+
+    private static string GetStatusBadgeClass(RegistrationStatus status) => status switch
+    {
+        RegistrationStatus.Confirmed => "badge-primary",
+        RegistrationStatus.CheckedIn => "badge-success",
+        RegistrationStatus.Cancelled => "badge-danger",
+        _ => "badge-secondary"
+    };
+
+    private static string GetStatusName(RegistrationStatus status) => status switch
+    {
+        RegistrationStatus.Confirmed => "Chưa Check-in",
+        RegistrationStatus.CheckedIn => "Đã Check-in",
+        RegistrationStatus.Cancelled => "Đã hủy",
+        _ => "Không rõ"
+    };
+}

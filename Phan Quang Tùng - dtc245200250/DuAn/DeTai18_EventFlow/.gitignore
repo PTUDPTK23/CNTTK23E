@@ -1,0 +1,15 @@
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.db
+*.db-shm
+*.db-wal
+.vs/
+.idea/
+.vscode/
+*.log
+.env
+.local-pids.txt

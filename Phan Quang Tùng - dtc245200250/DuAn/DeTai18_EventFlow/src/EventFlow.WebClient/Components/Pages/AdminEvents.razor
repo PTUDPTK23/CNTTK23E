@@ -1,0 +1,327 @@
+@page "/admin/events"
+@rendermode InteractiveServer
+@inject EventApiClient EventApi
+
+<PageTitle>Quản lý Sự kiện - EventFlow</PageTitle>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem;">Quản lý Sự kiện</h1>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0;">
+            Thêm mới, cập nhật cấu hình sức chứa và theo dõi trạng thái các sự kiện trong hệ thống.
+        </p>
+    </div>
+
+    <button class="btn-ef-primary" @onclick="OpenCreateModal">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Tạo sự kiện mới</span>
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(alertSuccess))
+{
+    <div class="card-modern mb-3" style="background-color: var(--success-light); color: var(--success); border: 1px solid #BBF7D0; padding: 0.75rem 1rem;">
+        @alertSuccess
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(alertError))
+{
+    <div class="card-modern mb-3" style="background-color: var(--danger-light); color: var(--danger); border: 1px solid #FECACA; padding: 0.75rem 1rem;">
+        @alertError
+    </div>
+}
+
+<div class="table-modern-wrapper">
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Tên sự kiện</th>
+                <th>Địa điểm</th>
+                <th>Thời gian</th>
+                <th>Đã đăng ký / Sức chứa</th>
+                <th>Chỗ trống</th>
+                <th>Trạng thái</th>
+                <th style="text-align: right;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (isLoading)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem;">Đang tải danh sách sự kiện...</td>
+                </tr>
+            }
+            else if (events.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">Chưa có sự kiện nào trong hệ thống.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var ev in events)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@ev.Name</td>
+                        <td>@ev.Location</td>
+                        <td style="font-size: 0.8rem; color: var(--text-secondary);">
+                            @ev.StartTime.ToString("HH:mm dd/MM/yyyy")
+                        </td>
+                        <td>
+                            <strong>@ev.RegisteredCount</strong> / @ev.MaxCapacity
+                        </td>
+                        <td>
+                            @if (ev.RemainingSpots <= 0)
+                            {
+                                <span class="badge-modern badge-danger">Hết chỗ</span>
+                            }
+                            else
+                            {
+                                <span class="badge-modern badge-success">Còn @ev.RemainingSpots chỗ</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge-modern @GetStatusBadgeClass(ev.Status)">
+                                @GetStatusName(ev.Status)
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn-ef-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.8rem;" @onclick="() => OpenEditModal(ev)">
+                                Sửa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Create / Edit Event -->
+@if (showModal)
+{
+    <div style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+        <div class="card-modern" style="max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header-modern">
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0;">
+                    @(isEditing ? "Cập nhật Sự kiện" : "Tạo Sự kiện Mới")
+                </h3>
+                <button class="btn-ef-secondary" style="padding: 0.25rem 0.5rem; border: none;" @onclick="() => showModal = false">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tên sự kiện *</label>
+                <input type="text" class="form-control-ef" @bind="modalName" placeholder="Tên hội nghị hoặc sự kiện..." />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mô tả sự kiện *</label>
+                <textarea rows="3" class="form-control-ef" @bind="modalDescription" placeholder="Nội dung, diễn giả, lịch trình..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Địa điểm tổ chức *</label>
+                <input type="text" class="form-control-ef" @bind="modalLocation" placeholder="Địa chỉ, phòng hội nghị..." />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Bắt đầu *</label>
+                    <input type="datetime-local" class="form-control-ef" @bind="modalStartTime" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kết thúc *</label>
+                    <input type="datetime-local" class="form-control-ef" @bind="modalEndTime" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Sức chứa tối đa (người) *</label>
+                    <input type="number" class="form-control-ef" @bind="modalCapacity" min="1" max="100000" />
+                </div>
+                @if (isEditing)
+                {
+                    <div class="form-group">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-control-ef" @bind="modalStatus">
+                            <option value="@EventStatus.Upcoming">Sắp diễn ra</option>
+                            <option value="@EventStatus.Ongoing">Đang diễn ra</option>
+                            <option value="@EventStatus.Completed">Đã kết thúc</option>
+                            <option value="@EventStatus.Cancelled">Đã hủy</option>
+                        </select>
+                    </div>
+                }
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <button class="btn-ef-secondary" @onclick="() => showModal = false" disabled="@isSaving">Hủy bỏ</button>
+                <button class="btn-ef-primary" @onclick="SaveEventAsync" disabled="@isSaving">
+                    @if (isSaving)
+                    {
+                        <span>Đang lưu...</span>
+                    }
+                    else
+                    {
+                        <span>Lưu thông tin</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<EventDto> events = new();
+    private bool isLoading = true;
+    private bool showModal = false;
+    private bool isEditing = false;
+    private bool isSaving = false;
+    private Guid editingId = Guid.Empty;
+
+    private string modalName = string.Empty;
+    private string modalDescription = string.Empty;
+    private string modalLocation = string.Empty;
+    private DateTime modalStartTime = DateTime.UtcNow.AddDays(7);
+    private DateTime modalEndTime = DateTime.UtcNow.AddDays(7).AddHours(4);
+    private int modalCapacity = 100;
+    private EventStatus modalStatus = EventStatus.Upcoming;
+
+    private string? alertSuccess;
+    private string? alertError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventsAsync();
+    }
+
+    private async Task LoadEventsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            events = await EventApi.GetEventsAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenCreateModal()
+    {
+        isEditing = false;
+        editingId = Guid.Empty;
+        modalName = string.Empty;
+        modalDescription = string.Empty;
+        modalLocation = string.Empty;
+        modalStartTime = DateTime.UtcNow.AddDays(7);
+        modalEndTime = DateTime.UtcNow.AddDays(7).AddHours(4);
+        modalCapacity = 100;
+        modalStatus = EventStatus.Upcoming;
+        showModal = true;
+    }
+
+    private void OpenEditModal(EventDto ev)
+    {
+        isEditing = true;
+        editingId = ev.Id;
+        modalName = ev.Name;
+        modalDescription = ev.Description;
+        modalLocation = ev.Location;
+        modalStartTime = ev.StartTime;
+        modalEndTime = ev.EndTime;
+        modalCapacity = ev.MaxCapacity;
+        modalStatus = ev.Status;
+        showModal = true;
+    }
+
+    private async Task SaveEventAsync()
+    {
+        alertSuccess = null;
+        alertError = null;
+
+        if (string.IsNullOrWhiteSpace(modalName))
+        {
+            alertError = "Vui lòng nhập tên sự kiện.";
+            return;
+        }
+
+        isSaving = true;
+        try
+        {
+            if (isEditing)
+            {
+                var req = new UpdateEventRequest
+                {
+                    Name = modalName,
+                    Description = modalDescription,
+                    Location = modalLocation,
+                    StartTime = modalStartTime,
+                    EndTime = modalEndTime,
+                    MaxCapacity = modalCapacity,
+                    Status = modalStatus
+                };
+                var (success, data, error) = await EventApi.UpdateEventAsync(editingId, req);
+                if (success)
+                {
+                    alertSuccess = "Cập nhật sự kiện thành công!";
+                    showModal = false;
+                    await LoadEventsAsync();
+                }
+                else
+                {
+                    alertError = error;
+                }
+            }
+            else
+            {
+                var req = new CreateEventRequest
+                {
+                    Name = modalName,
+                    Description = modalDescription,
+                    Location = modalLocation,
+                    StartTime = modalStartTime,
+                    EndTime = modalEndTime,
+                    MaxCapacity = modalCapacity
+                };
+                var (success, data, error) = await EventApi.CreateEventAsync(req);
+                if (success)
+                {
+                    alertSuccess = "Tạo sự kiện mới thành công!";
+                    showModal = false;
+                    await LoadEventsAsync();
+                }
+                else
+                {
+                    alertError = error;
+                }
+            }
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private static string GetStatusBadgeClass(EventStatus status) => status switch
+    {
+        EventStatus.Upcoming => "badge-primary",
+        EventStatus.Ongoing => "badge-success",
+        EventStatus.Completed => "badge-secondary",
+        EventStatus.Cancelled => "badge-danger",
+        _ => "badge-secondary"
+    };
+
+    private static string GetStatusName(EventStatus status) => status switch
+    {
+        EventStatus.Upcoming => "Sắp diễn ra",
+        EventStatus.Ongoing => "Đang diễn ra",
+        EventStatus.Completed => "Đã kết thúc",
+        EventStatus.Cancelled => "Đã hủy",
+        _ => "Không rõ"
+    };
+}

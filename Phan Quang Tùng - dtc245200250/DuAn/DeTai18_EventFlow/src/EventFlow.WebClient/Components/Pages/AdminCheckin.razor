@@ -1,0 +1,187 @@
+@page "/admin/checkin"
+@rendermode InteractiveServer
+@inject EventApiClient EventApi
+
+<PageTitle>Trạm Check-in Sự kiện - EventFlow</PageTitle>
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="card-modern mb-4">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Trạm Check-in Vé Sự kiện</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Nhập mã Registration Code hoặc quét từ mã QR của người tham dự để xác nhận vào cửa.
+                </p>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <label class="form-label" style="font-size: 0.95rem;">Mã Đăng ký (Registration Code) hoặc Dữ liệu Quét QR</label>
+            <div style="display: flex; gap: 0.75rem;">
+                <input type="text" class="form-control-ef" style="font-size: 1.25rem; font-family: monospace; font-weight: 700; letter-spacing: 0.05em; padding: 0.75rem 1rem;"
+                       placeholder="Ví dụ: EVT-123456"
+                       @bind="inputCode" @bind:event="oninput" @onkeyup="HandleKeyUp" autofocus />
+                <button class="btn-ef-primary" style="padding: 0 1.5rem; font-size: 1rem;" @onclick="ProcessCheckInAsync" disabled="@isProcessing">
+                    @if (isProcessing)
+                    {
+                        <span>Đang xử lý...</span>
+                    }
+                    else
+                    {
+                        <span>Check-in</span>
+                    }
+                </button>
+            </div>
+        </div>
+
+        <!-- Feedback Result Banners -->
+        @if (lastResult != null)
+        {
+            @if (lastResult.Success)
+            {
+                <div class="mt-4" style="background-color: var(--success-light); border: 2px solid #86EFAC; border-radius: var(--radius-md); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: var(--success); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--success); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">
+                            XÁC NHẬN HỢP LỆ - CHECK-IN THÀNH CÔNG!
+                        </h3>
+                        <p style="color: #14532D; font-size: 0.95rem; margin-bottom: 0.5rem;">
+                            Chào mừng người tham dự: <strong>@lastResult.ParticipantName</strong>
+                        </p>
+                        <div style="font-size: 0.85rem; color: #166534;">
+                            Sự kiện: <strong>@lastResult.EventName</strong> | Mã vé: <code>@lastResult.RegistrationCode</code> | Thời gian: @lastResult.CheckedInAt?.ToString("HH:mm:ss dd/MM/yyyy")
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (lastResult.Status == RegistrationStatus.CheckedIn)
+            {
+                <div class="mt-4" style="background-color: var(--warning-light); border: 2px solid #FDE047; border-radius: var(--radius-md); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: var(--warning); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="color: #B45309; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.25rem;">
+                            CẢNH BÁO: VÉ ĐÃ ĐƯỢC CHECK-IN TRƯỚC ĐÓ!
+                        </h3>
+                        <p style="color: #92400E; font-size: 0.9rem; margin-bottom: 0.4rem;">
+                            @lastResult.Message
+                        </p>
+                        <div style="font-size: 0.825rem; color: #78350F;">
+                            Người tham dự: <strong>@lastResult.ParticipantName</strong> | Mã vé: <code>@lastResult.RegistrationCode</code>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="mt-4" style="background-color: var(--danger-light); border: 2px solid #FCA5A5; border-radius: var(--radius-md); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: var(--danger); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--danger); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.25rem;">
+                            CHECK-IN KHÔNG HỢP LỆ!
+                        </h3>
+                        <p style="color: #991B1B; font-size: 0.9rem; margin-bottom: 0;">
+                            @lastResult.Message
+                        </p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Recent station check-ins -->
+    <div class="card-modern">
+        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Lịch sử Check-in tại quầy này</h3>
+        @if (recentSuccessCheckins.Count == 0)
+        {
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 1.5rem 0;">
+                Chưa có lượt check-in nào được xử lý trong phiên làm việc hiện tại.
+            </p>
+        }
+        else
+        {
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                @foreach (var item in recentSuccessCheckins)
+                {
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div>
+                            <strong style="font-family: monospace; color: var(--primary);">@item.RegistrationCode</strong>
+                            <span style="margin: 0 0.5rem; color: var(--text-muted);">•</span>
+                            <span style="font-weight: 600;">@item.ParticipantName</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 0.5rem;">(@item.EventName)</span>
+                        </div>
+                        <span class="badge-modern badge-success">
+                            @item.CheckedInAt?.ToString("HH:mm:ss")
+                        </span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string inputCode = string.Empty;
+    private bool isProcessing = false;
+    private CheckInResultDto? lastResult;
+    private List<CheckInResultDto> recentSuccessCheckins = new();
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ProcessCheckInAsync();
+        }
+    }
+
+    private async Task ProcessCheckInAsync()
+    {
+        if (string.IsNullOrWhiteSpace(inputCode)) return;
+
+        isProcessing = true;
+        try
+        {
+            var code = inputCode.Trim().ToUpperInvariant();
+            var (success, data, msg) = await EventApi.CheckInByCodeAsync(code);
+
+            if (data != null)
+            {
+                lastResult = data;
+                if (success)
+                {
+                    recentSuccessCheckins.Insert(0, data);
+                    inputCode = string.Empty; // clear for next scan
+                }
+            }
+            else
+            {
+                lastResult = new CheckInResultDto
+                {
+                    Success = false,
+                    Message = msg,
+                    RegistrationCode = code
+                };
+            }
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+}

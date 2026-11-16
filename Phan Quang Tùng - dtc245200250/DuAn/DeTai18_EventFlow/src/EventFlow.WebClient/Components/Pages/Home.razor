@@ -1,0 +1,242 @@
+﻿@page "/"
+@page "/events"
+@rendermode InteractiveServer
+@inject EventApiClient EventApi
+@inject NavigationManager Navigation
+
+<PageTitle>Khám phá Sự kiện - EventFlow</PageTitle>
+
+<!-- Hero Section -->
+<div class="card-modern mb-4" style="background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%); border-left: 4px solid var(--primary);">
+    <div style="max-width: 720px;">
+        <div class="badge-modern badge-primary mb-2">Hệ thống Phân tán .NET 10 & RabbitMQ</div>
+        <h1 style="font-size: 1.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.6rem;">
+            Khám phá & Đăng ký Sự kiện Công nghệ
+        </h1>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0;">
+            Hệ thống quản lý sự kiện và check-in thời gian thực. Đảm bảo sức chứa nhất quán, phát hành vé điện tử tức thì và giám sát realtime qua SignalR.
+        </p>
+    </div>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="card-modern mb-4" style="padding: 1rem 1.25rem;">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 0.75rem; flex: 1; min-width: 280px;">
+            <div style="position: relative; width: 100%;">
+                <input type="text" class="form-control-ef" placeholder="Tìm kiếm tên sự kiện, địa điểm, chủ đề..."
+                       @bind="searchQuery" @bind:event="oninput" @bind:after="OnFilterChanged" />
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-ef-secondary @(selectedStatus == null ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(null)">
+                Tất cả
+            </button>
+            <button class="btn-ef-secondary @(selectedStatus == EventStatus.Upcoming ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(EventStatus.Upcoming)">
+                Sắp diễn ra
+            </button>
+            <button class="btn-ef-secondary @(selectedStatus == EventStatus.Ongoing ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(EventStatus.Ongoing)">
+                Đang diễn ra
+            </button>
+            <button class="btn-ef-secondary @(selectedStatus == EventStatus.Completed ? "btn-ef-primary" : "")" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;"
+                    @onclick="() => FilterByStatus(EventStatus.Completed)">
+                Đã kết thúc
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Event Cards Grid -->
+@if (isLoading)
+{
+    <div style="text-align: center; padding: 4rem 1rem;">
+        <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <p class="mt-2" style="font-size: 0.9rem;">Đang tải danh sách sự kiện...</p>
+    </div>
+}
+else if (filteredEvents.Count == 0)
+{
+    <div class="card-modern" style="text-align: center; padding: 3.5rem 1rem;">
+        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--text-muted); margin-bottom: 1rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <h3 style="font-size: 1.15rem; color: var(--text-primary); margin-bottom: 0.4rem;">Không tìm thấy sự kiện phù hợp</h3>
+        <p style="font-size: 0.875rem;">Vui lòng thử tìm kiếm với từ khóa khác hoặc bỏ các bộ lọc hiện tại.</p>
+    </div>
+}
+else
+{
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        @foreach (var ev in filteredEvents)
+        {
+            var remaining = ev.RemainingSpots;
+            var percent = ev.MaxCapacity > 0 ? (int)((double)ev.RegisteredCount / ev.MaxCapacity * 100) : 0;
+            var isFull = remaining <= 0;
+
+            <div class="card-modern" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: var(--radius-lg);">
+                <div>
+                    <!-- Status & Spots Badge -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                        <span class="badge-modern @GetStatusBadgeClass(ev.Status)">
+                            @GetStatusName(ev.Status)
+                        </span>
+
+                        @if (isFull)
+                        {
+                            <span class="badge-modern badge-danger">Hết chỗ</span>
+                        }
+                        else if (remaining <= 10)
+                        {
+                            <span class="badge-modern badge-warning">Còn @remaining chỗ</span>
+                        }
+                        else
+                        {
+                            <span class="badge-modern badge-success">Còn @remaining chỗ</span>
+                        }
+                    </div>
+
+                    <!-- Title -->
+                    <h3 style="font-size: 1.15rem; font-weight: 600; line-height: 1.35; margin-bottom: 0.6rem; color: var(--text-primary);">
+                        <a href="events/@ev.Id" style="text-decoration: none; color: inherit;">@ev.Name</a>
+                    </h3>
+
+                    <!-- Description summary -->
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        @ev.Description
+                    </p>
+
+                    <!-- Details: Time & Location -->
+                    <div style="font-size: 0.825rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>@ev.StartTime.ToString("HH:mm - dd/MM/yyyy")</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@ev.Location</span>
+                        </div>
+                    </div>
+
+                    <!-- Capacity Progress Bar -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.775rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                            <span>Đã đăng ký: <strong>@ev.RegisteredCount</strong>/@ev.MaxCapacity</span>
+                            <span>@percent%</span>
+                        </div>
+                        <div style="height: 6px; background-color: var(--border); border-radius: 9999px; overflow: hidden;">
+                            <div style="height: 100%; width: @percent%; background-color: @(isFull ? "var(--danger)" : "var(--primary)"); border-radius: 9999px; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div style="display: flex; gap: 0.75rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                    <a href="events/@ev.Id" class="btn-ef-secondary" style="flex: 1; justify-content: center;">
+                        Chi tiết
+                    </a>
+                    @if (ev.Status == EventStatus.Upcoming && !isFull)
+                    {
+                        <a href="events/@ev.Id" class="btn-ef-primary" style="flex: 1; justify-content: center;">
+                            Đăng ký
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn-ef-secondary" style="flex: 1; justify-content: center; opacity: 0.6; cursor: not-allowed;" disabled>
+                            @(isFull ? "Hết chỗ" : "Đã đóng")
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+@code {
+    private List<EventDto> allEvents = new();
+    private List<EventDto> filteredEvents = new();
+    private string searchQuery = string.Empty;
+    private EventStatus? selectedStatus = null;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventsAsync();
+    }
+
+    private async Task LoadEventsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            allEvents = await EventApi.GetEventsAsync();
+            ApplyFilters();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void FilterByStatus(EventStatus? status)
+    {
+        selectedStatus = status;
+        ApplyFilters();
+    }
+
+    private void OnFilterChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var query = allEvents.AsEnumerable();
+
+        if (selectedStatus.HasValue)
+        {
+            query = query.Where(e => e.Status == selectedStatus.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var s = searchQuery.Trim().ToLower();
+            query = query.Where(e => e.Name.ToLower().Contains(s) || e.Location.ToLower().Contains(s) || e.Description.ToLower().Contains(s));
+        }
+
+        filteredEvents = query.ToList();
+    }
+
+    private static string GetStatusBadgeClass(EventStatus status) => status switch
+    {
+        EventStatus.Upcoming => "badge-primary",
+        EventStatus.Ongoing => "badge-success",
+        EventStatus.Completed => "badge-secondary",
+        EventStatus.Cancelled => "badge-danger",
+        _ => "badge-secondary"
+    };
+
+    private static string GetStatusName(EventStatus status) => status switch
+    {
+        EventStatus.Upcoming => "Sắp diễn ra",
+        EventStatus.Ongoing => "Đang diễn ra",
+        EventStatus.Completed => "Đã kết thúc",
+        EventStatus.Cancelled => "Đã hủy",
+        _ => "Không rõ"
+    };
+}
