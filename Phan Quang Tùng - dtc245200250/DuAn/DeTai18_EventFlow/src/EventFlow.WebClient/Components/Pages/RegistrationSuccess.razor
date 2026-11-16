@@ -86,8 +86,8 @@ else
 
                 <!-- QR Code Box -->
                 <div style="text-align: center; border-left: 1px dashed var(--border); padding-left: 1.25rem;">
-                    <div style="background: white; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); display: inline-block;">
-                        @((MarkupString)QrCodeHelper.GenerateSvgQr(ticket.RegistrationCode, 150))
+                    <div class="qr-code-box">
+                        @((MarkupString)QrCodeHelper.GenerateSvgQr(ticket.RegistrationCode, 4))
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">
                         Quét mã tại quầy Check-in

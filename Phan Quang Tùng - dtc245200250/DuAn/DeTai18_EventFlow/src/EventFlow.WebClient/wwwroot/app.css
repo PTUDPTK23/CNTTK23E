@@ -465,3 +465,22 @@ p {
     border-radius: 50%;
     background-color: var(--text-muted);
 }
+
+/* Scannable QR Code Container */
+.qr-code-box {
+    background: #FFFFFF;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    width: 160px;
+    height: 160px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.qr-code-box svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}

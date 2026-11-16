@@ -99,8 +99,10 @@
                     }
                 </div>
 
-                <div style="text-align: center; border-left: 1px dashed var(--border); padding-left: 1rem;">
-                    @((MarkupString)QrCodeHelper.GenerateSvgQr(ticket.RegistrationCode, 140))
+                <div style="text-align: center; border-left: 1px dashed var(--border); padding-left: 1rem; display: flex; flex-direction: column; align-items: center;">
+                    <div class="qr-code-box" style="width: 140px; height: 140px; margin-bottom: 0.35rem;">
+                        @((MarkupString)QrCodeHelper.GenerateSvgQr(ticket.RegistrationCode, 4))
+                    </div>
                     <div style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.35rem;">QR Check-in</div>
                 </div>
             </div>

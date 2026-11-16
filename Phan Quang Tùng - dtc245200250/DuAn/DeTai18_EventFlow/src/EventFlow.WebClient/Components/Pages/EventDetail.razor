@@ -117,7 +117,33 @@ else
                     </div>
                 }
 
-                @if (!canRegister)
+                @if (registrationResult != null)
+                {
+                    <div style="text-align: center; border: 2px dashed var(--success); border-radius: var(--radius-sm); padding: 1.25rem; background-color: var(--success-light);">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background-color: var(--success); color: white; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h4 style="font-size: 1.1rem; font-weight: 700; color: #166534; margin-bottom: 0.2rem;">Đăng ký thành công!</h4>
+                        <div style="font-size: 0.8rem; color: #15803d; margin-bottom: 0.85rem;">Mã vé: <strong>@registrationResult.RegistrationCode</strong></div>
+
+                        <div class="qr-code-box" style="margin: 0 auto 0.75rem auto; width: 150px; height: 150px; background: white; padding: 6px; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                            @((MarkupString)QrCodeHelper.GenerateSvgQr(registrationResult.RegistrationCode, 4))
+                        </div>
+                        <div style="font-size: 0.75rem; color: #166534; margin-bottom: 1rem;">Mã QR điện tử sẵn sàng check-in</div>
+
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <a href="registration-success/@registrationResult.RegistrationCode" class="btn-ef-primary" style="justify-content: center; font-size: 0.85rem;">
+                                Xem trang vé đầy đủ & In vé
+                            </a>
+                            <button type="button" class="btn-ef-secondary" style="justify-content: center; font-size: 0.85rem;" @onclick="ResetForm">
+                                Đăng ký người khác
+                            </button>
+                        </div>
+                    </div>
+                }
+                else if (!canRegister)
                 {
                     <div style="text-align: center; padding: 1.5rem 0.5rem;">
                         <div class="badge-modern badge-danger mb-2" style="font-size: 0.85rem;">
@@ -166,9 +192,58 @@ else
     </div>
 }
 
+@if (showSuccessModal && registrationResult != null)
+{
+    <div style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+        <div class="card-modern" style="max-width: 520px; width: 100%; box-shadow: var(--shadow-lg); border-top: 4px solid var(--success); text-align: center; animation: popIn 0.25s ease-out;">
+            <div style="width: 54px; height: 54px; border-radius: 50%; background-color: var(--success-light); color: var(--success); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                <svg width="30" height="30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary);">Đăng ký Tham dự Thành công!</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                Vé điện tử và mã QR chuẩn quốc tế đã sẵn sàng để check-in tại sự kiện.
+            </p>
+
+            <!-- QR Code container -->
+            <div style="background-color: var(--background); border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;">
+                <div class="qr-code-box" style="margin: 0 auto 0.5rem auto; width: 160px; height: 160px;">
+                    @((MarkupString)QrCodeHelper.GenerateSvgQr(registrationResult.RegistrationCode, 4))
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">Mã Đăng ký (Check-in Code)</div>
+                <div style="font-family: monospace; font-size: 1.35rem; font-weight: 800; color: var(--primary); letter-spacing: 0.05em;">
+                    @registrationResult.RegistrationCode
+                </div>
+            </div>
+
+            <!-- Participant Info -->
+            <div style="text-align: left; background-color: var(--background); border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.85rem; margin-bottom: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <div><span style="color: var(--text-muted);">Họ và tên:</span> <strong>@registrationResult.ParticipantName</strong></div>
+                <div><span style="color: var(--text-muted);">Sự kiện:</span> <strong>@(ev?.Name ?? "")</strong></div>
+                <div><span style="color: var(--text-muted);">Email:</span> <span>@registrationResult.ParticipantEmail</span></div>
+                <div><span style="color: var(--text-muted);">SĐT:</span> <span>@(string.IsNullOrEmpty(registrationResult.ParticipantPhone) ? "Chưa cung cấp" : registrationResult.ParticipantPhone)</span></div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                <a href="registration-success/@registrationResult.RegistrationCode" class="btn-ef-primary" style="flex: 1; justify-content: center;">
+                    Xem & In vé đầy đủ
+                </a>
+                <button type="button" class="btn-ef-secondary" style="flex: 1; justify-content: center;" @onclick="() => showSuccessModal = false">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 <style>
     @@keyframes spin {
         to { transform: rotate(360deg); }
+    }
+    @@keyframes popIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
     }
 </style>
 
@@ -181,6 +256,8 @@ else
     private bool isSubmitting = false;
     private string? errorMessage;
     private RegisterParticipantRequest registerModel = new();
+    private RegistrationDetailDto? registrationResult;
+    private bool showSuccessModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -210,7 +287,10 @@ else
             var (success, data, error) = await EventApi.RegisterParticipantAsync(Id, registerModel);
             if (success && data != null)
             {
-                Navigation.NavigateTo($"registration-success/{data.RegistrationCode}");
+                registrationResult = data;
+                showSuccessModal = true;
+                // Refresh event to get latest remaining capacity
+                await LoadEventAsync();
             }
             else
             {
@@ -223,6 +303,14 @@ else
         {
             isSubmitting = false;
         }
+    }
+
+    private void ResetForm()
+    {
+        registerModel = new();
+        registrationResult = null;
+        showSuccessModal = false;
+        errorMessage = null;
     }
 
     private static string GetStatusBadgeClass(EventStatus status) => status switch
