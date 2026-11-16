@@ -1,0 +1,20 @@
+@api = http://localhost:5100
+
+### 1. Danh sách sản phẩm (200 OK)
+GET {{api}}/api/products
+
+### 2. Chi tiết sản phẩm (200 OK)
+GET {{api}}/api/products/1
+
+### 3. Sản phẩm không tồn tại (404 Not Found)
+GET {{api}}/api/products/999
+
+### 4. Tạo sản phẩm hợp lệ (201 Created)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
