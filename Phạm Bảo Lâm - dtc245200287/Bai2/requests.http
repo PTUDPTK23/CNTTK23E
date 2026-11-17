@@ -1,25 +1,34 @@
-@api = http://localhost:5000
+@baseUrl = http://localhost:5100
 
-### Kiem tra API
-GET {{api}}/
+### 1. Kiểm tra trạng thái API (200 OK)
+GET {{baseUrl}}/
 
-### Danh sach 3 bai tap
-GET {{api}}/api/assignments
+### 2. Lấy toàn bộ danh sách sản phẩm (200 OK)
+GET {{baseUrl}}/api/products
 
-### Tao luot nop hop le
-POST {{api}}/api/submissions
+### 3. Lấy chi tiết sản phẩm hợp lệ theo ID (200 OK)
+GET {{baseUrl}}/api/products/1
+
+### 4. Lọc sản phẩm theo từ khóa Query String (200 OK)
+GET {{baseUrl}}/api/products?keyword=Laptop
+
+### 5. Tạo sản phẩm mới hợp lệ (201 Created)
+POST {{baseUrl}}/api/products
 Content-Type: application/json
 
-{ "assignmentId": 1, "studentCode": "SV001", "repositoryUrl": "https://example.com/sv001/bai-tap-1" }
+{
+  "name": "Bàn phím cơ không dây",
+  "price": 1250000
+}
 
-### Loi 400 khi thieu StudentCode
-POST {{api}}/api/submissions
+### 6. Tạo sản phẩm lỗi dữ liệu đầu vào - tên rỗng / giá âm (400 Bad Request)
+POST {{baseUrl}}/api/products
 Content-Type: application/json
 
-{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://example.com/x" }
+{
+  "name": "",
+  "price": -50000
+}
 
-### Tra cuu: thay <id> bang id tu response POST
-GET {{api}}/api/submissions/<id>
-
-### Loi 404 voi id khong ton tai
-GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+### 7. Tra cứu sản phẩm không tồn tại (404 Not Found)
+GET {{baseUrl}}/api/products/999
