@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fc">
+  <title>Tạo tài khoản | InvoiceFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/css/base.css">
+  <link rel="stylesheet" href="shared/css/auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-layout register-layout">
+    <section class="welcome-panel" aria-label="Giới thiệu hệ thống">
+      <a class="brand" href="index.html" aria-label="InvoiceFlow - Trang chủ">
+        <span class="brand-mark" aria-hidden="true">I</span>
+        <span>Invoice<span class="brand-light">Flow</span></span>
+      </a>
+      <div class="welcome-copy">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> BẮT ĐẦU TRONG VÀI PHÚT</span>
+        <h1>Quản lý hóa đơn<br>theo cách của bạn.</h1>
+        <p>Tạo tài khoản khách hàng để bắt đầu sử dụng hệ thống quản lý hóa đơn tập trung.</p>
+      </div>
+      <div class="welcome-footer"><span class="welcome-caption">Thông tin của bạn được sử dụng để tạo hồ sơ khách hàng.</span></div>
+      <div class="decor decor-one" aria-hidden="true"></div>
+      <div class="decor decor-two" aria-hidden="true"></div>
+    </section>
+
+    <section class="form-panel">
+      <div class="auth-card register-card">
+        <div class="mobile-brand brand"><span class="brand-mark" aria-hidden="true">I</span><span>Invoice<span class="brand-light">Flow</span></span></div>
+        <div class="form-heading">
+          <span class="form-kicker">TÀI KHOẢN KHÁCH HÀNG</span>
+          <h2>Tạo tài khoản</h2>
+          <p>Điền thông tin bên dưới để đăng ký.</p>
+        </div>
+
+        <form id="register-form" class="auth-form" novalidate>
+          <label class="field-label" for="register-name">Họ và tên</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0 1 14 0"></path></svg>
+            <input id="register-name" name="fullName" type="text" placeholder="Nguyễn Văn An" autocomplete="name" minlength="2" maxlength="120" required>
+          </div>
+
+          <label class="field-label" for="register-email">Email</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"></rect><path d="m4.5 7 7.5 6 7.5-6"></path></svg>
+            <input id="register-email" name="email" type="email" placeholder="ten@congty.com" autocomplete="email" required>
+          </div>
+
+          <label class="field-label" for="register-role">Vai trò</label>
+          <div class="input-wrap role-select-wrap">
+            <select id="register-role" name="role" aria-label="Chọn vai trò">
+              <option value="customer">Khách hàng</option>
+              <option value="staff">Nhân viên</option>
+              <option value="admin">Quản trị viên</option>
+            </select>
+          </div>
+
+          <label class="field-label" for="register-phone">Số điện thoại <span class="optional">(không bắt buộc)</span></label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10A1.5 1.5 0 0 1 18.5 5v14a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5Z"></path><path d="M10 17.5h4"></path></svg>
+            <input id="register-phone" name="phone" type="tel" placeholder="090 123 4567" autocomplete="tel" inputmode="tel">
+          </div>
+
+          <label class="field-label" for="register-password">Mật khẩu</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+            <input id="register-password" name="password" type="password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password" minlength="8" required>
+            <button class="password-toggle" type="button" data-toggle-password="register-password" aria-label="Hiện mật khẩu">Hiện</button>
+          </div>
+
+          <label class="field-label" for="register-confirm">Xác nhận mật khẩu</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+            <input id="register-confirm" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu" autocomplete="new-password" minlength="8" required>
+            <button class="password-toggle" type="button" data-toggle-password="register-confirm" aria-label="Hiện mật khẩu">Hiện</button>
+          </div>
+
+          <label class="check-label terms-check"><input id="register-terms" name="terms" type="checkbox" required><span>Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật.</span></label>
+          <button class="primary-button" type="submit">Tạo tài khoản <span aria-hidden="true">→</span></button>
+          <p id="register-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+        <p class="switch-form register-switch">Đã có tài khoản? <a href="index.html">Đăng nhập</a></p>
+        <p class="staff-note">Đăng ký hiện dành cho khách hàng. Nhân viên và quản trị viên được cấp tài khoản riêng.</p>
+      </div>
+      <footer class="page-footer"><span>© 2026 InvoiceFlow</span><a href="mailto:support@example.com">Cần hỗ trợ?</a></footer>
+    </section>
+  </main>
+  <script src="shared/js/auth.js" defer></script>
+</body>
+</html>
