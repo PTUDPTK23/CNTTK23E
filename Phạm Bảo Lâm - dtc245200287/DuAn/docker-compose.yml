@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"          # chỉ cần khi chạy API/Worker bằng dotnet run trên máy
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [library-net]
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"          # chỉ cần khi chạy API/Worker bằng dotnet run trên máy
+      - "15672:15672"        # giao diện quản trị: http://localhost:15672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [library-net]
+
+  api:
+    build:
+      context: .
+      dockerfile: src/Library.Api/Dockerfile
+    environment:
+      ConnectionStrings__Library: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      RabbitMq__Host: rabbitmq
+      RabbitMq__User: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASS}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+    networks: [library-net]
+
+  worker:
+    build:
+      context: .
+      dockerfile: src/Library.Worker/Dockerfile
+    environment:
+      ConnectionStrings__Library: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      RabbitMq__Host: rabbitmq
+      RabbitMq__User: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASS}
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+    networks: [library-net]
+
+  client:                    # chạy khi cần: docker compose run --rm client
+    build:
+      context: .
+      dockerfile: src/Library.Client/Dockerfile
+    profiles: ["tools"]
+    environment:
+      LIBRARY_API_URL: http://api:8080
+    depends_on: [api]
+    stdin_open: true
+    tty: true
+    networks: [library-net]
+
+networks:
+  library-net:
+
+volumes:
+  pgdata:
