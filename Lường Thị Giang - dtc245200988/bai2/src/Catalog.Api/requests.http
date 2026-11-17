@@ -1,0 +1,35 @@
+@host=http://localhost:5100
+
+###
+GET {{host}}/
+
+###
+GET {{host}}/api/products
+
+###
+GET {{host}}/api/products/2
+
+###
+POST {{host}}/api/products
+Content-Type: application/json
+
+{
+  "id": 5,
+  "name": "Speaker",
+  "description": "Loa Bluetooth",
+  "price": 990000
+}
+
+###
+PUT {{host}}/api/products/2
+Content-Type: application/json
+
+{
+  "id": 2,
+  "name": "Mouse Gaming",
+  "description": "Logitech G102",
+  "price": 350000
+}
+
+###
+DELETE {{host}}/api/products/5

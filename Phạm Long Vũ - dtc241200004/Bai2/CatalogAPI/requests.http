@@ -1,0 +1,44 @@
+@api = http://localhost:5100
+
+### 1. Kiểm tra máy chủ đang chạy -> 200
+GET {{api}}/
+
+### 2. Danh sách sản phẩm -> 200
+GET {{api}}/api/products
+
+### 3. Chi tiết sản phẩm tồn tại -> 200
+GET {{api}}/api/products/1
+
+### 4. Chi tiết sản phẩm không tồn tại -> 404 + ApiError
+GET {{api}}/api/products/999
+
+### 5. Tham số tuyến không hợp lệ -> 404 rỗng (do framework chặn)
+GET {{api}}/api/products/abc
+
+### 6. Tạo sản phẩm hợp lệ -> 201 Created + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Tạo sản phẩm sai quy tắc (giá âm) -> 400 + ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 8. Thiếu Content-Type header -> 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{
+  "name": "Thieu Header",
+  "price": 50000
+}

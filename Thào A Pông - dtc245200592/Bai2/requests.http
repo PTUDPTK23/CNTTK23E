@@ -1,0 +1,31 @@
+
+@api = http://localhost:5100
+
+### 1. Danh sach san pham - 200 OK
+GET {{api}}/api/products
+
+### 2. San pham khong ton tai - 404 Not Found
+GET {{api}}/api/products/999
+
+### 3. Chi tiet san pham - 200 OK
+GET {{api}}/api/products/1
+
+### 4. Tao san pham hop le - 201 Created
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+    "name": "Lap trinh gRPC",
+    "description": "Tai lieu bai 5",
+    "price": 80000
+}
+
+### 5. Tao san pham khong hop le - 400 Bad Request
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+    "name": "San pham loi",
+    "description": "",
+    "price": -1
+}
