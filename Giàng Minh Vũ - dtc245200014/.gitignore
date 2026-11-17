@@ -1,0 +1,14 @@
+
+# .NET build
+**/bin/
+**/obj/
+**/.vs/
+
+# Node.js
+**/node_modules/
+**/dist/
+
+# Temporary files
+**/*.user
+**/*.suo
+**/*.cache
