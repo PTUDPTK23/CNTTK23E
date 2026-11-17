@@ -1,0 +1,8 @@
+**/bin
+**/obj
+.packages
+.local
+.git
+TestResults
+*.pdf
+.env

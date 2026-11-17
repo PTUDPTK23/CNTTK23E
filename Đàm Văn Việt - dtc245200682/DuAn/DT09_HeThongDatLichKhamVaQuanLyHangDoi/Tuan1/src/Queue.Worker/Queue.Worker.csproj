@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../Clinic.Core/Clinic.Core.csproj" /></ItemGroup>
+</Project>

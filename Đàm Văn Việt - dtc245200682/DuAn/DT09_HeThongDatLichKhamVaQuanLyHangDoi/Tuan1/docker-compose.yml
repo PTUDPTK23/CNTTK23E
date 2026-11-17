@@ -1,0 +1,74 @@
+name: clinic09
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: clinic
+      POSTGRES_USER: clinic
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clinic-demo-password}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinic -d clinic"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: clinic
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-clinic-demo-password}
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes: ["rabbitmq_data:/var/lib/rabbitmq"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  api:
+    build:
+      context: .
+      dockerfile: src/Appointment.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Clinic: Host=postgres;Database=clinic;Username=clinic;Password=${POSTGRES_PASSWORD:-clinic-demo-password}
+      RabbitMQ__Uri: amqp://clinic:${RABBITMQ_PASSWORD:-clinic-demo-password}@rabbitmq:5672/
+      Auth__StaffPassword: ${STAFF_PASSWORD:-demo-staff-2026}
+      Auth__SigningKey: ${AUTH_SIGNING_KEY:-demo-only-change-this-signing-key-32-characters}
+      Notification__PublicUrl: http://localhost:${NOTIFICATION_PORT:-5081}
+    ports: ["127.0.0.1:${API_PORT:-5080}:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+  worker:
+    build:
+      context: .
+      dockerfile: src/Queue.Worker/Dockerfile
+    environment:
+      ConnectionStrings__Clinic: Host=postgres;Database=clinic;Username=clinic;Password=${POSTGRES_PASSWORD:-clinic-demo-password}
+      RabbitMQ__Uri: amqp://clinic:${RABBITMQ_PASSWORD:-clinic-demo-password}@rabbitmq:5672/
+    depends_on:
+      postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+  notification:
+    build:
+      context: .
+      dockerfile: src/Notification.Service/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Clinic: Host=postgres;Database=clinic;Username=clinic;Password=${POSTGRES_PASSWORD:-clinic-demo-password}
+      RabbitMQ__Uri: amqp://clinic:${RABBITMQ_PASSWORD:-clinic-demo-password}@rabbitmq:5672/
+      ClientOrigins__0: http://localhost:${API_PORT:-5080}
+      ClientOrigins__1: http://127.0.0.1:${API_PORT:-5080}
+    ports: ["127.0.0.1:${NOTIFICATION_PORT:-5081}:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  rabbitmq_data:

@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+.packages/
+.local/
+.env
+TestResults/
+*.user
+~$*.docx
+__pycache__/
+*.pyc
