@@ -1,0 +1,87 @@
+# AGENTS.md — Quy tắc làm việc với MediQueue
+
+Tệp này áp dụng cho toàn bộ cây thư mục `DuAn`.
+
+## 1. Bối cảnh cố định
+
+- Sản phẩm: `MediQueue`, mã đề tài `09`.
+- Nhánh làm việc: `duan-dtc245200016`.
+- Stack: C# / .NET 10 / ASP.NET Core Web API / Razor Pages / EF Core.
+- SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; database: `MediQueue`.
+- Hạ tầng phân tán: RabbitMQ, .NET Worker Service, SignalR.
+- Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`.
+- Một website và một form đăng nhập dùng chung; điều hướng theo Role sau xác thực.
+- Phiên bản đầu phục vụ một cơ sở y tế, không có mô hình đa chi nhánh.
+- Mỗi Doctor thuộc đúng một Specialty; một Specialty có nhiều Doctor.
+- Identity phát JWT Access Token có thời hạn; không triển khai Refresh Token ở phiên bản đầu.
+- Không sử dụng Docker dưới bất kỳ hình thức nào.
+
+## 2. Ranh giới an toàn trước khi làm việc
+
+1. Xác nhận thư mục hiện tại thuộc `DuAn`.
+2. Chạy `git branch --show-current` và `git status --short --branch`.
+3. Nếu không ở nhánh `duan-dtc245200016`, dừng và báo cáo; không tự chuyển nhánh.
+4. Không sửa bất kỳ nội dung nào ngoài `DuAn`, đặc biệt là `Bai1` đến `Bai9`.
+5. Không tạo repository Git lồng trong `DuAn`.
+6. Giữ nguyên thay đổi có sẵn của người dùng; không reset, checkout hay xóa chúng.
+
+## 3. Quy ước kiến trúc
+
+- Giữ đúng các thành phần: `MediQueue.Web`, `MediQueue.Appointment.Api`, `MediQueue.Queue.Worker`, `MediQueue.Notification.Service`, `MediQueue.Domain`, `MediQueue.Infrastructure`, `MediQueue.Contracts`.
+- Yêu cầu cấp số **bắt buộc** đi qua RabbitMQ; không cấp số đồng bộ trong HTTP request.
+- Sự kiện thay đổi hàng đợi **bắt buộc** đi qua RabbitMQ trước khi Notification Service phát SignalR.
+- Dùng `MediQueue.Contracts` cho message contract; không chia sẻ EF entity qua message/API.
+- Backend luôn kiểm tra Role, quyền sở hữu và phạm vi bác sĩ; không xem việc ẩn nút trên UI là phân quyền.
+- Thiết kế consumer theo at-least-once: message có `MessageId`, inbox/idempotency và retry có giới hạn.
+- Giữ transactional outbox/inbox trong thiết kế để không mất message và chống xử lý lặp; triển khai tăng dần theo roadmap.
+- Mọi thay đổi schema phải đi qua EF Core Migration được review; không tự chạy Migration lên database có sẵn.
+
+## 4. Quy ước nghiệp vụ tối thiểu
+
+- Không đặt lịch quá khứ, hết chỗ hoặc trùng thời gian của Patient.
+- Chống overbooking bằng transaction và optimistic concurrency/điều kiện cập nhật nguyên tử.
+- Trạng thái Appointment chỉ gồm `PendingNumber`, `Waiting`, `Serving`, `Completed`, `Cancelled`, `NoShow`; phiên bản đầu không có `Called`/`Skipped`.
+- Sau khi đặt thành công, Appointment ở `PendingNumber`; Worker cấp QueueTicket ngay qua RabbitMQ rồi chuyển sang `Waiting`.
+- Mỗi Appointment tối đa một QueueTicket; QueueNumber là số nguyên duy nhất theo Doctor/ngày, bắt đầu lại từ 1 mỗi ngày, không tái sử dụng và hiển thị tối thiểu ba chữ số.
+- Không cấp/gọi số cho Appointment đã hủy.
+- Thứ tự phục vụ: khung giờ đăng ký, sau đó QueueNumber trong khung giờ; không gọi slot chưa đến giờ.
+- Mỗi Doctor tối đa một lượt `Serving` tại một thời điểm.
+- `call-next` chuyển trực tiếp `Waiting → Serving`; chỉ Doctor phụ trách được gọi lượt, hoàn thành hoặc xác nhận `NoShow` cho lượt kế tiếp đủ điều kiện.
+- Không gọi lại `NoShow` trong phiên bản đầu.
+- Patient được hủy trước `Slot.StartAt` khi Appointment chưa được phục vụ; hủy giải phóng chỗ đúng một lần nhưng không tái sử dụng QueueNumber.
+- Check-in chỉ là thông tin tiếp nhận do Receptionist ghi nhận, không phải điều kiện cấp số.
+- `WaitingCount` và số người phía trước phải được đếm từ bản ghi theo trạng thái/thứ tự, không suy ra bằng phép trừ QueueNumber.
+- Patient chỉ truy cập dữ liệu của mình; Doctor chỉ điều phối hàng đợi của mình.
+- Người dùng phải đăng nhập để theo dõi queue; không công khai dữ liệu Patient khác.
+- Hủy hợp lệ phải giải phóng chỗ đúng một lần.
+- SignalR client phải tự kết nối lại và tải snapshot sau khi kết nối lại.
+
+## 5. Quy ước tài liệu và mã nguồn tương lai
+
+- Tài liệu viết tiếng Việt có dấu, UTF-8; tên Role, class, entity, endpoint và thuật ngữ kỹ thuật dùng tiếng Anh nhất quán.
+- Phân biệt `[Bắt buộc]` với `[Mở rộng]`; quyết định chưa xác nhận phải ghi **Đề xuất**.
+- API dùng DTO riêng, validation ở biên hệ thống và lỗi theo `ProblemDetails`.
+- Dùng thời gian UTC trong lưu trữ kỹ thuật; mọi quyết định nghiệp vụ quy đổi nhất quán theo `Asia/Ho_Chi_Minh`.
+- Không lưu JWT bền vững trong `localStorage`/`sessionStorage`; SignalR phải xác thực và kiểm tra quyền group ở server.
+- Không ghi secret, mật khẩu, connection string thật hoặc dữ liệu bệnh nhân thật vào Git.
+- Test tối thiểu gồm unit test quy tắc nghiệp vụ, integration test API/database và test consumer idempotency.
+
+## 6. Các hành động cần sự đồng ý rõ ràng
+
+Không tự thực hiện các hành động sau nếu người dùng chưa yêu cầu trong lượt hiện tại:
+
+- Khởi tạo solution/project hoặc cài package.
+- Thực thi SQL, Migration, seed hoặc thay đổi database `MediQueue`.
+- Cài/chỉnh RabbitMQ, Erlang hay dịch vụ Windows.
+- Thay đổi công nghệ, kiến trúc hoặc bổ sung chức năng ngoài phạm vi đề tài.
+- Commit, push, tạo branch, Pull Request hoặc làm giả lịch sử phát triển.
+
+Trước Migration đầu tiên, chỉ khảo sát schema database `MediQueue` ở chế độ read-only, lập kế hoạch thay đổi và chờ người dùng duyệt. Không xóa hoặc tạo lại database.
+
+## 7. Kiểm tra trước khi bàn giao
+
+- So khớp yêu cầu bắt buộc với Use Case, API, dữ liệu và kiến trúc.
+- Kiểm tra Mermaid và liên kết tài liệu.
+- Chạy các kiểm tra phù hợp với đúng giai đoạn; không tạo mã chỉ để kiểm tra tài liệu.
+- Báo cáo file đã đổi, quyết định thiết kế, điểm còn cần xác nhận và `git status` cuối cùng.
+
