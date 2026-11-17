@@ -4,6 +4,18 @@
 
 Thư mục nộp bài tập và đồ án của sinh viên lớp **Phát triển ứng dụng phân tán** (K23.K1.D2.2627.CNTT K23E).
 
+## 📢 Thông báo – Hạn sửa Bài 1, Bài 2 (cập nhật 17/11/2026)
+
+1. Chỉ chấm những bạn **đã có Pull Request (PR)**. Bạn nào chưa nộp PR thì không chấm.
+2. PR đang bị "Changes requested" hoặc có nhận xét lỗi: đọc lý do cô ghi ở tab **Conversation**, sửa trong fork của em rồi **commit + push thêm vào đúng nhánh của PR đó**. **Không mở PR mới, không đóng PR cũ** (PR mới nộp sau hạn sẽ bị hệ thống tự đóng).
+3. Dòng "Quá hạn" do hệ thống tự gắn chỉ để ghi nhận. Bài sửa đến hạn bên dưới vẫn được chấm, không trừ điểm nộp muộn.
+4. **Hạn cuối để push bản sửa: 17h00 ngày 18/11/2026.** Sau giờ này cô không xem thêm.
+5. Trước khi push, tự kiểm: bài nằm trong `<Họ tên> - <MSSV>/Bai2/`; không có `bin/`, `obj/` (có `.gitignore`); `requests.http` đủ 7 request có 200, 201, 400, 404; README có lệnh chạy, ảnh/kết quả chạy, bảng phá thử, trả lời 3 câu hỏi.
+6. Sau khi push, bình luận 1 dòng trong PR để cô biết đã sửa.
+
+Tối 18/11 (sau 17h00) cô duyệt và chấm lần cuối cho Bài 1, Bài 2, sau đó chuyển sang Bài 3. Bài 3 sẽ có hạn nộp cố định, rõ ràng, không nhắc và không chấm lại.
+
+
 ## Hướng dẫn nộp bài (Fork + Pull Request)
 > Sinh viên chỉ có quyền **xem** repo này, **không push trực tiếp** được. Mọi bài nộp đều gửi qua **Pull Request (PR)**; giảng viên kiểm tra rồi mới gộp vào.
 
