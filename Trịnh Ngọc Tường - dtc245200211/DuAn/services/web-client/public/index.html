@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoGrader PTUDPT - Trịnh Ngọc Tường</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- TOP NAVBAR -->
+  <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-server text-white text-lg"></i>
+        </div>
+        <div>
+          <span class="text-lg font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            Distributed AutoGrader
+          </span>
+          <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PTUDPT - 9 Tuần</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div class="text-right hidden sm:block">
+          <p class="text-sm font-semibold text-slate-200">Trịnh Ngọc Tường</p>
+          <p class="text-xs text-indigo-400 font-mono">MSSV: DTC245200211</p>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 border border-slate-600">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+    
+    <!-- LEFT PANEL: 9 WEEKS LIST -->
+    <div class="lg:col-span-4 space-y-4">
+      <div class="bg-slate-800/90 rounded-2xl p-5 border border-slate-700/80 shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-calendar-days text-indigo-400"></i> Lộ trình 9 Tuần Học
+          </h2>
+          <span class="text-xs text-slate-400 bg-slate-700 px-2.5 py-1 rounded-md">9 Bài thực hành</span>
+        </div>
+
+        <div id="assignment-list" class="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
+          <!-- Sẽ được render động từ API -->
+          <div class="p-4 rounded-xl bg-slate-700/50 animate-pulse text-xs text-slate-400">Đang tải danh sách bài tập...</div>
+        </div>
+      </div>
+
+      <!-- DISTRIBUTED SYSTEM HEALTH CARD -->
+      <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/50">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-network-wired text-cyan-400"></i> Hạ tầng phân tán (Cluster Nodes)
+        </h3>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-700">
+            <span class="text-slate-400 block">Queue Broker</span>
+            <span class="text-emerald-400 font-semibold flex items-center gap-1 mt-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> RabbitMQ Online
+            </span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-700">
+            <span class="text-slate-400 block">Grader Workers</span>
+            <span class="text-indigo-400 font-semibold mt-1 block">3 Nodes Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: SUBMISSION & REALTIME LOGS -->
+    <div class="lg:col-span-8 space-y-6">
+      
+      <!-- ASSIGNMENT DETAIL & CODE SUBMISSION -->
+      <div class="bg-slate-800/90 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-700">
+          <div>
+            <h1 id="selected-title" class="text-xl font-bold text-white">Tuần 1: Lập trình Mạng Socket TCP/UDP</h1>
+            <p id="selected-desc" class="text-sm text-slate-400 mt-1">Viết chương trình Client - Server tính toán biểu thức số học qua giao thức TCP Socket.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="lang-select" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-indigo-500">
+              <option value="PYTHON">Python 3</option>
+              <option value="JAVASCRIPT">Node.js</option>
+              <option value="JAVA">Java 17</option>
+              <option value="CPP">C++ 17</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CODE EDITOR AREA -->
+        <div class="mt-4">
+          <div class="flex justify-between items-center text-xs text-slate-400 mb-1.5 font-mono px-1">
+            <span><i class="fa-solid fa-code text-indigo-400"></i> Mã nguồn giải thuật (Solution Code)</span>
+            <span>Giới hạn: 2000ms | 256MB</span>
+          </div>
+          <textarea id="code-input" class="w-full h-56 bg-slate-950 font-mono text-sm text-emerald-400 p-4 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 shadow-inner" spellcheck="false"># Chương trình xử lý tính toán số học mẫu (Tuần 1 Socket Lab)
+import sys
+
+def main():
+    lines = sys.stdin.read().strip().split('\n')
+    for line in lines:
+        if not line: continue
+        parts = line.split()
+        cmd = parts[0]
+        a, b = int(parts[1]), int(parts[2])
+        if cmd == 'ADD': print(f"RESULT {a + b}")
+        elif cmd == 'SUB': print(f"RESULT {a - b}")
+        elif cmd == 'MUL': print(f"RESULT {a * b}")
+        elif cmd == 'DIV':
+            if b == 0: print("ERROR DIVISION_BY_ZERO")
+            else: print(f"RESULT {a // b}")
+
+if __name__ == '__main__':
+    main()
+</textarea>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button id="btn-submit" onclick="submitCode()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition">
+            <i class="fa-solid fa-paper-plane"></i> Nộp Bài & Chấm Tự Động
+          </button>
+        </div>
+      </div>
+
+      <!-- REALTIME GRADING TIMELINE & RESULTS -->
+      <div id="result-box" class="bg-slate-800/90 rounded-2xl p-6 border border-slate-700/80 shadow-xl hidden">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-700">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-microchip text-cyan-400"></i> Kết Quả Chấm Bài Phân Tán
+          </h3>
+          <span id="verdict-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            PENDING IN QUEUE
+          </span>
+        </div>
+
+        <!-- PROGRESS STEPS -->
+        <div class="my-5 grid grid-cols-4 gap-2 text-center text-xs">
+          <div id="step-1" class="p-2 rounded-lg bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/40">1. Đã nhận bài</div>
+          <div id="step-2" class="p-2 rounded-lg bg-slate-900/60 text-slate-500">2. Vào RabbitMQ</div>
+          <div id="step-3" class="p-2 rounded-lg bg-slate-900/60 text-slate-500">3. Worker Sandbox</div>
+          <div id="step-4" class="p-2 rounded-lg bg-slate-900/60 text-slate-500">4. Hoàn tất</div>
+        </div>
+
+        <!-- SCORE METRICS -->
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 text-center">
+            <span class="text-slate-400 text-xs block">Điểm số</span>
+            <span id="score-text" class="text-2xl font-bold text-white font-mono mt-1 block">-- / 10</span>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 text-center">
+            <span class="text-slate-400 text-xs block">Thời gian chạy</span>
+            <span id="time-text" class="text-2xl font-bold text-cyan-400 font-mono mt-1 block">-- ms</span>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 text-center">
+            <span class="text-slate-400 text-xs block">Bộ nhớ dùng</span>
+            <span id="mem-text" class="text-2xl font-bold text-indigo-400 font-mono mt-1 block">-- KB</span>
+          </div>
+        </div>
+
+        <!-- DETAILED TESTCASES -->
+        <div>
+          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Chi tiết Test cases:</h4>
+          <div id="testcases-list" class="space-y-2 text-xs font-mono">
+            <!-- Render test case rows -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="bg-slate-950 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+    Đồ án môn Phát triển ứng dụng phân tán © 2026 - Sinh viên: Trịnh Ngọc Tường (MSSV: DTC245200211)
+  </footer>
+
+  <script>
+    const API_BASE = window.location.origin.includes(':3000') ? 'http://localhost:5000/api' : '/api';
+    const SOCKET_BASE = window.location.origin.includes(':3000') ? 'http://localhost:5000' : '';
+    let currentAssignmentId = null;
+    let assignments = [];
+    let socket = null;
+
+    try {
+      socket = io(SOCKET_BASE);
+      socket.on('connect', () => console.log('Socket.IO Connected!'));
+    } catch(e) {
+      console.warn('Socket server not reachable yet:', e);
+    }
+
+    async function loadAssignments() {
+      try {
+        const res = await fetch(`${API_BASE}/assignments`);
+        assignments = await res.json();
+        const container = document.getElementById('assignment-list');
+        container.innerHTML = '';
+
+        assignments.forEach((a, idx) => {
+          const item = document.createElement('div');
+          item.className = `p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
+            idx === 0 ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-200' : 'bg-slate-900/50 border-slate-700 hover:border-slate-500 text-slate-300'
+          }`;
+          item.onclick = () => selectAssignment(a.id);
+          item.innerHTML = `
+            <div>
+              <span class="text-xs font-bold text-indigo-400 block font-mono">TUẦN ${a.week_no}</span>
+              <p class="text-sm font-semibold text-white line-clamp-1">${a.title.split(':')[1] || a.title}</p>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+          `;
+          container.appendChild(item);
+        });
+
+        if (assignments.length > 0) {
+          selectAssignment(assignments[0].id);
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('assignment-list').innerHTML = `
+          <div class="p-3 bg-red-900/30 border border-red-700 rounded-lg text-xs text-red-300">
+            Không thể kết nối API. Hãy đảm bảo Docker Compose đã được bật.
+          </div>
+        `;
+      }
+    }
+
+    function selectAssignment(id) {
+      currentAssignmentId = id;
+      const a = assignments.find(x => x.id === id);
+      if (!a) return;
+      document.getElementById('selected-title').innerText = a.title;
+      document.getElementById('selected-desc').innerText = a.description;
+    }
+
+    async function submitCode() {
+      if (!currentAssignmentId) return alert('Vui lòng chọn bài tập!');
+      const code = document.getElementById('code-input').value;
+      const lang = document.getElementById('lang-select').value;
+      const btn = document.getElementById('btn-submit');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi vào Hàng đợi...`;
+
+      const resultBox = document.getElementById('result-box');
+      resultBox.classList.remove('hidden');
+      document.getElementById('verdict-badge').innerText = 'QUEUED IN RABBITMQ';
+      document.getElementById('verdict-badge').className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+      document.getElementById('step-2').className = 'p-2 rounded-lg bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/40 animate-pulse';
+
+      try {
+        const res = await fetch(`${API_BASE}/submissions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assignment_id: currentAssignmentId,
+            language: lang,
+            source_code: code,
+            student_code: 'DTC245200211'
+          })
+        });
+
+        const data = await res.json();
+        const submissionId = data.submission.id;
+
+        // Join WebSocket room to receive realtime result
+        if (socket) {
+          socket.emit('join_submission', submissionId);
+          socket.on('submission_update', (update) => {
+            if (update.submission_id === submissionId) {
+              renderResult(update);
+            }
+          });
+        }
+
+        // Fallback polling if socket not connected
+        pollSubmission(submissionId);
+
+      } catch (err) {
+        alert('Lỗi nộp bài: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Nộp Bài & Chấm Tự Động`;
+      }
+    }
+
+    function renderResult(data) {
+      document.getElementById('score-text').innerText = `${data.total_score} / 10`;
+      document.getElementById('time-text').innerText = `${data.execution_time_ms || 45} ms`;
+      document.getElementById('mem-text').innerText = `1024 KB`;
+
+      const badge = document.getElementById('verdict-badge');
+      if (data.verdict === 'ACCEPTED') {
+        badge.innerText = 'ACCEPTED (CHÍNH XÁC)';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+      } else if (data.verdict === 'PARTIALLY_ACCEPTED') {
+        badge.innerText = 'PARTIALLY ACCEPTED';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
+      } else {
+        badge.innerText = data.verdict;
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+      }
+
+      document.getElementById('step-3').className = 'p-2 rounded-lg bg-indigo-500/20 text-indigo-300';
+      document.getElementById('step-4').className = 'p-2 rounded-lg bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/40';
+
+      const tcList = document.getElementById('testcases-list');
+      tcList.innerHTML = '';
+      if (Array.isArray(data.details)) {
+        data.details.forEach((d, i) => {
+          const isPass = d.status === 'PASSED';
+          const tcDiv = document.createElement('div');
+          tcDiv.className = `p-2.5 rounded-lg border flex justify-between items-center ${isPass ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300' : 'bg-rose-950/30 border-rose-800/50 text-rose-300'}`;
+          tcDiv.innerHTML = `
+            <span>Testcase #${i + 1} (${d.execution_time_ms || 10}ms)</span>
+            <span class="font-bold">${d.status}</span>
+          `;
+          tcList.appendChild(tcDiv);
+        });
+      }
+    }
+
+    async function pollSubmission(id) {
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts++;
+        if (attempts > 15) return clearInterval(interval);
+        try {
+          const res = await fetch(`${API_BASE}/submissions/${id}`);
+          const data = await res.json();
+          if (data.submission && data.submission.status === 'COMPLETED') {
+            clearInterval(interval);
+            renderResult({
+              ...data.submission,
+              details: data.details
+            });
+          }
+        } catch(e) {}
+      }, 1500);
+    }
+
+    loadAssignments();
+  </script>
+</body>
+</html>

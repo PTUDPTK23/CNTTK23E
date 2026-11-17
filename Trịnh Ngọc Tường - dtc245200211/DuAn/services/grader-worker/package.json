@@ -1,0 +1,14 @@
+{
+  "name": "autograder-worker",
+  "version": "1.0.0",
+  "description": "Distributed Grader Worker Node",
+  "main": "src/worker.js",
+  "scripts": {
+    "start": "node src/worker.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dockerode": "^4.0.2",
+    "dotenv": "^16.4.5"
+  }
+}
