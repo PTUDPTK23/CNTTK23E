@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+frontend/node_modules/
+frontend/dist/
+.env
+.env.*
+!.env.example
+*.user
+*.suo
+*.log
+TestResults/
+.vs/
+.idea/
