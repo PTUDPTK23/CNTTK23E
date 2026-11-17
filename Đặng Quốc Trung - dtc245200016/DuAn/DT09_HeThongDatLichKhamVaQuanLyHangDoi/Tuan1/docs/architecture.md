@@ -28,6 +28,7 @@ flowchart LR
     Unit[MediQueue.UnitTests] --> Domain
     Unit --> Contracts
     Integration[MediQueue.IntegrationTests] --> Api
+    Integration --> Web
     Integration --> Infra
 ```
 
@@ -35,7 +36,7 @@ flowchart LR
 
 Ba tiến trình web chạy độc lập trên Windows: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS). Queue Worker không mở cổng. Health endpoint chỉ chứng minh host khởi động, không đại diện cho chức năng nghiệp vụ.
 
-Backend tổ chức Controller theo nghiệp vụ, không theo từng Actor: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController` và `HealthController`. Role-based authorization và resource ownership được kiểm tra trong action/service/policy. Frontend vẫn chia khu vực Auth/Patient/Doctor/Receptionist/Admin. Controller mỏng, không chứa logic nghiệp vụ, không gọi controller khác và không truy cập SQL trực tiếp. Hiện chỉ `HealthController` được triển khai.
+Controller tổ chức theo nghiệp vụ, không theo từng Actor: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController` và `DashboardController`. MVC Controller kế thừa `Controller`, phục vụ View/ViewModel và gọi backend qua HTTP; API Controller kế thừa `ControllerBase`, kiểm tra authorization/scope và trả JSON/HTTP status/`ProblemDetails`. Cả hai đều là thin controller, không gọi controller khác. Hiện Web chỉ có `HomeController`; API chỉ có `HealthController`. Không tạo controller rỗng cho chức năng tương lai.
 
 ## 2. Context diagram
 
@@ -66,7 +67,7 @@ flowchart LR
     end
 
     subgraph Apps[.NET 10 processes]
-        W[MediQueue.Web<br/>Razor Pages]
+        W[MediQueue.Web<br/>ASP.NET Core MVC]
         A[MediQueue.Appointment.Api<br/>REST + Identity/JWT]
         Q[MediQueue.Queue.Worker<br/>Worker Service]
         N[MediQueue.Notification.Service<br/>Rabbit consumer + SignalR Hub]
@@ -111,7 +112,7 @@ Phụ thuộc source code dự kiến đi một chiều: `Domain` không phụ t
 
 | Thành phần | Trách nhiệm | Không chịu trách nhiệm |
 |---|---|---|
-| `MediQueue.Web` | Razor Pages, form đăng nhập chung, dashboard theo Role, gọi API, SignalR client | Không truy cập SQL trực tiếp; không chứa invariant cốt lõi |
+| `MediQueue.Web` | MVC Controller/View/ViewModel, form đăng nhập chung, giao diện theo nghiệp vụ và Role, gọi API, SignalR client | Không truy cập SQL/DbContext trực tiếp; không chứa invariant cốt lõi |
 | `MediQueue.Appointment.Api` | Identity/JWT Access Token, authorization, Doctor/slot/Appointment, queue commands, snapshot query, outbox | Không sinh QueueNumber trong request đặt lịch; không phát Refresh Token ở v1 |
 | `MediQueue.Queue.Worker` | Consume ticket request, idempotency, sinh số, tạo QueueTicket, phát QueueChanged | Không phục vụ UI/HTTP nghiệp vụ công khai |
 | `MediQueue.Notification.Service` | Consume QueueChanged, lọc/nhóm connection và phát SignalR | Không là source of truth; không tự thay đổi queue |
@@ -286,7 +287,7 @@ Các tiến trình Web, API, Worker và Notification chạy độc lập trên W
 
 - Các project/thành phần nêu trên; .NET 10; SQL Server/EF Core; RabbitMQ; Worker; SignalR.
 - RabbitMQ cho cả cấp số và event thay đổi queue.
-- Một Razor Pages website, Identity/JWT và Role-based Authorization.
+- Một ASP.NET Core MVC website, Identity/JWT và Role-based Authorization.
 - Chỉ JWT Access Token có thời hạn trong v1; không Refresh Token; SignalR xác thực và kiểm tra group.
 - QueueNumber riêng Doctor/ngày, bắt đầu 1, không tái sử dụng; định dạng hiển thị tối thiểu ba chữ số.
 - Appointment state: `PendingNumber`, `Waiting`, `Serving`, `Completed`, `Cancelled`, `NoShow`; không có `Called` ở v1.

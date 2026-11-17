@@ -39,7 +39,8 @@ Tuần 1 đã hoàn thành tài liệu phân tích/thiết kế và, theo Prompt
 - Khảo sát metadata database `MediQueue` ở chế độ read-only; không chạy SQL ghi, Migration hoặc thay đổi database.
 - Xây dựng Domain entity/invariant, ASP.NET Core Identity model, `MediQueueDbContext`, Fluent API và kiểm thử metadata EF Core.
 - Sinh Migration `InitialCreate`, ModelSnapshot và [SQL script review](docs/sql/InitialCreate.sql); chưa áp dụng Migration.
-- Chuẩn hóa backend Controller theo nghiệp vụ; frontend vẫn chia Auth/Patient/Doctor/Receptionist/Admin và dùng một form đăng nhập chung.
+- Refactor `MediQueue.Web` từ Razor Pages sang ASP.NET Core MVC; trang chủ, trang lỗi, Layout và static assets đã được chuyển sang Controller/View.
+- Chuẩn hóa Controller và Views theo nghiệp vụ; menu/giao diện sẽ hiển thị theo Role sau khi dùng chung một form đăng nhập.
 
 Chưa triển khai đăng ký/đăng nhập, JWT hoàn chỉnh, nghiệp vụ đặt lịch, 6 REST API bắt buộc, RabbitMQ consumer/publisher nghiệp vụ hoặc SignalR Hub nghiệp vụ. Không có endpoint giả báo thành công.
 
@@ -49,7 +50,7 @@ Chưa triển khai đăng ký/đăng nhập, JWT hoàn chỉnh, nghiệp vụ đ
 |---|---|
 | Nền tảng | C#, .NET 10 (`net10.0`) |
 | Backend | ASP.NET Core Web API dùng Controller |
-| Frontend | ASP.NET Core Razor Pages, Bootstrap 5, JavaScript |
+| Frontend | ASP.NET Core MVC, Bootstrap 5, HTML5/CSS3/JavaScript |
 | Dữ liệu | SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue` |
 | ORM / tài khoản | EF Core 10, ASP.NET Core Identity |
 | Bảo mật | JWT Access Token có thời hạn, Role-based Authorization |
@@ -83,7 +84,7 @@ Quan hệ tham chiếu:
 - `Infrastructure` → `Domain`, `Contracts`.
 - `Appointment.Api`, `Queue.Worker` → `Domain`, `Infrastructure`, `Contracts`.
 - `Notification.Service`, `Web` → `Contracts`.
-- `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Infrastructure`.
+- `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Web`, `Infrastructure`.
 
 Web không tham chiếu Infrastructure/DbContext và giao tiếp backend qua HTTP API.
 
@@ -131,7 +132,8 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 
 - Nhánh: `duan-dtc245200016`.
 - Solution, Domain và nền tảng EF Core Code First: đã hoàn thành trong Tuần 1 theo Prompt 02.2.
-- Restore/build/test/smoke test: đã chạy thực tế ngày 17/11/2026; build `0` warning/`0` error, 24/24 test đạt; xem `docs/progress.md`.
+- Frontend MVC và kiến trúc Controller theo nghiệp vụ: đã chuẩn hóa theo Prompt 02.2.1; Web không tham chiếu DbContext/Infrastructure.
+- Restore/build/test/smoke test: đã kiểm tra sau refactor; build `0` warning/`0` error, 32/32 test đạt và các host nền tảng khởi động thành công; xem `docs/progress.md`.
 - Database: kết nối Windows Authentication thành công, hiện chưa có bảng người dùng; Migration/script chỉ được sinh để review và chưa thay đổi schema/data.
 - Pull Request Tuần 1: chưa tạo.
-- Bước tiếp theo chỉ thực hiện sau khi người dùng review Migration/SQL script và giao Prompt 02.3.
+- Bước tiếp theo chỉ thực hiện sau khi người dùng review kết quả Prompt 02.2.1 và giao Prompt 02.3.

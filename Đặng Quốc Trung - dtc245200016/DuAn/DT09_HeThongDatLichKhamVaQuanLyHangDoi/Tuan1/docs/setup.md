@@ -4,7 +4,7 @@
 
 - Windows và .NET SDK 10; repository đang ghim SDK `10.0.102` bằng `global.json`.
 - SQL Server Express tại `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue` khi bước phát triển cần dữ liệu.
-- Không sử dụng Docker. RabbitMQ/SignalR chưa cần chạy cho nền tảng dữ liệu Prompt 02.2.
+- Không sử dụng Docker. RabbitMQ/SignalR chưa cần chạy cho refactor MVC Prompt 02.2.1.
 
 Xác nhận môi trường:
 
@@ -62,7 +62,7 @@ dotnet run --project .\src\MediQueue.Queue.Worker
 | Dịch vụ | HTTP | HTTPS | Kiểm tra |
 |---|---:|---:|---|
 | Appointment API | 5101 | 7101 | `GET http://localhost:5101/health` |
-| Web | 5102 | 7102 | `GET http://localhost:5102/health` và trang `/` |
+| Web MVC | 5102 | 7102 | `GET http://localhost:5102/health`, `/` và `/Home/Error` |
 | Notification Service | 5103 | 7103 | `GET http://localhost:5103/health` |
 | Queue Worker | Không mở port | Không mở port | Log khởi động host |
 
@@ -120,4 +120,4 @@ Tuyệt đối không chạy `dotnet ef database update`, không thực thi `Ini
 
 ## 7. Chức năng chưa triển khai
 
-Nền tảng hiện có Domain entity/invariant, Identity persistence model, DbContext, Fluent API, Migration/script review và test metadata. Chưa có Login/Register/JWT, sáu API nghiệp vụ bắt buộc, transaction booking/queue thực tế, RabbitMQ business flow, SignalR Hub hoặc giao diện chức năng theo Role. Không dùng model/Migration làm bằng chứng cho các luồng nghiệp vụ chưa tồn tại.
+Nền tảng hiện có MVC host/trang nền tảng, Domain entity/invariant, Identity persistence model, DbContext, Fluent API, Migration/script review và test metadata. Chưa có Login/Register/JWT, sáu API nghiệp vụ bắt buộc, transaction booking/queue thực tế, RabbitMQ business flow, SignalR Hub hoặc giao diện chức năng theo Role. Không dùng model/Migration làm bằng chứng cho các luồng nghiệp vụ chưa tồn tại.

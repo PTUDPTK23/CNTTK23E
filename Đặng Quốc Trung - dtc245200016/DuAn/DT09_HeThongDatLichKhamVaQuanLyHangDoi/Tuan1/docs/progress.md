@@ -6,12 +6,12 @@
 |---|---|
 | Nhánh | `duan-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1` |
-| Tuần | Tuần 1 — Phân tích, solution và EF Core Code First theo Prompt 02.2 |
+| Tuần | Tuần 1 — Phân tích, solution, ASP.NET Core MVC và EF Core Code First theo Prompt 02.2.1 |
 | Pull Request | Chưa tạo; tiêu đề bắt buộc `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | 23h59 ngày 17/11/2026 |
-| Trạng thái mã nguồn | Đã có Domain, Identity persistence, DbContext, Fluent API, Migration và test nền tảng; chưa có API nghiệp vụ |
+| Trạng thái mã nguồn | Đã có MVC host, Domain, Identity persistence, DbContext, Fluent API, Migration và test nền tảng; chưa có API nghiệp vụ |
 | Trạng thái database | `InitialCreate`/SQL chỉ để review; chưa áp dụng, schema/data không đổi |
-| Trạng thái Git | Baseline Prompt 02.1 ở commit `c694cab`; thay đổi Prompt 02.2 chưa commit/stage |
+| Trạng thái Git | Prompt 02.2 ở commit `7273871`; thay đổi Prompt 02.2.1 chưa commit/stage |
 
 ## 2. Nhật ký thực tế
 
@@ -95,6 +95,20 @@
 - Sinh Migration `InitialCreate`, Designer, ModelSnapshot và script idempotent `docs/sql/InitialCreate.sql`; `has-pending-model-changes` xác nhận snapshot khớp model.
 - Kiểm tra metadata SQL Server sau cùng xác nhận `UserTableCount = 0`, `HasMigrationHistory = 0`.
 - Không chạy `database update`, không thực thi script, không dùng EnsureCreated/EnsureDeleted/Migrate và không thay đổi database `MediQueue`.
+
+### 2026-11-18 — Prompt 02.2.1: refactor ASP.NET Core MVC
+
+- Xác nhận baseline Prompt 02.2 tại commit `7273871`, local/origin đồng bộ và working tree ban đầu sạch.
+- Chuyển `MediQueue.Web` từ `AddRazorPages`/`MapRazorPages` sang `AddControllersWithViews` và conventional MVC route.
+- Chuyển trang chủ, trang lỗi, Layout, validation partial, ViewImports/ViewStart và scoped CSS từ `Pages` sang `Views`; loại bỏ PageModel và thư mục `Pages` cũ sau khi MVC test đạt.
+- Tạo `HomeController` mỏng và `ErrorViewModel`; navigation dùng `asp-controller`/`asp-action`.
+- Giữ `HealthController` API; không tạo controller/endpoint nghiệp vụ rỗng hoặc giả.
+- Bổ sung integration test cho MVC page, error view, health endpoint và Bootstrap/CSS/JavaScript static assets.
+- Bảo toàn chín project, ProjectReference kiến trúc và toàn bộ Domain/Identity/DbContext/Fluent API/Migration; Web vẫn không tham chiếu Infrastructure.
+- Kiểm tra EF model không có pending change; database read-only vẫn `UserTableCount = 0`, `HasMigrationHistory = 0`.
+- Restore thành công; build `0` warning/`0` error; 32/32 test đạt (15 unit, 17 integration); format verification đạt.
+- Smoke test HTTP đạt cho MVC `/`, `/health`, `/Home/Error`, Bootstrap asset; API/Notification `/health` đều 200 và Worker khởi động đúng. Toàn bộ process thử nghiệm đã dừng.
+- Không cài package/công cụ, không tạo Migration, không chạy SQL ghi/database update và không thay đổi database.
 
 ## 3. Mức độ đáp ứng yêu cầu đề tài
 

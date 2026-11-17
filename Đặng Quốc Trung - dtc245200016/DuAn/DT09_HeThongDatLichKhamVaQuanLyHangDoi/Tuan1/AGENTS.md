@@ -6,7 +6,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 
 - Sản phẩm: `MediQueue`, mã đề tài `09`.
 - Nhánh làm việc: `duan-dtc245200016`.
-- Stack: C# / .NET 10 / ASP.NET Core Web API / Razor Pages / EF Core.
+- Stack: C# / .NET 10 / ASP.NET Core MVC / ASP.NET Core Web API / EF Core.
 - SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; database: `MediQueue`.
 - Hạ tầng phân tán: RabbitMQ, .NET Worker Service, SignalR.
 - Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`.
@@ -35,13 +35,15 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - `Infrastructure` → `Domain`, `Contracts`.
 - `Appointment.Api`, `Queue.Worker` → `Domain`, `Infrastructure`, `Contracts`.
 - `Notification.Service`, `Web` → `Contracts`; Web không được tham chiếu Infrastructure hoặc truy cập DbContext/SQL Server.
-- `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Infrastructure`.
+- `MediQueue.Web` dùng MVC (`Controller` + View/ViewModel), gọi backend qua HTTP API; không dùng Razor Pages làm kiến trúc giao diện chính.
+- `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Web`, `Infrastructure`.
 - Cổng phát triển: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS).
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
 - Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser`, Migration `InitialCreate` và SQL script để review. Migration chưa được áp dụng vào database.
 - Chưa có Login/Register/JWT hoàn chỉnh, sáu API nghiệp vụ, RabbitMQ business flow hoặc SignalR Hub. Không ghi nhận các phần này là đã hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
 - Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
+- MVC Controller kế thừa `Controller` và chỉ phục vụ View/ViewModel; API Controller kế thừa `ControllerBase`, trả JSON/HTTP status/`ProblemDetails`. Controller không gọi controller khác.
 
 ## 4. Quy ước kiến trúc
 

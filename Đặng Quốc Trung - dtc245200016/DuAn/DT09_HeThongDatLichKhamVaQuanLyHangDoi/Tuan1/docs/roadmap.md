@@ -18,15 +18,15 @@ Tuần 1 nằm tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`. Tiêu đề
 
 | Tuần / thư mục | Mục tiêu | Sản phẩm bàn giao dự kiến | Tiêu chí hoàn thành |
 |---|---|---|---|
-| Tuần 1 / `Tuan1` | Phân tích, thiết kế, solution và EF Core Code First | Tài liệu; 9 project .NET 10; Domain entity/invariant; Identity/DbContext/Fluent API; Migration và SQL review; test nền tảng | Build/test sạch; model/snapshot nhất quán; database chưa bị thay đổi |
+| Tuần 1 / `Tuan1` | Phân tích, thiết kế, solution, MVC và EF Core Code First | Tài liệu; 9 project .NET 10; MVC host; Domain entity/invariant; Identity/DbContext/Fluent API; Migration và SQL review | Build/test/smoke test sạch; model/snapshot nhất quán; database chưa bị thay đổi |
 | Tuần 2 / `Tuan2` | Đăng nhập, đăng ký và phân quyền | Form/login chung; Patient registration; cấp tài khoản staff; JWT Access Token; Role + ownership policies | Đúng 4 Role; không Refresh Token; authorization backend được kiểm thử |
-| Tuần 3 / `Tuan3` | Doctor/slot và Appointment API | 6 REST endpoint bắt buộc; `PendingNumber`; check-in metadata; transaction/concurrency; `.http` | Test quá khứ, hết chỗ, trùng giờ, hạn hủy, ownership và request tranh chỗ |
-| Tuần 4 / `Tuan4` | RabbitMQ và Queue Worker | Message contracts, outbox/inbox, ticket queue, Worker cấp số, DLQ | Cấp số thực sự qua RabbitMQ; duplicate không cấp trùng số |
-| Tuần 5 / `Tuan5` | Queue command và event | call-next trực tiếp Serving, complete, NoShow; QueueChanged; state/audit | Không gọi slot tương lai; một Doctor tối đa một Serving; event có version |
-| Tuần 6 / `Tuan6` | Notification Service và SignalR | Hub xác thực, Rabbit consumer, group authorization, reconnect/snapshot | Chỉ user có quyền nhận cập nhật; reconnect đồng bộ snapshot |
-| Tuần 7 / `Tuan7` | Razor Pages cho 4 Role | Auth và các khu vực Patient/Doctor/Receptionist/Admin, luồng chính end-to-end | UI responsive; không thay authorization backend bằng ẩn/hiện nút |
-| Tuần 8 / `Tuan8` | Tích hợp và chức năng quản trị | Kiểm thử SQL concurrency/message; quản trị Department/Doctor/Room/slot; báo cáo phù hợp | Yêu cầu bắt buộc ổn định trước chức năng mở rộng |
-| Tuần 9 / `Tuan9` | Hoàn thiện và nghiệm thu | Test, tài liệu chạy Windows, demo script, rà soát bảo mật | Build/test sạch; demo đủ đề tài; không secret/dữ liệu thật |
+| Tuần 3 / `Tuan3` | Quản lý danh mục | Doctor, Department, Room và các API/View quản trị liên quan | Controller/View theo nghiệp vụ; authorization và validation được kiểm thử |
+| Tuần 4 / `Tuan4` | Khung giờ, đặt và hủy lịch | 6 REST endpoint bắt buộc; slot, Appointment, check-in metadata; transaction/concurrency | Test quá khứ, hết chỗ, trùng giờ, hạn hủy, ownership và tranh chỗ |
+| Tuần 5 / `Tuan5` | RabbitMQ và Queue Worker | Message contracts, outbox/inbox, ticket queue, Worker cấp số, retry/DLQ | Cấp số thực sự qua RabbitMQ; duplicate không cấp trùng số |
+| Tuần 6 / `Tuan6` | Hàng đợi, SignalR và Notification Service | Queue command/event; Hub xác thực; Rabbit consumer; reconnect/snapshot | Một Doctor tối đa một Serving; chỉ user có quyền nhận cập nhật |
+| Tuần 7 / `Tuan7` | Hoàn thiện giao diện MVC | Views/partial theo nghiệp vụ; menu/dashboard theo 4 Role; luồng chính end-to-end | UI responsive; không thay authorization backend bằng ẩn/hiện nút |
+| Tuần 8 / `Tuan8` | Kiểm thử, bảo mật và tối ưu | SQL concurrency, message idempotency, authorization, performance và hardening | Yêu cầu bắt buộc ổn định; không secret/dữ liệu thật |
+| Tuần 9 / `Tuan9` | Hoàn thiện sản phẩm và báo cáo | Tài liệu chạy Windows, demo script, báo cáo và nghiệm thu | Build/test sạch; demo đủ đề tài; tài liệu nhất quán |
 
 ## 3. Milestone
 
@@ -36,18 +36,18 @@ gantt
     dateFormat  X
     axisFormat Tuần %s
     section Phân tích
-    Tài liệu solution và Code First :done, b1, 1, 1
+    Tài liệu, MVC và Code First    :done, b1, 1, 1
     section Nền tảng mã nguồn
     Identity và xác thực           :b2, 2, 1
     section Chức năng bắt buộc
-    Appointment API                :b3, 3, 1
-    RabbitMQ và Queue Worker       :b4, 4, 1
-    Queue command và event         :b5, 5, 1
-    SignalR Notification           :b6, 6, 1
+    Quản lý danh mục               :b3, 3, 1
+    Khung giờ và Appointment API     :b4, 4, 1
+    RabbitMQ và Queue Worker       :b5, 5, 1
+    Queue, SignalR, Notification    :b6, 6, 1
     section Hoàn thiện
-    Razor Pages bốn Role           :b7, 7, 1
-    Tích hợp và quản trị           :b8, 8, 1
-    Test, demo và tài liệu         :b9, 9, 1
+    Hoàn thiện giao diện MVC       :b7, 7, 1
+    Test, bảo mật và tối ưu       :b8, 8, 1
+    Sản phẩm và báo cáo           :b9, 9, 1
 ```
 
 `done` ở biểu đồ chỉ thể hiện sản phẩm Tuần 1 đã hoàn thành về nội dung; không đại diện cho commit, Pull Request hoặc việc giảng viên đã nghiệm thu.

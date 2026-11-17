@@ -83,7 +83,7 @@ Ký hiệu:
 
 ## 4. Ràng buộc
 
-- Chỉ một website Razor Pages cho cả bốn Role và một form đăng nhập chung.
+- Chỉ một website ASP.NET Core MVC cho cả bốn Role và một form đăng nhập chung; giao diện tổ chức theo nghiệp vụ, không tách thành bốn hệ thống theo Role.
 - Một cơ sở y tế với nhiều Department, Doctor và Room; không đa chi nhánh.
 - Database `MediQueue` đã tồn tại; không tự xóa/tạo lại hoặc thay đổi khi chưa được duyệt.
 - SQL Server cố định tại `LAPTOP-AQFGUM9Q\SQLEXPRESS`.

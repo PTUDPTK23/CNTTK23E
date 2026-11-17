@@ -2,13 +2,13 @@ using MediQueue.Contracts.Health;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
     app.UseHttpsRedirection();
 }
@@ -20,7 +20,9 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapGet("/health", () =>
     Results.Ok(new ServiceStatusResponse("MediQueue.Web", "Healthy")));
-app.MapRazorPages()
+app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}")
    .WithStaticAssets();
 
 app.Run();

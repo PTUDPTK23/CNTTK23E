@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MediQueue.Appointment.Api\MediQueue.Appointment.Api.csproj" />
     <ProjectReference Include="..\..\src\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\MediQueue.Web\MediQueue.Web.csproj" />
   </ItemGroup>
 
 </Project>

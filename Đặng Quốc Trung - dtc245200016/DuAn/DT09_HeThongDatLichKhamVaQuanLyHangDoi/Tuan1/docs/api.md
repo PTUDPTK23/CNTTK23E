@@ -17,13 +17,13 @@
 
 ### 2.1 Quy chuẩn tổ chức Controller
 
-Backend chỉ tổ chức theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController` và `HealthController`.
+Cả Web và Backend chỉ tổ chức theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController` và `DashboardController`. `HomeController` của Web và `HealthController` của API là controller nền tảng.
 
 Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistController` hoặc `AdminController` để biểu diễn Role. Cùng một nghiệp vụ dùng chung controller/service; Role-based authorization và resource ownership quyết định Actor nào được thao tác. Frontend vẫn có các khu vực Auth/Patient/Doctor/Receptionist/Admin.
 
-Controller chỉ tiếp nhận request, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route được khai báo tường minh để bảo toàn sáu route bắt buộc.
+MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route bắt buộc.
 
-Hiện trạng Prompt 02.2: chỉ có `HealthController` với `GET /health` để kiểm tra host. Các controller và endpoint nghiệp vụ ở trên **chưa được triển khai**; không có endpoint giả trả thành công.
+Hiện trạng Prompt 02.2.1: Web có `HomeController` phục vụ trang chủ/trang lỗi MVC; API chỉ có `HealthController` với `GET /health` để kiểm tra host. Các controller và endpoint nghiệp vụ ở trên **chưa được triển khai**; không có endpoint giả trả thành công.
 
 | Method | Route dự kiến | Quyền | Mức | Mục đích |
 |---|---|---|---|---|
