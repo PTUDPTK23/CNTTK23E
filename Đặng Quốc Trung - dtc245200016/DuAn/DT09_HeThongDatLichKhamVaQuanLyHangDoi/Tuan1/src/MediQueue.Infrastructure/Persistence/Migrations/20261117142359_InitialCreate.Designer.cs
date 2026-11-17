@@ -299,7 +299,7 @@ namespace MediQueue.Infrastructure.Persistence.Migrations
                     b.HasIndex("DoctorId")
                         .IsUnique()
                         .HasDatabaseName("UX_QueueTickets_Doctor_Serving")
-                        .HasFilter("[Status] = N'Serving'");
+                        .HasFilter("[Status] = 'Serving'");
 
                     b.HasIndex("DailyQueueId", "DoctorId", "ServiceDate");
 

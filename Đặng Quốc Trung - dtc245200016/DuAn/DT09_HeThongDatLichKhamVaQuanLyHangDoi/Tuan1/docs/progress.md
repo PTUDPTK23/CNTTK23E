@@ -6,12 +6,12 @@
 |---|---|
 | Nhánh | `duan-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1` |
-| Tuần | Tuần 1 — Phân tích, solution, ASP.NET Core MVC và EF Core Code First theo Prompt 02.2.1 |
+| Tuần | Tuần 1 — Phân tích, solution, ASP.NET Core MVC và EF Core Code First theo Prompt 02.3.1 |
 | Pull Request | Chưa tạo; tiêu đề bắt buộc `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | 23h59 ngày 17/11/2026 |
 | Trạng thái mã nguồn | Đã có MVC host, Domain, Identity persistence, DbContext, Fluent API, Migration và test nền tảng; chưa có API nghiệp vụ |
-| Trạng thái database | `InitialCreate`/SQL chỉ để review; chưa áp dụng, schema/data không đổi |
-| Trạng thái Git | Prompt 02.2 ở commit `7273871`; thay đổi Prompt 02.2.1 chưa commit/stage |
+| Trạng thái database | `InitialCreate` đã áp dụng/xác minh; 21 bảng mô hình + bảng lịch sử, không có dữ liệu mẫu |
+| Trạng thái Git | HEAD `c99ff56`; thay đổi Prompt 02.3.1 chưa commit/stage |
 
 ## 2. Nhật ký thực tế
 
@@ -110,6 +110,20 @@
 - Smoke test HTTP đạt cho MVC `/`, `/health`, `/Home/Error`, Bootstrap asset; API/Notification `/health` đều 200 và Worker khởi động đúng. Toàn bộ process thử nghiệm đã dừng.
 - Không cài package/công cụ, không tạo Migration, không chạy SQL ghi/database update và không thay đổi database.
 
+### 2026-11-18 — Prompt 02.3/02.3.1: áp dụng và xác minh InitialCreate
+
+- Tiền kiểm đúng nhánh/HEAD, working tree sạch; SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue` ONLINE, compatibility level 160.
+- Lần áp dụng đầu dừng với SQL Server error 10611: cột `QueueTickets.Status` là `varchar(32)` nhưng filtered index dùng literal `N'Serving'`; transaction rollback, chỉ để lại `__EFMigrationsHistory` rỗng.
+- Theo phê duyệt Prompt 02.3.1, sửa tối thiểu filter thành `[Status] = 'Serving'`, đồng bộ Fluent API, InitialCreate, Designer, ModelSnapshot và sinh lại SQL script bằng EF CLI.
+- Bổ sung test metadata và SQL generation; bổ sung integration test read-only truy vấn 14 DbSet trên SQL Server thật, không ghi dữ liệu.
+- Áp dụng thành công `20261117142359_InitialCreate`; Migration History có đúng một dòng, không còn pending Migration/model change.
+- Xác minh 21 bảng mô hình + 1 bảng lịch sử, 22 PK, 27 FK, 36 index ngoài PK, 11 unique index, 4 filtered index, 12 check constraint, 1 default và 6 rowversion; không có FK/check bị disabled hoặc untrusted.
+- `UX_QueueTickets_Doctor_Serving` unique/enabled, filter `([Status]='Serving')` trên `Status varchar(32)`; không thay đổi quy tắc một Doctor tối đa một ticket Serving.
+- Tạo `docs/sql/VerifyDatabase.sql` read-only có guard database và `docs/database-validation.md`; không seed user/Role/dữ liệu mẫu.
+- Restore/build thành công, `0` warning/`0` error; 34/34 test đạt (15 unit, 19 integration).
+- Smoke test HTTP đạt: API `/health`, Web `/`, `/health`, `/Home/Error`, Notification `/health` đều 200; Queue Worker duy trì chạy. Bốn process đã dừng.
+- Không cài package/công cụ, không dùng Docker, không commit/push/tạo Pull Request và không chuyển sang Prompt 02.4.
+
 ## 3. Mức độ đáp ứng yêu cầu đề tài
 
 | Hạng mục | Trạng thái hiện tại |
@@ -123,7 +137,7 @@
 | Notification Service + SignalR | Mới ở mức thiết kế; chưa có consumer/Hub |
 | Tra cứu Appointment/queue | Có model/index; query API và authorization chưa triển khai |
 
-Chỉ nền tảng Domain/persistence/Migration đã triển khai. Không khẳng định các luồng API, transaction SQL Server thực tế, RabbitMQ hoặc SignalR đã hoạt động.
+Chỉ nền tảng Domain/persistence/Migration đã triển khai và schema SQL Server đã được xác minh. Không khẳng định các luồng API nghiệp vụ, booking transaction, RabbitMQ hoặc SignalR đã hoạt động.
 
 ## 4. Quyết định thiết kế chính thức
 
@@ -141,7 +155,7 @@ Chỉ nền tảng Domain/persistence/Migration đã triển khai. Không khẳn
 
 ## 5. Tham số triển khai còn phải chốt
 
-- Database đã được khảo sát read-only và hiện không có user table; schema nghiệp vụ/mapping vẫn phải được review trước Migration đầu tiên.
+- Database đã có schema `InitialCreate`; mọi thay đổi sau này phải qua Migration mới, review và khảo sát read-only trước khi áp dụng.
 - Kiểu khóa chính/enum, Capacity mặc định, độ dài slot và thuật toán sinh slot.
 - Thời hạn JWT Access Token, CORS và chính sách chứng chỉ HTTPS/WSS; port phát triển đã chốt là API `5101/7101`, Web `5102/7102`, Notification `5103/7103`.
 - Số lần retry/backoff, ngưỡng DLQ và thời hạn lưu Inbox/Outbox/Idempotency/Audit.
@@ -149,9 +163,8 @@ Chỉ nền tảng Domain/persistence/Migration đã triển khai. Không khẳn
 
 ## 6. Bước tiếp theo đề xuất
 
-1. Người dùng review Domain model, Migration `InitialCreate`, ModelSnapshot và `docs/sql/InitialCreate.sql`.
-2. Xác nhận riêng mọi thay đổi model trước khi cho phép áp dụng Migration; hiện tuyệt đối chưa chạy lên `MediQueue`.
-3. Người dùng tự commit/push vào đúng Pull Request Tuần 1 sau khi review.
-4. Chỉ khi được giao Prompt 02.3 mới tiếp tục; không tự động triển khai Login/API/RabbitMQ hoặc thay đổi database.
+1. Người dùng review diff, bằng chứng schema và `docs/database-validation.md`.
+2. Người dùng tự commit/push vào đúng Pull Request Tuần 1 sau khi review.
+3. Mọi Migration tiếp theo phải có phê duyệt riêng; không tự động triển khai Login/API/RabbitMQ hoặc thay đổi database.
 
-Không tự động chuyển sang Prompt 02.3.
+Không tự động chuyển sang Prompt 02.4.

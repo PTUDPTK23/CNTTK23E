@@ -68,14 +68,14 @@ dotnet run --project .\src\MediQueue.Queue.Worker
 
 Profile HTTP không tự chuyển hướng HTTPS trong Development để hỗ trợ smoke test terminal. Profile HTTPS dùng chứng chỉ phát triển của .NET. Kiểm tra ngày 17/11/2026 bằng `dotnet dev-certs https --check` trả về `No valid certificate found`; các port HTTPS đã cấu hình nhưng chưa smoke test được. Người dùng có thể chủ động tạo/trust chứng chỉ bằng quy trình .NET phù hợp khi cần; Prompt 02.1 không tự thay đổi kho chứng chỉ Windows.
 
-## 5. Kết quả khảo sát database read-only ngày 17/11/2026
+## 5. Trạng thái database đã xác minh ngày 18/11/2026
 
 - Windows Authentication kết nối thành công tới `LAPTOP-AQFGUM9Q\SQLEXPRESS` và truy cập được `MediQueue`.
 - SQL Server `16.0.1000.6`, RTM, Express Edition (64-bit).
-- Database chỉ có các schema hệ thống/role cùng `dbo`, `guest`, `INFORMATION_SCHEMA`, `sys`.
-- Không có user table; vì vậy chưa có cột, primary key, foreign key, unique constraint hoặc index người dùng để đối chiếu.
-- Không tồn tại `dbo.__EFMigrationsHistory`.
-- Chỉ truy vấn metadata; không đọc dữ liệu cá nhân, không thực thi lệnh ghi và không tạo/áp dụng Migration.
+- Migration `20261117142359_InitialCreate` đã áp dụng bằng EF Core CLI sau khi tiền kiểm database.
+- Có 21 bảng mô hình và `dbo.__EFMigrationsHistory`; không seed user, Role hay dữ liệu nghiệp vụ.
+- `__EFMigrationsHistory` có một dòng `20261117142359_InitialCreate` / `10.0.2`.
+- `docs/sql/VerifyDatabase.sql` đã chạy read-only thành công; xem chi tiết trong `docs/database-validation.md`.
 
 ## 6. Lệnh EF Core và quy trình review Migration
 
@@ -90,12 +90,6 @@ Các lệnh dưới đây phải chạy từ `Tuan1` với biến môi trường
 ```powershell
 $env:ConnectionStrings__MediQueue = "Server=LAPTOP-AQFGUM9Q\SQLEXPRESS;Database=MediQueue;Trusted_Connection=True;TrustServerCertificate=True;"
 
-dotnet ef migrations add InitialCreate `
-  --project .\src\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj `
-  --startup-project .\src\MediQueue.Appointment.Api\MediQueue.Appointment.Api.csproj `
-  --context MediQueueDbContext `
-  --output-dir Persistence\Migrations
-
 dotnet ef migrations has-pending-model-changes `
   --project .\src\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj `
   --startup-project .\src\MediQueue.Appointment.Api\MediQueue.Appointment.Api.csproj `
@@ -108,7 +102,7 @@ dotnet ef migrations script 0 InitialCreate --idempotent `
   --output .\docs\sql\InitialCreate.sql
 ```
 
-`InitialCreate` đã tồn tại; không chạy lại lệnh `migrations add` trừ khi chủ động hoàn tác/thiết kế lại theo review. Khi review script cần kiểm tra:
+`InitialCreate` đã tồn tại và đã áp dụng; không chạy `migrations add InitialCreate`, không sửa Migration History và không chạy lại script. Khi review Migration/script mới cần kiểm tra:
 
 1. Không có `CREATE DATABASE`, `DROP DATABASE` hoặc seed tài khoản/mật khẩu.
 2. Đúng bảng Identity và nghiệp vụ, PK/FK, nullability, kiểu dữ liệu.
@@ -116,8 +110,17 @@ dotnet ef migrations script 0 InitialCreate --idempotent `
 4. Có 12 check constraint, rowversion và delete behavior không cascade lịch sử nghiệp vụ.
 5. `Down` tháo quan hệ theo thứ tự an toàn.
 
-Tuyệt đối không chạy `dotnet ef database update`, không thực thi `InitialCreate.sql` và không thêm `EnsureCreated`, `EnsureDeleted`, `Database.Migrate` khi chưa được người dùng phê duyệt.
+Mọi `dotnet ef database update` tiếp theo phải có phê duyệt mới và khảo sát database read-only. Không thêm `EnsureCreated`, `EnsureDeleted` hoặc `Database.Migrate` vào runtime.
 
-## 7. Chức năng chưa triển khai
+## 7. Kiểm tra schema trong SSMS
+
+1. Mở SQL Server Management Studio và kết nối bằng Windows Authentication tới `LAPTOP-AQFGUM9Q\SQLEXPRESS`.
+2. Mở `Databases > MediQueue > Tables`, chọn `Refresh`; phải thấy 22 bảng tính cả `dbo.__EFMigrationsHistory`.
+3. Mở `dbo.QueueTickets > Indexes > UX_QueueTickets_Doctor_Serving > Properties` và xác nhận unique/filtered index đang bật.
+4. Chạy `docs/sql/VerifyDatabase.sql` trong query window đang chọn `MediQueue`; kết quả đầu phải là `ValidationStatus = OK`.
+5. Kiểm tra result set Migration History có đúng `20261117142359_InitialCreate` và summary có `22` total table, `21` model table, `0` invalid FK/check.
+6. Nếu cần nộp minh chứng, chụp ảnh thật Object Explorer, Migration History và result grid; không chụp/tạo minh chứng giả.
+
+## 8. Chức năng chưa triển khai
 
 Nền tảng hiện có MVC host/trang nền tảng, Domain entity/invariant, Identity persistence model, DbContext, Fluent API, Migration/script review và test metadata. Chưa có Login/Register/JWT, sáu API nghiệp vụ bắt buộc, transaction booking/queue thực tế, RabbitMQ business flow, SignalR Hub hoặc giao diện chức năng theo Role. Không dùng model/Migration làm bằng chứng cho các luồng nghiệp vụ chưa tồn tại.

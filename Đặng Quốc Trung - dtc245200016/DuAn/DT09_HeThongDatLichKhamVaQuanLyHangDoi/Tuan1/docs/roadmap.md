@@ -18,7 +18,7 @@ Tuần 1 nằm tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`. Tiêu đề
 
 | Tuần / thư mục | Mục tiêu | Sản phẩm bàn giao dự kiến | Tiêu chí hoàn thành |
 |---|---|---|---|
-| Tuần 1 / `Tuan1` | Phân tích, thiết kế, solution, MVC và EF Core Code First | Tài liệu; 9 project .NET 10; MVC host; Domain entity/invariant; Identity/DbContext/Fluent API; Migration và SQL review | Build/test/smoke test sạch; model/snapshot nhất quán; database chưa bị thay đổi |
+| Tuần 1 / `Tuan1` | Phân tích, thiết kế, solution, MVC và EF Core Code First | Tài liệu; 9 project .NET 10; MVC host; Domain entity/invariant; Identity/DbContext/Fluent API; Migration và SQL review | Build/test/smoke test sạch; model/snapshot nhất quán; InitialCreate được áp dụng và xác minh |
 | Tuần 2 / `Tuan2` | Đăng nhập, đăng ký và phân quyền | Form/login chung; Patient registration; cấp tài khoản staff; JWT Access Token; Role + ownership policies | Đúng 4 Role; không Refresh Token; authorization backend được kiểm thử |
 | Tuần 3 / `Tuan3` | Quản lý danh mục | Doctor, Department, Room và các API/View quản trị liên quan | Controller/View theo nghiệp vụ; authorization và validation được kiểm thử |
 | Tuần 4 / `Tuan4` | Khung giờ, đặt và hủy lịch | 6 REST endpoint bắt buộc; slot, Appointment, check-in metadata; transaction/concurrency | Test quá khứ, hết chỗ, trùng giờ, hạn hủy, ownership và tranh chỗ |

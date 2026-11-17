@@ -57,7 +57,7 @@ public sealed class QueueTicketConfiguration : IEntityTypeConfiguration<QueueTic
 
         builder.HasIndex(ticket => ticket.DoctorId)
             .IsUnique()
-            .HasFilter("[Status] = N'Serving'")
+            .HasFilter("[Status] = 'Serving'")
             .HasDatabaseName("UX_QueueTickets_Doctor_Serving");
 
         builder.HasIndex(ticket => new

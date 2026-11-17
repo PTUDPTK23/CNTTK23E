@@ -7,6 +7,7 @@ using MediQueue.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using DomainAppointment = MediQueue.Domain.Appointments.Appointment;
 
 namespace MediQueue.IntegrationTests.Persistence;
@@ -61,7 +62,35 @@ public sealed class MediQueueModelTests
         Assert.True(appointmentIndex.IsUnique);
         Assert.True(numberIndex.IsUnique);
         Assert.True(servingIndex.IsUnique);
-        Assert.Equal("[Status] = N'Serving'", servingIndex.GetFilter());
+        Assert.Equal(["DoctorId"], servingIndex.Properties.Select(property => property.Name));
+        Assert.Equal("[Status] = 'Serving'", servingIndex.GetFilter());
+
+        IProperty statusProperty = entity.FindProperty(nameof(QueueTicket.Status))!;
+
+        Assert.Equal("varchar(32)", statusProperty.GetColumnType());
+        Assert.False(statusProperty.IsUnicode());
+    }
+
+    [Fact]
+    public void Initial_migration_uses_varchar_compatible_serving_filter()
+    {
+        using MediQueueDbContext context = CreateContext();
+        IMigrator migrator = context.GetService<IMigrator>();
+
+        string script = migrator.GenerateScript(
+            fromMigration: null,
+            toMigration: "20261117142359_InitialCreate",
+            MigrationsSqlGenerationOptions.Idempotent);
+
+        Assert.Contains(
+            "CREATE UNIQUE INDEX [UX_QueueTickets_Doctor_Serving] " +
+            "ON [QueueTickets] ([DoctorId]) WHERE [Status] = ''Serving''",
+            script,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "WHERE [Status] = N''Serving''",
+            script,
+            StringComparison.Ordinal);
     }
 
     [Fact]

@@ -2,7 +2,7 @@
 
 ## 1. Trạng thái và nguyên tắc
 
-Mô hình Code First được triển khai trong `MediQueue.Infrastructure`, Migration `InitialCreate` và SQL script idempotent đã được sinh để review. **Migration chưa được áp dụng**; database `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` chưa bị thay đổi.
+Mô hình Code First được triển khai trong `MediQueue.Infrastructure`. Migration `20261117142359_InitialCreate` đã được áp dụng thành công vào database `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` ngày 18/11/2026 sau khi sửa lỗi filtered index SQL Server 10611.
 
 Các quyết định kỹ thuật:
 
@@ -279,13 +279,21 @@ Migration tạo 12 check constraint:
 
 - Migration: `src/MediQueue.Infrastructure/Persistence/Migrations/*_InitialCreate.cs`.
 - Designer và snapshot: cùng thư mục Migration.
-- SQL idempotent: `docs/sql/InitialCreate.sql`.
+- SQL idempotent: `docs/sql/InitialCreate.sql`; script xác minh read-only: `docs/sql/VerifyDatabase.sql`.
 - Script có guard `__EFMigrationsHistory`, transaction, 21 bảng ứng dụng/Identity và bảng lịch sử Migration nếu được chạy; không chứa `CREATE DATABASE`.
 - `Down` tháo các FK vòng trước rồi drop bảng theo thứ tự phụ thuộc.
-- `dotnet ef migrations has-pending-model-changes` xác nhận snapshot khớp model tại thời điểm sinh.
+- `dotnet ef migrations has-pending-model-changes` xác nhận snapshot khớp model; `migrations list` xác nhận không còn pending Migration.
+- `InitialCreate.sql` chỉ dùng review/khôi phục có kiểm soát; không thực thi lại sau khi Migration đã áp dụng. Runtime không gọi `EnsureCreated`, `EnsureDeleted` hoặc `Database.Migrate`.
 
-Script chỉ để review. Không chạy `dotnet ef database update`, không thực thi script, không gọi `EnsureCreated`, `EnsureDeleted` hoặc `Database.Migrate`.
+## 10. Kết quả database thực tế
 
-## 10. Kết quả khảo sát database trước Migration
+Trước Migration, database trống; sau lần lỗi 10611 chỉ cò `__EFMigrationsHistory` rỗng và không có schema dở dang. Sau bản sửa, kiểm tra system catalog xác nhận:
 
-Ngày 17/11/2026, Windows Authentication kết nối thành công; SQL Server `16.0.1000.6` Express. Kiểm tra read-only sau khi sinh Migration/script vẫn cho kết quả `UserTableCount = 0`, `HasMigrationHistory = 0`. Database `MediQueue` chưa bị thay đổi; không có SQL script hay Migration nào được thực thi.
+- 21 bảng mô hình + `__EFMigrationsHistory` = 22 bảng.
+- 22 PK, 27 FK, 36 index ngoài PK, 11 unique index, 4 filtered index.
+- 12 check constraint, 1 default constraint, 6 cột `rowversion`.
+- Tất cả FK/check constraint đều enabled và trusted.
+- `UX_QueueTickets_Doctor_Serving` unique, enabled, filter `([Status]='Serving')` trên `Status varchar(32)`.
+- `__EFMigrationsHistory` có đúng một dòng `20261117142359_InitialCreate`, EF Core `10.0.2`.
+
+Chi tiết bằng chứng và lệnh kiểm tra xem `docs/database-validation.md`.

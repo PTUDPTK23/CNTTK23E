@@ -36,9 +36,9 @@ Tuần 1 đã hoàn thành tài liệu phân tích/thiết kế và, theo Prompt
 - Enum trạng thái và hằng Role nền tảng; chưa có entity/DbContext nghiệp vụ.
 - Health endpoint thật cho API, Web và Notification Service; Worker chỉ xác nhận host khởi động.
 - Unit test cho trạng thái/Role và integration test cho health API.
-- Khảo sát metadata database `MediQueue` ở chế độ read-only; không chạy SQL ghi, Migration hoặc thay đổi database.
+- Khảo sát metadata database `MediQueue` read-only trước khi áp dụng Migration.
 - Xây dựng Domain entity/invariant, ASP.NET Core Identity model, `MediQueueDbContext`, Fluent API và kiểm thử metadata EF Core.
-- Sinh Migration `InitialCreate`, ModelSnapshot và [SQL script review](docs/sql/InitialCreate.sql); chưa áp dụng Migration.
+- Sửa lỗi filtered index SQL Server 10611, sinh lại [SQL script review](docs/sql/InitialCreate.sql), áp dụng và [xác minh `InitialCreate`](docs/database-validation.md) trên SQL Server thật.
 - Refactor `MediQueue.Web` từ Razor Pages sang ASP.NET Core MVC; trang chủ, trang lỗi, Layout và static assets đã được chuyển sang Controller/View.
 - Chuẩn hóa Controller và Views theo nghiệp vụ; menu/giao diện sẽ hiển thị theo Role sau khi dùng chung một form đăng nhập.
 
@@ -121,7 +121,9 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 | [docs/use-cases.md](docs/use-cases.md) | Use Case và sơ đồ luồng |
 | [docs/business-rules.md](docs/business-rules.md) | Quy tắc nghiệp vụ và state machine |
 | [docs/architecture.md](docs/architecture.md) | Kiến trúc logic và cấu trúc solution thực tế |
-| [docs/database.md](docs/database.md) | ERD dự kiến và kết quả khảo sát schema read-only |
+| [docs/database.md](docs/database.md) | ERD, Data Dictionary và ràng buộc Code First |
+| [docs/database-validation.md](docs/database-validation.md) | Bằng chứng áp dụng và kiểm tra schema thực tế |
+| [docs/sql/VerifyDatabase.sql](docs/sql/VerifyDatabase.sql) | Script kiểm tra database read-only |
 | [docs/api.md](docs/api.md) | Thiết kế API và quy chuẩn Controller |
 | [docs/roadmap.md](docs/roadmap.md) | Lộ trình 9 tuần đã điều chỉnh |
 | [docs/progress.md](docs/progress.md) | Nhật ký tiến độ thực tế |
@@ -133,7 +135,7 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 - Nhánh: `duan-dtc245200016`.
 - Solution, Domain và nền tảng EF Core Code First: đã hoàn thành trong Tuần 1 theo Prompt 02.2.
 - Frontend MVC và kiến trúc Controller theo nghiệp vụ: đã chuẩn hóa theo Prompt 02.2.1; Web không tham chiếu DbContext/Infrastructure.
-- Restore/build/test/smoke test: đã kiểm tra sau refactor; build `0` warning/`0` error, 32/32 test đạt và các host nền tảng khởi động thành công; xem `docs/progress.md`.
-- Database: kết nối Windows Authentication thành công, hiện chưa có bảng người dùng; Migration/script chỉ được sinh để review và chưa thay đổi schema/data.
+- Restore/build/test/smoke test: build `0` warning/`0` error, 34/34 test đạt và bốn host nền tảng khởi động thành công; xem `docs/progress.md`.
+- Database: `InitialCreate` đã áp dụng thành công ngày 18/11/2026; có 21 bảng mô hình + `__EFMigrationsHistory`, không có dữ liệu mẫu.
 - Pull Request Tuần 1: chưa tạo.
-- Bước tiếp theo chỉ thực hiện sau khi người dùng review kết quả Prompt 02.2.1 và giao Prompt 02.3.
+- Chờ người dùng review và commit thủ công kết quả Prompt 02.3.1; không tự chuyển sang giai đoạn tiếp theo.

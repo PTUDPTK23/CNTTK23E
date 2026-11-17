@@ -692,7 +692,7 @@ namespace MediQueue.Infrastructure.Persistence.Migrations
                 table: "QueueTickets",
                 column: "DoctorId",
                 unique: true,
-                filter: "[Status] = N'Serving'");
+                filter: "[Status] = 'Serving'");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QueueTransitions_PerformedByUserId",

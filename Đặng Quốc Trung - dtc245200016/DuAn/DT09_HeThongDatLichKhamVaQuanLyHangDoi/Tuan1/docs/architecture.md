@@ -126,7 +126,7 @@ Phụ thuộc source code dự kiến đi một chiều: `Domain` không phụ t
 - Domain giữ entity/invariant thuần; Infrastructure giữ `ApplicationUser`, EF configuration và các entity kỹ thuật Outbox/Inbox/Idempotency/Audit.
 - Appointment API và Queue Worker đăng ký DbContext scoped qua `AddMediQueueInfrastructure`; không có DbContext singleton và Web không tham chiếu Infrastructure.
 - `MediQueueDbContextFactory` chỉ đọc `ConnectionStrings__MediQueue` ở design time. Runtime dùng `ConnectionStrings:MediQueue` từ User Secrets/biến môi trường.
-- Migration `InitialCreate` và SQL script đã sinh để review nhưng chưa áp dụng database. Không tự migrate khi ứng dụng khởi động.
+- Migration `20261117142359_InitialCreate` đã được review, áp dụng và xác minh trên `MediQueue` ngày 18/11/2026. Dịch vụ vẫn không tự migrate khi khởi động.
 
 ## 5. Luồng đặt lịch và cấp số
 

@@ -39,7 +39,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Web`, `Infrastructure`.
 - Cổng phát triển: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS).
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
-- Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser`, Migration `InitialCreate` và SQL script để review. Migration chưa được áp dụng vào database.
+- Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser` và Migration `20261117142359_InitialCreate`. Migration đã áp dụng vào `MediQueue` ngày 18/11/2026; schema có 21 bảng mô hình + bảng lịch sử.
 - Chưa có Login/Register/JWT hoàn chỉnh, sáu API nghiệp vụ, RabbitMQ business flow hoặc SignalR Hub. Không ghi nhận các phần này là đã hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
 - Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
@@ -96,7 +96,7 @@ Không tự thực hiện các hành động sau nếu người dùng chưa yêu
 - Thay đổi công nghệ, kiến trúc hoặc bổ sung chức năng ngoài phạm vi đề tài.
 - Commit, push, tạo branch, Pull Request hoặc làm giả lịch sử phát triển.
 
-Migration `InitialCreate` đã được sinh nhưng chưa áp dụng. Trước mọi lệnh `database update` hoặc thực thi SQL, phải review Migration/script, khảo sát lại database `MediQueue` ở chế độ read-only và có yêu cầu rõ ràng của người dùng. Không xóa hoặc tạo lại database.
+Migration `InitialCreate` đã áp dụng thành công; không chạy lại, không sửa `__EFMigrationsHistory` và không xóa/tạo lại database. Mọi Migration tiếp theo phải được review, khảo sát database read-only, backup khi có dữ liệu quan trọng và có yêu cầu rõ ràng của người dùng. Không tự migrate khi khởi động dịch vụ.
 
 ## 8. Quy tắc lịch sử Git và Pull Request
 

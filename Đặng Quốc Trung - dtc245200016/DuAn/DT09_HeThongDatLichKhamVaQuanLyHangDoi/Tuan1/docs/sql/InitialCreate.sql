@@ -631,7 +631,7 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'20261117142359_InitialCreate'
 )
 BEGIN
-    EXEC(N'CREATE UNIQUE INDEX [UX_QueueTickets_Doctor_Serving] ON [QueueTickets] ([DoctorId]) WHERE [Status] = N''Serving''');
+    EXEC(N'CREATE UNIQUE INDEX [UX_QueueTickets_Doctor_Serving] ON [QueueTickets] ([DoctorId]) WHERE [Status] = ''Serving''');
 END;
 
 IF NOT EXISTS (
