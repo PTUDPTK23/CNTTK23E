@@ -1,11 +1,42 @@
 @api = http://localhost:5100
-### Danh sách sản phẩm → 200
+
+### 1. Kiem tra may chu dang chay -> 200 OK
+GET {{api}}/
+
+### 2. Danh sach tat ca san pham -> 200 OK
 GET {{api}}/api/products
-### Sản phẩm không tồn tại → 404 + ApiError
+
+### 3. Chi tiet san pham ID 1 hop le -> 200 OK
+GET {{api}}/api/products/1
+
+### 4. San pham khong ton tai -> 404 Not Found (PRODUCT_NOT_FOUND)
 GET {{api}}/api/products/999
-### Tạo sản phẩm hợp lệ → 201 Created + Location
+
+### 5. ID khong phai so -> 404 Not Found (Chan qua route constraint)
+GET {{api}}/api/products/abc
+
+### 6. Tao san pham hop le -> 201 Created + Location header
 POST {{api}}/api/products
 Content-Type: application/json
-{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5",
-"price": 80000 }
-### ... đủ 8 ca: xem Bước 6 tài liệu Word
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+### 7. Tao san pham loi (gia am hoac ten rong) -> 400 Bad Request (INVALID_PRODUCT)
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi",
+  "description": "",
+  "price": -1
+}
+
+### 8. Sai kieu noi dung (thieu Content-Type json) -> 415 Unsupported Media Type
+POST {{api}}/api/products
+Content-Type: text/plain
+
+name=Lap+trinh+gRPC
