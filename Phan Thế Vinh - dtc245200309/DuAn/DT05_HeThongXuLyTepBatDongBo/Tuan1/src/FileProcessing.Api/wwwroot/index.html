@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Xử Lý Tệp Bất Đồng Bộ - Đề Tài 05</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bs-primary: #1d4ed8;
+            --bs-primary-rgb: 29, 78, 216;
+        }
+        body {
+            background-color: #f1f5f9;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #1e293b;
+        }
+        .app-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2.2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+        }
+        .upload-dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .badge-pending { background-color: #f59e0b; color: white; }
+        .badge-processing { background-color: #3b82f6; color: white; }
+        .badge-completed { background-color: #10b981; color: white; }
+        .badge-failed { background-color: #ef4444; color: white; }
+        .preview-box {
+            max-height: 240px;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+        }
+        .table > :not(caption) > * > * {
+            padding: 0.75rem 0.85rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">
+                        <i class="bi bi-cpu-fill me-2"></i>Hệ Thống Xử Lý Tệp Bất Đồng Bộ
+                    </h1>
+                    <p class="mb-0 text-white-50">
+                        Đề tài 05 | Kiến trúc: .NET 10 | ASP.NET Core API | Background Worker | SQL Server | Outbox Pattern | RabbitMQ
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success px-3 py-2 fs-6">
+                        <i class="bi bi-check-circle-fill me-1"></i>Hệ Thống Trực Tuyến
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mb-5">
+        <!-- Thông báo nhanh -->
+        <div id="alertContainer"></div>
+
+        <div class="row g-4">
+            <!-- Cột trái: Bước 1 (Upload) và Bước 2 (Tạo Job) -->
+            <div class="col-lg-6">
+                <!-- Bước 1: Upload File -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>Bước 1: Tải Lên Tệp Ảnh (PNG / JPEG)</span>
+                        <span class="badge bg-light text-secondary border">API: POST /files</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-dropzone mb-3" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                            <i class="bi bi-image fs-1 text-primary mb-2 d-block"></i>
+                            <div class="fw-semibold">Nhấn để chọn tệp hoặc kéo thả vào đây</div>
+                            <div class="text-muted small">Hỗ trợ định dạng PNG, JPG, JPEG (Tối đa 25MB)</div>
+                            <input type="file" id="fileInput" class="d-none" accept=".png,.jpg,.jpeg">
+                        </div>
+
+                        <div id="selectedFileInfo" class="d-none alert alert-light border d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-file-earmark-image fs-3 text-primary"></i>
+                                <div>
+                                    <div id="selectedFileName" class="fw-semibold">ten-tep.png</div>
+                                    <div id="selectedFileSize" class="text-muted small">120 KB</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="clearSelectedFile()"><i class="bi bi-x"></i> Hủy</button>
+                        </div>
+
+                        <div id="uploadPreviewContainer" class="d-none text-center mb-3">
+                            <img id="uploadPreviewImg" class="preview-box img-fluid" alt="Xem trước tệp">
+                        </div>
+
+                        <button id="btnUpload" class="btn btn-primary w-100 fw-semibold" onclick="handleUploadFile()" disabled>
+                            <i class="bi bi-upload me-1"></i> Bắt đầu Tải Lên (POST /files)
+                        </button>
+
+                        <div id="uploadedMetadata" class="d-none mt-3 p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-success mb-2"><i class="bi bi-check-circle me-1"></i>Đã lưu tệp vào hệ thống:</h6>
+                            <div class="small">
+                                <div><strong>FileId:</strong> <code id="lblFileId"></code></div>
+                                <div><strong>Tên gốc:</strong> <span id="lblOriginalFileName"></span></div>
+                                <div><strong>Dung lượng:</strong> <span id="lblUploadedSize"></span></div>
+                                <div><strong>Thời gian:</strong> <span id="lblUploadedAt"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bước 2: Tạo Job xử lý -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-gear-wide-connected text-primary me-2"></i>Bước 2: Tạo Yêu Cầu Xử Lý (Job)</span>
+                        <span class="badge bg-light text-secondary border">API: POST /jobs</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Mã Tệp (FileId):</label>
+                            <input type="text" id="jobFileId" class="form-control font-monospace" placeholder="Tự động điền sau khi Bước 1 hoàn thành">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Loại xử lý (JobType):</label>
+                            <select id="selectJobType" class="form-select" onchange="handleJobTypeChange()">
+                                <option value="Compress">Nén ảnh (Compress) - Giảm kích thước tệp</option>
+                                <option value="Thumbnail">Tạo ảnh thu nhỏ (Thumbnail) - Đổi kích thước</option>
+                                <option value="ConvertPngToJpeg">Chuyển đổi PNG sang JPEG (Convert)</option>
+                            </select>
+                        </div>
+
+                        <!-- Tham số cho Compress -->
+                        <div id="paramCompress" class="mb-3">
+                            <label class="form-label small fw-semibold">Chất lượng nén JPEG: <span id="lblQuality" class="text-primary fw-bold">65%</span></label>
+                            <input type="range" class="form-range" id="compressQuality" min="20" max="95" value="65" oninput="document.getElementById('lblQuality').innerText = this.value + '%'">
+                        </div>
+
+                        <!-- Tham số cho Thumbnail -->
+                        <div id="paramThumbnail" class="mb-3 d-none">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Chiều rộng (px):</label>
+                                    <input type="number" id="thumbWidth" class="form-control" value="200" min="50" max="1920">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Chiều cao (px):</label>
+                                    <input type="number" id="thumbHeight" class="form-control" value="200" min="50" max="1080">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btnCreateJob" class="btn btn-success w-100 fw-semibold" onclick="handleCreateJob()" disabled>
+                            <i class="bi bi-play-circle-fill me-1"></i> Tạo Job Bất Đồng Bộ (POST /jobs)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Bước 3 (Theo dõi Job & Kết quả) -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-activity text-primary me-2"></i>Bước 3: Trạng Thái Xử Lý & Tải Kết Quả</span>
+                        <span class="badge bg-light text-secondary border">API: GET /jobs/{id}</span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div id="jobStatusPlaceholder" class="text-center py-5 text-muted my-auto">
+                            <i class="bi bi-arrow-left-circle fs-1 d-block mb-2 text-secondary"></i>
+                            Hãy hoàn thành Bước 1 và Bước 2 để theo dõi tiến trình xử lý bất đồng bộ.
+                        </div>
+
+                        <div id="jobStatusBox" class="d-none">
+                            <div class="p-3 bg-light rounded border mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">Mã Job:</span>
+                                    <code id="lblJobId" class="fs-6"></code>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">Trạng thái:</span>
+                                    <span id="lblJobStatus" class="badge fs-6">Pending</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted small">Loại xử lý:</span>
+                                    <span id="lblJobType" class="small fw-semibold"></span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted small">Thời gian tạo:</span>
+                                    <span id="lblJobCreatedAt" class="small"></span>
+                                </div>
+                                <div id="jobDurationRow" class="d-flex justify-content-between align-items-center mb-1 d-none">
+                                    <span class="text-muted small">Thời gian xử lý:</span>
+                                    <span id="lblJobDuration" class="small fw-semibold text-primary"></span>
+                                </div>
+                            </div>
+
+                            <!-- Spinner khi đang xử lý -->
+                            <div id="jobLoadingSpinner" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                                <div class="mt-3 text-primary fw-semibold">Đang trong hàng đợi / Worker đang xử lý tệp...</div>
+                                <div class="text-muted small">Hệ thống đang tự động thăm dò cập nhật (polling 1.5s)</div>
+                            </div>
+
+                            <!-- Kết quả xử lý -->
+                            <div id="jobResultContainer" class="d-none mt-2">
+                                <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+                                    <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                                    <div>
+                                        <div class="fw-bold">Xử lý tệp thành công!</div>
+                                        <div class="small text-muted" id="lblResultSummary">Kích thước mới: 45 KB | 800x600 px</div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mb-3">
+                                    <img id="resultImagePreview" class="preview-box img-fluid" alt="Ảnh kết quả">
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <a id="btnDownloadResult" href="#" class="btn btn-primary fw-semibold py-2" target="_blank">
+                                        <i class="bi bi-download me-1"></i> Tải Kết Quả (GET /files/{id}/result)
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Lỗi nếu có -->
+                            <div id="jobErrorContainer" class="d-none alert alert-danger mt-2">
+                                <div class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Xử lý thất bại!</div>
+                                <div id="lblJobError" class="small mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng điều khiển lịch sử các Job -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-table text-primary me-2"></i>Lịch Sử Các Tác Vụ Gần Đây (GET /jobs)</span>
+                <button class="btn btn-sm btn-outline-primary" onclick="loadRecentJobs()">
+                    <i class="bi bi-arrow-clockwise"></i> Làm mới
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã Job</th>
+                                <th>Tên Tệp Gốc</th>
+                                <th>Loại Xử Lý</th>
+                                <th>Trạng Thái</th>
+                                <th>Thời Gian Tạo</th>
+                                <th>Thời Gian Xử Lý</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">Đang tải danh sách tác vụ...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-3 text-muted border-top bg-white">
+        <small>© 2026 - Đề Tài 05: Hệ Thống Xử Lý Tệp Bất Đồng Bộ (.NET 10 Web API + Worker Service + RabbitMQ + EF Core 10)</small>
+    </footer>
+
+    <script>
+        let currentUploadedFileId = null;
+        let currentPollingInterval = null;
+
+        // Xử lý kéo thả tệp
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+            });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelected();
+            }
+        });
+
+        fileInput.addEventListener('change', handleFileSelected);
+
+        function handleFileSelected() {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+
+            document.getElementById('selectedFileName').innerText = file.name;
+            document.getElementById('selectedFileSize').innerText = formatBytes(file.size);
+            document.getElementById('selectedFileInfo').classList.remove('d-none');
+            document.getElementById('dropzone').classList.add('d-none');
+            document.getElementById('btnUpload').disabled = false;
+
+            // Preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById('uploadPreviewImg');
+                img.src = e.target.result;
+                document.getElementById('uploadPreviewContainer').classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearSelectedFile() {
+            fileInput.value = '';
+            document.getElementById('selectedFileInfo').classList.add('d-none');
+            document.getElementById('uploadPreviewContainer').classList.add('d-none');
+            document.getElementById('dropzone').classList.remove('d-none');
+            document.getElementById('btnUpload').disabled = true;
+            document.getElementById('uploadedMetadata').classList.add('d-none');
+            currentUploadedFileId = null;
+        }
+
+        function handleJobTypeChange() {
+            const type = document.getElementById('selectJobType').value;
+            document.getElementById('paramCompress').classList.toggle('d-none', type !== 'Compress');
+            document.getElementById('paramThumbnail').classList.toggle('d-none', type !== 'Thumbnail');
+        }
+
+        // 1. Tải lên tệp (POST /files)
+        async function handleUploadFile() {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btnUpload');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang tải lên...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/files', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Tải lên thất bại');
+                }
+
+                currentUploadedFileId = data.fileId;
+                document.getElementById('lblFileId').innerText = data.fileId;
+                document.getElementById('lblOriginalFileName').innerText = data.originalFileName;
+                document.getElementById('lblUploadedSize').innerText = formatBytes(data.fileSize);
+                document.getElementById('lblUploadedAt').innerText = new Date(data.createdAt).toLocaleString('vi-VN');
+                document.getElementById('uploadedMetadata').classList.remove('d-none');
+
+                // Điền vào Bước 2
+                document.getElementById('jobFileId').value = data.fileId;
+                document.getElementById('btnCreateJob').disabled = false;
+
+                showAlert('Tải lên tệp thành công!', 'success');
+            } catch (err) {
+                showAlert('Lỗi tải tệp: ' + err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-upload me-1"></i> Bắt đầu Tải Lên (POST /files)';
+            }
+        }
+
+        // 2. Tạo Job xử lý (POST /jobs)
+        async function handleCreateJob() {
+            const fileId = document.getElementById('jobFileId').value.trim();
+            if (!fileId) {
+                showAlert('Vui lòng chọn hoặc nhập FileId hợp lệ.', 'warning');
+                return;
+            }
+
+            const jobType = document.getElementById('selectJobType').value;
+            let parameters = null;
+
+            if (jobType === 'Compress') {
+                parameters = { quality: parseInt(document.getElementById('compressQuality').value) };
+            } else if (jobType === 'Thumbnail') {
+                parameters = {
+                    width: parseInt(document.getElementById('thumbWidth').value),
+                    height: parseInt(document.getElementById('thumbHeight').value)
+                };
+            }
+
+            const btn = document.getElementById('btnCreateJob');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang tạo Job...';
+
+            try {
+                const response = await fetch('/jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileId, jobType, parameters })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Tạo Job thất bại');
+                }
+
+                showAlert('Tạo Job thành công! Đang chuyển vào hàng đợi xử lý...', 'success');
+                startJobTracking(data.jobId);
+                loadRecentJobs();
+            } catch (err) {
+                showAlert('Lỗi tạo Job: ' + err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-play-circle-fill me-1"></i> Tạo Job Bất Đồng Bộ (POST /jobs)';
+            }
+        }
+
+        // 3. Theo dõi tiến trình Job (GET /jobs/{id})
+        function startJobTracking(jobId) {
+            if (currentPollingInterval) {
+                clearInterval(currentPollingInterval);
+            }
+
+            document.getElementById('jobStatusPlaceholder').classList.add('d-none');
+            document.getElementById('jobStatusBox').classList.remove('d-none');
+            document.getElementById('jobLoadingSpinner').classList.remove('d-none');
+            document.getElementById('jobResultContainer').classList.add('d-none');
+            document.getElementById('jobErrorContainer').classList.add('d-none');
+            document.getElementById('jobDurationRow').classList.add('d-none');
+
+            document.getElementById('lblJobId').innerText = jobId;
+
+            pollJobStatus(jobId);
+            currentPollingInterval = setInterval(() => pollJobStatus(jobId), 1500);
+        }
+
+        async function pollJobStatus(jobId) {
+            try {
+                const response = await fetch('/jobs/' + jobId);
+                if (!response.ok) return;
+
+                const job = await response.json();
+
+                // Cập nhật nhãn trạng thái
+                const badge = document.getElementById('lblJobStatus');
+                badge.innerText = job.status;
+                badge.className = 'badge fs-6 ' + getStatusBadgeClass(job.status);
+
+                document.getElementById('lblJobType').innerText = job.jobType;
+                document.getElementById('lblJobCreatedAt').innerText = new Date(job.createdAt).toLocaleString('vi-VN');
+
+                if (job.status === 'Completed') {
+                    clearInterval(currentPollingInterval);
+                    document.getElementById('jobLoadingSpinner').classList.add('d-none');
+
+                    if (job.result) {
+                        document.getElementById('jobDurationRow').classList.remove('d-none');
+                        document.getElementById('lblJobDuration').innerText = job.result.durationMs + ' ms';
+                        document.getElementById('lblResultSummary').innerText = 
+                            `Dung lượng: ${formatBytes(job.result.fileSize)} | Kích thước: ${job.result.width}x${job.result.height} px | Xử lý trong: ${job.result.durationMs} ms`;
+
+                        const downloadUrl = '/files/' + jobId + '/result';
+                        document.getElementById('btnDownloadResult').href = downloadUrl;
+                        document.getElementById('resultImagePreview').src = downloadUrl + '?t=' + Date.now();
+                        document.getElementById('jobResultContainer').classList.remove('d-none');
+                    }
+                    loadRecentJobs();
+                } else if (job.status === 'Failed') {
+                    clearInterval(currentPollingInterval);
+                    document.getElementById('jobLoadingSpinner').classList.add('d-none');
+                    document.getElementById('lblJobError').innerText = job.errorMessage || 'Lỗi không xác định trong quá trình Worker xử lý tệp.';
+                    document.getElementById('jobErrorContainer').classList.remove('d-none');
+                    loadRecentJobs();
+                }
+            } catch (err) {
+                console.error('Lỗi khi thăm dò Job:', err);
+            }
+        }
+
+        // 4. Tải danh sách Job gần đây (GET /jobs)
+        async function loadRecentJobs() {
+            const tbody = document.getElementById('jobsTableBody');
+            try {
+                const response = await fetch('/jobs?limit=30');
+                if (!response.ok) return;
+
+                const jobs = await response.json();
+                if (jobs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Chưa có tác vụ nào được tạo.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = jobs.map(j => `
+                    <tr>
+                        <td><code>${j.jobId.substring(0, 8)}...</code></td>
+                        <td>${escapeHtml(j.originalFileName || 'N/A')}</td>
+                        <td><span class="badge bg-secondary">${j.jobType}</span></td>
+                        <td><span class="badge ${getStatusBadgeClass(j.status)}">${j.status}</span></td>
+                        <td><small>${new Date(j.createdAt).toLocaleTimeString('vi-VN')} ${new Date(j.createdAt).toLocaleDateString('vi-VN')}</small></td>
+                        <td>${j.durationMs != null ? j.durationMs + ' ms' : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info me-1" onclick="startJobTracking('${j.jobId}')" title="Theo dõi chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            ${j.resultDownloadUrl ? `
+                                <a href="${j.resultDownloadUrl}" class="btn btn-sm btn-outline-success" target="_blank" title="Tải kết quả">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Lỗi tải danh sách tác vụ.</td></tr>';
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'Pending': return 'badge-pending';
+                case 'Processing': return 'badge-processing';
+                case 'Completed': return 'badge-completed';
+                case 'Failed': return 'badge-failed';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 6000);
+        }
+
+        // Tải danh sách khi mở trang
+        document.addEventListener('DOMContentLoaded', loadRecentJobs);
+    </script>
+</body>
+</html>
+
