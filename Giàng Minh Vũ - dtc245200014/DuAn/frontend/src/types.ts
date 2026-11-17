@@ -1,0 +1,3 @@
+export type EventItem={id:string;name:string;description:string;category:string;location:string;address:string;startTime:string;endTime:string;capacity:number;registeredCount:number;checkedInCount:number;availableSeats:number;coverImage?:string;status:string};
+export type Registration={id:string;registrationCode:string;eventId:string;eventName:string;eventStartTime:string;eventLocation:string;eventAddress:string;participantName:string;email:string;phone:string;status:string;registrationDate:string;checkInTime?:string|null;qrCodeData:string};
+export type Page<T>={items:T[];page:number;pageSize:number;total:number};

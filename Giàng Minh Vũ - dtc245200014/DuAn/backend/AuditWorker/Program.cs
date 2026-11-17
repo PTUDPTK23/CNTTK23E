@@ -1,0 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
+
+var builder=Host.CreateApplicationBuilder(args);builder.Logging.AddJsonConsole();builder.Services.AddDbContext<AuditDb>(o=>o.UseSqlServer(builder.Configuration.GetConnectionString("Audit")??Environment.GetEnvironmentVariable("AUDIT_DB")??throw new InvalidOperationException("Configure the service SQL Server connection string.")));builder.Services.AddHostedService<Worker>();await builder.Build().RunAsync();
+public sealed class AuditDb(DbContextOptions<AuditDb> o):DbContext(o){public DbSet<AuditEntry> Entries=>Set<AuditEntry>();public DbSet<AuditProcessed> Processed=>Set<AuditProcessed>();protected override void OnModelCreating(ModelBuilder b){b.Entity<AuditEntry>().ToTable("AuditLogs");b.Entity<AuditEntry>().HasIndex(x=>x.MessageId).IsUnique();b.Entity<AuditProcessed>().ToTable("ProcessedMessages");b.Entity<AuditProcessed>().HasIndex(x=>x.EventId).IsUnique();}}
+public sealed class AuditEntry{public long Id{get;set;}public Guid MessageId{get;set;}public Guid EventId{get;set;}public string EventType{get;set;}="";public Guid? ParticipantId{get;set;}public string? ParticipantName{get;set;}public string? Email{get;set;}public Guid? RegistrationId{get;set;}public string? RegistrationCode{get;set;}public string Description{get;set;}="";public DateTimeOffset CreatedAt{get;set;}public string CorrelationId{get;set;}="";public string Payload{get;set;}="";}
+public sealed class AuditProcessed{public long Id{get;set;}public Guid EventId{get;set;}public DateTimeOffset ProcessedAt{get;set;}}

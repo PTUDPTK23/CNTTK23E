@@ -1,0 +1,83 @@
+name: event-management-system
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD:-Local_dev_Only_2026!}
+    ports: ["1433:1433"]
+    volumes: ["sql_data:/var/opt/mssql"]
+    networks: [event-net]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
+      interval: 15s
+      timeout: 8s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-eventapp}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-event_dev_only_2026}
+    ports: ["5672:5672", "15672:15672"]
+    volumes: ["rabbit_data:/var/lib/rabbitmq"]
+    networks: [event-net]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  eventservice:
+    build: { context: ., dockerfile: backend/EventService/EventService.Api/Dockerfile }
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Events: "Server=sqlserver,1433;Database=EventManagement;User Id=sa;Password=${SA_PASSWORD:-Local_dev_Only_2026!};TrustServerCertificate=True;Encrypt=False"
+      RabbitMq__Uri: "amqp://${RABBITMQ_USER:-eventapp}:${RABBITMQ_PASSWORD:-event_dev_only_2026}@rabbitmq:5672/"
+    depends_on:
+      sqlserver: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    ports: ["5001:8080"]
+    networks: [event-net]
+    healthcheck: { test: ["CMD-SHELL", "curl --fail --silent --show-error http://127.0.0.1:8080/health/ready > /dev/null"], interval: 15s, timeout: 5s, retries: 12, start_period: 25s }
+    restart: unless-stopped
+  dashboardservice:
+    build: { context: ., dockerfile: backend/DashboardService/DashboardService.Api/Dockerfile }
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Dashboard: "Server=sqlserver,1433;Database=EventDashboard;User Id=sa;Password=${SA_PASSWORD:-Local_dev_Only_2026!};TrustServerCertificate=True;Encrypt=False"
+      ConnectionStrings__AuditRead: "Server=sqlserver,1433;Database=EventAudit;User Id=sa;Password=${SA_PASSWORD:-Local_dev_Only_2026!};TrustServerCertificate=True;Encrypt=False"
+      RabbitMq__Uri: "amqp://${RABBITMQ_USER:-eventapp}:${RABBITMQ_PASSWORD:-event_dev_only_2026}@rabbitmq:5672/"
+    depends_on:
+      sqlserver: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    ports: ["5002:8080"]
+    networks: [event-net]
+    healthcheck: { test: ["CMD-SHELL", "curl --fail --silent --show-error http://127.0.0.1:8080/health/ready > /dev/null"], interval: 15s, timeout: 5s, retries: 12, start_period: 25s }
+    restart: unless-stopped
+  auditworker:
+    build: { context: ., dockerfile: backend/AuditWorker/Dockerfile }
+    environment:
+      ConnectionStrings__Audit: "Server=sqlserver,1433;Database=EventAudit;User Id=sa;Password=${SA_PASSWORD:-Local_dev_Only_2026!};TrustServerCertificate=True;Encrypt=False"
+      RabbitMq__Uri: "amqp://${RABBITMQ_USER:-eventapp}:${RABBITMQ_PASSWORD:-event_dev_only_2026}@rabbitmq:5672/"
+    depends_on:
+      sqlserver: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    networks: [event-net]
+    restart: unless-stopped
+  frontend:
+    build: { context: ., dockerfile: frontend/Dockerfile }
+    depends_on:
+      eventservice: { condition: service_healthy }
+      dashboardservice: { condition: service_healthy }
+    ports: ["8080:80"]
+    networks: [event-net]
+    restart: unless-stopped
+networks:
+  event-net: { driver: bridge }
+volumes:
+  sql_data:
+  rabbit_data:
