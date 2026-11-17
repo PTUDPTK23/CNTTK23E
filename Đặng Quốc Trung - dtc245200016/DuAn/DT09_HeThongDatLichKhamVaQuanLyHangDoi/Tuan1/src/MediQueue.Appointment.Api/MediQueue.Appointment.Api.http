@@ -1,0 +1,6 @@
+@MediQueue.Appointment.Api_HostAddress = http://localhost:5101
+
+GET {{MediQueue.Appointment.Api_HostAddress}}/health
+Accept: application/json
+
+###
