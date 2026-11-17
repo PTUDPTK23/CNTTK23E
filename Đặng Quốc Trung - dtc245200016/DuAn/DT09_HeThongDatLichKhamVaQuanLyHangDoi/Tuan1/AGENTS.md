@@ -1,6 +1,6 @@
 # AGENTS.md — Quy tắc làm việc với MediQueue
 
-Tệp này áp dụng cho toàn bộ cây thư mục `DuAn`.
+Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`.
 
 ## 1. Bối cảnh cố định
 
@@ -15,14 +15,16 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn`.
 - Mỗi Doctor thuộc đúng một Specialty; một Specialty có nhiều Doctor.
 - Identity phát JWT Access Token có thời hạn; không triển khai Refresh Token ở phiên bản đầu.
 - Không sử dụng Docker dưới bất kỳ hình thức nào.
+- Cấu trúc nộp bài gồm 9 thư mục `Tuan1` đến `Tuan9`; mỗi tuần đúng một Pull Request và có thể có nhiều commit thực tế.
+- Pull Request Tuần 1 có tiêu đề `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung`, hạn nộp 23h59 ngày 17/11/2026.
 
 ## 2. Ranh giới an toàn trước khi làm việc
 
-1. Xác nhận thư mục hiện tại thuộc `DuAn`.
+1. Xác nhận thư mục làm việc thuộc `DuAn/DT09_HeThongDatLichKhamVaQuanLyHangDoi` và xác định đúng thư mục `Tuan{n}` của tuần đang làm.
 2. Chạy `git branch --show-current` và `git status --short --branch`.
 3. Nếu không ở nhánh `duan-dtc245200016`, dừng và báo cáo; không tự chuyển nhánh.
-4. Không sửa bất kỳ nội dung nào ngoài `DuAn`, đặc biệt là `Bai1` đến `Bai9`.
-5. Không tạo repository Git lồng trong `DuAn`.
+4. Chỉ sửa nội dung trong thư mục tuần được giao; không tự sửa tuần khác, README chung của lớp, `Bai1` đến `Bai9` hoặc thư mục sinh viên khác.
+5. Không tạo repository Git lồng trong `DuAn` hoặc thư mục dự án.
 6. Giữ nguyên thay đổi có sẵn của người dùng; không reset, checkout hay xóa chúng.
 
 ## 3. Quy ước kiến trúc
@@ -78,10 +80,18 @@ Không tự thực hiện các hành động sau nếu người dùng chưa yêu
 
 Trước Migration đầu tiên, chỉ khảo sát schema database `MediQueue` ở chế độ read-only, lập kế hoạch thay đổi và chờ người dùng duyệt. Không xóa hoặc tạo lại database.
 
-## 7. Kiểm tra trước khi bàn giao
+## 7. Quy tắc lịch sử Git và Pull Request
+
+- Mỗi tuần chỉ có một Pull Request; nhiều commit trong Pull Request được phép và nên phản ánh các lát cắt công việc thực tế.
+- Không sửa, squash, chia nhỏ hoặc tạo thêm commit chỉ để mô phỏng lịch sử 9 tuần.
+- Không đưa thay đổi của hai thư mục tuần vào cùng một Pull Request.
+- Trước khi đề xuất Pull Request, kiểm tra diff chỉ thuộc thư mục tuần tương ứng và báo cáo tiêu đề PR bắt buộc.
+- Không tự động commit, push hoặc mở Pull Request.
+
+## 8. Kiểm tra trước khi bàn giao
 
 - So khớp yêu cầu bắt buộc với Use Case, API, dữ liệu và kiến trúc.
 - Kiểm tra Mermaid và liên kết tài liệu.
 - Chạy các kiểm tra phù hợp với đúng giai đoạn; không tạo mã chỉ để kiểm tra tài liệu.
-- Báo cáo file đã đổi, quyết định thiết kế, điểm còn cần xác nhận và `git status` cuối cùng.
+- Báo cáo file đã đổi, cây thư mục tuần, quyết định thiết kế, điểm còn cần xác nhận, tiêu đề/hạn PR và `git status` cuối cùng.
 

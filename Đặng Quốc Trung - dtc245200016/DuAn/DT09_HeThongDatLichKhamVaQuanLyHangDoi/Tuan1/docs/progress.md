@@ -5,7 +5,10 @@
 | Thuộc tính | Giá trị |
 |---|---|
 | Nhánh | `duan-dtc245200016` |
-| Giai đoạn | Prompt 01 — Phân tích và thiết kế nền tảng |
+| Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1` |
+| Tuần | Tuần 1 — Phân tích và thiết kế nền tảng |
+| Pull Request | Chưa tạo; tiêu đề bắt buộc `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung` |
+| Hạn nộp | 23h59 ngày 17/11/2026 |
 | Trạng thái mã nguồn | Chưa khởi tạo solution/project |
 | Trạng thái database | Không thay đổi |
 | Trạng thái Git | Chưa commit bởi Codex; chờ người dùng review |
@@ -16,14 +19,14 @@
 
 **Đã thực hiện:**
 
-- Xác nhận working directory là `DuAn`, nhánh `duan-dtc245200016` và working tree ban đầu sạch.
+- Xác nhận working directory dự án thuộc `DuAn`, nhánh `duan-dtc245200016` và working tree ban đầu sạch.
 - Tổng hợp phạm vi, Actor, yêu cầu chức năng/phi chức năng và ma trận truy vết đề tài 09.
 - Đặc tả Use Case, quy tắc nghiệp vụ, state machine và các tình huống cạnh tranh.
 - Thiết kế kiến trúc phân tán với Appointment API, Queue Worker, RabbitMQ, Notification Service và SignalR.
 - Thiết kế transactional outbox/inbox, idempotency, retry/DLQ và queue version.
 - Thiết kế logic database/ERD, transaction boundaries và constraint dự kiến.
 - Thiết kế sáu API tối thiểu cùng các API queue/auth/admin cần thiết.
-- Lập roadmap 9 buổi và hướng dẫn làm việc cho các lượt Codex tiếp theo.
+- Lập roadmap 9 tuần và hướng dẫn làm việc cho các lượt Codex tiếp theo.
 
 **Không thực hiện:**
 
@@ -45,6 +48,15 @@
 - Chốt JWT Access Token có thời hạn, không Refresh Token ở v1; SignalR xác thực và kiểm tra group.
 - Cập nhật ERD, API, Use Case, Actor, authorization, business rules, state diagram, architecture và roadmap tương ứng.
 - Không tạo mã nguồn, không chạy SQL/Migration và không thay đổi database.
+
+### 2026-11-17 — Chuẩn hóa cấu trúc nộp Tuần 1
+
+- Xác nhận đúng nhánh `duan-dtc245200016` và working tree sạch trước khi di chuyển.
+- Tạo `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1` theo README repository lớp.
+- Di chuyển nguyên vẹn `README.md`, `AGENTS.md` và 9 tài liệu trong `docs` vào `Tuan1`; không phát hiện tệp đích trùng.
+- Cập nhật quy định 9 tuần: mỗi tuần một thư mục, một Pull Request và có thể có nhiều commit thực tế.
+- Ghi nhận tiêu đề PR Tuần 1 và hạn nộp 23h59 ngày 17/11/2026.
+- Không commit, push hoặc tạo Pull Request.
 
 ## 3. Mức độ đáp ứng yêu cầu đề tài
 
@@ -86,8 +98,8 @@ Tất cả hiện ở mức **thiết kế**, chưa khẳng định đã triển
 ## 6. Bước tiếp theo đề xuất
 
 1. Người dùng review tính nhất quán của bộ tài liệu đã chuẩn hóa.
-2. Người dùng tự commit hoặc cho phép tạo commit đầu tiên cho tài liệu.
-3. Khi bắt đầu buổi 2, kiểm tra lại nhánh/status rồi mới khởi tạo solution .NET 10 và các project đã chốt.
+2. Người dùng tự commit/push và tạo đúng một Pull Request Tuần 1 với tiêu đề bắt buộc.
+3. Khi bắt đầu Tuần 2, tạo/làm việc trong `Tuan2`, kiểm tra lại nhánh/status rồi mới khởi tạo solution .NET 10 và các project đã chốt.
 4. Trước Migration đầu tiên, khảo sát read-only schema database `MediQueue` và lập kế hoạch thay đổi để duyệt.
 
 Không tự động chuyển sang giai đoạn lập trình.

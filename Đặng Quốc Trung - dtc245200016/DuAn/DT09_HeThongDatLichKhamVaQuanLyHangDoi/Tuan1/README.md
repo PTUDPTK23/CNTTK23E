@@ -5,6 +5,18 @@
 **Tên tiếng Anh:** Medical Appointment and Queue Management System  
 **Sinh viên:** Đặng Quốc Trung — `dtc245200016`
 
+## Quy định nộp dự án
+
+- Dự án được phát triển xuyên suốt **9 tuần** trong thư mục `DuAn/DT09_HeThongDatLichKhamVaQuanLyHangDoi`.
+- Mỗi tuần có một thư mục độc lập: `Tuan1`, `Tuan2`, ..., `Tuan9`.
+- Mỗi tuần chỉ tạo **một Pull Request** cho phần việc của tuần đó; trong Pull Request được phép có nhiều commit phản ánh quá trình phát triển thực tế.
+- Không gộp sản phẩm của nhiều tuần vào cùng một Pull Request và không tạo commit giả để đủ số lượng.
+- Tài liệu hiện tại là sản phẩm Tuần 1 tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`.
+- Tiêu đề Pull Request Tuần 1: `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung`.
+- Hạn nộp Tuần 1: **23h59 ngày 17/11/2026** theo giờ Việt Nam.
+
+Việc commit, push và tạo Pull Request do sinh viên thực hiện sau khi kiểm tra; Codex không tự động thực hiện các thao tác này.
+
 ## 1. Tổng quan
 
 MediQueue là hệ thống phân tán hỗ trợ bệnh nhân tra cứu bác sĩ, xem khung giờ còn chỗ, đặt hoặc hủy lịch khám, nhận số thứ tự và theo dõi hàng đợi theo thời gian thực. Bác sĩ điều phối lượt khám; lễ tân hỗ trợ bệnh nhân và lịch hẹn; quản trị viên quản lý dữ liệu nền và tài khoản.
@@ -91,14 +103,15 @@ Các project dùng chung mô hình nghiệp vụ và hợp đồng thông qua `M
 | [docs/architecture.md](docs/architecture.md) | Thành phần, luồng phân tán, RabbitMQ và SignalR |
 | [docs/database.md](docs/database.md) | Thiết kế dữ liệu dự kiến và ERD |
 | [docs/api.md](docs/api.md) | Thiết kế RESTful API dự kiến |
-| [docs/roadmap.md](docs/roadmap.md) | Lộ trình phát triển 9 buổi |
+| [docs/roadmap.md](docs/roadmap.md) | Lộ trình phát triển và nộp bài trong 9 tuần |
 | [docs/progress.md](docs/progress.md) | Nhật ký tiến độ thực tế |
 | [AGENTS.md](AGENTS.md) | Quy tắc cho các lần làm việc tiếp theo với Codex |
 
 ## 6. Trạng thái
 
 - Nhánh dự án: `duan-dtc245200016`.
-- Giai đoạn: Prompt 01 — phân tích và thiết kế nền tảng.
+- Tuần nộp hiện tại: `Tuan1` — phân tích và thiết kế nền tảng.
+- Pull Request Tuần 1: chưa được Codex tạo; tiêu đề phải là `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung`.
 - Các quyết định nghiệp vụ cốt lõi đã được chuẩn hóa theo xác nhận ngày 2026-11-17.
 - Mã nguồn ứng dụng: chưa triển khai.
 - Database có sẵn: chỉ được khảo sát hoặc thay đổi khi có yêu cầu rõ ràng ở giai đoạn sau.
