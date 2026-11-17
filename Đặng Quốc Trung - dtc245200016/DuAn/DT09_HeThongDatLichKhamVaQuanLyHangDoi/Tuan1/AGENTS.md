@@ -28,7 +28,20 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 5. Không tạo repository Git lồng trong `DuAn` hoặc thư mục dự án.
 6. Giữ nguyên thay đổi có sẵn của người dùng; không reset, checkout hay xóa chúng.
 
-## 3. Quy ước kiến trúc
+## 3. Hiện trạng nền tảng kỹ thuật
+
+- Solution chính thức: `MediQueue.slnx`; toàn bộ 9 project target `net10.0`.
+- `Domain` và `Contracts` độc lập; không được thêm phụ thuộc EF Core, ASP.NET Core hoặc RabbitMQ vào Domain.
+- `Infrastructure` → `Domain`, `Contracts`.
+- `Appointment.Api`, `Queue.Worker` → `Domain`, `Infrastructure`, `Contracts`.
+- `Notification.Service`, `Web` → `Contracts`; Web không được tham chiếu Infrastructure hoặc truy cập DbContext/SQL Server.
+- `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Infrastructure`.
+- Cổng phát triển: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS).
+- Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
+- Hiện chưa có DbContext/entity nghiệp vụ, Identity/JWT hoàn chỉnh, RabbitMQ business flow hoặc SignalR Hub. Không ghi nhận các phần này là đã hoàn thành.
+- Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
+
+## 4. Quy ước kiến trúc
 
 - Giữ đúng các thành phần: `MediQueue.Web`, `MediQueue.Appointment.Api`, `MediQueue.Queue.Worker`, `MediQueue.Notification.Service`, `MediQueue.Domain`, `MediQueue.Infrastructure`, `MediQueue.Contracts`.
 - Yêu cầu cấp số **bắt buộc** đi qua RabbitMQ; không cấp số đồng bộ trong HTTP request.
@@ -39,7 +52,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Giữ transactional outbox/inbox trong thiết kế để không mất message và chống xử lý lặp; triển khai tăng dần theo roadmap.
 - Mọi thay đổi schema phải đi qua EF Core Migration được review; không tự chạy Migration lên database có sẵn.
 
-## 4. Quy ước nghiệp vụ tối thiểu
+## 5. Quy ước nghiệp vụ tối thiểu
 
 - Không đặt lịch quá khứ, hết chỗ hoặc trùng thời gian của Patient.
 - Chống overbooking bằng transaction và optimistic concurrency/điều kiện cập nhật nguyên tử.
@@ -59,7 +72,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Hủy hợp lệ phải giải phóng chỗ đúng một lần.
 - SignalR client phải tự kết nối lại và tải snapshot sau khi kết nối lại.
 
-## 5. Quy ước tài liệu và mã nguồn tương lai
+## 6. Quy ước tài liệu và mã nguồn
 
 - Tài liệu viết tiếng Việt có dấu, UTF-8; tên Role, class, entity, endpoint và thuật ngữ kỹ thuật dùng tiếng Anh nhất quán.
 - Phân biệt `[Bắt buộc]` với `[Mở rộng]`; quyết định chưa xác nhận phải ghi **Đề xuất**.
@@ -69,7 +82,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Không ghi secret, mật khẩu, connection string thật hoặc dữ liệu bệnh nhân thật vào Git.
 - Test tối thiểu gồm unit test quy tắc nghiệp vụ, integration test API/database và test consumer idempotency.
 
-## 6. Các hành động cần sự đồng ý rõ ràng
+## 7. Các hành động cần sự đồng ý rõ ràng
 
 Không tự thực hiện các hành động sau nếu người dùng chưa yêu cầu trong lượt hiện tại:
 
@@ -81,7 +94,7 @@ Không tự thực hiện các hành động sau nếu người dùng chưa yêu
 
 Trước Migration đầu tiên, chỉ khảo sát schema database `MediQueue` ở chế độ read-only, lập kế hoạch thay đổi và chờ người dùng duyệt. Không xóa hoặc tạo lại database.
 
-## 7. Quy tắc lịch sử Git và Pull Request
+## 8. Quy tắc lịch sử Git và Pull Request
 
 - Mỗi tuần chỉ có một Pull Request; nhiều commit trong Pull Request được phép và nên phản ánh các lát cắt công việc thực tế.
 - Không sửa, squash, chia nhỏ hoặc tạo thêm commit chỉ để mô phỏng lịch sử 9 tuần.
@@ -91,7 +104,7 @@ Trước Migration đầu tiên, chỉ khảo sát schema database `MediQueue` �
 - Trước khi đề xuất Pull Request, kiểm tra diff chỉ thuộc thư mục tuần tương ứng và báo cáo tiêu đề PR bắt buộc.
 - Không tự động commit, push hoặc mở Pull Request.
 
-## 8. Kiểm tra trước khi bàn giao
+## 9. Kiểm tra trước khi bàn giao
 
 - So khớp yêu cầu bắt buộc với Use Case, API, dữ liệu và kiến trúc.
 - Kiểm tra Mermaid và liên kết tài liệu.

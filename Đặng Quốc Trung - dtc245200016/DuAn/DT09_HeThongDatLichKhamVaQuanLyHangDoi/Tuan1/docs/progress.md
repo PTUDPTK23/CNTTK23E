@@ -6,11 +6,11 @@
 |---|---|
 | Nhánh | `duan-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1` |
-| Tuần | Tuần 1 — Phân tích và thiết kế nền tảng |
+| Tuần | Tuần 1 — Phân tích, thiết kế và khởi tạo nền tảng theo Prompt 02.1 |
 | Pull Request | Chưa tạo; tiêu đề bắt buộc `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | 23h59 ngày 17/11/2026 |
-| Trạng thái mã nguồn | Chưa khởi tạo solution/project |
-| Trạng thái database | Không thay đổi |
+| Trạng thái mã nguồn | Đã khởi tạo solution .NET 10 gồm 9 project; chưa triển khai nghiệp vụ |
+| Trạng thái database | Đã khảo sát metadata read-only; không thay đổi schema/data |
 | Trạng thái Git | Chưa commit bởi Codex; chờ người dùng review |
 
 ## 2. Nhật ký thực tế
@@ -67,6 +67,20 @@
 - Bổ sung nguyên tắc tuần sau kế thừa tuần trước, bảo toàn tuần đã nộp và tiếp tục dùng đúng PR nếu giảng viên yêu cầu sửa.
 - Không tạo mã nguồn, solution, package, SQL/Migration, commit, push hoặc Pull Request.
 
+### 2026-11-17 — Prompt 02.1: khởi tạo solution và nền tảng kiến trúc
+
+- Xác nhận working directory, nhánh `duan-dtc245200016`, remote và working tree ban đầu sạch; máy có .NET SDK `10.0.102` và runtime .NET `10.0.2`.
+- Tạo `MediQueue.slnx`, 7 project trong `src`, 2 project xUnit trong `tests`; tất cả target `net10.0` và có ProjectReference đúng hướng, không vòng phụ thuộc.
+- Thêm cấu hình `global.json`, `Directory.Build.props`, `.editorconfig`, `.gitignore`; bật Nullable, ImplicitUsings và deterministic build.
+- Cài package ổn định cho EF Core SQL Server/Design, Identity EF Core, JWT Bearer và ASP.NET Core integration testing; rà soát không còn package có advisory lỗ hổng theo NuGet source hiện tại.
+- Loại bỏ WeatherForecast/code/test mẫu. Thêm enum trạng thái Appointment/Queue, bốn Role, health contract, health endpoint và ba kiểm thử nền tảng có ý nghĩa.
+- Chỉ triển khai `HealthController`; các controller/API nghiệp vụ chưa được tạo để tránh giả trạng thái hoàn thành.
+- Khảo sát metadata SQL Server read-only: kết nối Windows Authentication thành công; SQL Server `16.0.1000.6` Express; database hiện không có user table và không có `__EFMigrationsHistory`.
+- `dotnet restore` thành công; build thành công `0` warning, `0` error; test đạt `3/3` (2 unit, 1 integration).
+- Smoke test đạt: API `/health` 200 tại 5101; Web `/health` và `/` 200 tại 5102; Notification `/health` 200 tại 5103; Worker host khởi động đúng thông báo chưa có consumer nghiệp vụ. Các tiến trình smoke test đã dừng.
+- `dotnet dev-certs https --check` báo chưa có development certificate hợp lệ; chưa tạo/trust chứng chỉ và chưa smoke test HTTPS. Launch profile/port HTTPS đã được cấu hình để hoàn thiện sau khi người dùng chủ động chuẩn bị certificate.
+- Không tạo hoặc áp dụng Migration, không thực thi SQL ghi, không sửa database, không cài/chỉnh RabbitMQ, không commit/push/tạo Pull Request.
+
 ## 3. Mức độ đáp ứng yêu cầu đề tài
 
 | Hạng mục | Trạng thái thiết kế |
@@ -98,17 +112,17 @@ Tất cả hiện ở mức **thiết kế**, chưa khẳng định đã triển
 
 ## 5. Tham số triển khai còn phải chốt
 
-- Schema thực tế của database chỉ được khảo sát read-only ở giai đoạn database.
+- Database đã được khảo sát read-only và hiện không có user table; schema nghiệp vụ/mapping vẫn phải được review trước Migration đầu tiên.
 - Kiểu khóa chính/enum, Capacity mặc định, độ dài slot và thuật toán sinh slot.
-- Thời hạn JWT Access Token, port/CORS/chứng chỉ HTTPS/WSS cho các dịch vụ Windows.
+- Thời hạn JWT Access Token, CORS và chính sách chứng chỉ HTTPS/WSS; port phát triển đã chốt là API `5101/7101`, Web `5102/7102`, Notification `5103/7103`.
 - Số lần retry/backoff, ngưỡng DLQ và thời hạn lưu Inbox/Outbox/Idempotency/Audit.
 - `CancellationReason` bắt buộc hay tùy chọn; giới hạn khoảng ngày tra cứu slot.
 
 ## 6. Bước tiếp theo đề xuất
 
-1. Người dùng review tính nhất quán của bộ tài liệu đã chuẩn hóa.
+1. Người dùng review source, tài liệu, kết quả kiểm thử và diff của Prompt 02.1.
 2. Người dùng tự commit/push và tạo đúng một Pull Request Tuần 1 với tiêu đề bắt buộc.
-3. Khi bắt đầu Tuần 2, tạo/làm việc trong `Tuan2`, kế thừa kết quả `Tuan1`, kiểm tra lại nhánh/status rồi mới khởi tạo solution .NET 10 và các project đã chốt; không làm lại từ đầu.
-4. Trước Migration đầu tiên, khảo sát read-only schema database `MediQueue` và lập kế hoạch thay đổi để duyệt.
+3. Chỉ khi được giao Prompt 02.2, kế thừa solution hiện có để xây dựng Domain/entity/DbContext mapping và test invariant; không tạo solution mới hoặc làm lại từ đầu.
+4. Lập Migration đầu tiên để review riêng sau khi mô hình được duyệt; không áp dụng lên `MediQueue` nếu chưa có cho phép rõ ràng.
 
-Không tự động chuyển sang giai đoạn lập trình.
+Không tự động chuyển sang Prompt 02.2.

@@ -282,3 +282,18 @@ Giai đoạn này không seed hoặc thay đổi database. Ở giai đoạn sau,
 4. Kiểu lưu enum (string hay int) và filtered index tương ứng sau khi xem khả năng SQL Server/EF Core.
 5. Thời hạn lưu Audit/Inbox/Outbox/Idempotency và dữ liệu cá nhân giả lập.
 6. Schema được khảo sát read-only trước; không xóa hoặc tạo lại database `MediQueue`.
+
+## 10. Kết quả khảo sát metadata read-only ngày 17/11/2026
+
+Khảo sát thực tế bằng Windows Authentication đã kết nối thành công tới `LAPTOP-AQFGUM9Q\SQLEXPRESS` và truy cập database `MediQueue`.
+
+| Hạng mục | Kết quả |
+|---|---|
+| SQL Server | `16.0.1000.6`, RTM, Express Edition (64-bit) |
+| Database | `MediQueue` truy cập được |
+| Schema | Các schema hệ thống/role cùng `dbo`, `guest`, `INFORMATION_SCHEMA`, `sys` |
+| User table/column | Không có |
+| PK/FK/unique constraint/index người dùng | Không có do schema người dùng đang rỗng |
+| `dbo.__EFMigrationsHistory` | Không tồn tại |
+
+Chỉ metadata hệ thống được truy vấn; không đọc/xuất dữ liệu cá nhân và không thực thi `CREATE`, `ALTER`, `INSERT`, `UPDATE`, `DELETE`, `DROP`, `TRUNCATE`, `EnsureCreated`, `Database.Migrate` hoặc `dotnet ef database update`. Kết quả này cho phép Prompt 02.2 thiết kế mapping từ schema rỗng, nhưng Migration đầu tiên vẫn phải được review và phê duyệt riêng trước khi áp dụng.

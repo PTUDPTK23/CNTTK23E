@@ -9,6 +9,34 @@
 - Có thể chạy trực tiếp trên Windows, không phụ thuộc Docker.
 - Phục vụ một cơ sở y tế duy nhất; Specialty, Doctor và Room là dữ liệu nội bộ của cơ sở này.
 
+### 1.1 Nền tảng đã khởi tạo trong Prompt 02.1
+
+Solution `MediQueue.slnx` gồm chín project target `net10.0`:
+
+```mermaid
+flowchart LR
+    Api[MediQueue.Appointment.Api] --> Domain[MediQueue.Domain]
+    Api --> Infra[MediQueue.Infrastructure]
+    Api --> Contracts[MediQueue.Contracts]
+    Worker[MediQueue.Queue.Worker] --> Domain
+    Worker --> Infra
+    Worker --> Contracts
+    Infra --> Domain
+    Infra --> Contracts
+    Notify[MediQueue.Notification.Service] --> Contracts
+    Web[MediQueue.Web] --> Contracts
+    Unit[MediQueue.UnitTests] --> Domain
+    Unit --> Contracts
+    Integration[MediQueue.IntegrationTests] --> Api
+    Integration --> Infra
+```
+
+`Domain` và `Contracts` không tham chiếu project khác; Web không tham chiếu Infrastructure và không truy cập trực tiếp DbContext/SQL Server. Quan hệ đã được kiểm tra không có vòng phụ thuộc.
+
+Ba tiến trình web chạy độc lập trên Windows: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS). Queue Worker không mở cổng. Health endpoint chỉ chứng minh host khởi động, không đại diện cho chức năng nghiệp vụ.
+
+Controller dùng mô hình kết hợp theo Role và theo tài nguyên nghiệp vụ. Controller mỏng: nhận request, kiểm tra quyền, gọi service/domain và trả DTO/ProblemDetails; không chứa logic nghiệp vụ, không gọi controller khác, không truy cập SQL trực tiếp. Ở giai đoạn này chỉ `HealthController` được triển khai; các controller nghiệp vụ mới là thiết kế dự kiến.
+
 ## 2. Context diagram
 
 ```mermaid
@@ -241,7 +269,7 @@ Các tiến trình Web, API, Worker và Notification chạy độc lập trên W
 
 - Connection string, RabbitMQ credentials và JWT signing key đặt ở User Secrets/biến môi trường, không commit.
 - Structured log tối thiểu: `CorrelationId`, `UserId` (không PII thừa), `AppointmentId`, `MessageId`, `QueueVersion`.
-- Health endpoints dự kiến: liveness không phụ thuộc ngoài; readiness kiểm tra SQL/RabbitMQ phù hợp vai trò.
+- Health endpoint liveness tối giản đã có cho API/Web/Notification; readiness kiểm tra SQL/RabbitMQ chỉ bổ sung khi các tích hợp đó được triển khai thật.
 - Audit nghiệp vụ khác application log và được lưu bền vững.
 
 ## 13. Quyết định và điểm mở
@@ -261,6 +289,6 @@ Các tiến trình Web, API, Worker và Notification chạy độc lập trên W
 ### Tham số kỹ thuật sẽ chốt khi triển khai
 
 - Tên exchange/queue cuối cùng, số lần retry/backoff và cảnh báo DLQ.
-- Port, chứng chỉ Development và cách định tuyến HTTPS/WSS giữa các tiến trình Windows.
+- Chứng chỉ Development và cách định tuyến HTTPS/WSS giữa các tiến trình Windows; port local đã chốt là API `5101/7101`, Web `5102/7102`, Notification `5103/7103`.
 - Thời hạn cụ thể của JWT Access Token và ngưỡng timeout kết nối SignalR.
 

@@ -17,9 +17,9 @@ Tuần 1 nằm tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`. Tiêu đề
 
 | Tuần / thư mục | Mục tiêu | Sản phẩm bàn giao dự kiến | Tiêu chí hoàn thành |
 |---|---|---|---|
-| Tuần 1 / `Tuan1` | Phân tích và thiết kế nền tảng | README, AGENTS và 9 tài liệu trong `docs` | Truy vết đủ 8 yêu cầu bắt buộc; Mermaid, UTF-8, liên kết và Git status được kiểm tra |
-| Tuần 2 / `Tuan2` | Khởi tạo solution và Domain | 7 project đúng kiến trúc; reference; entity/enum/value object; test project | Build .NET 10 thành công; chưa cần chức năng UI hoàn chỉnh |
-| Tuần 3 / `Tuan3` | Infrastructure, Identity và dữ liệu | Khảo sát schema read-only; DbContext, Identity Role, mapping, Migration được review | Không xóa/tạo lại database; chỉ áp dụng Migration sau phê duyệt; login chung và Access Token hoạt động |
+| Tuần 1 / `Tuan1` | Phân tích, thiết kế và nền tảng solution theo Prompt 02.1 | Bộ tài liệu; solution .NET 10 gồm 7 project chính + 2 test project; reference; cấu hình local; khảo sát database read-only | Truy vết đủ 8 yêu cầu; restore/build/test/smoke đạt; không Migration/SQL ghi; chưa triển khai nghiệp vụ |
+| Tuần 2 / `Tuan2` | Domain và mô hình dữ liệu nền | Entity/value object/invariant; DbContext/mapping dự kiến; Identity Role; kế hoạch Migration để review | Unit test cho invariant; mapping nhất quán với schema rỗng đã khảo sát; chưa áp dụng Migration nếu chưa được duyệt |
+| Tuần 3 / `Tuan3` | Identity, xác thực và dữ liệu | Login chung, Patient registration, cấp tài khoản Doctor/Receptionist, JWT Access Token; Migration được review | Không xóa/tạo lại database; chỉ áp dụng Migration sau phê duyệt; authorization backend được kiểm thử |
 | Tuần 4 / `Tuan4` | Doctor/slot và Appointment API | 6 REST endpoint bắt buộc; trạng thái `PendingNumber`; check-in metadata; concurrency; `.http` | Test quá khứ, hết chỗ, trùng giờ, hạn hủy, ownership và hai request tranh chỗ |
 | Tuần 5 / `Tuan5` | RabbitMQ và Queue Worker | Message contracts, outbox/inbox, ticket queue, Worker cấp số, DLQ | Request cấp số thực sự qua RabbitMQ; duplicate không cấp số trùng |
 | Tuần 6 / `Tuan6` | Queue command và event | call-next trực tiếp Serving, complete, NoShow; QueueChanged; state/audit | Không gọi slot tương lai; một Doctor tối đa một Serving; NoShow đúng lượt; event có version |
@@ -35,10 +35,10 @@ gantt
     dateFormat  X
     axisFormat Tuần %s
     section Phân tích
-    Tài liệu nền tảng              :done, b1, 1, 1
+    Tài liệu và solution nền tảng  :done, b1, 1, 1
     section Nền tảng mã nguồn
-    Solution và Domain             :b2, 2, 1
-    Infrastructure và Identity     :b3, 3, 1
+    Domain và mô hình dữ liệu      :b2, 2, 1
+    Identity và xác thực           :b3, 3, 1
     section Chức năng bắt buộc
     Appointment API                :b4, 4, 1
     RabbitMQ và Queue Worker       :b5, 5, 1

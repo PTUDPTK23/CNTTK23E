@@ -2,7 +2,7 @@
 
 ## 1. Quy ước chung
 
-- Base URL Development: **đề xuất** `https://localhost:{port}`; chưa chốt port.
+- Base URL Development của Appointment API: `http://localhost:5101` hoặc `https://localhost:7101`.
 - Các route tối thiểu giữ nguyên đúng đề bài, không bắt buộc prefix version ở giai đoạn đầu.
 - Content type: `application/json; charset=utf-8`.
 - Định danh trong ví dụ dùng UUID giả lập.
@@ -14,6 +14,22 @@
 - Lệnh tạo có nguy cơ retry nhận header `Idempotency-Key` dạng UUID.
 
 ## 2. Authentication và authorization
+
+### 2.1 Quy chuẩn tổ chức Controller
+
+Nhóm theo Role:
+
+- `AccountController`: xác thực và thông tin tài khoản.
+- `PatientController`: dashboard/chức năng riêng của Patient.
+- `DoctorController`: dashboard và lịch cá nhân của Doctor.
+- `ReceptionistController`: tiếp nhận và check-in.
+- `AdminController`: dashboard và thống kê quản trị.
+
+Nhóm theo tài nguyên nghiệp vụ: `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`.
+
+Controller chỉ tiếp nhận request, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route được khai báo tường minh để bảo toàn sáu route bắt buộc.
+
+Hiện trạng Prompt 02.1: chỉ có `HealthController` với `GET /health` để kiểm tra host. Các controller và endpoint nghiệp vụ ở trên **chưa được triển khai**; không có endpoint giả trả thành công.
 
 | Method | Route dự kiến | Quyền | Mức | Mục đích |
 |---|---|---|---|---|
@@ -343,6 +359,6 @@ Event cá nhân có thể thêm `myTicket`, nhưng chỉ phát group `user:{user
 
 - Thời lượng JWT Access Token và giới hạn khoảng ngày tra cứu slot.
 - `reason` khi hủy có bắt buộc hay chỉ phục vụ audit.
-- Chính sách port/CORS/HTTPS giữa Web, API và Notification Service trên Windows.
+- CORS và chính sách HTTPS/WSS giữa các tiến trình Windows; port phát triển đã chốt: API `5101/7101`, Web `5102/7102`, Notification `5103/7103`.
 - Route versioning (`/api/v1`) chỉ bổ sung nếu vẫn duy trì/đáp ứng sáu route tối thiểu giảng viên yêu cầu.
 

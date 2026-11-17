@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-MediQueue.Queue.Worker-668fffeb-a87d-45f1-9e70-9e550948ed01</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediQueue.Domain\MediQueue.Domain.csproj" />
+    <ProjectReference Include="..\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj" />
+    <ProjectReference Include="..\MediQueue.Contracts\MediQueue.Contracts.csproj" />
+  </ItemGroup>
+</Project>
