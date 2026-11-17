@@ -1,0 +1,29 @@
+services:
+  event-postgres:
+    image: postgres:16.8-alpine
+    container_name: eventbooking_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: event_booking
+      POSTGRES_USER: event_admin
+      POSTGRES_PASSWORD: eventbooking_local_2026
+    ports:
+      - "15433:5432"
+    volumes:
+      - eventbooking_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U event_admin -d event_booking"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: eventbooking_rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+
+volumes:
+  eventbooking_postgres_data:
