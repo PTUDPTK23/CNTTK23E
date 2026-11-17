@@ -1,0 +1,16 @@
+# Opt in with: docker compose -f docker-compose.yml -f compose.smtp.yml up -d --build
+services:
+  campaign-api:
+    environment:
+      Delivery__EnableDemoFailures: "false"
+      Delivery__ExternalSmtp: "true"
+      Admin__Password: ${ADMIN_PASSWORD:?Set a private ADMIN_PASSWORD in .env for real SMTP}
+  notification-worker:
+    environment:
+      Delivery__EnableDemoFailures: "false"
+      Smtp__Host: ${SMTP_RELAY_HOST:?Set SMTP_RELAY_HOST in .env}
+      Smtp__Port: ${SMTP_RELAY_PORT:-587}
+      Smtp__EnableSsl: "true"
+      Smtp__Username: ${SMTP_RELAY_USERNAME:?Set SMTP_RELAY_USERNAME in .env}
+      Smtp__Password: ${SMTP_RELAY_PASSWORD:?Set SMTP_RELAY_PASSWORD in .env}
+      Smtp__From: ${SMTP_RELAY_FROM:?Set SMTP_RELAY_FROM in .env}
