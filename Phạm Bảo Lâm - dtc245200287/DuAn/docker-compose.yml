@@ -40,6 +40,7 @@ services:
       RabbitMq__Host: rabbitmq
       RabbitMq__User: ${RABBITMQ_USER}
       RabbitMq__Password: ${RABBITMQ_PASS}
+      Logging__LogLevel__Microsoft.EntityFrameworkCore: Warning
     ports:
       - "${API_PORT:-8080}:8080"
     depends_on:
@@ -57,6 +58,7 @@ services:
       RabbitMq__Host: rabbitmq
       RabbitMq__User: ${RABBITMQ_USER}
       RabbitMq__Password: ${RABBITMQ_PASS}
+      Logging__LogLevel__Microsoft.EntityFrameworkCore: Warning
     depends_on:
       postgres: { condition: service_healthy }
       rabbitmq: { condition: service_healthy }
