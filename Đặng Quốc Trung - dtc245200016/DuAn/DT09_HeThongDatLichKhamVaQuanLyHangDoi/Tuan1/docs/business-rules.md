@@ -149,4 +149,4 @@ stateDiagram-v2
 - Chỉ Doctor phụ trách gọi, hoàn thành và xác nhận `NoShow`; Receptionist chỉ hỗ trợ lịch/check-in/theo dõi.
 - Chỉ hủy trước `Slot.StartAt` khi chưa phục vụ; v1 không gọi lại `NoShow`.
 - Queue yêu cầu đăng nhập và không công khai dữ liệu Patient khác.
-- Một cơ sở y tế, mỗi Doctor thuộc đúng một Specialty.
+- Một cơ sở y tế, mỗi Doctor thuộc đúng một Department (chuyên khoa).

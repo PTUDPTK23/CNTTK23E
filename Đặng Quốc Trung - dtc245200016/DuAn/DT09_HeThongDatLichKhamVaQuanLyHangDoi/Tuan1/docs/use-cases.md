@@ -58,11 +58,11 @@ flowchart LR
 ### UC-01 — Tra cứu Doctor/phòng khám
 
 - **Tiền điều kiện:** Không bắt buộc đăng nhập đối với dữ liệu danh mục công khai.
-- **Kích hoạt:** Người dùng nhập tên Doctor, Specialty hoặc tiêu chí tìm kiếm.
+- **Kích hoạt:** Người dùng nhập tên Doctor, Department hoặc tiêu chí tìm kiếm.
 - **Luồng chính:**
   1. Web gửi bộ lọc và phân trang tới `GET /doctors`.
   2. API chuẩn hóa bộ lọc, chỉ chọn Doctor/Room đang hoạt động.
-  3. API trả thông tin công khai, Specialty và nơi khám.
+  3. API trả thông tin công khai, Department và nơi khám.
   4. Web hiển thị kết quả và liên kết xem slot.
 - **Ngoại lệ:** Bộ lọc không hợp lệ trả `400`; không có kết quả trả danh sách rỗng, không phải `404`.
 - **Hậu điều kiện:** Không thay đổi dữ liệu.
@@ -194,11 +194,11 @@ Patient có thể đăng ký; Doctor/Receptionist do Admin cấp. Tất cả đ�
 
 ### UC-11 — Quản trị dữ liệu nền/tài khoản
 
-Admin tạo/khóa tài khoản staff, quản lý Doctor, Specialty, Room, lịch và slot. Dữ liệu đã được tham chiếu chuyển inactive thay vì xóa cứng. Thao tác quan trọng được audit.
+Admin tạo/khóa tài khoản staff, quản lý Doctor, Department, Room, lịch và slot. Dữ liệu đã được tham chiếu chuyển inactive thay vì xóa cứng. Thao tác quan trọng được audit.
 
 ### UC-12 — Xem báo cáo tổng hợp
 
-Admin xem thống kê theo khoảng thời gian, Specialty, Doctor và trạng thái. Dữ liệu phân trang/aggregate và không hiển thị thông tin cá nhân không cần thiết.
+Admin xem thống kê theo khoảng thời gian, Department, Doctor và trạng thái. Dữ liệu phân trang/aggregate và không hiển thị thông tin cá nhân không cần thiết.
 
 ### UC-13 — Ghi nhận check-in
 

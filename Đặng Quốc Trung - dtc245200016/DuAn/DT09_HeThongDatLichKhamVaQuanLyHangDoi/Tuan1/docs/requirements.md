@@ -26,7 +26,7 @@ Ký hiệu:
 
 | Mã | Mức | Yêu cầu | Tiêu chí chấp nhận chính |
 |---|---|---|---|
-| FR-DOC-01 | Bắt buộc | Tra cứu Doctor/phòng khám | Lọc theo tên/chuyên khoa; mỗi Doctor thuộc đúng một Specialty; chỉ trả dữ liệu đang hoạt động |
+| FR-DOC-01 | Bắt buộc | Tra cứu Doctor/phòng khám | Lọc theo tên/Department; mỗi Doctor thuộc đúng một Department; chỉ trả dữ liệu đang hoạt động |
 | FR-SLOT-01 | Bắt buộc | Xem slot còn chỗ của Doctor | Không hiển thị slot quá khứ, bị khóa hoặc đã đủ Capacity |
 | FR-APT-01 | Bắt buộc | Đặt Appointment | Kiểm tra slot, sức chứa, trùng giờ và quyền; tạo trạng thái `PendingNumber` đúng một lần |
 | FR-APT-02 | Bắt buộc | Hủy Appointment | Chỉ hủy trước `Slot.StartAt` khi chưa phục vụ; giải phóng chỗ đúng một lần, không tái sử dụng số |
@@ -54,9 +54,9 @@ Ký hiệu:
 | Mã | Mức | Yêu cầu | Tiêu chí chấp nhận chính |
 |---|---|---|---|
 | FR-ADM-01 | Mở rộng | Quản lý tài khoản và Role | Chỉ Admin; thay đổi được ghi audit |
-| FR-ADM-02 | Mở rộng | Quản lý Doctor/Specialty/Room | Không xóa cứng dữ liệu đang được tham chiếu; dùng trạng thái hoạt động |
+| FR-ADM-02 | Mở rộng | Quản lý Doctor/Department/Room | Không xóa cứng dữ liệu đang được tham chiếu; dùng trạng thái hoạt động |
 | FR-ADM-03 | Mở rộng | Quản lý lịch làm việc và slot | Ngăn lịch Doctor/Room chồng lấn và Capacity không hợp lệ |
-| FR-ADM-04 | Mở rộng | Xem báo cáo tổng hợp | Số lịch theo thời gian, trạng thái, Doctor/Specialty; không lộ dữ liệu nhạy cảm không cần thiết |
+| FR-ADM-04 | Mở rộng | Xem báo cáo tổng hợp | Số lịch theo thời gian, trạng thái, Doctor/Department; không lộ dữ liệu nhạy cảm không cần thiết |
 
 ## 3. Yêu cầu phi chức năng
 
@@ -84,7 +84,7 @@ Ký hiệu:
 ## 4. Ràng buộc
 
 - Chỉ một website Razor Pages cho cả bốn Role và một form đăng nhập chung.
-- Một cơ sở y tế với nhiều Specialty, Doctor và Room; không đa chi nhánh.
+- Một cơ sở y tế với nhiều Department, Doctor và Room; không đa chi nhánh.
 - Database `MediQueue` đã tồn tại; không tự xóa/tạo lại hoặc thay đổi khi chưa được duyệt.
 - SQL Server cố định tại `LAPTOP-AQFGUM9Q\SQLEXPRESS`.
 - RabbitMQ và Erlang cài trực tiếp trên Windows.

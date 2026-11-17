@@ -12,7 +12,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`.
 - Một website và một form đăng nhập dùng chung; điều hướng theo Role sau xác thực.
 - Phiên bản đầu phục vụ một cơ sở y tế, không có mô hình đa chi nhánh.
-- Mỗi Doctor thuộc đúng một Specialty; một Specialty có nhiều Doctor.
+- Mỗi Doctor thuộc đúng một Department (chuyên khoa); một Department có nhiều Doctor. Không tạo đồng thời `Specialty`.
 - Identity phát JWT Access Token có thời hạn; không triển khai Refresh Token ở phiên bản đầu.
 - Không sử dụng Docker dưới bất kỳ hình thức nào.
 - Cấu trúc nộp bài gồm 9 thư mục `Tuan1` đến `Tuan9`; mỗi tuần đúng một Pull Request và có thể có nhiều commit thực tế.
@@ -38,8 +38,10 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - `UnitTests` → `Domain`, `Contracts`; `IntegrationTests` → `Appointment.Api`, `Infrastructure`.
 - Cổng phát triển: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS).
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
-- Hiện chưa có DbContext/entity nghiệp vụ, Identity/JWT hoàn chỉnh, RabbitMQ business flow hoặc SignalR Hub. Không ghi nhận các phần này là đã hoàn thành.
+- Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser`, Migration `InitialCreate` và SQL script để review. Migration chưa được áp dụng vào database.
+- Chưa có Login/Register/JWT hoàn chỉnh, sáu API nghiệp vụ, RabbitMQ business flow hoặc SignalR Hub. Không ghi nhận các phần này là đã hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
+- Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
 
 ## 4. Quy ước kiến trúc
 
@@ -92,7 +94,7 @@ Không tự thực hiện các hành động sau nếu người dùng chưa yêu
 - Thay đổi công nghệ, kiến trúc hoặc bổ sung chức năng ngoài phạm vi đề tài.
 - Commit, push, tạo branch, Pull Request hoặc làm giả lịch sử phát triển.
 
-Trước Migration đầu tiên, chỉ khảo sát schema database `MediQueue` ở chế độ read-only, lập kế hoạch thay đổi và chờ người dùng duyệt. Không xóa hoặc tạo lại database.
+Migration `InitialCreate` đã được sinh nhưng chưa áp dụng. Trước mọi lệnh `database update` hoặc thực thi SQL, phải review Migration/script, khảo sát lại database `MediQueue` ở chế độ read-only và có yêu cầu rõ ràng của người dùng. Không xóa hoặc tạo lại database.
 
 ## 8. Quy tắc lịch sử Git và Pull Request
 

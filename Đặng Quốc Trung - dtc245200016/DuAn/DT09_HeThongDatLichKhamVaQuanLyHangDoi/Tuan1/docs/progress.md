@@ -6,12 +6,12 @@
 |---|---|
 | Nhánh | `duan-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1` |
-| Tuần | Tuần 1 — Phân tích, thiết kế và khởi tạo nền tảng theo Prompt 02.1 |
+| Tuần | Tuần 1 — Phân tích, solution và EF Core Code First theo Prompt 02.2 |
 | Pull Request | Chưa tạo; tiêu đề bắt buộc `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | 23h59 ngày 17/11/2026 |
-| Trạng thái mã nguồn | Đã khởi tạo solution .NET 10 gồm 9 project; chưa triển khai nghiệp vụ |
-| Trạng thái database | Đã khảo sát metadata read-only; không thay đổi schema/data |
-| Trạng thái Git | Chưa commit bởi Codex; chờ người dùng review |
+| Trạng thái mã nguồn | Đã có Domain, Identity persistence, DbContext, Fluent API, Migration và test nền tảng; chưa có API nghiệp vụ |
+| Trạng thái database | `InitialCreate`/SQL chỉ để review; chưa áp dụng, schema/data không đổi |
+| Trạng thái Git | Baseline Prompt 02.1 ở commit `c694cab`; thay đổi Prompt 02.2 chưa commit/stage |
 
 ## 2. Nhật ký thực tế
 
@@ -44,7 +44,7 @@
 - Chốt QueueNumber theo Doctor/ngày, bắt đầu 1, định dạng hiển thị tối thiểu ba chữ số và không tái sử dụng.
 - Chốt Worker cấp QueueTicket ngay sau đặt lịch; check-in chỉ là metadata tiếp nhận.
 - Chốt `call-next` chuyển thẳng `Waiting → Serving`; chỉ Doctor phụ trách được gọi/complete/no-show.
-- Chốt hạn hủy trước `Slot.StartAt`, queue yêu cầu đăng nhập, một cơ sở y tế và mỗi Doctor thuộc một Specialty.
+- Chốt hạn hủy trước `Slot.StartAt`, queue yêu cầu đăng nhập, một cơ sở y tế và mỗi Doctor thuộc một chuyên khoa (nay chuẩn hóa tên entity là `Department`).
 - Chốt JWT Access Token có thời hạn, không Refresh Token ở v1; SignalR xác thực và kiểm tra group.
 - Cập nhật ERD, API, Use Case, Actor, authorization, business rules, state diagram, architecture và roadmap tương ứng.
 - Không tạo mã nguồn, không chạy SQL/Migration và không thay đổi database.
@@ -81,20 +81,35 @@
 - `dotnet dev-certs https --check` báo chưa có development certificate hợp lệ; chưa tạo/trust chứng chỉ và chưa smoke test HTTPS. Launch profile/port HTTPS đã được cấu hình để hoàn thiện sau khi người dùng chủ động chuẩn bị certificate.
 - Không tạo hoặc áp dụng Migration, không thực thi SQL ghi, không sửa database, không cài/chỉnh RabbitMQ, không commit/push/tạo Pull Request.
 
+### 2026-11-17 — Prompt 02.2: EF Core Code First và Migration review
+
+- Xác nhận nhánh đúng, working tree ban đầu sạch và Prompt 02.1 đã được lưu tại commit `c694cab`.
+- Chốt Controller backend theo nghiệp vụ; loại bỏ phương án controller riêng cho Patient/Doctor/Receptionist/Admin. Frontend vẫn chia khu vực theo bốn Role.
+- Chốt một thực thể `Department` cho chuyên khoa, không tạo đồng thời `Specialty`; dùng khóa `Guid` nhất quán.
+- Tạo Domain entity: Patient, Doctor, Department, Room, DoctorSchedule, TimeSlot, Appointment, DailyQueue, QueueTicket, QueueTransition; thêm invariant capacity, thời gian, state transition, counter và ngày nghiệp vụ Việt Nam.
+- Tạo `ApplicationUser : IdentityUser<Guid>`; không tạo bảng tài khoản riêng, không seed user/password/Role.
+- Tạo `MediQueueDbContext`, design-time factory, DI cho API/Worker và các `IEntityTypeConfiguration` riêng.
+- Tạo các entity persistence OutboxMessage, InboxMessage, IdempotencyRequest, AuditLog; chuẩn bị retry, deduplication, idempotency và audit.
+- Ánh xạ PK/FK, required/max length, enum string, 12 check constraint, unique/filtered index, delete behavior và rowversion.
+- Bổ sung unit test invariant và test EF metadata; vòng kiểm tra cuối đạt 24/24 test (15 unit, 9 integration/model), build `0` warning và `0` error.
+- Sinh Migration `InitialCreate`, Designer, ModelSnapshot và script idempotent `docs/sql/InitialCreate.sql`; `has-pending-model-changes` xác nhận snapshot khớp model.
+- Kiểm tra metadata SQL Server sau cùng xác nhận `UserTableCount = 0`, `HasMigrationHistory = 0`.
+- Không chạy `database update`, không thực thi script, không dùng EnsureCreated/EnsureDeleted/Migrate và không thay đổi database `MediQueue`.
+
 ## 3. Mức độ đáp ứng yêu cầu đề tài
 
-| Hạng mục | Trạng thái thiết kế |
+| Hạng mục | Trạng thái hiện tại |
 |---|---|
-| Doctor/phòng khám và slot còn chỗ | Đã mô tả requirement, UC, API, bảng dữ liệu |
-| Đặt/hủy Appointment | Đã mô tả transaction, idempotency, concurrency và API |
-| Cấp số qua RabbitMQ | Đã mô tả command, exchange/queue và Worker flow |
-| Worker sinh số/cập nhật queue | Đã mô tả thuật toán counter, constraint, inbox/outbox |
-| Doctor cập nhật lượt phục vụ | Đã mô tả command API, state machine và authorization |
-| QueueChanged qua RabbitMQ | Đã mô tả event versioned và producer flow |
-| Notification Service + SignalR | Đã mô tả consumer, group, security, reconnect/snapshot |
-| Tra cứu Appointment/queue | Đã mô tả API, payload và ownership/scope |
+| Doctor/phòng khám và slot còn chỗ | Có Domain/EF model, constraint/index; API chưa triển khai |
+| Đặt/hủy Appointment | Có entity/invariant/mapping; transaction/service/API chưa triển khai |
+| Cấp số qua RabbitMQ | Có DailyQueue/QueueTicket/Outbox/Inbox schema; publisher/consumer chưa triển khai |
+| Worker sinh số/cập nhật queue | Có counter invariant và constraint; Worker nghiệp vụ chưa triển khai |
+| Doctor cập nhật lượt phục vụ | Có state machine và filtered index; command API chưa triển khai |
+| QueueChanged qua RabbitMQ | Có Outbox persistence; event/publisher chưa triển khai |
+| Notification Service + SignalR | Mới ở mức thiết kế; chưa có consumer/Hub |
+| Tra cứu Appointment/queue | Có model/index; query API và authorization chưa triển khai |
 
-Tất cả hiện ở mức **thiết kế**, chưa khẳng định đã triển khai.
+Chỉ nền tảng Domain/persistence/Migration đã triển khai. Không khẳng định các luồng API, transaction SQL Server thực tế, RabbitMQ hoặc SignalR đã hoạt động.
 
 ## 4. Quyết định thiết kế chính thức
 
@@ -104,7 +119,7 @@ Tất cả hiện ở mức **thiết kế**, chưa khẳng định đã triển
 4. Receptionist hỗ trợ lịch/check-in/theo dõi; chỉ Doctor phụ trách gọi, hoàn thành và NoShow.
 5. Hủy trước `Slot.StartAt` nếu chưa phục vụ; NoShow là kết thúc và v1 không gọi lại.
 6. Queue yêu cầu đăng nhập; không công khai dữ liệu Patient khác.
-7. Một cơ sở y tế; mỗi Doctor thuộc đúng một Specialty.
+7. Một cơ sở y tế; mỗi Doctor thuộc đúng một Department (chuyên khoa).
 8. Identity + JWT Access Token có thời hạn; v1 không Refresh Token; SignalR kiểm tra quyền group.
 9. SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue`; khảo sát read-only trước Migration, không xóa/tạo lại.
 10. Giữ transactional outbox/inbox, idempotency, concurrency control; SQL là source of truth và event có `QueueVersion`.
@@ -120,9 +135,9 @@ Tất cả hiện ở mức **thiết kế**, chưa khẳng định đã triển
 
 ## 6. Bước tiếp theo đề xuất
 
-1. Người dùng review source, tài liệu, kết quả kiểm thử và diff của Prompt 02.1.
-2. Người dùng tự commit/push và tạo đúng một Pull Request Tuần 1 với tiêu đề bắt buộc.
-3. Chỉ khi được giao Prompt 02.2, kế thừa solution hiện có để xây dựng Domain/entity/DbContext mapping và test invariant; không tạo solution mới hoặc làm lại từ đầu.
-4. Lập Migration đầu tiên để review riêng sau khi mô hình được duyệt; không áp dụng lên `MediQueue` nếu chưa có cho phép rõ ràng.
+1. Người dùng review Domain model, Migration `InitialCreate`, ModelSnapshot và `docs/sql/InitialCreate.sql`.
+2. Xác nhận riêng mọi thay đổi model trước khi cho phép áp dụng Migration; hiện tuyệt đối chưa chạy lên `MediQueue`.
+3. Người dùng tự commit/push vào đúng Pull Request Tuần 1 sau khi review.
+4. Chỉ khi được giao Prompt 02.3 mới tiếp tục; không tự động triển khai Login/API/RabbitMQ hoặc thay đổi database.
 
-Không tự động chuyển sang Prompt 02.2.
+Không tự động chuyển sang Prompt 02.3.

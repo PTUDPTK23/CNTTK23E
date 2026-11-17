@@ -7,7 +7,7 @@
 - SQL Server là nguồn dữ liệu chuẩn; SignalR chỉ phân phối thay đổi đến client.
 - Bảo toàn nghiệp vụ dưới tải đồng thời và cơ chế giao message at-least-once.
 - Có thể chạy trực tiếp trên Windows, không phụ thuộc Docker.
-- Phục vụ một cơ sở y tế duy nhất; Specialty, Doctor và Room là dữ liệu nội bộ của cơ sở này.
+- Phục vụ một cơ sở y tế duy nhất; Department (chuyên khoa), Doctor và Room là dữ liệu nội bộ của cơ sở này.
 
 ### 1.1 Nền tảng đã khởi tạo trong Prompt 02.1
 
@@ -35,7 +35,7 @@ flowchart LR
 
 Ba tiến trình web chạy độc lập trên Windows: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS). Queue Worker không mở cổng. Health endpoint chỉ chứng minh host khởi động, không đại diện cho chức năng nghiệp vụ.
 
-Controller dùng mô hình kết hợp theo Role và theo tài nguyên nghiệp vụ. Controller mỏng: nhận request, kiểm tra quyền, gọi service/domain và trả DTO/ProblemDetails; không chứa logic nghiệp vụ, không gọi controller khác, không truy cập SQL trực tiếp. Ở giai đoạn này chỉ `HealthController` được triển khai; các controller nghiệp vụ mới là thiết kế dự kiến.
+Backend tổ chức Controller theo nghiệp vụ, không theo từng Actor: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController` và `HealthController`. Role-based authorization và resource ownership được kiểm tra trong action/service/policy. Frontend vẫn chia khu vực Auth/Patient/Doctor/Receptionist/Admin. Controller mỏng, không chứa logic nghiệp vụ, không gọi controller khác và không truy cập SQL trực tiếp. Hiện chỉ `HealthController` được triển khai.
 
 ## 2. Context diagram
 
@@ -118,6 +118,14 @@ Phụ thuộc source code dự kiến đi một chiều: `Domain` không phụ t
 | `MediQueue.Domain` | Entity, value object, enum, invariant/domain service thuần | Không phụ thuộc ASP.NET, EF Core, RabbitMQ |
 | `MediQueue.Infrastructure` | EF Core DbContext/repository, Identity store, outbox/inbox, RabbitMQ adapters | Không chứa UI hoặc contract tùy tiện |
 | `MediQueue.Contracts` | API DTO dùng chung có chọn lọc, command/event envelope có version | Không chứa EF entity hoặc secret |
+
+### 4.1 Persistence đã triển khai trong Prompt 02.2
+
+- `MediQueueDbContext` kế thừa `IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>` và gọi `base.OnModelCreating` trước `ApplyConfigurationsFromAssembly`.
+- Domain giữ entity/invariant thuần; Infrastructure giữ `ApplicationUser`, EF configuration và các entity kỹ thuật Outbox/Inbox/Idempotency/Audit.
+- Appointment API và Queue Worker đăng ký DbContext scoped qua `AddMediQueueInfrastructure`; không có DbContext singleton và Web không tham chiếu Infrastructure.
+- `MediQueueDbContextFactory` chỉ đọc `ConnectionStrings__MediQueue` ở design time. Runtime dùng `ConnectionStrings:MediQueue` từ User Secrets/biến môi trường.
+- Migration `InitialCreate` và SQL script đã sinh để review nhưng chưa áp dụng database. Không tự migrate khi ứng dụng khởi động.
 
 ## 5. Luồng đặt lịch và cấp số
 
@@ -282,7 +290,7 @@ Các tiến trình Web, API, Worker và Notification chạy độc lập trên W
 - Chỉ JWT Access Token có thời hạn trong v1; không Refresh Token; SignalR xác thực và kiểm tra group.
 - QueueNumber riêng Doctor/ngày, bắt đầu 1, không tái sử dụng; định dạng hiển thị tối thiểu ba chữ số.
 - Appointment state: `PendingNumber`, `Waiting`, `Serving`, `Completed`, `Cancelled`, `NoShow`; không có `Called` ở v1.
-- Một cơ sở y tế; mỗi Doctor thuộc một Specialty; nhiều Room.
+- Một cơ sở y tế; mỗi Doctor thuộc một Department; nhiều Room.
 - Transactional outbox/inbox, idempotency và concurrency control được giữ trong thiết kế, triển khai theo roadmap.
 - Không Docker.
 

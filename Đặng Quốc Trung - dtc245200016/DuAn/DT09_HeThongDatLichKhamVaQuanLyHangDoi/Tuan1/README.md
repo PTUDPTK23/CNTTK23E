@@ -18,7 +18,7 @@
 
 MediQueue phục vụ một cơ sở y tế có nhiều chuyên khoa, bác sĩ và phòng khám. Hệ thống hỗ trợ Patient tra cứu bác sĩ/slot, đặt hoặc hủy lịch, nhận số thứ tự và theo dõi hàng đợi; Doctor điều phối hàng đợi của mình; Receptionist hỗ trợ lịch hẹn và tiếp nhận; Admin quản lý dữ liệu nền và tài khoản.
 
-Bốn Role duy nhất là `Patient`, `Doctor`, `Receptionist`, `Admin`. Một website sử dụng một form đăng nhập chung và điều hướng giao diện theo Role. Mỗi Doctor thuộc đúng một Specialty; hệ thống không có mô hình đa chi nhánh.
+Bốn Role duy nhất là `Patient`, `Doctor`, `Receptionist`, `Admin`. Một website sử dụng một form đăng nhập chung và điều hướng giao diện theo Role. Mỗi Doctor thuộc đúng một Department (chuyên khoa); hệ thống không có mô hình đa chi nhánh.
 
 Hai luồng phân tán cốt lõi:
 
@@ -37,8 +37,11 @@ Tuần 1 đã hoàn thành tài liệu phân tích/thiết kế và, theo Prompt
 - Health endpoint thật cho API, Web và Notification Service; Worker chỉ xác nhận host khởi động.
 - Unit test cho trạng thái/Role và integration test cho health API.
 - Khảo sát metadata database `MediQueue` ở chế độ read-only; không chạy SQL ghi, Migration hoặc thay đổi database.
+- Xây dựng Domain entity/invariant, ASP.NET Core Identity model, `MediQueueDbContext`, Fluent API và kiểm thử metadata EF Core.
+- Sinh Migration `InitialCreate`, ModelSnapshot và [SQL script review](docs/sql/InitialCreate.sql); chưa áp dụng Migration.
+- Chuẩn hóa backend Controller theo nghiệp vụ; frontend vẫn chia Auth/Patient/Doctor/Receptionist/Admin và dùng một form đăng nhập chung.
 
-Chưa triển khai đăng ký/đăng nhập, JWT/Identity hoàn chỉnh, nghiệp vụ đặt lịch, 6 REST API bắt buộc, DbContext/entity, RabbitMQ consumer/publisher nghiệp vụ hoặc SignalR Hub nghiệp vụ. Không có endpoint giả báo thành công.
+Chưa triển khai đăng ký/đăng nhập, JWT hoàn chỉnh, nghiệp vụ đặt lịch, 6 REST API bắt buộc, RabbitMQ consumer/publisher nghiệp vụ hoặc SignalR Hub nghiệp vụ. Không có endpoint giả báo thành công.
 
 ## 3. Công nghệ và ràng buộc
 
@@ -98,6 +101,8 @@ dotnet run --project .\src\MediQueue.Notification.Service --launch-profile http
 dotnet run --project .\src\MediQueue.Queue.Worker
 ```
 
+Appointment API và Queue Worker cần `ConnectionStrings:MediQueue` từ User Secrets hoặc `ConnectionStrings__MediQueue` từ biến môi trường. Ứng dụng không tự chạy Migration khi khởi động.
+
 | Tiến trình | HTTP | HTTPS | Health |
 |---|---:|---:|---|
 | Appointment API | 5101 | 7101 | `http://localhost:5101/health` |
@@ -125,8 +130,8 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 ## 7. Trạng thái
 
 - Nhánh: `duan-dtc245200016`.
-- Solution nền tảng: đã khởi tạo trong Tuần 1 theo Prompt 02.1.
-- Restore/build/test/smoke test: đã chạy thực tế ngày 17/11/2026; xem `docs/progress.md`.
-- Database: kết nối Windows Authentication thành công, hiện chưa có bảng người dùng; không thay đổi schema/data.
+- Solution, Domain và nền tảng EF Core Code First: đã hoàn thành trong Tuần 1 theo Prompt 02.2.
+- Restore/build/test/smoke test: đã chạy thực tế ngày 17/11/2026; build `0` warning/`0` error, 24/24 test đạt; xem `docs/progress.md`.
+- Database: kết nối Windows Authentication thành công, hiện chưa có bảng người dùng; Migration/script chỉ được sinh để review và chưa thay đổi schema/data.
 - Pull Request Tuần 1: chưa tạo.
-- Bước tiếp theo chỉ thực hiện sau khi người dùng review và giao Prompt 02.2.
+- Bước tiếp theo chỉ thực hiện sau khi người dùng review Migration/SQL script và giao Prompt 02.3.

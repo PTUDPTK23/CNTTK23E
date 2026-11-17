@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace MediQueue.IntegrationTests.Health;
 
-public sealed class AppointmentApiHealthTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class AppointmentApiHealthTests : IClassFixture<MediQueueApiFactory>
 {
-    private readonly WebApplicationFactory<Program> factory;
+    private readonly MediQueueApiFactory factory;
 
-    public AppointmentApiHealthTests(WebApplicationFactory<Program> factory)
+    public AppointmentApiHealthTests(MediQueueApiFactory factory)
     {
         this.factory = factory;
     }

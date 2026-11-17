@@ -1,5 +1,8 @@
+using MediQueue.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMediQueueInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();

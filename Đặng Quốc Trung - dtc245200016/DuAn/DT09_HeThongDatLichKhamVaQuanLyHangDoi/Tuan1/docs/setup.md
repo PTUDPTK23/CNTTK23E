@@ -4,7 +4,7 @@
 
 - Windows và .NET SDK 10; repository đang ghim SDK `10.0.102` bằng `global.json`.
 - SQL Server Express tại `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue` khi bước phát triển cần dữ liệu.
-- Không sử dụng Docker. RabbitMQ/SignalR chưa cần chạy cho nền tảng Prompt 02.1.
+- Không sử dụng Docker. RabbitMQ/SignalR chưa cần chạy cho nền tảng dữ liệu Prompt 02.2.
 
 Xác nhận môi trường:
 
@@ -46,7 +46,7 @@ hoặc biến môi trường phiên PowerShell:
 $env:ConnectionStrings__MediQueue = "Server=LAPTOP-AQFGUM9Q\SQLEXPRESS;Database=MediQueue;Trusted_Connection=True;TrustServerCertificate=True;"
 ```
 
-`TrustServerCertificate=True` chỉ dành cho môi trường phát triển cục bộ. Không hard-code mật khẩu/JWT secret, không commit User Secrets. Prompt 02.1 chưa đọc connection string trong ứng dụng vì chưa có DbContext.
+`TrustServerCertificate=True` chỉ dành cho môi trường phát triển cục bộ. Không hard-code mật khẩu/JWT secret, không commit User Secrets. Appointment API và Queue Worker đăng ký `MediQueueDbContext`; nếu thiếu cấu hình, host dừng với lỗi rõ ràng thay vì âm thầm dùng database khác.
 
 ## 4. Chạy các tiến trình độc lập
 
@@ -77,6 +77,47 @@ Profile HTTP không tự chuyển hướng HTTPS trong Development để hỗ tr
 - Không tồn tại `dbo.__EFMigrationsHistory`.
 - Chỉ truy vấn metadata; không đọc dữ liệu cá nhân, không thực thi lệnh ghi và không tạo/áp dụng Migration.
 
-## 6. Chức năng chưa triển khai
+## 6. Lệnh EF Core và quy trình review Migration
 
-Nền tảng hiện chỉ xác nhận cấu trúc solution, dependency, host và health endpoint. Chưa có DbContext/entity, Identity/JWT, sáu API nghiệp vụ bắt buộc, RabbitMQ business flow, SignalR Hub hoặc giao diện theo Role. Không dùng health endpoint làm bằng chứng cho các chức năng chưa tồn tại.
+Kiểm tra công cụ:
+
+```powershell
+dotnet ef --version
+```
+
+Các lệnh dưới đây phải chạy từ `Tuan1` với biến môi trường chỉ trong phiên terminal:
+
+```powershell
+$env:ConnectionStrings__MediQueue = "Server=LAPTOP-AQFGUM9Q\SQLEXPRESS;Database=MediQueue;Trusted_Connection=True;TrustServerCertificate=True;"
+
+dotnet ef migrations add InitialCreate `
+  --project .\src\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj `
+  --startup-project .\src\MediQueue.Appointment.Api\MediQueue.Appointment.Api.csproj `
+  --context MediQueueDbContext `
+  --output-dir Persistence\Migrations
+
+dotnet ef migrations has-pending-model-changes `
+  --project .\src\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj `
+  --startup-project .\src\MediQueue.Appointment.Api\MediQueue.Appointment.Api.csproj `
+  --context MediQueueDbContext
+
+dotnet ef migrations script 0 InitialCreate --idempotent `
+  --project .\src\MediQueue.Infrastructure\MediQueue.Infrastructure.csproj `
+  --startup-project .\src\MediQueue.Appointment.Api\MediQueue.Appointment.Api.csproj `
+  --context MediQueueDbContext `
+  --output .\docs\sql\InitialCreate.sql
+```
+
+`InitialCreate` đã tồn tại; không chạy lại lệnh `migrations add` trừ khi chủ động hoàn tác/thiết kế lại theo review. Khi review script cần kiểm tra:
+
+1. Không có `CREATE DATABASE`, `DROP DATABASE` hoặc seed tài khoản/mật khẩu.
+2. Đúng bảng Identity và nghiệp vụ, PK/FK, nullability, kiểu dữ liệu.
+3. Có unique index QueueNumber Doctor/ngày, filtered unique index một Doctor/một Serving và index Outbox/Inbox.
+4. Có 12 check constraint, rowversion và delete behavior không cascade lịch sử nghiệp vụ.
+5. `Down` tháo quan hệ theo thứ tự an toàn.
+
+Tuyệt đối không chạy `dotnet ef database update`, không thực thi `InitialCreate.sql` và không thêm `EnsureCreated`, `EnsureDeleted`, `Database.Migrate` khi chưa được người dùng phê duyệt.
+
+## 7. Chức năng chưa triển khai
+
+Nền tảng hiện có Domain entity/invariant, Identity persistence model, DbContext, Fluent API, Migration/script review và test metadata. Chưa có Login/Register/JWT, sáu API nghiệp vụ bắt buộc, transaction booking/queue thực tế, RabbitMQ business flow, SignalR Hub hoặc giao diện chức năng theo Role. Không dùng model/Migration làm bằng chứng cho các luồng nghiệp vụ chưa tồn tại.

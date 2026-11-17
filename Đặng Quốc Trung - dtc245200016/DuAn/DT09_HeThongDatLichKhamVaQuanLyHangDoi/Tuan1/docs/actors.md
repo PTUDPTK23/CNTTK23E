@@ -34,7 +34,7 @@
 
 - Mục tiêu: quản trị danh mục, tài khoản, lịch hoạt động và báo cáo.
 - Tạo/khóa tài khoản Doctor/Receptionist và gán Role theo quy trình kiểm soát.
-- Quản lý Doctor, Specialty, Room, schedule/slot; xem thống kê tổng hợp.
+- Quản lý Doctor, Department, Room, schedule/slot; xem thống kê tổng hợp.
 - Không mặc nhiên thao tác thay Patient/Doctor trong luồng khám; nếu cần hỗ trợ phải dùng chức năng có audit rõ ràng.
 
 ## 3. Ma trận phân quyền chức năng
@@ -46,7 +46,7 @@ Ký hiệu: `✓` được phép; `Own` chỉ dữ liệu của mình; `Scoped` 
 | Tự đăng ký | ✓ | — | — | — |
 | Đăng nhập/đăng xuất chung | ✓ | ✓ | ✓ | ✓ |
 | Sửa hồ sơ cá nhân | Own | Own | Own | Own |
-| Tra cứu Doctor/Specialty/slot | ✓ | ✓ | ✓ | ✓ |
+| Tra cứu Doctor/Department/slot | ✓ | ✓ | ✓ | ✓ |
 | Đặt Appointment | Own | — | Support | — |
 | Hủy Appointment | Own | — | Support | — |
 | Ghi nhận check-in | — | — | Support | — |
@@ -59,7 +59,7 @@ Ký hiệu: `✓` được phép; `Own` chỉ dữ liệu của mình; `Scoped` 
 | Hoàn thành lượt khám | — | Scoped | — | — |
 | Xác nhận NoShow đủ điều kiện | — | Scoped | — | — |
 | Quản lý tài khoản/Role | — | — | — | ✓ |
-| Quản lý Doctor/Specialty/Room | — | — | — | ✓ |
+| Quản lý Doctor/Department/Room | — | — | — | ✓ |
 | Quản lý schedule/slot | — | — | — | ✓ |
 | Xem báo cáo tổng hợp | — | — | — | ✓ |
 

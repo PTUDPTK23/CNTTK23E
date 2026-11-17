@@ -17,19 +17,13 @@
 
 ### 2.1 Quy chuẩn tổ chức Controller
 
-Nhóm theo Role:
+Backend chỉ tổ chức theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController` và `HealthController`.
 
-- `AccountController`: xác thực và thông tin tài khoản.
-- `PatientController`: dashboard/chức năng riêng của Patient.
-- `DoctorController`: dashboard và lịch cá nhân của Doctor.
-- `ReceptionistController`: tiếp nhận và check-in.
-- `AdminController`: dashboard và thống kê quản trị.
-
-Nhóm theo tài nguyên nghiệp vụ: `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`.
+Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistController` hoặc `AdminController` để biểu diễn Role. Cùng một nghiệp vụ dùng chung controller/service; Role-based authorization và resource ownership quyết định Actor nào được thao tác. Frontend vẫn có các khu vực Auth/Patient/Doctor/Receptionist/Admin.
 
 Controller chỉ tiếp nhận request, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route được khai báo tường minh để bảo toàn sáu route bắt buộc.
 
-Hiện trạng Prompt 02.1: chỉ có `HealthController` với `GET /health` để kiểm tra host. Các controller và endpoint nghiệp vụ ở trên **chưa được triển khai**; không có endpoint giả trả thành công.
+Hiện trạng Prompt 02.2: chỉ có `HealthController` với `GET /health` để kiểm tra host. Các controller và endpoint nghiệp vụ ở trên **chưa được triển khai**; không có endpoint giả trả thành công.
 
 | Method | Route dự kiến | Quyền | Mức | Mục đích |
 |---|---|---|---|---|
@@ -82,7 +76,7 @@ Khi Access Token hết hạn, v1 yêu cầu đăng nhập lại. API/SignalR kh�
 
 ### `GET /doctors`
 
-Query dự kiến: `search`, `specialtyId`, `page=1`, `pageSize=20`.
+Query dự kiến: `search`, `departmentId`, `page=1`, `pageSize=20`.
 
 ```json
 {
@@ -90,7 +84,7 @@ Query dự kiến: `search`, `specialtyId`, `page=1`, `pageSize=20`.
     {
       "id": "41879991-b095-414a-a959-c42b7b388a34",
       "displayName": "Bác sĩ minh họa",
-      "specialty": { "id": 1, "name": "Nội tổng quát" },
+      "department": { "id": "28fcb523-5a52-472b-b88d-3bd68fbe031a", "name": "Nội tổng quát" },
       "rooms": [{ "id": "3f1f5dd8-b277-45cb-a44e-4cbef159ece7", "name": "Phòng A" }]
     }
   ],
@@ -286,7 +280,7 @@ Các endpoint sau thuộc phạm vi sản phẩm nhưng không phải API tối 
 |---|---|---|
 | Users/roles | `/admin/users` | GET, POST staff, PATCH active/role |
 | Doctors | `/admin/doctors` | GET, POST, PUT/PATCH, deactivate |
-| Specialties | `/admin/specialties` | CRUD có kiểm soát |
+| Departments | `/admin/departments` | CRUD có kiểm soát |
 | Rooms | `/admin/rooms` | CRUD có kiểm soát |
 | Schedules | `/admin/doctor-schedules` | CRUD + chống chồng lịch |
 | Slots | `/admin/appointment-slots` | Generate/list/lock theo schedule |

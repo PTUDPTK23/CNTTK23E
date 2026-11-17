@@ -10,6 +10,7 @@
 - Yêu cầu bắt buộc của đề tài được ưu tiên trước chức năng mở rộng.
 - Không chạy Migration hoặc thay đổi hạ tầng nếu chưa được phép rõ ràng.
 - Phân bổ chức năng bên dưới là kế hoạch dự kiến và được điều chỉnh khi giảng viên có yêu cầu chuyên môn riêng; mọi điều chỉnh phải được ghi nhận trong `progress.md`.
+- Đây là lộ trình phát triển nội bộ của MediQueue, không phải yêu cầu tiến độ cụ thể do giảng viên ban hành.
 
 Tuần 1 nằm tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`. Tiêu đề PR bắt buộc là `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung`; hạn nộp **23h59 ngày 17/11/2026**.
 
@@ -17,15 +18,15 @@ Tuần 1 nằm tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`. Tiêu đề
 
 | Tuần / thư mục | Mục tiêu | Sản phẩm bàn giao dự kiến | Tiêu chí hoàn thành |
 |---|---|---|---|
-| Tuần 1 / `Tuan1` | Phân tích, thiết kế và nền tảng solution theo Prompt 02.1 | Bộ tài liệu; solution .NET 10 gồm 7 project chính + 2 test project; reference; cấu hình local; khảo sát database read-only | Truy vết đủ 8 yêu cầu; restore/build/test/smoke đạt; không Migration/SQL ghi; chưa triển khai nghiệp vụ |
-| Tuần 2 / `Tuan2` | Domain và mô hình dữ liệu nền | Entity/value object/invariant; DbContext/mapping dự kiến; Identity Role; kế hoạch Migration để review | Unit test cho invariant; mapping nhất quán với schema rỗng đã khảo sát; chưa áp dụng Migration nếu chưa được duyệt |
-| Tuần 3 / `Tuan3` | Identity, xác thực và dữ liệu | Login chung, Patient registration, cấp tài khoản Doctor/Receptionist, JWT Access Token; Migration được review | Không xóa/tạo lại database; chỉ áp dụng Migration sau phê duyệt; authorization backend được kiểm thử |
-| Tuần 4 / `Tuan4` | Doctor/slot và Appointment API | 6 REST endpoint bắt buộc; trạng thái `PendingNumber`; check-in metadata; concurrency; `.http` | Test quá khứ, hết chỗ, trùng giờ, hạn hủy, ownership và hai request tranh chỗ |
-| Tuần 5 / `Tuan5` | RabbitMQ và Queue Worker | Message contracts, outbox/inbox, ticket queue, Worker cấp số, DLQ | Request cấp số thực sự qua RabbitMQ; duplicate không cấp số trùng |
-| Tuần 6 / `Tuan6` | Queue command và event | call-next trực tiếp Serving, complete, NoShow; QueueChanged; state/audit | Không gọi slot tương lai; một Doctor tối đa một Serving; NoShow đúng lượt; event có version |
-| Tuần 7 / `Tuan7` | Notification Service và SignalR | Hub xác thực Access Token, Rabbit consumer, group authorization, reconnect/snapshot | Chỉ user đăng nhập nhận cập nhật; reconnect không mất trạng thái; không rò dữ liệu queue |
-| Tuần 8 / `Tuan8` | Razor Pages cho 4 Role | Login chung, Patient/Doctor/Receptionist/Admin dashboards, luồng bắt buộc end-to-end | Backend authorization được kiểm thử; UI responsive và lỗi rõ ràng |
-| Tuần 9 / `Tuan9` | Hoàn thiện và nghiệm thu | Admin mở rộng hợp lý, báo cáo, test, tài liệu chạy Windows, demo script | Build/test sạch; demo đủ đề tài; không secret/dữ liệu thật; tài liệu đồng bộ |
+| Tuần 1 / `Tuan1` | Phân tích, thiết kế, solution và EF Core Code First | Tài liệu; 9 project .NET 10; Domain entity/invariant; Identity/DbContext/Fluent API; Migration và SQL review; test nền tảng | Build/test sạch; model/snapshot nhất quán; database chưa bị thay đổi |
+| Tuần 2 / `Tuan2` | Đăng nhập, đăng ký và phân quyền | Form/login chung; Patient registration; cấp tài khoản staff; JWT Access Token; Role + ownership policies | Đúng 4 Role; không Refresh Token; authorization backend được kiểm thử |
+| Tuần 3 / `Tuan3` | Doctor/slot và Appointment API | 6 REST endpoint bắt buộc; `PendingNumber`; check-in metadata; transaction/concurrency; `.http` | Test quá khứ, hết chỗ, trùng giờ, hạn hủy, ownership và request tranh chỗ |
+| Tuần 4 / `Tuan4` | RabbitMQ và Queue Worker | Message contracts, outbox/inbox, ticket queue, Worker cấp số, DLQ | Cấp số thực sự qua RabbitMQ; duplicate không cấp trùng số |
+| Tuần 5 / `Tuan5` | Queue command và event | call-next trực tiếp Serving, complete, NoShow; QueueChanged; state/audit | Không gọi slot tương lai; một Doctor tối đa một Serving; event có version |
+| Tuần 6 / `Tuan6` | Notification Service và SignalR | Hub xác thực, Rabbit consumer, group authorization, reconnect/snapshot | Chỉ user có quyền nhận cập nhật; reconnect đồng bộ snapshot |
+| Tuần 7 / `Tuan7` | Razor Pages cho 4 Role | Auth và các khu vực Patient/Doctor/Receptionist/Admin, luồng chính end-to-end | UI responsive; không thay authorization backend bằng ẩn/hiện nút |
+| Tuần 8 / `Tuan8` | Tích hợp và chức năng quản trị | Kiểm thử SQL concurrency/message; quản trị Department/Doctor/Room/slot; báo cáo phù hợp | Yêu cầu bắt buộc ổn định trước chức năng mở rộng |
+| Tuần 9 / `Tuan9` | Hoàn thiện và nghiệm thu | Test, tài liệu chạy Windows, demo script, rà soát bảo mật | Build/test sạch; demo đủ đề tài; không secret/dữ liệu thật |
 
 ## 3. Milestone
 
@@ -35,17 +36,17 @@ gantt
     dateFormat  X
     axisFormat Tuần %s
     section Phân tích
-    Tài liệu và solution nền tảng  :done, b1, 1, 1
+    Tài liệu solution và Code First :done, b1, 1, 1
     section Nền tảng mã nguồn
-    Domain và mô hình dữ liệu      :b2, 2, 1
-    Identity và xác thực           :b3, 3, 1
+    Identity và xác thực           :b2, 2, 1
     section Chức năng bắt buộc
-    Appointment API                :b4, 4, 1
-    RabbitMQ và Queue Worker       :b5, 5, 1
-    Queue command và event         :b6, 6, 1
-    SignalR Notification           :b7, 7, 1
+    Appointment API                :b3, 3, 1
+    RabbitMQ và Queue Worker       :b4, 4, 1
+    Queue command và event         :b5, 5, 1
+    SignalR Notification           :b6, 6, 1
     section Hoàn thiện
-    Razor Pages bốn Role           :b8, 8, 1
+    Razor Pages bốn Role           :b7, 7, 1
+    Tích hợp và quản trị           :b8, 8, 1
     Test, demo và tài liệu         :b9, 9, 1
 ```
 
