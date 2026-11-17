@@ -17,6 +17,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Không sử dụng Docker dưới bất kỳ hình thức nào.
 - Cấu trúc nộp bài gồm 9 thư mục `Tuan1` đến `Tuan9`; mỗi tuần đúng một Pull Request và có thể có nhiều commit thực tế.
 - Pull Request Tuần 1 có tiêu đề `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung`, hạn nộp 23h59 ngày 17/11/2026.
+- Tuần sau phải kế thừa kết quả tuần trước; không tạo lại dự án từ đầu, không âm thầm thay thế quyết định đã chốt và không sửa nội dung tuần đã nộp nếu chưa có yêu cầu.
 
 ## 2. Ranh giới an toàn trước khi làm việc
 
@@ -85,6 +86,8 @@ Trước Migration đầu tiên, chỉ khảo sát schema database `MediQueue` �
 - Mỗi tuần chỉ có một Pull Request; nhiều commit trong Pull Request được phép và nên phản ánh các lát cắt công việc thực tế.
 - Không sửa, squash, chia nhỏ hoặc tạo thêm commit chỉ để mô phỏng lịch sử 9 tuần.
 - Không đưa thay đổi của hai thư mục tuần vào cùng một Pull Request.
+- Nếu giảng viên yêu cầu sửa một tuần đang review, tiếp tục commit và push vào đúng nhánh/PR của tuần đó; không mở PR thứ hai cho cùng tuần.
+- Bảo toàn thư mục của các tuần đã nộp. Mọi điều chỉnh hồi tố phải có yêu cầu rõ ràng và được ghi vào progress của tuần liên quan.
 - Trước khi đề xuất Pull Request, kiểm tra diff chỉ thuộc thư mục tuần tương ứng và báo cáo tiêu đề PR bắt buộc.
 - Không tự động commit, push hoặc mở Pull Request.
 

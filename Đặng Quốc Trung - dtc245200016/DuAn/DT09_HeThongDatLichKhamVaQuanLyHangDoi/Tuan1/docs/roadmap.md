@@ -5,8 +5,11 @@
 - Lộ trình là kế hoạch, không phải lịch sử đã thực hiện.
 - Mỗi tuần làm việc trong một thư mục riêng `Tuan1` đến `Tuan9` và chỉ có một Pull Request riêng cho tuần đó.
 - Một Pull Request có thể chứa nhiều commit thực tế; chỉ commit sau khi người dùng review và không làm giả lịch sử.
+- Tuần sau kế thừa mã nguồn, tài liệu và quyết định của tuần trước; không làm lại dự án từ đầu và không ghi đè sản phẩm tuần đã nộp.
+- Nếu giảng viên yêu cầu sửa trong quá trình review, tiếp tục commit vào đúng nhánh/PR của tuần đó thay vì mở PR mới.
 - Yêu cầu bắt buộc của đề tài được ưu tiên trước chức năng mở rộng.
 - Không chạy Migration hoặc thay đổi hạ tầng nếu chưa được phép rõ ràng.
+- Phân bổ chức năng bên dưới là kế hoạch dự kiến và được điều chỉnh khi giảng viên có yêu cầu chuyên môn riêng; mọi điều chỉnh phải được ghi nhận trong `progress.md`.
 
 Tuần 1 nằm tại `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1`. Tiêu đề PR bắt buộc là `DuAn-Tuan1 - dtc245200016 - Đặng Quốc Trung`; hạn nộp **23h59 ngày 17/11/2026**.
 

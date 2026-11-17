@@ -58,6 +58,15 @@
 - Ghi nhận tiêu đề PR Tuần 1 và hạn nộp 23h59 ngày 17/11/2026.
 - Không commit, push hoặc tạo Pull Request.
 
+### 2026-11-17 — Rà soát chất lượng hồ sơ Tuần 1
+
+- Xác nhận cấu trúc `Tuan1` đã đúng nên không di chuyển hoặc tạo bản sao lần nữa.
+- Rà soát đủ bài toán, lý do xây dựng, mục tiêu, phạm vi, 4 Actor, phân quyền, requirement, Use Case và business rule.
+- Xác nhận có Architecture, ERD, Activity, Sequence, State Diagram cùng thiết kế RabbitMQ/SignalR.
+- Bổ sung README với bài toán thực tế, mục tiêu, Actor, kết quả Tuần 1 và kế hoạch Tuần 2; không tạo tiến độ hoặc kết quả kiểm thử giả.
+- Bổ sung nguyên tắc tuần sau kế thừa tuần trước, bảo toàn tuần đã nộp và tiếp tục dùng đúng PR nếu giảng viên yêu cầu sửa.
+- Không tạo mã nguồn, solution, package, SQL/Migration, commit, push hoặc Pull Request.
+
 ## 3. Mức độ đáp ứng yêu cầu đề tài
 
 | Hạng mục | Trạng thái thiết kế |
@@ -99,7 +108,7 @@ Tất cả hiện ở mức **thiết kế**, chưa khẳng định đã triển
 
 1. Người dùng review tính nhất quán của bộ tài liệu đã chuẩn hóa.
 2. Người dùng tự commit/push và tạo đúng một Pull Request Tuần 1 với tiêu đề bắt buộc.
-3. Khi bắt đầu Tuần 2, tạo/làm việc trong `Tuan2`, kiểm tra lại nhánh/status rồi mới khởi tạo solution .NET 10 và các project đã chốt.
+3. Khi bắt đầu Tuần 2, tạo/làm việc trong `Tuan2`, kế thừa kết quả `Tuan1`, kiểm tra lại nhánh/status rồi mới khởi tạo solution .NET 10 và các project đã chốt; không làm lại từ đầu.
 4. Trước Migration đầu tiên, khảo sát read-only schema database `MediQueue` và lập kế hoạch thay đổi để duyệt.
 
 Không tự động chuyển sang giai đoạn lập trình.

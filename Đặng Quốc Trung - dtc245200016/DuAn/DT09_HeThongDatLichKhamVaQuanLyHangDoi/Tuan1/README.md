@@ -29,6 +29,22 @@ Hai luồng thể hiện bản chất phân tán của đề tài:
 - Mọi thay đổi số thứ tự hoặc lượt đang phục vụ được phát qua RabbitMQ; `MediQueue.Notification.Service` nhận sự kiện và đẩy đến client bằng SignalR.
 - QueueNumber tăng riêng theo từng Doctor/ngày, không tái sử dụng và hiển thị tối thiểu ba chữ số (`001`, `002`, `003`, ...).
 
+### 1.1 Bài toán thực tế
+
+Trong quy trình khám ngoại trú, lịch hẹn và hàng đợi thường được theo dõi ở các bước tách rời. Patient khó biết slot nào còn chỗ hoặc hiện đang phục vụ đến lượt nào; Receptionist phải hỗ trợ nhiều thao tác thủ công; Doctor cần một danh sách chờ đúng thứ tự và cập nhật kịp thời. Khi nhiều người đặt cùng lúc, hệ thống còn phải ngăn hết chỗ, trùng lịch và cấp trùng số.
+
+### 1.2 Lý do xây dựng
+
+MediQueue được xây dựng để hợp nhất quy trình đặt lịch, cấp QueueNumber và điều phối hàng đợi trên một hệ thống có phân quyền. Đề tài đồng thời minh họa đúng bản chất ứng dụng phân tán: RabbitMQ tách xử lý cấp số khỏi HTTP request, Worker xử lý message idempotent và SignalR đưa thay đổi queue tới client theo thời gian thực.
+
+### 1.3 Mục tiêu
+
+- Giúp Patient chủ động tra cứu Doctor/slot, đặt hoặc hủy Appointment và theo dõi lượt chờ.
+- Giúp Doctor điều phối đúng queue của mình và bảo đảm mỗi Doctor chỉ phục vụ một Patient tại một thời điểm.
+- Giúp Receptionist hỗ trợ đặt/hủy, check-in và theo dõi queue mà không vượt quyền Doctor.
+- Giúp Admin quản lý tài khoản, Specialty, Doctor, Room, slot và báo cáo tổng hợp.
+- Bảo đảm consistency khi đặt lịch đồng thời, idempotency khi RabbitMQ redeliver và đồng bộ lại sau khi SignalR reconnect.
+
 ## 2. Phạm vi giai đoạn hiện tại
 
 Đây là giai đoạn **phân tích và thiết kế nền tảng**. Repository hiện chỉ chứa tài liệu; chưa khởi tạo solution/project .NET, chưa cài package, chưa chạy SQL/Migration và chưa thay đổi database `MediQueue`.
@@ -53,6 +69,15 @@ Hai luồng thể hiện bản chất phân tán của đề tài:
 - Receptionist ghi nhận check-in như thông tin tiếp nhận; check-in không phải điều kiện cấp QueueTicket.
 
 Các chức năng mở rộng không thay thế hoặc làm chậm luồng bắt buộc.
+
+### Actor và trách nhiệm chính
+
+| Actor | Trách nhiệm chính |
+|---|---|
+| `Patient` | Tự đăng ký, tra cứu, đặt/hủy Appointment, xem lịch sử và theo dõi queue của mình |
+| `Doctor` | Xem lịch cá nhân, gọi lượt đủ điều kiện, hoàn thành hoặc xác nhận `NoShow` trong queue của mình |
+| `Receptionist` | Tìm Patient, hỗ trợ đặt/hủy, ghi nhận check-in và theo dõi queue; không điều phối thay Doctor |
+| `Admin` | Quản lý tài khoản, Role, Specialty, Doctor, Room, slot và báo cáo |
 
 ## 3. Công nghệ đã thống nhất
 
@@ -107,7 +132,26 @@ Các project dùng chung mô hình nghiệp vụ và hợp đồng thông qua `M
 | [docs/progress.md](docs/progress.md) | Nhật ký tiến độ thực tế |
 | [AGENTS.md](AGENTS.md) | Quy tắc cho các lần làm việc tiếp theo với Codex |
 
-## 6. Trạng thái
+## 6. Kết quả Tuần 1
+
+Đã hoàn thành ở mức **phân tích và thiết kế**:
+
+- Xác định phạm vi, 4 Actor, ma trận phân quyền, yêu cầu chức năng/phi chức năng và 13 Use Case.
+- Truy vết đủ 8 chức năng bắt buộc và thiết kế đủ 6 RESTful API tối thiểu của đề tài 09.
+- Thiết kế kiến trúc phân tán, RabbitMQ topology, Queue Worker, transactional outbox/inbox và SignalR flow.
+- Thiết kế ERD, constraint, concurrency control, Activity/Sequence/State Diagram và quy tắc nghiệp vụ.
+- Chuẩn hóa lộ trình 9 tuần, quy tắc một PR mỗi tuần và nhật ký tiến độ thực tế.
+
+Chưa khởi tạo solution/project, chưa viết mã ứng dụng, chưa cài package, chưa chạy SQL/Migration, chưa thay đổi database và chưa tạo kết quả kiểm thử hay ảnh minh chứng.
+
+## 7. Kế hoạch dự kiến Tuần 2
+
+- Làm việc trong thư mục `Tuan2`, kế thừa toàn bộ quyết định của Tuần 1; không khởi động lại hoặc thiết kế lại dự án từ đầu.
+- Dự kiến khởi tạo solution .NET 10 và các project đã chốt, thiết lập project reference và mô hình Domain/Contracts ban đầu.
+- Bổ sung test project nền tảng và kiểm tra build, nhưng chưa tự chạy Migration hoặc thay đổi database nếu chưa được duyệt.
+- Điều chỉnh phạm vi nếu giảng viên có yêu cầu chuyên môn riêng cho Tuần 2.
+
+## 8. Trạng thái
 
 - Nhánh dự án: `duan-dtc245200016`.
 - Tuần nộp hiện tại: `Tuan1` — phân tích và thiết kế nền tảng.
