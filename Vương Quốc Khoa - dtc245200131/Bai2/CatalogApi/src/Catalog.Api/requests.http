@@ -1,0 +1,73 @@
+@api = http://localhost:5100
+
+### 1. Kiểm tra API hoạt động -> 200 OK
+GET {{api}}/
+Accept: application/json
+
+###
+
+### 2. Lấy danh sách sản phẩm -> 200 OK
+GET {{api}}/api/products
+Accept: application/json
+
+###
+
+### 3. Lấy chi tiết sản phẩm có ID = 1 -> 200 OK
+GET {{api}}/api/products/1
+Accept: application/json
+
+###
+
+### 4. Kiểm tra sản phẩm không tồn tại -> 404 Not Found kèm ApiError
+GET {{api}}/api/products/999
+Accept: application/json
+
+###
+
+### 5. Kiểm tra route constraint {id:int} với chuỗi 'abc' -> 404 Not Found (body rỗng)
+GET {{api}}/api/products/abc
+Accept: application/json
+
+###
+
+### 6. Tạo sản phẩm hợp lệ -> 201 Created kèm header Location
+# @name createProduct
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+###
+
+### 6b. Đọc lại sản phẩm vừa tạo ở request 6 thông qua response chaining -> 200 OK
+GET {{api}}/api/products/{{createProduct.response.body.$.id}}
+Accept: application/json
+
+###
+
+### 7. Tạo sản phẩm với giá âm (không hợp lệ) -> 400 Bad Request kèm ApiError
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "San pham loi gia am",
+  "description": "Thu nghiem validate",
+  "price": -1
+}
+
+###
+
+### 8. Gửi request thiếu Content-Type header -> 415 Unsupported Media Type
+POST {{api}}/api/products
+
+{
+  "name": "Lap trinh gRPC",
+  "description": "Tai lieu bai 5",
+  "price": 80000
+}
+
+###

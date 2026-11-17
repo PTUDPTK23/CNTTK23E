@@ -1,0 +1,91 @@
+@api = http://localhost:5000
+
+### 1. Kiem tra dich vu - 200 OK
+GET {{api}}/
+
+### 2. Danh sach bai tap - 200 OK
+GET {{api}}/api/assignments
+
+### 3. Chi tiet bai tap - 200 OK
+GET {{api}}/api/assignments/1
+
+### 4. Bai tap khong ton tai - 404 ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### 5. ID bai tap khong hop le - 404 rong do framework
+GET {{api}}/api/assignments/abc
+
+### 6. Nop vao bai tap da dong - 400 ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002/rest-api"
+}
+
+### 7. Du lieu nop khong hop le - 400 INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 8. Bai tap cha khong ton tai - 404 ASSIGNMENT_NOT_FOUND
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002/rest-api"
+}
+
+### 9. Nop bai hop le - 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002/rest-api"
+}
+
+### 10. Doc lai luot nop vua tao - 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 11. Nop trung cung bai tap va sinh vien - 409 DUPLICATE_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "sv002",
+  "repositoryUrl": "https://example.com/sv002/rest-api-lan-2"
+}
+
+### 12. Rut luot nop - 204 No Content
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 13. Rut lai luot nop da xoa - 404 SUBMISSION_NOT_FOUND
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 14. Nop lai sau khi rut - 201 Created voi ID moi
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002/rest-api"
+}
+
+### 15. Thieu Content-Type - 415 Unsupported Media Type
+POST {{api}}/api/assignments/2/submissions
+
+{
+  "studentCode": "SV003",
+  "repositoryUrl": "https://example.com/sv003/rest-api"
+}
+
+### 16. Sai phuong thuc - 405 Method Not Allowed
+PUT {{api}}/api/assignments/1
