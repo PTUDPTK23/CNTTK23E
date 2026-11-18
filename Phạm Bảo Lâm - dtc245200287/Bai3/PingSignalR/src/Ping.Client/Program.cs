@@ -24,6 +24,9 @@ await connection.InvokeAsync("JoinGroup", "lop-hoc-01");
 await connection.InvokeAsync("SendToGroup", "lop-hoc-01", $"Thong bao nhom tu {name}");
 await connection.InvokeAsync("Broadcast", $"Xin chao tat ca tu {name}");
 
+// Hàm Echo yêu cầu 1 tham số string, ta truyền sai hoặc để trống
+await connection.InvokeAsync("Echo");
+
 // Lắng nghe thông điệp định kỳ từ Background Service của server
 connection.On<string>("ReceiveTick", tickMsg => Console.WriteLine(tickMsg));
 
