@@ -1,9 +1,8 @@
-PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll (On EchoRespone)
-An da ket noi den PingApi. ConnectionId: L2Vkr4HjWEAU-x_c5IySyA
-[System] Client L2Vkr4Hj da ket noi.
-[Group] L2Vkr4Hj da tham gia nhom lop-hoc-01
-[Group] Thong bao nhom tu An
+PS D:\PTUD\Bai3> dotnet .work/PingFaults/Loi3/bin/Debug/net10.0/Ping.Client.Loi3.dll http://localhost:5200 Loi3
+Loi3 da ket noi den PingApi. ConnectionId: ubvsNNkF67JQ-w2RYM7_5g
+[System] Client ubvsNNkF da ket noi.
+[Group] ubvsNNkF da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Loi3
 Dang cho thong diep... Nhan Enter de thoat.
-[Broadcast] Xin chao tat ca tu An
-
-Da cho 1 giay: khong co dong [Echo], khong co exception.
+[Broadcast] Xin chao tat ca tu Loi3
+[Lifecycle] Ket noi da dong.

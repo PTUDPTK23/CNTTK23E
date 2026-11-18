@@ -1,6 +1,7 @@
 # Bài 3 — Giao tiếp thời gian thực với SignalR
 
 **Lưu Quang Lực — dtc245200349**
+
 Thực hành theo bài giảng của TS. Dương Thu Mây, học phần Phát triển ứng dụng phân tán.
 
 ## 1. Nội dung bàn giao
@@ -22,15 +23,17 @@ Bai3/
 └── README.md
 ```
 
-Các ảnh PNG là **ảnh chụp cửa sổ VS Code đang mở nhật ký kết quả chạy thật**, không phải ảnh terminal trực tiếp. Tệp TXT đi kèm giữ kết quả để đối chiếu; `*-raw.txt` giữ bản dài khi ảnh chỉ hiển thị phần kết quả chính. Dòng đầu TXT mô tả lệnh và điều kiện thí nghiệm; chú thích trong ngoặc không phải tham số để gõ nguyên xi. Các lần kiểm thử chạy assembly đã build bằng `dotnet ...dll`, tương đương khởi chạy bằng `dotnet run --project ...` bên dưới. Mã kết nối, mã lượt nộp và thời gian sẽ khác ở mỗi lần chạy.
+**Bộ minh chứng gồm 15 ảnh gốc do sinh viên chụp trực tiếp trong Windows Terminal**, giữ nguyên độ phân giải và nội dung. Bấm vào ảnh để mở bản gốc, phóng to khi đọc chữ. Xem [chỉ mục 15 ảnh](anh/CHI-MUC-ANH.md). Một ảnh có thể chứng minh nhiều mốc nên một số tên PNG dùng chung ảnh. Tệp TXT lưu các lần chạy kiểm thử; mã kết nối, mã lượt nộp và thời gian có thể khác giữa các lần. Các lệnh `dotnet ...dll` chạy assembly đã build, tương đương `dotnet run --no-build --project ...`.
 
 ## 2. Chạy trong VS Code
 
 Cần .NET SDK 10; mở terminal PowerShell tại thư mục `Bai3`. Không cần Docker hoặc cơ sở dữ liệu ngoài cho bài thực hành này.
 
+**Trước khi build lại:** nhấn Enter để thoát các Ping.Client và Ctrl+C để dừng các API. Nếu để chương trình cũ chạy, Windows có thể khóa DLL/EXE và báo MSB3021/MSB3027. Đóng API không tự kết thúc client đang chờ `Console.ReadLine()`. `--tl:off` hiển thị rõ `Build succeeded`, `0 Warning(s)`, `0 Error(s)`.
+
 ```powershell
-dotnet build PingSignalR/PingSignalR.slnx
-dotnet build RealtimeSubmissionSystem/RealtimeSubmissionSystem.slnx
+dotnet build PingSignalR/PingSignalR.slnx -m:1 --tl:off
+dotnet build RealtimeSubmissionSystem/RealtimeSubmissionSystem.slnx -m:1 --tl:off
 ```
 
 **Ping:** terminal 1 chạy máy chủ; terminal 2 chạy An; terminal 3 chạy Bình sau khi An đã kết nối.
@@ -57,7 +60,7 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 
 Máy khách tự thoát sau khi nhận trạng thái cuối và đọc lại REST. Mã thoát `0`: REST cuối là graded; `2`: đã chạy nhưng kết quả cuối không graded (ví dụ failed); `1`: lỗi kết nối/HTTP/tham số. Các thời điểm in từ `UpdatedAt` theo UTC.
 
-Kiểm tra nhanh tự động, khi **đã tắt các API ở cổng 5000/5200**:
+Kiểm tra nhanh tự động, khi **đã thoát các client và tắt các API ở cổng 5000/5200**:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/kiem-tra.ps1
@@ -79,17 +82,16 @@ Script build, tự mở hai API nền, kiểm tra HTTP, chạy client nhận gra
 | 7.2 | Tạm đổi `/hubs/ping` thành `/hub/ping`: 404 | Đường dẫn negotiate không khớp MapHub |
 | 7.3 | Tạm đổi On thành EchoRespone: không có Echo, không exception | Tên sự kiện chiều xuống sai thì không có handler xử lý |
 
-Sau ba lỗi cố ý, đã phục hồi URL `/hubs/ping` và tên `EchoResponse`, build lại thành công. Các thay đổi lỗi chỉ phục vụ thí nghiệm, không nằm trong mã cuối.
+Mã chính giữ URL `/hubs/ping` và tên `EchoResponse`. Khi chụp lỗi 2 và 3, các bản client thử nghiệm riêng được tạo dưới `.work/PingFaults/`, nằm ngoài Git; mã chính không bị đổi sang phiên bản lỗi. Sau thí nghiệm đã dừng các tiến trình cũ và build lại cả bốn project thành công.
 
-![Bước 1 build](anh/buoc1-build.png)
-![Bước 2 negotiate có connectionId](anh/buoc2-negotiate.png)
-![Bước 3 build Echo](anh/buoc3-build.png)
-![Bước 4 máy chủ và Echo của An](anh/buoc4-echo.png)
-![Bước 5 An và Bình](anh/buoc5-nhom.png)
-![Bước 6 nối lại với ID mới](anh/buoc6-noilai.png)
-![Bước 7 lỗi API tắt](anh/buoc7-loi1.png)
-![Bước 7 lỗi URL](anh/buoc7-loi2.png)
-![Bước 7 sai tên sự kiện](anh/buoc7-loi3.png)
+[![Bước 1 build](anh/buoc1-build.png)](anh/buoc1-build.png)
+[![Bước 2 negotiate có connectionId](anh/buoc2-negotiate.png)](anh/buoc2-negotiate.png)
+[![Bước 4 máy chủ và Echo của An](anh/buoc4-echo.png)](anh/buoc4-echo.png)
+[![Bước 5 An và Bình](anh/buoc5-nhom.png)](anh/buoc5-nhom.png)
+[![Bước 6 nối lại với ID mới](anh/buoc6-noilai.png)](anh/buoc6-noilai.png)
+[![Bước 7 lỗi API tắt](anh/buoc7-loi1.png)](anh/buoc7-loi1.png)
+[![Bước 7 lỗi URL](anh/buoc7-loi2.png)](anh/buoc7-loi2.png)
+[![Bước 7 sai tên sự kiện](anh/buoc7-loi3.png)](anh/buoc7-loi3.png)
 
 Thử thách ba máy khách: An/Bình ở nhóm, Chi không ở nhóm. An gọi Echo: chỉ An nhận. Chi gửi tới nhóm: An và Bình nhận, Chi không nhận vì không là thành viên. Bình Broadcast: cả ba nhận. Ví dụ hub không kiểm tra quyền người gửi nên người ngoài nhóm vẫn gọi được SendToGroup.
 
@@ -104,21 +106,17 @@ Hub mỏng: `WatchSubmission` đưa ConnectionId vào nhóm; không tạo và kh
 ```text
 Da ket noi SignalR.
 Chon bai tap: 1 - Bai tap SignalR
-Da tao luot nop: d132b252-ac7c-4129-a8a7-fdccd9623c67
+Da tao luot nop: 7457f21b-ba93-4ae7-ad50-2d2d4d02d1cb
 Trang thai REST ban dau: received
 Dang cho thong bao trang thai tu may chu...
-Thong bao SignalR: d132b252-ac7c-4129-a8a7-fdccd9623c67 -> processing luc 01:31:21
-Thong bao SignalR: d132b252-ac7c-4129-a8a7-fdccd9623c67 -> graded luc 01:31:23
+Thong bao SignalR: 7457f21b-ba93-4ae7-ad50-2d2d4d02d1cb -> processing luc 02:18:48
+Thong bao SignalR: 7457f21b-ba93-4ae7-ad50-2d2d4d02d1cb -> graded luc 02:18:50
 Trang thai doc lai bang REST: graded
 ```
 
-![EduSubmit build](anh/edusubmit-build.png)
-![REST tạo lượt nộp](anh/edusubmit-rest.png)
-![Hub negotiate](anh/edusubmit-negotiate.png)
-![REST thay đổi received processing graded](anh/edusubmit-trangthai.png)
-![Máy khách kết nối](anh/edusubmit-ketnoi.png)
-![Tám dòng máy khách graded](anh/edusubmit-graded.png)
-![Máy chủ đẩy đúng nhóm](anh/edusubmit-push.png)
+[![Máy chủ đẩy processing và graded; client nhận đủ tám dòng](anh/edusubmit-graded.png)](anh/edusubmit-graded.png)
+
+Ảnh HTTP và ảnh build cả bốn project nằm ở mục 7.
 
 ## 5. Năm thí nghiệm phân tán
 
@@ -142,11 +140,11 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- http://localhost:5000 SV001 --watch-delay-ms 4000
 ```
 
-![Hai sinh viên](anh/edusubmit-hai-sinhvien.png)
-![EduSubmit API tắt](anh/edusubmit-api-tat.png)
-![EduSubmit sai hub](anh/edusubmit-sai-hub.png)
-![EduSubmit sai sự kiện](anh/edusubmit-sai-event.png)
-![EduSubmit theo dõi muộn](anh/edusubmit-watch-muon.png)
+[![Hai sinh viên nhận đúng ID của mình](anh/edusubmit-hai-sinhvien.png)](anh/edusubmit-hai-sinhvien.png)
+
+[![Hai lỗi: sai hub trả 404 và API tắt báo connection refused](anh/edusubmit-api-tat.png)](anh/edusubmit-api-tat.png)
+
+[![Hai trường hợp bỏ lỡ push: sai tên sự kiện và Watch muộn; REST vẫn graded](anh/edusubmit-sai-event.png)](anh/edusubmit-sai-event.png)
 
 ## 6. Bài tập mở rộng 2, 3 và 4
 
@@ -158,7 +156,7 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- http://localhost:5000 SV001 --count 2 --second-repository http://example.com/invalid
 ```
 
-![Một kết nối theo dõi hai lượt với graded và failed](anh/edusubmit-hai-luot-failed.png)
+[![Một kết nối theo dõi hai lượt với graded và failed](anh/edusubmit-hai-luot-failed.png)](anh/edusubmit-hai-luot-failed.png)
 
 **Bài 4 — API tắt:** đã thực hiện ở thí nghiệm 2: StartAsync thất bại và client báo lỗi rồi thoát mã 1; chưa POST nên không tạo lượt nộp. Reconnect không tự giải quyết lần mở kết nối đầu tiên.
 
@@ -166,8 +164,8 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 
 `requests.http` có 12 request gồm: root 200; assignments 200; tạo 201 + Location; đọc 200; thiếu trường 400; bài không tồn tại 404; lượt không tồn tại 404; negotiate 200; sai hub 404; bài đóng 400; Ping negotiate 200; mở rộng failed. Ca đọc trạng thái chạy sau POST ít nhất 5 giây. Đã kiểm tra 11 ca HTTP cốt lõi và kiểm tra failed bằng client riêng.
 
-![Kết quả HTTP](anh/edusubmit-http.png)
-![Hai solution build 0 lỗi](anh/build-cuoi.png)
+[![Kết quả HTTP](anh/edusubmit-http.png)](anh/edusubmit-http.png)
+[![Hai solution build 0 lỗi](anh/build-cuoi.png)](anh/build-cuoi.png)
 
 Chi tiết header/body HTTP nằm trong [edusubmit-http-raw.txt](anh/edusubmit-http-raw.txt). Git có commit theo từng bước, vượt tối thiểu 8 commit; bin/ và obj/ được loại bằng .gitignore. Chưa push/mở PR cho Bài 3. Khi nộp, đặt cả Bai3 trong thư mục cá nhân ở repo lớp; tiêu đề PR: **Bai3 - dtc245200349 - Lưu Quang Lực**.
 
