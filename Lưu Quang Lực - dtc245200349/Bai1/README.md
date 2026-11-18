@@ -31,8 +31,8 @@ Dữ liệu lưu trong bộ nhớ, mất khi API khởi động lại. Concurren
 cho phép truy cập đồng thời; đây là phần điều chỉnh so với gợi ý List trong đề.
 RepositoryUrl trong lượt nộp hợp lệ dùng repository thật: https://github.com/dtc245200349-collab/EduSubmit-DTC245200349.
 
-Code và nhật ký được chuẩn bị với trợ giúp của Codex. Nhật ký ghi rõ nguồn
-kết quả và phần cần người học thực hiện bổ sung.
+Repository gồm mã nguồn, các chương trình mẫu và nhật ký thực hành. Nhật ký ghi rõ
+nguồn kết quả kiểm thử và các phần thực hành cần bổ sung.
 
 ## Tài liệu và bản chuẩn bị push
 
@@ -40,7 +40,7 @@ kết quả và phần cần người học thực hiện bổ sung.
 - [Kết quả kiểm tra trước khi push ngày 18/11/2026](docs/evidence/prepush-2026-11-18/kiem-tra.md).
 - Repository cá nhân: https://github.com/dtc245200349-collab/EduSubmit-DTC245200349.
 - Tag `bai1` giữ bản đã công bố ngày 08/11/2026; không ghi đè tag cũ.
-- Nhánh chuẩn bị trên fork lớp: `codex/bai1-dtc245200349`. Chưa mở PR nộp muộn.
+- Nhánh chuẩn bị trên fork lớp: `bai1-dtc245200349`, dùng để mở PR Bài 1 vào repo lớp.
 
 ## Các chương trình mẫu đi kèm
 

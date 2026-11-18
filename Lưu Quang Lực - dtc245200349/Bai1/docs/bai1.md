@@ -5,15 +5,17 @@
 - Lớp: CNTT K23E
 - Ngày thực hành: 04/11/2026
 
-## Nguồn kết quả và mức độ trợ giúp
+## Phạm vi thực hành và nguồn kết quả
 
-Người học đã chạy MepDemo và BasicWebApi, cung cấp kết quả console và ảnh GET tiếng Anh, POST 201, POST 400 trong cuộc trò chuyện. Codex đã chuẩn bị mã EduSubmit, phần tiếng Nhật, chạy kiểm thử và thí nghiệm trên bản sao code mẫu. Không khai báo đây là code người học tự gõ. Người học cần đọc lại, tự chạy và giải thích được code trước khi nộp. Chưa thực hiện buổi debug tương tác với breakpoint; hướng dẫn ở mục 3.
+Nội dung thực hành gồm MepDemo, BasicWebApi, EduSubmit, phần tiếng Nhật và các thí nghiệm trên bản sao chương trình mẫu. Mã tham khảo nằm trong `Demos/`. Nhật ký chưa xác nhận việc tự gõ lại toàn bộ mã. Buổi debug tương tác với breakpoint chưa thực hiện; hướng dẫn ở mục 3.
 
 ### Bộ minh chứng cập nhật ngày 08/11/2026
 
-Các ảnh cũ do người học gửi đã được thay bằng 13 ảnh báo cáo dựng từ lần chạy lại thực tế của trợ lý: môi trường và Hello World, MEP, HTTP 200/201/400, tiếng Nhật, API/Client, bốn thí nghiệm lỗi, EduSubmit và đọc lại 200/404. Đây là ảnh trình bày log và phản hồi HTTP, **không phải ảnh chụp giao diện REST Client hoặc hai cửa sổ Terminal**. Nội dung kiểm tra tương ứng mẫu; nếu giảng viên yêu cầu đúng giao diện, cần chụp trực tiếp bổ sung. Không có ảnh debug breakpoint vì chưa thực hiện buổi debug tương tác.
+Bộ minh chứng gồm 13 ảnh báo cáo dựng từ kết quả chạy lại thực tế: môi trường và Hello World, MEP, HTTP 200/201/400, tiếng Nhật, API/Client, bốn thí nghiệm lỗi, EduSubmit và đọc lại 200/404. Đây là ảnh trình bày log và phản hồi HTTP, **không phải ảnh chụp giao diện REST Client hoặc hai cửa sổ Terminal**. Nội dung kiểm tra tương ứng mẫu; nếu giảng viên yêu cầu đúng giao diện, cần chụp trực tiếp bổ sung. Không có ảnh debug breakpoint vì chưa thực hiện buổi debug tương tác.
 
 [Danh mục lần chạy](evidence/run-2026-11-08/manifest.json) · [Phản hồi HTTP nguyên bản](evidence/run-2026-11-08/http-results.json).
+
+Một số đường dẫn cục bộ trong log văn bản được ẩn bằng `[LOCAL]`. Mã trạng thái, ID, thời gian và kết quả kiểm thử được giữ nguyên. Ảnh gốc và lịch sử các lần chạy vẫn được lưu để đối chiếu.
 
 ## 1. Cài đặt
 
@@ -31,7 +33,7 @@ Các ảnh cũ do người học gửi đã được thay bằng 13 ảnh báo c
 
 Queue dùng để chia việc giữa các worker; publish–subscribe dùng để phát cùng sự kiện cho nhiều bên có trách nhiệm khác nhau. Demo dùng các thành phần trong một tiến trình để mô phỏng, không phải broker hay hệ thống mạng thực.
 
-[Kết quả chạy lại của Codex](evidence/MepDemo-output.txt).
+[Kết quả chạy MepDemo](evidence/MepDemo-output.txt).
 
 ![Đầu ra 5 MEP](evidence/run-2026-11-08/02-mep.png)
 
@@ -75,9 +77,9 @@ Client không tham chiếu project API. Hai bên thống nhất qua HTTP, endpoi
 
 ## 5. Thí nghiệm lỗi
 
-Các dự đoán dưới đây do Codex đặt trước khi thực hiện thí nghiệm trên bản sao MiniDistributedSystem. Cổng 15000/15050 dùng thay cho 5000/5050 để tránh ảnh hưởng API đang chạy trên máy; cơ chế tương đương. Sau mỗi thí nghiệm, mã nguồn mẫu được hoàn nguyên và build lại.
+Bảng dưới ghi dự đoán trước khi thực hiện thí nghiệm trên bản sao MiniDistributedSystem. Cổng 15000/15050 dùng thay cho 5000/5050 để tránh ảnh hưởng API đang chạy trên máy; cơ chế tương đương. Sau mỗi thí nghiệm, mã nguồn mẫu được hoàn nguyên và build lại.
 
-| # | Dự đoán của Codex | Thực tế | Đúng/Sai | Giải thích |
+| # | Dự đoán trước khi chạy | Thực tế | Đúng/Sai | Giải thích |
 |---|---|---|---|---|
 | a | Thêm bài tập 3, client tự in thêm mà không sửa code | Client in 3: Bai tap 3, nộp bài thành công | Đúng | Client đọc mảng JSON và duyệt mọi phần tử; hợp đồng không đổi |
 | b | Tắt API, client không kết nối được | HttpRequestException, tiến trình client kết thúc lỗi | Đúng | Kết nối mạng phụ thuộc tiến trình đích, cổng và đường truyền. Gọi hàm nội bộ không có lỗi mạng này nhưng vẫn có thể phát sinh ngoại lệ khác |
@@ -106,7 +108,7 @@ Client -- HTTP GET /api/submissions/{id} --> API -- 200 + JSON --> Client
 
 Tất cả là request–response. API dùng ConcurrentDictionary thay cho List được gợi ý trong đề để hỗ trợ truy cập đồng thời. Dữ liệu mất khi API khởi động lại. RepositoryUrl đã được cập nhật tới repository thật `https://github.com/dtc245200349-collab/EduSubmit-DTC245200349` trong bản chuẩn bị ngày 18/11/2026.
 
-Phần tham khảo: Codex đã đọc Program.cs của cả ba chương trình mẫu để chuẩn bị mã và giải thích. Người học chưa xác nhận tự viết lại mã.
+Phần tham khảo: cấu trúc và hợp đồng dữ liệu của ba chương trình mẫu trong `Demos/`. Việc tự gõ lại toàn bộ mã chưa được xác nhận trong nhật ký.
 
 [Client EduSubmit](evidence/edusubmit-client.txt) · [HTTP chi tiết](evidence/http-results.json) · [Trang xem kết quả](ket-qua-kiem-thu.html).
 

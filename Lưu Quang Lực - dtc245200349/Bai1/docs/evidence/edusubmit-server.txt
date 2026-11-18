@@ -5,4 +5,4 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\EduSubmit-DTC245200349\src\Submission.Api
+      Content root path: [LOCAL]\EduSubmit-DTC245200349\src\Submission.Api

@@ -1,11 +1,11 @@
-<!doctype html><meta charset="utf-8"><title>Kết quả Bài 1</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;background:#f5f7fb;color:#17233a}section{background:white;padding:20px;margin:20px 0;border-radius:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px Consolas}b{color:#087443}</style><h1>Bài 1 – Kết quả kiểm thử</h1><p>DTC245200349 · CNTT K23E · Kiểm thử do Codex thực hiện.</p><p>Cổng kiểm thử: 25081, 25000, 25050 để tránh API người học đang chạy. Lệnh sử dụng thường ngày giữ cổng 5081, 5000.</p><h2>HTTP: 16 / 16 đạt</h2><p><b>200</b> GET http://localhost:25081/</p><p><b>200</b> GET http://localhost:25081/hello/An?language=vi</p><p><b>200</b> GET http://localhost:25081/hello/An?language=en</p><p><b>200</b> GET http://localhost:25081/hello/An?language=ja</p><p><b>201</b> POST http://localhost:25081/greetings</p><p><b>400</b> POST http://localhost:25081/greetings</p><p><b>200</b> GET http://localhost:25000/</p><p><b>200</b> GET http://localhost:25000/api/assignments</p><p><b>201</b> POST http://localhost:25000/api/submissions</p><p><b>200</b> GET http://localhost:25000/api/submissions/10165b7c-c06c-4059-8ae3-e9917bfa393e</p><p><b>404</b> GET http://localhost:25000/api/submissions/00000000-0000-0000-0000-000000000000</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><section><h2>basic-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
+<!doctype html><meta charset="utf-8"><title>Kết quả Bài 1</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;background:#f5f7fb;color:#17233a}section{background:white;padding:20px;margin:20px 0;border-radius:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px Consolas}b{color:#087443}</style><h1>Bài 1 – Kết quả kiểm thử</h1><p>DTC245200349 · CNTT K23E · Báo cáo kết quả kiểm thử.</p><p>Cổng kiểm thử: 25081, 25000, 25050 để tránh API người học đang chạy. Lệnh sử dụng thường ngày giữ cổng 5081, 5000.</p><p>Đường dẫn cục bộ trong log đã được ẩn bằng [LOCAL]; kết quả HTTP và nội dung còn lại được giữ nguyên.</p><h2>HTTP: 16 / 16 đạt</h2><p><b>200</b> GET http://localhost:25081/</p><p><b>200</b> GET http://localhost:25081/hello/An?language=vi</p><p><b>200</b> GET http://localhost:25081/hello/An?language=en</p><p><b>200</b> GET http://localhost:25081/hello/An?language=ja</p><p><b>201</b> POST http://localhost:25081/greetings</p><p><b>400</b> POST http://localhost:25081/greetings</p><p><b>200</b> GET http://localhost:25000/</p><p><b>200</b> GET http://localhost:25000/api/assignments</p><p><b>201</b> POST http://localhost:25000/api/submissions</p><p><b>200</b> GET http://localhost:25000/api/submissions/10165b7c-c06c-4059-8ae3-e9917bfa393e</p><p><b>404</b> GET http://localhost:25000/api/submissions/00000000-0000-0000-0000-000000000000</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><p><b>400</b> POST http://localhost:25000/api/submissions</p><section><h2>basic-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:25081
 info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\BasicWebApi\src\BasicWebApi
+      Content root path: [LOCAL]\MauThucHanh\BasicWebApi\src\BasicWebApi
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
       Request starting HTTP/1.1 GET http://localhost:25081/ - application/json -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
@@ -80,7 +80,7 @@ info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
       Request finished HTTP/1.1 POST http://localhost:25081/greetings - 400 - application/json;+charset=utf-8 1.8562ms
 </pre></section><section><h2>BasicWebApi-build.txt</h2><pre>  Determining projects to restore...
   All projects are up-to-date for restore.
-  BasicWebApi -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\BasicWebApi\src\BasicWebApi\bin\Debug\net10.0\BasicWebApi.dll
+  BasicWebApi -&gt; [LOCAL]\MauThucHanh\BasicWebApi\src\BasicWebApi\bin\Debug\net10.0\BasicWebApi.dll
 
 Build succeeded.
     0 Warning(s)
@@ -126,7 +126,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
+      Content root path: [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
       Request starting HTTP/1.1 GET http://localhost:25000/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
@@ -173,7 +173,7 @@ Trang thai: received
    at System.Net.Http.SocketsHttpHandler.&lt;SendAsync&gt;g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
    at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
    at System.Net.Http.Json.HttpClientJsonExtensions.&lt;FromJsonAsyncCore&gt;g__Core|12_0[TValue,TJsonOptions](HttpClient client, Task`1 responseTask, Boolean usingResponseHeadersRead, CancellationTokenSource linkedCTS, Func`4 deserializeMethod, TJsonOptions jsonOptions, CancellationToken cancellationToken)
-   at Program.&lt;Main&gt;$(String[] args) in C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 14
+   at Program.&lt;Main&gt;$(String[] args) in [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 14
    at Program.&lt;Main&gt;(String[] args)
 </pre></section><section><h2>experiment-c-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:25000
@@ -182,7 +182,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
+      Content root path: [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
       Request starting HTTP/1.1 GET http://localhost:25000/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
@@ -212,7 +212,7 @@ info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
 - 2: Bai tap 2
 Unhandled exception. System.Net.Http.HttpRequestException: Response status code does not indicate success: 400 (Bad Request).
    at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at Program.&lt;Main&gt;$(String[] args) in C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 28
+   at Program.&lt;Main&gt;$(String[] args) in [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 28
    at Program.&lt;Main&gt;(String[] args)
 </pre></section><section><h2>experiment-d-server.txt</h2><pre>info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:25050
@@ -221,7 +221,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
+      Content root path: [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
       Request starting HTTP/1.1 GET http://localhost:25050/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
@@ -263,7 +263,7 @@ Unhandled exception. System.Net.Http.HttpRequestException: No connection could b
    at System.Net.Http.SocketsHttpHandler.&lt;SendAsync&gt;g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
    at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
    at System.Net.Http.Json.HttpClientJsonExtensions.&lt;FromJsonAsyncCore&gt;g__Core|12_0[TValue,TJsonOptions](HttpClient client, Task`1 responseTask, Boolean usingResponseHeadersRead, CancellationTokenSource linkedCTS, Func`4 deserializeMethod, TJsonOptions jsonOptions, CancellationToken cancellationToken)
-   at Program.&lt;Main&gt;$(String[] args) in C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 14
+   at Program.&lt;Main&gt;$(String[] args) in [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Client\Program.cs:line 14
    at Program.&lt;Main&gt;(String[] args)
 
 DUNG CONG:
@@ -274,7 +274,7 @@ Da nop bai. Ma luot nop: ba17efcf-cf12-4b9f-9f03-5691415cf3b5
 Trang thai: received
 </pre></section><section><h2>MepDemo-build.txt</h2><pre>  Determining projects to restore...
   All projects are up-to-date for restore.
-  MepDemo -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MepDemo\bin\Debug\net10.0\MepDemo.dll
+  MepDemo -&gt; [LOCAL]\MauThucHanh\MepDemo\bin\Debug\net10.0\MepDemo.dll
 
 Build succeeded.
     0 Warning(s)
@@ -343,7 +343,7 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api
+      Content root path: [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Api
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
       Request starting HTTP/1.1 GET http://localhost:25000/api/assignments - - -
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
@@ -370,8 +370,8 @@ info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
       Request finished HTTP/1.1 POST http://localhost:25000/api/submissions - 201 - application/json;+charset=utf-8 25.1080ms
 </pre></section><section><h2>MiniDistributedSystem-build.txt</h2><pre>  Determining projects to restore...
   All projects are up-to-date for restore.
-  Submission.Api -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
-  Submission.Client -&gt; C:\Users\This PC\Documents\Codex\2026-11-04\hay\outputs\Bai1-HoanThien\MauThucHanh\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+  Submission.Api -&gt; [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+  Submission.Client -&gt; [LOCAL]\MauThucHanh\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
 
 Build succeeded.
     0 Warning(s)
