@@ -1,0 +1,22 @@
+Thoi diem: 2026-11-18T08:24:05.623275+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeApi\bin\Debug\net10.0\Submission.RealtimeApi.dll --urls http://localhost:5000
+[Push] submission:43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> processing
+[Push] submission:43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> graded
+[Hub] lbx-67ID theo doi submission:0aa7e69a-944e-42a5-a0c1-6c5617911df3
+[Hub] NiiujFWj theo doi submission:ae1b269e-d53f-4bc3-b100-845ae5738f81
+[Hub] WZJKlVoE theo doi submission:8be0b30e-009e-4dcf-a4e6-efb2ac898fa2
+[Hub] 0Me_ulri theo doi submission:5fbc68f9-7963-43e3-aee8-6afd48177be7
+[Hub] lbx-67ID theo doi submission:2677dafc-2a83-4e33-8030-e3a7c6e4e7b1
+[Push] submission:be90d8fb-456a-4d72-a2ed-3976b1318e99 -> processing
+[Push] submission:ae1b269e-d53f-4bc3-b100-845ae5738f81 -> processing
+[Push] submission:0aa7e69a-944e-42a5-a0c1-6c5617911df3 -> processing
+[Push] submission:8be0b30e-009e-4dcf-a4e6-efb2ac898fa2 -> processing
+[Push] submission:5fbc68f9-7963-43e3-aee8-6afd48177be7 -> processing
+[Push] submission:2677dafc-2a83-4e33-8030-e3a7c6e4e7b1 -> processing
+[Push] submission:ae1b269e-d53f-4bc3-b100-845ae5738f81 -> graded
+[Push] submission:0aa7e69a-944e-42a5-a0c1-6c5617911df3 -> graded
+[Push] submission:be90d8fb-456a-4d72-a2ed-3976b1318e99 -> graded
+[Push] submission:8be0b30e-009e-4dcf-a4e6-efb2ac898fa2 -> graded
+[Push] submission:5fbc68f9-7963-43e3-aee8-6afd48177be7 -> graded
+[Push] submission:2677dafc-2a83-4e33-8030-e3a7c6e4e7b1 -> failed
+[Hub] BN2jamDS theo doi submission:be90d8fb-456a-4d72-a2ed-3976b1318e99

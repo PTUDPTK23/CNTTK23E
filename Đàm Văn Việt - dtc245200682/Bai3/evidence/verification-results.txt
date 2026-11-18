@@ -1,0 +1,29 @@
+PingSignalR: Build succeeded, 0 Error(s)
+RealtimeSubmissionSystem: Build succeeded, 0 Error(s)
+GET http://localhost:5200/ -> 200
+POST http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1 -> 200
+GET http://localhost:5200/hubs/ping -> 400
+Ping: Echo Caller, Broadcast All, Group, lifecycle, reconnect ID moi + rejoin: PASS
+Ping: 3 loi trang 40 + sai ten phuong thuc trang 31: PASS
+GET http://localhost:5000/ -> 200
+GET http://localhost:5000/api/assignments -> 200
+POST http://localhost:5000/api/assignments/1/submissions -> 201
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 200
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 200
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 200
+POST http://localhost:5000/api/assignments/1/submissions -> 400 INVALID_SUBMISSION
+POST http://localhost:5000/api/assignments/999/submissions -> 404 ASSIGNMENT_NOT_FOUND
+GET http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000 -> 404 SUBMISSION_NOT_FOUND
+POST http://localhost:5000/hubs/submissions/negotiate?negotiateVersion=1 -> 200
+POST http://localhost:5000/hub/submissions/negotiate?negotiateVersion=1 -> 404
+POST http://localhost:5000/api/assignments/3/submissions -> 400 ASSIGNMENT_CLOSED
+POST http://localhost:5000/api/assignments/1/submissions -> 400 INVALID_SUBMISSION
+POST http://localhost:5000/api/assignments/1/submissions -> 400
+POST http://localhost:5000/api/assignments/1/submissions -> 415
+GET http://localhost:5000/api/assignments/1 -> 200
+GET http://localhost:5000/api/assignments/999 -> 404 ASSIGNMENT_NOT_FOUND
+7/7 yeu cau cham diem trang 71: PASS (Ping negotiate da kiem tra truoc).
+EduSubmit: 8 dong, 2 client tach ID, 5 thi nghiem, failed + 2 luot/ket noi: PASS
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 404 SUBMISSION_NOT_FOUND
+Khoi dong lai API: du lieu RAM mat, GET ID cu 404 (gioi han bai thuc hanh).
+ALL CHECKS PASSED

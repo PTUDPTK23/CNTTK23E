@@ -1,0 +1,10 @@
+Thoi diem: 2026-11-18T08:24:05.621965+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\bin\Debug\net10.0\Submission.RealtimeClient.dll http://localhost:5000 WatchMuon --watch-delay 4
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: be90d8fb-456a-4d72-a2ed-3976b1318e99
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Qua thoi gian cho thong bao graded.
+Trang thai doc lai bang REST: graded
+[Lifecycle] Ket noi da dong.

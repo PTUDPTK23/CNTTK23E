@@ -1,0 +1,78 @@
+@host = http://localhost:5000
+
+### 1. Server -> 200, status running
+GET {{host}}/
+
+### 2. Danh sach bai tap -> 200, co bai 1 dang mo
+GET {{host}}/api/assignments
+
+### 3. Tao luot nop -> 201, Location, status received, updatedAt
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/sv001/signalr"}
+
+### 4. Chay ca 3 truoc; bam lai sau 1s va 3s -> 200 received/processing/graded
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Thieu du lieu -> 400 INVALID_SUBMISSION
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"","repositoryUrl":""}
+
+### 6. Bai tap khong ton tai -> 404 ASSIGNMENT_NOT_FOUND
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/sv001/signalr"}
+
+### 7. Guid rong -> 404 SUBMISSION_NOT_FOUND
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Bat tay hub -> 200, connectionId va 3 availableTransports
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Sai duong dan hub -> 404
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
+
+### 10. Bai da dong -> 400 ASSIGNMENT_CLOSED
+POST {{host}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001","repositoryUrl":"https://example.com/sv001/signalr"}
+
+### 11. Thieu repositoryUrl -> 400 INVALID_SUBMISSION
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV001"}
+
+### 12. JSON hong -> 400
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":
+
+### 13. Sai Content-Type -> 415
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/x-www-form-urlencoded
+
+studentCode=SV001&repositoryUrl=https://example.com/repo
+
+### 14. Bai tap chi tiet -> 200
+GET {{host}}/api/assignments/1
+
+### 15. Bai tap chi tiet khong ton tai -> 404
+GET {{host}}/api/assignments/999
+
+### 16. Bai tap 2: van nhan 201 received, sau 3s thanh failed
+# @name failedSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode":"SV002","repositoryUrl":"http://example.com/sv002/signalr"}
+
+### 17. Chay ca 16 truoc, doi 3s -> 200, status failed
+GET {{host}}/api/submissions/{{failedSubmission.response.body.$.id}}

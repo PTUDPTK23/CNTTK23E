@@ -1,0 +1,19 @@
+Thoi diem: 2026-11-18T08:24:05.622491+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\bin\Debug\net10.0\Submission.RealtimeClient.dll http://localhost:5000 Multi --two
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: 0aa7e69a-944e-42a5-a0c1-6c5617911df3 (Multi)
+Trang thai REST ban dau: received
+Da tao luot nop: 2677dafc-2a83-4e33-8030-e3a7c6e4e7b1 (Multi-02)
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 0aa7e69a-944e-42a5-a0c1-6c5617911df3 -> processing luc 01:23:52.541 UTC
+Thong bao SignalR: 2677dafc-2a83-4e33-8030-e3a7c6e4e7b1 -> processing luc 01:23:52.582 UTC
+Thong bao SignalR: 0aa7e69a-944e-42a5-a0c1-6c5617911df3 -> graded luc 01:23:54.547 UTC
+Thong bao SignalR: 2677dafc-2a83-4e33-8030-e3a7c6e4e7b1 -> failed luc 01:23:54.591 UTC
+!!! CANH BAO: luot nop 2677dafc-2a83-4e33-8030-e3a7c6e4e7b1 cham LOI (failed)
+Trang thai doc lai bang REST: failed (Multi-02, 2677dafc-2a83-4e33-8030-e3a7c6e4e7b1)
+Multi-02: SignalR = failed, REST = failed
+Trang thai doc lai bang REST: graded (Multi, 0aa7e69a-944e-42a5-a0c1-6c5617911df3)
+Multi: SignalR = graded, REST = graded
+[Lifecycle] Ket noi da dong.

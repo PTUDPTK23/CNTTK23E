@@ -1,0 +1,24 @@
+Thoi diem: 2026-11-18T08:23:36.953373+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\PingSignalR\src\Ping.Client\bin\Debug\net10.0\Ping.Client.dll http://localhost:5200 An
+An da ket noi den PingApi. ConnectionId: jbux44c3GBS2sASkmkH6hg
+[System] Client jbux44c3 da ket noi.
+[Echo] Echo: Xin chao SignalR tu An
+[Group] jbux44c3 da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu An
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu An
+[System] Client xeC9Nbs6 da ket noi.
+[Group] xeC9Nbs6 da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Binh
+[Broadcast] Xin chao tat ca tu Binh
+[System] Client xeC9Nbs6 da ngat ket noi.
+[Lifecycle] Dang ket noi lai...
+[Lifecycle] Da ket noi lai: VIhjEWfLNHt9FCfCpBOQDg
+[System] Client VIhjEWfL da ket noi.
+[Group] VIhjEWfL da tham gia nhom lop-hoc-01
+[Lifecycle] Da vao lai nhom lop-hoc-01.
+[System] Client dO5uOXvu da ket noi.
+[Group] dO5uOXvu da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu SauReconnect
+[Broadcast] Xin chao tat ca tu SauReconnect
+[System] Client dO5uOXvu da ngat ket noi.

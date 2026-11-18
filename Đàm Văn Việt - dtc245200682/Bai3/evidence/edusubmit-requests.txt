@@ -1,0 +1,20 @@
+Thoi diem: 2026-11-18T08:23:49.164603+07:00
+PS D:\ptudpt\bai3> python verify.py  # REST assertions
+GET http://localhost:5000/ -> 200
+GET http://localhost:5000/api/assignments -> 200
+POST http://localhost:5000/api/assignments/1/submissions -> 201
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 200
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 200
+GET http://localhost:5000/api/submissions/43cb5818-1d86-4d63-9352-5e4ae799e8a1 -> 200
+POST http://localhost:5000/api/assignments/1/submissions -> 400 INVALID_SUBMISSION
+POST http://localhost:5000/api/assignments/999/submissions -> 404 ASSIGNMENT_NOT_FOUND
+GET http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000 -> 404 SUBMISSION_NOT_FOUND
+POST http://localhost:5000/hubs/submissions/negotiate?negotiateVersion=1 -> 200
+POST http://localhost:5000/hub/submissions/negotiate?negotiateVersion=1 -> 404
+POST http://localhost:5000/api/assignments/3/submissions -> 400 ASSIGNMENT_CLOSED
+POST http://localhost:5000/api/assignments/1/submissions -> 400 INVALID_SUBMISSION
+POST http://localhost:5000/api/assignments/1/submissions -> 400
+POST http://localhost:5000/api/assignments/1/submissions -> 415
+GET http://localhost:5000/api/assignments/1 -> 200
+GET http://localhost:5000/api/assignments/999 -> 404 ASSIGNMENT_NOT_FOUND
+POST body: {"id":"43cb5818-1d86-4d63-9352-5e4ae799e8a1","assignmentId":1,"studentCode":"SV001","repositoryUrl":"https://example.com/sv001/signalr","status":"received","receivedAt":"2026-11-18T01:23:43.9570348+00:00","updatedAt":"2026-11-18T01:23:43.9570348+00:00"}
