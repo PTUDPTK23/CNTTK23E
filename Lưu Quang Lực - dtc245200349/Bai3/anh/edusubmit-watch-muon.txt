@@ -1,0 +1,8 @@
+PS D:\PTUD\Bai3> dotnet .../Submission.RealtimeClient.dll http://localhost:5000 SV001 --watch-delay-ms 4000
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: d57be662-62cd-4556-993b-c4dc454838e3
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Qua thoi gian cho thong bao graded.
+Trang thai doc lai bang REST: graded

@@ -1,0 +1,2 @@
+PS D:\PTUD\Bai3> dotnet RealtimeSubmissionSystem/src/Submission.RealtimeClient/bin/Debug/net10.0/Submission.RealtimeClient.dll http://localhost:5000 SV001 (API tat)
+[Loi] No connection could be made because the target machine actively refused it. (localhost:5000)

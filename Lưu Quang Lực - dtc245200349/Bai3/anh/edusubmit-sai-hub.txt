@@ -1,0 +1,2 @@
+PS D:\PTUD\Bai3> dotnet .../Submission.RealtimeClient.dll http://localhost:5000 SV001 --hub /hub/submissions
+[Loi] Response status code does not indicate success: 404 (Not Found).

@@ -1,0 +1,8 @@
+PS D:\PTUD\Bai3> dotnet .../Submission.RealtimeClient.dll http://localhost:5000 SV001 --event SubmissionStatusChange
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: 63b9183d-5717-42d3-8b4c-c1f32eadbb54
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Qua thoi gian cho thong bao graded.
+Trang thai doc lai bang REST: graded
