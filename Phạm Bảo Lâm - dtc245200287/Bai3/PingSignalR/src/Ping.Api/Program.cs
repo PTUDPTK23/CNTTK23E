@@ -5,6 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Việc 1: đăng ký dịch vụ SignalR vào DI
 builder.Services.AddSignalR();
 
+// Đăng ký dịch vụ nền tự động gửi thông điệp định kỳ
+builder.Services.AddHostedService<PingBackgroundService>();
+
 var app = builder.Build();
 
 app.MapGet("/", () => Results.Ok(
@@ -15,7 +18,7 @@ app.MapHub<PingHub>("/hubs/ping");
 
 app.Run();
 
-sealed class PingHub : Hub
+public sealed class PingHub : Hub
 {
     // Máy khách gọi Echo -> trả lời RIÊNG người gọi
     public async Task Echo(string message)
