@@ -82,6 +82,7 @@ Console.WriteLine($"Da tao luot nop: {createdSubmission.Id}");
 Console.WriteLine($"Trang thai REST ban dau: {createdSubmission.Status}");
 
 // Dang ky nhom theo ID
+
 await connection.InvokeAsync(
     "WatchSubmission",
     createdSubmission.Id.ToString());
