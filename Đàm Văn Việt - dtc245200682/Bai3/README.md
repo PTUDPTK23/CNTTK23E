@@ -3,12 +3,12 @@
 Sinh viên: **Đàm Văn Việt** · MSSV: **dtc245200682** · GitHub: **Viet0810**
 Email: dtc245200682@ictu.edu.vn
 
-Đề: `Bai3_SignalR_Bai-giang.pdf`, 72 trang. Yêu cầu nộp trang 63, thang điểm trang 70–71.
+Bài thực hành gồm hai phần: PingSignalR để tìm hiểu Echo, gửi nhóm và kết nối lại; EduSubmit để kết hợp REST với thông báo trạng thái qua SignalR. Nội dung thực hiện theo `Bai3_SignalR_Bai-giang.pdf`.
 
 ## Điều kiện và cấu trúc
 
 - .NET SDK 10; đã chạy bằng SDK **10.0.403**, ASP.NET Core runtime **10.0.14** trên Windows.
-- Hai client dùng `Microsoft.AspNetCore.SignalR.Client` **10.0.15**, đúng trang 25 và 48.
+- Hai client dùng `Microsoft.AspNetCore.SignalR.Client` **10.0.15**.
 - Internet cho lần NuGet restore đầu. Server SignalR có sẵn trong ASP.NET Core, không thêm gói server.
 - Cổng **5200** cho Ping, **5000** cho EduSubmit. Dừng API Bài 2 ở cổng 5000 trước khi chạy.
 - Python 3 để chạy kiểm thử tự động; Microsoft Edge chỉ cần khi tạo lại ảnh xem log.
@@ -25,7 +25,7 @@ Bai3/
 ├── verify.py
 ├── evidence/                 # log gốc, có lệnh và thời điểm
 ├── capture-evidence.py
-└── anh/                      # ảnh chụp trang trình duyệt hiển thị log gốc
+└── anh/                      # ảnh terminal và ảnh hiển thị log kiểm thử
 ```
 
 ## Lệnh build và chạy
@@ -74,7 +74,7 @@ Client tự thoát sau trạng thái cuối và GET xác nhận; tối đa chờ
 
 Thông điệp EduSubmit: `{ submissionId, status, updatedAt }`. Cả hai bên khai báo DTO theo cùng hợp đồng JSON. GUID nhóm được chuẩn hóa về định dạng `D`; ID sai định dạng báo HubException.
 
-Thiết kế theo 4 câu hỏi trước khi code:
+Phần thông báo trạng thái được thiết kế như sau:
 
 1. **Sự kiện:** trạng thái đổi `received → processing → graded` (hoặc `failed`).
 2. **Người nhận:** kết nối đang Watch nhóm `submission:{id}`, dùng `Clients.Group`.
@@ -99,13 +99,13 @@ API dùng `lock` cho đọc/ghi danh sách; thay record trong lock rồi mới p
 
 ## Nhật ký thực hành ngày 18/11/2026
 
-Các commit được tạo khi triển khai từng bước, không chia lại lịch sử sau khi hoàn tất. Dự đoán 5 thí nghiệm đã được ghi trong commit đầu trước khi chạy.
+Các bước thực hiện và kết quả được ghi lại trong bảng dưới đây. Phần dự đoán thí nghiệm được lưu trước lần chạy kiểm thử.
 
 | Bước | Việc đã làm và kết quả kiểm chứng |
 |---|---|
-| Ping 1 | Tạo solution, hai project, cài client 10.0.15; build scaffold 0 lỗi. Lúc đầu NuGet bị chặn mạng sandbox, tải lại với quyền mạng đã được duyệt. |
+| Ping 1 | Tạo solution gồm API và console client, thêm gói SignalR.Client 10.0.15; build ban đầu thành công. |
 | Ping 2 | AddSignalR, MapHub, mặc định cổng 5200; negotiate có ConnectionId và đủ 3 transport. |
-| Ping 3–4 | Echo Caller, đăng ký On trước Start; chạy API/client thật và nhận Echo trước khi thêm nhóm. |
+| Ping 3–4 | Thêm Echo trả về Caller, đăng ký On trước Start; chạy client và nhận Echo. |
 | Ping 5 | Hai tiến trình An/Bình; An nhận Group/Broadcast của Bình, không nhận Echo của Bình. |
 | Ping 6 | Dừng/chạy lại API; ID `jbux44c3GBS2sASkmkH6hg` đổi thành `VIhjEWfLNHt9FCfCpBOQDg`; Join lại nhóm và nhận Group của client SauReconnect. |
 | Ping 7 | Chạy API tắt, sai đường dẫn, sai On; thử thêm Ech0 để phân biệt lỗi chiều lên/chiều xuống. |
@@ -115,9 +115,9 @@ Các commit được tạo khi triển khai từng bước, không chia lại l�
 | Edu 4 | Nền chấm 1s + 2s, lưu trước đẩy sau; GET lần lượt received, processing, graded. |
 | Edu 5–6 | Hai kênh REST/SignalR, client in đủ 8 dòng và tự thoát. |
 | Edu 7 | Chạy 5 thí nghiệm, ghi kết quả bên dưới; kiểm tra hai client không trộn ID. |
-| Edu 8 | 17 request, 7/7 ca chấm điểm; thêm failed và hai lượt nộp; hoàn thiện nhật ký và bằng chứng. |
+| Edu 8 | Chuẩn bị 17 request, kiểm tra đủ 7 ca trong đề; thêm failed và theo dõi hai lượt nộp trên một kết nối. |
 
-## Kết quả thực tế
+## Kết quả kiểm thử
 
 Chạy `python verify.py` tại `Bai3`. Script build hai solution, tự mở/tắt đúng các tiến trình nó tạo và dùng cổng 5000/5200. Nếu cổng đang dùng, script dừng và thông báo để tránh thử nhầm API cũ. Chỉ dùng thư viện chuẩn Python, không cần pip.
 
@@ -133,7 +133,7 @@ Kết quả đầy đủ: [verification-results.txt](evidence/verification-resul
 | 6 | GET Location sau ≥5s | 200, graded; UpdatedAt tăng theo các trạng thái |
 | 7 | Ping negotiate cổng 5200 | 200; WebSockets, ServerSentEvents, LongPolling |
 
-Output thật client SV001 (8 dòng nghiệp vụ; sau đó có log đóng kết nối):
+Kết quả client SV001 trong lần kiểm thử tự động (8 dòng nghiệp vụ, sau đó có log đóng kết nối):
 
 ```text
 Da ket noi SignalR.
@@ -148,9 +148,9 @@ Trang thai doc lai bang REST: graded
 
 Hai thông báo cách nhau **2,006 giây**, không có GET polling giữa chúng. [Log SV001](evidence/edusubmit-SV001.txt), [log SV002](evidence/edusubmit-SV002.txt), [log server](evidence/edusubmit-server.txt).
 
-## Năm thí nghiệm EduSubmit: dự đoán, chạy thật, giải thích
+## Thí nghiệm EduSubmit
 
-| Thí nghiệm | Dự đoán ghi trước | Kết quả chạy thật | Giải thích |
+| Thí nghiệm | Dự đoán | Kết quả kiểm thử | Giải thích |
 |---|---|---|---|
 | 1. SV001, SV002 cùng lúc | Mỗi client chỉ nhận ID mình Watch | Mỗi client nhận đúng 2 tin processing/graded cho ID riêng; kiểm tra tự động không có ID chéo | Máy chủ gửi theo nhóm submission:{id}. |
 | 2. API tắt | StartAsync báo lỗi, không tự nối lại lần đầu | Client in `Loi ket noi`, exit 1: [log](evidence/thi-nghiem2-api-tat.txt) | AutomaticReconnect áp dụng sau khi đã nối thành công. |
@@ -158,7 +158,7 @@ Hai thông báo cách nhau **2,006 giây**, không có GET polling giữa chúng
 | 4. On sai SubmissionStatusChange | Không có callback, hết 10s, REST graded | Không có dòng Thong bao SignalR; in quá thời gian rồi REST graded: [log](evidence/thi-nghiem4-sai-ten.txt) | Tên thông điệp chiều xuống sai không gây lỗi gọi hub. |
 | 5. Watch trễ 4s | Lỡ processing/graded, REST vẫn graded | Không nhận push; sau 10s chờ đọc REST graded: [log](evidence/thi-nghiem5-watch-muon.txt) | Group chỉ nhận tin từ lúc tham gia; hub không lưu tin để phát lại. |
 
-Lệnh tái lập thí nghiệm 1: chạy hai terminal với SV001 và SV002 như hướng dẫn. Thí nghiệm 2: dừng API rồi chạy client. Với thí nghiệm 3–5, giữ API chạy và dùng:
+Thí nghiệm 1 chạy hai client SV001 và SV002 ở hai terminal. Thí nghiệm 2 dừng API trước khi chạy client. Thí nghiệm 3–5 giữ API chạy và dùng các lệnh sau:
 
 ```powershell
 dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- http://localhost:5000 SaiHub --hub-path /hub/submissions
@@ -166,11 +166,11 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- http://localhost:5000 WatchMuon --watch-delay 4
 ```
 
-Tham số thí nghiệm chỉ đổi giá trị tên/đường dẫn/thời gian, tương đương sửa dòng theo slide; mặc định luôn dùng hợp đồng đúng.
+Các tùy chọn `--hub-path`, `--event` và `--watch-delay` dùng để thử lần lượt lỗi đường dẫn, lỗi tên thông điệp và theo dõi muộn. Khi không truyền các tùy chọn này, client chạy luồng bình thường.
 
 ## Ba lỗi Ping và bài tập thêm
 
-| Lỗi cố ý | Kết quả thật | Bài học |
+| Lỗi cố ý | Kết quả kiểm thử | Bài học |
 |---|---|---|
 | Máy chủ tắt | Lỗi kết nối, exit 1: [log](evidence/buoc7-loi1.txt) | Phải mở API trước; lần Start đầu không tự retry. |
 | /hub/ping | HTTP 404, exit 1: [log](evidence/buoc7-loi2.txt) | Sai tuyến hub, lỗi ngay negotiate. |
@@ -211,29 +211,29 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 
 ## Ảnh minh chứng
 
-Ba ảnh đầu là **ảnh terminal do sinh viên cung cấp**, chụp ngày 18/11/2026 lúc khoảng 09:41. Giữ nguyên ảnh gốc, không cắt ghép hay thay nội dung kết quả. Các ảnh xem log tương ứng trước đây đã được thay khỏi bài nộp. Log TXT trong `evidence/` thuộc lần kiểm thử tự động trước đó nên ID và thời điểm có thể khác ảnh mới.
+Ba ảnh terminal dưới đây ghi lại lần chạy lúc khoảng 09:41 ngày 18/11/2026. Log trong `evidence/` thuộc lần kiểm thử tự động lúc 08:23–08:24 nên ID và thời điểm khác với ảnh terminal.
 
 ### Bước 1: build hai solution
 
 ![Build hai solution và khởi động Ping API](anh/build-hai-solution.png)
 
-Ảnh gốc `Screenshot 2026-11-18 094138.png`: thấy lệnh build hai solution, cả bốn project có kết quả `succeeded`, Ping API lắng nghe cổng 5200 và nhật ký hai kết nối. Dùng ảnh này làm minh chứng build và khởi động server. Phần tổng kết bị xen dòng lệnh tiếp theo, không hiển thị riêng dòng `0 Error(s)`; kết quả build đầy đủ của lần kiểm thử tự động được lưu riêng trong `evidence/build-PingSignalR.txt` và `evidence/build-RealtimeSubmissionSystem.txt`.
+Sau khi build hai solution, cả bốn project đều hiện `succeeded`. Ping API chạy tại cổng 5200 và ghi nhận hai client kết nối. Ảnh không hiển thị riêng dòng tổng kết `0 Error(s)`; kết quả build đầy đủ của lần kiểm thử tự động nằm trong [log Ping](evidence/build-PingSignalR.txt) và [log EduSubmit](evidence/build-RealtimeSubmissionSystem.txt).
 
 ### Bước 2 và 5: negotiate và máy khách Bình
 
 ![Negotiate và client Bình](anh/ping-negotiate-Binh.png)
 
-Ảnh gốc `Screenshot 2026-11-18 094151.png`: negotiate trả `connectionId`, đủ WebSockets/ServerSentEvents/LongPolling; Bình kết nối, nhận Echo của mình, tham gia nhóm và nhận Group/Broadcast.
+Lệnh negotiate trả về `connectionId` và ba transport: WebSockets, ServerSentEvents, LongPolling. Client Bình nhận Echo của mình, tham gia nhóm `lop-hoc-01` và nhận Group/Broadcast.
 
 ### Bước 4–5: Echo và nhận tin nhóm tại An
 
 ![Client An nhận Echo riêng và Group/Broadcast của Bình](anh/ping-An.png)
 
-Ảnh gốc `Screenshot 2026-11-18 094145.png`: An nhận Echo của An, sau đó nhận Group/Broadcast của Bình; không có Echo của Bình. Hai ảnh client cùng thể hiện ID kết nối Bình có tiền tố `E1HLEW2R`, giúp đối chiếu đúng lần chạy.
+An nhận Echo riêng, sau đó nhận Group/Broadcast từ Bình. Cửa sổ An không có Echo của Bình vì Echo dùng `Clients.Caller`. ID kết nối của Bình có tiền tố `E1HLEW2R` xuất hiện ở cả hai cửa sổ.
 
-### Các mục còn cần ảnh terminal thay thế
+### Kết quả kiểm thử tự động
 
-Các ảnh dưới đây vẫn là **ảnh trình duyệt hiển thị log kiểm thử tự động**, chưa phải ảnh terminal sinh viên tự chụp. Cần bổ sung ảnh thật cho nối lại, ba lỗi Ping, REST/EduSubmit và bài tập mở rộng. Không chạy `capture-evidence.py` để thay thế ảnh terminal mới.
+Các ảnh dưới đây được tạo bằng cách mở log kiểm thử tự động trong trình duyệt rồi chụp lại. Chưa có ảnh chụp trực tiếp terminal cho các mục này; có thể đối chiếu kết quả với các file TXT trong `evidence/`.
 
 #### Bước 6: nối lại
 
@@ -261,9 +261,15 @@ Các ảnh dưới đây vẫn là **ảnh trình duyệt hiển thị log kiể
 | requests.http | 2 | EduSubmit 17 ca, bao gồm 9 ca bắt buộc, có 200/201/400/404/negotiate; Ping thêm 4 ca. |
 | Giải thích | 2 | Ba câu đầu giờ và ôn tập, mô tả hợp đồng/luồng phía trên. |
 | Thí nghiệm | 1 | Bảng 5 dòng dự đoán + kết quả thật + giải thích, có log từng ca. |
-| Git & PR | 1 | Commit theo bước, nhiều hơn 8; .gitignore loại bin/obj. Trạng thái PR xem PR-STATUS.md khi có. |
+| Git & PR | 1 | Có hơn 8 commit cục bộ; .gitignore loại bin/obj. Chưa push và chưa mở PR. Xem [trạng thái Git](PR-STATUS.md). |
 | Bài tập cộng | ≤0,5 | failed, cảnh báo đỏ và theo dõi hai lượt trên một kết nối đã chạy thật. |
 
-Đây là đối chiếu minh chứng, không phải điểm giảng viên đã chấm. Hạn nộp cụ thể không được ghi trong PDF; cần theo thông báo lớp.
+Hạn nộp theo thông báo của lớp; PDF không ghi ngày cụ thể.
 
-Giới hạn: dữ liệu lưu RAM mất khi API khởi động lại (đã thử GET ID cũ trả 404); chấm chỉ là Task.Delay; chưa xác thực/phân quyền, chưa bảo đảm phát lại tin. Đã thử reconnect thực tế trên Ping; nhánh phục hồi EduSubmit (Watch lại + REST) có trong code nhưng chưa mô phỏng một đứt mạng riêng trong lúc giữ nguyên API.
+## Hạn chế và điều rút ra
+
+Dữ liệu hiện được lưu trong RAM nên mất khi API khởi động lại; kiểm tra GET với ID cũ trả về 404. Phần chấm bài dùng `Task.Delay` để mô phỏng, chưa có bộ chấm thật hay xác thực và phân quyền.
+
+Kết quả Ping cho thấy kết nối lại tạo ConnectionId mới nên phải tham gia lại nhóm. EduSubmit đã có xử lý Watch lại và đọc REST khi nối lại, nhưng chưa kiểm thử riêng tình huống đứt mạng trong lúc giữ nguyên API.
+
+Qua các thí nghiệm sai tên sự kiện và Watch muộn, có thể thấy kết nối thành công không có nghĩa là luôn nhận đủ thông báo. SignalR giúp nhận thay đổi sớm, còn REST dùng để đọc lại trạng thái hiện tại khi thông báo bị lỡ.
