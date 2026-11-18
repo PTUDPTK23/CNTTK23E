@@ -70,3 +70,37 @@
 - Closed: Thông báo kết nối đã đóng.
 
 Sau khi kết nối lại, ConnectionId thay đổi. Máy khách cần tham gia lại nhóm nếu muốn tiếp tục nhận thông báo nhóm. Các thông điệp bị bỏ lỡ trong lúc mất kết nối không được tự động gửi lại.
+
+### Bước 7: Thí nghiệm ba lỗi SignalR
+
+#### Thí nghiệm 1: Máy chủ chưa chạy
+
+![Thí nghiệm lỗi 1](anh/buoc7-loi1.png)
+
+**Thực hiện:** Chạy máy khách khi máy chủ chưa hoạt động.
+
+**Kết quả:** Xuất hiện HttpRequestException và SocketException (10061), kết nối bị từ chối tại localhost:5200.
+
+**Giải thích:** StartAsync không thể thiết lập kết nối ban đầu. WithAutomaticReconnect chỉ hỗ trợ kết nối lại sau khi đã kết nối thành công.
+
+#### Thí nghiệm 2: Sai đường dẫn Hub
+
+![Thí nghiệm lỗi 2](anh/buoc7-loi2.png)
+
+**Thực hiện:** Thay đổi /hubs/ping thành /hub/ping.
+
+**Kết quả:** HTTP 404 Not Found.
+
+**Giải thích:** Đường dẫn Hub của máy khách không khớp với đường dẫn MapHub trên máy chủ.
+
+#### Thí nghiệm 3: Sai tên thông điệp
+
+![Thí nghiệm lỗi 3](anh/buoc7-loi3.png)
+
+**Thực hiện:** Thay đổi EchoResponse thành EchoRespone.
+
+**Kết quả:** Chương trình vẫn chạy nhưng không xuất hiện thông điệp Echo.
+
+**Giải thích:** Tên thông điệp đăng ký ở máy khách không khớp với tên thông điệp được gửi từ máy chủ.
+
+**Kết luận:** Sau khi thực hiện ba thí nghiệm, mã nguồn được khôi phục về trạng thái đúng, build thành công và máy khách nhận lại được thông điệp Echo.
