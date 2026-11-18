@@ -1,0 +1,95 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-supportdb}
+      POSTGRES_USER: ${POSTGRES_USER:-supportuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_demo_password_change}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [support-net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-supportuser} -d ${POSTGRES_DB:-supportdb}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    ports:
+      - "${RABBITMQ_MANAGEMENT_PORT:-15673}:15672"
+    networks: [support-net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      start_period: 90s
+      interval: 10s
+      timeout: 30s
+      retries: 10
+
+  support-api:
+    build: ./backend/src/Support.Api
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      DB_CONNECTION: ${DB_CONNECTION:-Host=postgres;Port=5432;Database=supportdb;Username=supportuser;Password=local_demo_password_change}
+      AUTH_SIGNING_KEY: ${AUTH_SIGNING_KEY:-local-only-signing-key-change-before-deployment-32chars}
+      SUPPORT_REQUESTER_USER: ${SUPPORT_REQUESTER_USER:-customer}
+      SUPPORT_REQUESTER_PASSWORD: ${SUPPORT_REQUESTER_PASSWORD:-customer-demo-change}
+      SUPPORT_AGENT_USER: ${SUPPORT_AGENT_USER:-agent}
+      SUPPORT_AGENT_PASSWORD: ${SUPPORT_AGENT_PASSWORD:-agent-demo-change}
+      SUPPORT_ADMIN_USER: ${SUPPORT_ADMIN_USER:-admin}
+      SUPPORT_ADMIN_PASSWORD: ${SUPPORT_ADMIN_PASSWORD:-admin-demo-change}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    networks: [support-net]
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports: ["${FRONTEND_PORT:-3000}:80"]
+    depends_on:
+      - support-api
+      - notification-service
+    networks: [support-net]
+    restart: unless-stopped
+
+  assignment-worker:
+    build: ./backend/src/Support.AssignmentWorker
+    environment:
+      DB_CONNECTION: ${DB_CONNECTION:-Host=postgres;Port=5432;Database=supportdb;Username=supportuser;Password=local_demo_password_change}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    networks: [support-net]
+    restart: unless-stopped
+
+  notification-service:
+    build: ./backend/src/Support.NotificationService
+    environment:
+      ASPNETCORE_URLS: http://+:8081
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+    networks: [support-net]
+    restart: unless-stopped
+
+networks:
+  support-net:
+    driver: bridge
+volumes:
+  pgdata:
