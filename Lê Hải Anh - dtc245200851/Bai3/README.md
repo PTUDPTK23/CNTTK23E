@@ -212,3 +212,31 @@ EduSubmit late-watch: PASS
 EduSubmit two clients isolated: PASS
 ```
 
+
+## Ảnh minh chứng bổ sung
+
+### Bước 3–4 — Echo
+
+![Client nhận Echo](anh/buoc4-echo.png)
+
+### Bước 5 — Nhóm
+
+![Tin nhắn nhóm](anh/buoc5-nhom.png)
+
+### Bước 6 — Kết nối lại
+
+![Client tự kết nối lại](anh/buoc6-noilai.png)
+
+### Bước 7 — Ba lỗi cố ý
+
+![Máy chủ chưa chạy](anh/buoc7-loi1.png)
+
+![Sai đường dẫn hub](anh/buoc7-loi2.png)
+
+![Sai tên thông điệp](anh/buoc7-loi3.png)
+
+### EduSubmit — Nhật ký máy chủ
+
+![Nhật ký REST và kết nối SignalR](anh/edusubmit-server.png)
+
+Ảnh này ghi nhật ký máy chủ. Cần bổ sung ảnh client có processing, graded và phản hồi của các ca trong requests.http.
