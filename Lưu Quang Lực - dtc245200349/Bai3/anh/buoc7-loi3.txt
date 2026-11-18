@@ -1,0 +1,9 @@
+PS D:\PTUD\Bai3> dotnet run --project PingSignalR/src/Ping.Client (On EchoRespone)
+An da ket noi den PingApi. ConnectionId: L2Vkr4HjWEAU-x_c5IySyA
+[System] Client L2Vkr4Hj da ket noi.
+[Group] L2Vkr4Hj da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu An
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu An
+
+Da cho 1 giay: khong co dong [Echo], khong co exception.
