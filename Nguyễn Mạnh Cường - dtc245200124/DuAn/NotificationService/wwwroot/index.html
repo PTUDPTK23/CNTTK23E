@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theo dõi đơn hàng</title>
+  <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@8/dist/browser/signalr.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 0 16px; background: #f5f7fb; }
+    .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 10px #0001; }
+    input, button { padding: 10px; margin: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; }
+    #status { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Hệ thống xử lý đơn hàng phân tán</h1>
+  <div class="card">
+    <h2>Tạo đơn hàng</h2>
+    <input id="customer" placeholder="Tên khách hàng" value="Nguyen Van A">
+    <input id="product" placeholder="Tên sản phẩm" value="Laptop">
+    <input id="quantity" type="number" min="1" value="1">
+    <button onclick="createOrder()">Tạo đơn</button>
+  </div>
+  <div class="card">
+    <h2>Thông báo thời gian thực</h2>
+    <div id="status">Đang kết nối...</div>
+  </div>
+  <div class="card">
+    <h2>Danh sách đơn hàng</h2>
+    <button onclick="loadOrders()">Tải lại</button>
+    <table><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Trạng thái</th><th>Tạo lúc</th></tr></thead><tbody id="orders"></tbody></table>
+  </div>
+  <script>
+    const api = "http://localhost:8081";
+    const connection = new signalR.HubConnectionBuilder().withUrl("http://localhost:8082/hubs/orders").withAutomaticReconnect().build();
+    connection.on("OrderStatusChanged", event => {
+      document.getElementById("status").textContent =
+        `${event.orderId}: ${event.status}${event.reason ? " - " + event.reason : ""}`;
+      loadOrders();
+    });
+    connection.start()
+      .then(() => document.getElementById("status").textContent = "Đã kết nối SignalR")
+      .catch(error => document.getElementById("status").textContent = "Lỗi kết nối: " + error);
+
+    async function createOrder() {
+      await fetch(api + "/orders", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          customerName: document.getElementById("customer").value,
+          products: [{name: document.getElementById("product").value, quantity: Number(document.getElementById("quantity").value)}]
+        })
+      });
+      loadOrders();
+    }
+
+    async function loadOrders() {
+      const response = await fetch(api + "/orders");
+      const orders = await response.json();
+      document.getElementById("orders").innerHTML = orders.map(order =>
+        `<tr><td>${order.id}</td><td>${order.customerName}</td><td>${order.status}</td><td>${new Date(order.createdAt).toLocaleString()}</td></tr>`
+      ).join("");
+    }
+    loadOrders();
+  </script>
+</body>
+</html>
