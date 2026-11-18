@@ -1,0 +1,106 @@
+### ========================================================================
+### KIEM THU RESTFUL API - HE THONG THU VIEN VA DAT MUON SACH PHAN TAN
+### De tai 20 - Mon: Phat trien ung dung phan tan
+### Sinh vien: Giang Hong Anh - dtc245200156
+### ========================================================================
+
+@api = http://localhost:5000
+
+### 0. Kiem tra trang thai dich vu (Health Check)
+GET {{api}}/
+Accept: application/json
+
+### ========================================================================
+### 1. GET danh sach tat ca cac cuon sach
+### Mong doi: 200 OK, mang JSON chua danh sach cac cuon sach
+### ========================================================================
+GET {{api}}/books
+Accept: application/json
+
+### ========================================================================
+### 2. GET chi tiet mot cuon sach ton tai (ID = 1)
+### Mong doi: 200 OK, JSON BookDto cua cuon sach ID 1
+### ========================================================================
+GET {{api}}/books/1
+Accept: application/json
+
+### ========================================================================
+### 3. GET sach khong ton tai (ID = 999)
+### Mong doi: 404 Not Found, ApiError "BOOK_NOT_FOUND"
+### ========================================================================
+GET {{api}}/books/999
+Accept: application/json
+
+### ========================================================================
+### 4. POST dat muon sach hop le (Book ID = 1)
+### Mong doi: 201 Created, header Location: /reservations/{guid}, body ReservationDto
+### ========================================================================
+# @name createReservation
+POST {{api}}/books/1/reservations
+Content-Type: application/json
+
+{
+  "userId": "dtc245200156",
+  "userName": "Giang Hong Anh"
+}
+
+### ========================================================================
+### 5. POST thieu UserId (du lieu khong hop le)
+### Mong doi: 400 Bad Request, ApiError "INVALID_RESERVATION"
+### ========================================================================
+POST {{api}}/books/1/reservations
+Content-Type: application/json
+
+{
+  "userId": "",
+  "userName": "Giang Hong Anh"
+}
+
+### ========================================================================
+### 6. POST dat muon sach khong ton tai (Book ID = 999)
+### Mong doi: 404 Not Found, ApiError "BOOK_NOT_FOUND"
+### ========================================================================
+POST {{api}}/books/999/reservations
+Content-Type: application/json
+
+{
+  "userId": "dtc245200156",
+  "userName": "Giang Hong Anh"
+}
+
+### ========================================================================
+### 7. POST dat muon sach het ban kha dung (Book ID = 3, AvailableCopies = 0)
+### Mong doi: 400 Bad Request, ApiError "BOOK_UNAVAILABLE"
+### ========================================================================
+POST {{api}}/books/3/reservations
+Content-Type: application/json
+
+{
+  "userId": "dtc245200156",
+  "userName": "Giang Hong Anh"
+}
+
+### ========================================================================
+### 8. GET doc lai Reservation vua tao (dung ID tu request #4 hoac ID mau)
+### Mong doi: 200 OK, ReservationDto voi trang thai Pending
+### ========================================================================
+@reservationId = {{createReservation.response.body.id}}
+GET {{api}}/reservations/{{reservationId}}
+Accept: application/json
+
+### 8b. GET doc Reservation khong ton tai
+### Mong doi: 404 Not Found, ApiError "RESERVATION_NOT_FOUND"
+GET {{api}}/reservations/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+### ========================================================================
+### 9. GET danh sach yeu cau dat muon cua mot nguoi dung
+### Mong doi: 200 OK, mang chua cac ReservationDto cua dtc245200156
+### ========================================================================
+GET {{api}}/users/dtc245200156/reservations
+Accept: application/json
+
+### 9b. GET danh sach yeu cau cua nguoi dung chua tung dat muon
+### Mong doi: 200 OK, mang rong []
+GET {{api}}/users/user_chua_dat_bao_gio/reservations
+Accept: application/json
