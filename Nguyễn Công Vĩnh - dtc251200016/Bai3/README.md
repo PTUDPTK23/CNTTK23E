@@ -38,9 +38,11 @@ Nhật ký thực hành Bài 3. Mỗi bước gồm: ảnh kết quả, điều 
 ### Bước 5: phát rộng (All) và nhóm (Group)
 ![nhom](anh/buoc5-nhom.png)
 
-- **Thấy:** 
-- **Giải thích:** 
+- **Thấy:**
+        An (chạy trước) thấy tin của chính mình, rồi thấy thêm tin của Bình: [Group] Bình vào nhóm, [Group] Thong bao nhom tu Binh, [Broadcast] Xin chao tat ca tu Binh, nhưng không có [Echo] của Bình. Bình chỉ thấy [Echo], [Group], [Broadcast] của chính mình, không thấy tin An gửi trước khi Bình vào.
 
+- **Giải thích:** 
+        Hub có 3 phạm vi gửi: Clients.Caller chỉ gửi người gọi (Echo), Clients.All gửi mọi kết nối đang mở (Broadcast), Clients.Group gửi các kết nối đã JoinGroup vào nhóm lop-hoc-01. SignalR chỉ đẩy tin tới kết nối đang mở tại thời điểm gửi, không lưu tin cũ, nên Bình vào sau không nhận được tin An đã gửi trước đó.
 ### Bước 6: vòng đời kết nối và kết nối lại
 ![noilai](anh/buoc6-noilai.png)
 
