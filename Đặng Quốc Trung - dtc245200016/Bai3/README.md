@@ -32,3 +32,11 @@
 **Kết quả:** Build thành công, không có lỗi. Máy chủ hoạt động tại cổng 5200.
 
 **Giải thích:** Phương thức Echo sử dụng Clients.Caller để gửi thông điệp EchoResponse về đúng máy khách vừa gọi phương thức.
+
+### Bước 4: Xây dựng máy khách SignalR
+
+![Kết quả Echo](anh/buoc4-echo.png)
+
+**Kết quả:** Máy khách kết nối thành công với máy chủ tại cổng 5200 và nhận được thông điệp [Echo] Echo: Xin chao SignalR tu Trung.
+
+**Giải thích:** HubConnectionBuilder xây dựng kết nối đến Hub. On đăng ký nhận thông điệp từ máy chủ. StartAsync mở kết nối và InvokeAsync gọi phương thức Echo trên máy chủ. SignalR cho phép giao tiếp hai chiều theo thời gian thực.
