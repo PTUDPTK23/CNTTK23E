@@ -181,3 +181,146 @@ Các chức năng đã thực hiện:
 - Xử lý và kiểm thử các trường hợp lỗi.
 
 **Kết quả:** Hai project biên dịch thành công và các chức năng chính đã được kiểm thử. Qua bài tập, em hiểu rõ hơn về giao tiếp thời gian thực giữa Client và Server bằng SignalR trong .NET.
+
+# PHẦN 2 - EDUSUBMIT REALTIME
+
+## 1. Mục tiêu
+
+Xây dựng ứng dụng tiếp nhận bài nộp và thông báo trạng thái chấm bài theo thời gian thực bằng SignalR.
+
+## 2. Công nghệ sử dụng
+
+- .NET 10
+- ASP.NET Core Minimal API
+- SignalR
+- HttpClient
+- REST API
+- Visual Studio Code
+- Git
+
+## 3. Cấu trúc dự án
+
+RealtimeSubmissionSystem/
+├── RealtimeSubmissionSystem.slnx
+├── requests.http
+├── anh/
+└── src/
+    ├── Submission.RealtimeApi/
+    └── Submission.RealtimeClient/
+
+## 4. Các chức năng
+
+- GET /api/assignments: Lấy danh sách bài tập.
+- POST /api/assignments/{assignmentId}/submissions: Gửi bài nộp.
+- GET /api/submissions/{id}: Tra cứu bài nộp.
+- GET /api/submissions: Xem danh sách bài nộp.
+- SignalR Hub: /hubs/submissions.
+- WatchSubmission(id): Theo dõi một bài nộp.
+- SubmissionStatusChanged: Nhận thông báo trạng thái.
+
+## 5. Quy trình xử lý
+
+1. Client lấy danh sách bài tập bằng REST API.
+2. Client kết nối SignalR Hub.
+3. Client gửi bài nộp bằng POST.
+4. API lưu bài nộp với trạng thái received và trả HTTP 201.
+5. Client gọi WatchSubmission(id).
+6. API chuyển trạng thái sang processing.
+7. API chuyển trạng thái sang graded.
+8. SignalR gửi thông báo đến đúng nhóm theo dõi bài nộp.
+9. Client gọi REST API để lấy trạng thái cuối cùng.
+
+Các trạng thái:
+
+- received: Đã tiếp nhận.
+- processing: Đang xử lý.
+- graded: Đã chấm xong.
+
+## 6. Kiểm thử REST API
+
+Các trường hợp đã thực hiện trong requests.http:
+
+| STT | Trường hợp | Kết quả |
+|---|---|---|
+| 1 | GET trang chủ | 200 |
+| 2 | GET danh sách bài tập | 200 |
+| 3 | POST bài nộp hợp lệ | 201 |
+| 4 | Thiếu StudentCode | 400 |
+| 5 | Thiếu RepositoryUrl | 400 |
+| 6 | Assignment không tồn tại | 404 |
+| 7 | Submission không tồn tại | 404 |
+| 8 | SignalR negotiate đúng | 200 |
+| 9 | SignalR negotiate sai đường dẫn | 404 |
+
+## 7. Kiểm thử SignalR
+
+Đã chạy hai Client đồng thời:
+
+- Client 1 sử dụng mã sinh viên SV001.
+- Client 2 sử dụng mã sinh viên SV002.
+
+Kết quả: Hai Client nhận được thông báo trạng thái bài nộp tương ứng. Mỗi Client chỉ nhận thông báo của bài nộp mình theo dõi.
+
+Các trạng thái nhận được:
+received → processing → graded.
+
+## 8. Trả lời câu hỏi lý thuyết
+
+### Câu 1. Server có thể chủ động thông báo cho Client không?
+
+Có. SignalR duy trì kết nối hai chiều giữa Server và Client. Server có thể chủ động gửi thông báo đến Client thông qua Clients.Group(...).SendAsync(...).
+
+Khi cần gửi thông báo từ bên ngoài Hub, có thể sử dụng IHubContext.
+
+### Câu 2. REST API và SignalR khác nhau như thế nào? SignalR có thay thế REST API không?
+
+REST API xử lý các yêu cầu HTTP theo mô hình Request-Response, phù hợp với việc tạo, đọc và cập nhật tài nguyên.
+
+SignalR hỗ trợ giao tiếp thời gian thực, cho phép Server chủ động gửi dữ liệu đến Client khi có thay đổi.
+
+SignalR không thay thế REST API mà bổ sung cho REST API.
+
+### Câu 3. Nếu Client mất kết nối khi Server gửi thông báo graded thì sao?
+
+Client có thể bỏ lỡ thông báo khi mất kết nối. Khi kết nối lại, SignalR có thể tạo ConnectionId mới nên Client cần đăng ký lại nhóm theo dõi bằng WatchSubmission(id).
+
+Sau đó Client gọi GET /api/submissions/{id} để lấy trạng thái mới nhất từ Server.
+## 9. NĂM THÍ NGHIỆM KIỂM CHỨNG
+
+### Thí nghiệm 1: Gửi bài nộp hợp lệ
+
+- **Dự đoán:** Khi gửi bài nộp với mã sinh viên và đường dẫn repository hợp lệ, API trả về HTTP 201 Created và trạng thái ban đầu là `received`.
+- **Kết quả thực tế:** API trả về HTTP 201 Created, tạo bài nộp thành công với trạng thái `received`.
+- **Giải thích:** Máy chủ tiếp nhận dữ liệu, tạo mã định danh cho bài nộp và lưu thông tin vào danh sách quản lý.
+
+### Thí nghiệm 2: Gửi bài nộp thiếu thông tin
+
+- **Dự đoán:** Nếu thiếu `StudentCode` hoặc `RepositoryUrl`, API trả về HTTP 400 Bad Request.
+- **Kết quả thực tế:** Các trường hợp gửi thiếu thông tin được kiểm thử và trả về HTTP 400.
+- **Giải thích:** API thực hiện kiểm tra dữ liệu đầu vào trước khi tạo bài nộp, tránh tiếp nhận dữ liệu không hợp lệ.
+
+### Thí nghiệm 3: Gửi bài nộp với mã bài tập không tồn tại
+
+- **Dự đoán:** Khi gửi bài cho assignment không tồn tại, API trả về HTTP 404 Not Found.
+- **Kết quả thực tế:** Gửi bài với mã assignment 999 trả về HTTP 404.
+- **Giải thích:** Máy chủ kiểm tra sự tồn tại của bài tập trước khi tiếp nhận bài nộp.
+
+### Thí nghiệm 4: Hai Client theo dõi hai bài nộp khác nhau
+
+- **Dự đoán:** Hai Client theo dõi hai bài nộp khác nhau sẽ chỉ nhận thông báo trạng thái thuộc bài nộp mà mình đăng ký theo dõi.
+- **Kết quả thực tế:** Hai Client sử dụng mã sinh viên SV001 và SV002 đã nhận thông báo riêng cho bài nộp tương ứng.
+- **Giải thích:** SignalR sử dụng Group theo mã bài nộp (`submission:{id}`), vì vậy thông báo được gửi đúng nhóm Client đã đăng ký.
+
+### Thí nghiệm 5: Lấy trạng thái bài nộp sau khi xử lý
+
+- **Dự đoán:** Sau khi hệ thống hoàn tất quá trình chấm bài, gọi GET `/api/submissions/{id}` sẽ trả về trạng thái cuối cùng là `graded`.
+- **Kết quả thực tế:** Bài nộp ban đầu có trạng thái `received`. Sau 5 giây, gọi GET theo ID bài nộp và nhận được trạng thái `graded`.
+- **Giải thích:** Quá trình xử lý diễn ra bất đồng bộ. Trạng thái được cập nhật trên máy chủ trước khi gửi thông báo SignalR. REST API vẫn có thể truy vấn trạng thái cuối cùng.
+
+
+
+## 10. Kết luận
+
+Qua bài tập, em đã xây dựng được ứng dụng sử dụng SignalR để gửi thông báo trạng thái bài nộp theo thời gian thực.
+
+Em hiểu được cách kết hợp REST API và SignalR, cách sử dụng Hub, Group, IHubContext và cách xử lý khi Client mất kết nối.
