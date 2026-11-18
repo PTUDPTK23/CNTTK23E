@@ -1,9 +1,9 @@
 PS D:\PTUD\Bai3> dotnet RealtimeSubmissionSystem/src/Submission.RealtimeClient/bin/Debug/net10.0/Submission.RealtimeClient.dll http://localhost:5000 SV001
 Da ket noi SignalR.
 Chon bai tap: 1 - Bai tap SignalR
-Da tao luot nop: 6be8623c-e81c-4059-9ecc-cb8fc30e8d48
+Da tao luot nop: d132b252-ac7c-4129-a8a7-fdccd9623c67
 Trang thai REST ban dau: received
 Dang cho thong bao trang thai tu may chu...
-Thong bao SignalR: 6be8623c-e81c-4059-9ecc-cb8fc30e8d48 -> processing luc 01:28:17
-Thong bao SignalR: 6be8623c-e81c-4059-9ecc-cb8fc30e8d48 -> graded luc 01:28:19
+Thong bao SignalR: d132b252-ac7c-4129-a8a7-fdccd9623c67 -> processing luc 01:31:21
+Thong bao SignalR: d132b252-ac7c-4129-a8a7-fdccd9623c67 -> graded luc 01:31:23
 Trang thai doc lai bang REST: graded

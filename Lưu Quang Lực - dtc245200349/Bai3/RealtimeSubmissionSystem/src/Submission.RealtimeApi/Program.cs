@@ -57,7 +57,14 @@ static async Task SimulateGradingAsync(Guid id, List<SubmissionDto> list, object
         await Task.Delay(TimeSpan.FromSeconds(1), stopping);
         await UpdateStatusAsync(id, "processing", list, gate, hub, stopping);
         await Task.Delay(TimeSpan.FromSeconds(2), stopping);
-        await UpdateStatusAsync(id, "graded", list, gate, hub, stopping);
+        string finalStatus;
+        lock (gate)
+        {
+            var repository = list.First(s => s.Id == id).RepositoryUrl;
+            finalStatus = Uri.TryCreate(repository, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps
+                ? "graded" : "failed";
+        }
+        await UpdateStatusAsync(id, finalStatus, list, gate, hub, stopping);
     }
     catch (OperationCanceledException) when (stopping.IsCancellationRequested) { }
     catch (Exception ex) { logger.LogError(ex, "Grading failed for {SubmissionId}", id); }
