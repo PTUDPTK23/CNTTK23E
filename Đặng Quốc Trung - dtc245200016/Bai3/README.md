@@ -160,3 +160,19 @@ Việc sử dụng Group giúp gửi thông báo đến đúng nhóm máy khách
 - SubmissionStatusChanged: Gửi thông báo đến đúng nhóm theo dõi lượt nộp.
 
 Máy chủ cập nhật dữ liệu trước rồi mới gửi thông báo SignalR. REST vẫn là nguồn cung cấp trạng thái chính xác của lượt nộp.
+
+### Bước 5: Xây dựng máy khách EduSubmit
+
+![Kết nối máy khách SignalR](anh/edusubmit-buoc5-client.png)
+
+**Kết quả:** Máy khách kết nối thành công với máy chủ SignalR tại cổng 5000 và hiển thị thông báo Da ket noi SignalR.
+
+**Giải thích:**
+
+- HttpClient: Giao tiếp với máy chủ thông qua REST API.
+- HubConnectionBuilder: Thiết lập kết nối SignalR.
+- WithAutomaticReconnect: Hỗ trợ tự động kết nối lại.
+- TaskCompletionSource: Chờ thông báo hoàn thành chấm bài.
+- connection.On: Đăng ký nhận thông báo SubmissionStatusChanged.
+
+Máy khách sử dụng hai kênh giao tiếp là REST API và SignalR.
