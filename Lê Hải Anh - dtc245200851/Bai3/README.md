@@ -184,3 +184,31 @@ git ls-files | Select-String '/(bin|obj)/'
 ```
 
 Sau khi bổ sung ảnh, commit minh chứng. PR dùng tiêu đề Bai3 - dtc245200851 - Lê Hải Anh theo quy định lớp.
+
+
+## Kết quả kiểm tra tự động thực tế
+
+Cả hai solution build 0 warning, 0 lỗi. Nhật ký dưới đây ghi từ tiến trình máy chủ và client chạy thật. Bộ kiểm tra đã dừng các tiến trình do nó khởi động sau khi hoàn tất.
+
+```text
+Ping Echo, group, broadcast: PASS
+Reconnect after server restart: PASS
+Ping wrong-hub: PASS
+Ping wrong-event: PASS
+Initial connection refused: PASS (unused port 5299)
+EduSubmit 9 REST/negotiate cases: PASS
+EduSubmit normal: PASS
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap REST API
+Da tao luot nop: 8c2eb454-139b-4c5b-920d-154d064e24be
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 8c2eb454-139b-4c5b-920d-154d064e24be -> processing luc 02:15:52
+Thong bao SignalR: 8c2eb454-139b-4c5b-920d-154d064e24be -> graded luc 02:15:54
+Trang thai doc lai bang REST: graded
+
+EduSubmit wrong-event: PASS
+EduSubmit late-watch: PASS
+EduSubmit two clients isolated: PASS
+```
+
