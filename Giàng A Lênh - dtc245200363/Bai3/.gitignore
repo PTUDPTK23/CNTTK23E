@@ -1,0 +1,9 @@
+## Ignore .NET build outputs and IDE files
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+TestResults/
+*.log

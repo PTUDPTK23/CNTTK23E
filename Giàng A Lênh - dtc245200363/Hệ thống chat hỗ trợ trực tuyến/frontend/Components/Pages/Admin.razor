@@ -1,0 +1,286 @@
+@page "/admin"
+@rendermode InteractiveServer
+@using System.Net.Http.Headers
+@using System.Net.Http.Json
+@inject IHttpClientFactory HttpClientFactory
+@inject AdminSessionState AdminSession
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+<PageTitle>Quản trị | Hệ thống chat hỗ trợ trực tuyến</PageTitle>
+
+@if (!AdminSession.IsAdmin)
+{
+    <div class="admin-loading">Đang kiểm tra phiên quản trị...</div>
+}
+else
+{
+    <div class="admin-app">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="/admin"><span class="admin-brand-mark">C</span><span><b>Chat hỗ trợ</b><small>TRUNG TÂM QUẢN TRỊ</small></span></a>
+            <div class="admin-menu-title">TỔNG QUAN</div>
+            <nav class="admin-nav" aria-label="Điều hướng quản trị">
+                <button class="@(section == "overview" ? "selected" : "")" @onclick='() => SetSection("overview")'><span>◫</span>Tổng quan</button>
+                <div class="admin-menu-title">QUẢN LÝ</div>
+                <button class="@(section == "customers" ? "selected" : "")" @onclick='() => SetSection("customers")'><span>♙</span>Khách hàng</button>
+                <button class="@(section == "staff" ? "selected" : "")" @onclick='() => SetSection("staff")'><span>♧</span>Nhân viên &amp; phân quyền</button>
+                <div class="admin-menu-title">HỘI THOẠI</div>
+                <button class="@(section == "conversations" ? "selected" : "")" @onclick='() => SetSection("conversations")'><span>◌</span>Cuộc trò chuyện</button>
+                <button class="@(section == "messages" ? "selected" : "")" @onclick='() => SetSection("messages")'><span>▤</span>Lịch sử tin nhắn</button>
+                <button class="@(section == "performance" ? "selected" : "")" @onclick='() => SetSection("performance")'><span>↗</span>Hiệu suất nhân viên</button>
+                <div class="admin-menu-title">HỆ THỐNG</div>
+                <button class="@(section == "settings" ? "selected" : "")" @onclick='() => SetSection("settings")'><span>⚙</span>Cấu hình</button>
+            </nav>
+            <div class="admin-sidebar-bottom">
+                <div class="admin-user"><span class="admin-avatar">@Initials</span><span><b>@AdminSession.DisplayName</b><small>Quản trị viên</small></span></div>
+                <button class="logout-button" @onclick="LogoutAsync"><span>↪</span> Đăng xuất</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div><div class="admin-breadcrumb">Hệ thống <span>/</span> @SectionTitle</div><h1>@SectionTitle</h1></div>
+                <div class="admin-top-actions"><span class="admin-live"><i></i> Hệ thống đang hoạt động</span><button class="icon-button" title="Tải lại dữ liệu" @onclick="LoadAsync">↻</button></div>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div class="admin-alert">@statusMessage</div>
+            }
+
+            @if (section == "overview")
+            {
+                <section class="admin-welcome"><div><span class="welcome-label">BẢNG ĐIỀU KHIỂN ADMIN</span><h2>Xin chào, @AdminSession.DisplayName</h2><p>Theo dõi hoạt động hỗ trợ khách hàng và quản lý toàn bộ hệ thống.</p></div><div class="welcome-art" aria-hidden="true">✦</div></section>
+                <section class="stat-grid">
+                    <article class="stat-card"><span class="stat-icon customers-icon">♙</span><div><span>Khách hàng</span><strong>@summary.CustomerCount</strong><small>Tài khoản khách hàng</small></div></article>
+                    <article class="stat-card"><span class="stat-icon staff-icon">♧</span><div><span>Nhân viên</span><strong>@summary.StaffCount</strong><small>@summary.ActiveStaffCount đang hoạt động</small></div></article>
+                    <article class="stat-card"><span class="stat-icon chats-icon">◌</span><div><span>Hội thoại đang xử lý</span><strong>@summary.OpenConversationCount</strong><small>Cuộc trò chuyện trực tuyến</small></div></article>
+                    <article class="stat-card"><span class="stat-icon messages-icon">▤</span><div><span>Tin nhắn</span><strong>@summary.MessageCount</strong><small>Tổng lịch sử tin nhắn</small></div></article>
+                </section>
+                <section class="admin-panel">
+                    <div class="panel-heading"><div><h2>Cuộc trò chuyện gần đây</h2><p>Theo dõi trạng thái hỗ trợ khách hàng</p></div><button class="text-button" @onclick='() => SetSection("conversations")'>Xem tất cả <span>→</span></button></div>
+                    @if (conversations.Count == 0)
+                    {
+                        <div class="empty-state"><span>◌</span><b>Chưa có cuộc trò chuyện</b><p>Các hội thoại mới sẽ xuất hiện tại đây khi khách hàng bắt đầu trò chuyện.</p></div>
+                    }
+                    else
+                    {
+                        <div class="table-wrap"><table><thead><tr><th>KHÁCH HÀNG</th><th>NHÂN VIÊN PHỤ TRÁCH</th><th>TRẠNG THÁI</th><th>CẬP NHẬT</th></tr></thead><tbody>@foreach (var item in conversations.Take(5)) { <tr><td>@item.CustomerName</td><td>@StaffName(item.AssignedStaffId)</td><td><span class="status-pill">@item.Status</span></td><td>@item.UpdatedAt.ToLocalTime().ToString("dd/MM HH:mm")</td></tr> }</tbody></table></div>
+                    }
+                </section>
+            }
+            else if (section == "customers")
+            {
+                <section class="admin-panel">
+                    <div class="panel-heading"><div><h2>Quản lý khách hàng</h2><p>Thêm, cập nhật trạng thái và xóa tài khoản khách hàng.</p></div><span class="count-badge">@customers.Count tài khoản</span></div>
+                    <div class="admin-form-grid"><label>Họ và tên<input @bind="customerForm.FullName" placeholder="Tên khách hàng" /></label><label>Email<input @bind="customerForm.Email" type="email" placeholder="email@example.com" /></label><label>Số điện thoại<input @bind="customerForm.Phone" placeholder="09xx xxx xxx" /></label>@if (editingCustomerId.HasValue) { <label class="check-input"><input type="checkbox" @bind="customerForm.IsActive" /> Tài khoản đang hoạt động</label> }<button class="primary-button" @onclick="SaveCustomerAsync">@(editingCustomerId.HasValue ? "Lưu thay đổi" : "+ Thêm khách hàng")</button>@if (editingCustomerId.HasValue) { <button class="secondary-button" @onclick="CancelCustomerEdit">Hủy</button> }</div>
+                    @if (customers.Count == 0) { <div class="empty-state"><span>♙</span><b>Chưa có khách hàng</b><p>Thêm khách hàng đầu tiên bằng biểu mẫu phía trên.</p></div> }
+                    else { <div class="table-wrap"><table><thead><tr><th>HỌ TÊN</th><th>EMAIL</th><th>ĐIỆN THOẠI</th><th>TRẠNG THÁI</th><th>NGÀY TẠO</th><th></th></tr></thead><tbody>@foreach (var item in customers) { <tr><td>@item.FullName</td><td>@item.Email</td><td>@item.Phone</td><td><span class="status-pill @(item.IsActive ? "is-active" : "is-inactive")">@(item.IsActive ? "Đang hoạt động" : "Đã khóa")</span></td><td>@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</td><td class="row-actions"><button @onclick="() => EditCustomer(item)">Sửa</button><button class="danger-text" @onclick="() => DeleteCustomerAsync(item.Id)">Xóa</button></td></tr> }</tbody></table></div> }
+                </section>
+            }
+            else if (section == "staff")
+            {
+                <section class="admin-panel">
+                    <div class="panel-heading"><div><h2>Nhân viên và phân quyền</h2><p>Quản lý tài khoản nhân viên, vai trò và trạng thái hoạt động.</p></div><span class="count-badge">@staff.Count nhân viên</span></div>
+                    <div class="admin-form-grid staff-form"><label>Họ và tên<input @bind="staffForm.FullName" placeholder="Tên nhân viên" /></label><label>Email<input @bind="staffForm.Email" type="email" placeholder="email@example.com" /></label><label>Vai trò<select @bind="staffForm.Role"><option>Nhân viên hỗ trợ</option><option>Trưởng nhóm hỗ trợ</option></select></label><label>Trạng thái<select @bind="staffForm.Status"><option>Đang hoạt động</option><option>Ngoại tuyến</option><option>Tạm khóa</option></select></label><button class="primary-button" @onclick="SaveStaffAsync">@(editingStaffId.HasValue ? "Lưu thay đổi" : "+ Thêm nhân viên")</button>@if (editingStaffId.HasValue) { <button class="secondary-button" @onclick="CancelStaffEdit">Hủy</button> }</div>
+                    @if (staff.Count == 0) { <div class="empty-state"><span>♧</span><b>Chưa có nhân viên</b><p>Thêm nhân viên hỗ trợ để bắt đầu phân công hội thoại.</p></div> }
+                    else { <div class="table-wrap"><table><thead><tr><th>NHÂN VIÊN</th><th>EMAIL</th><th>VAI TRÒ</th><th>TRẠNG THÁI</th><th></th></tr></thead><tbody>@foreach (var item in staff) { <tr><td><span class="table-avatar">@InitialsFor(item.FullName)</span>@item.FullName</td><td>@item.Email</td><td>@item.Role</td><td><span class="status-pill @(item.Status == "Đang hoạt động" ? "is-active" : "is-inactive")">@item.Status</span></td><td class="row-actions"><button @onclick="() => EditStaff(item)">Sửa</button><button class="danger-text" @onclick="() => DeleteStaffAsync(item.Id)">Xóa</button></td></tr> }</tbody></table></div> }
+                </section>
+            }
+            else if (section == "conversations")
+            {
+                <section class="admin-panel"><div class="panel-heading"><div><h2>Giám sát cuộc trò chuyện</h2><p>Theo dõi các phiên hỗ trợ và nhân viên được phân công.</p></div><span class="count-badge">@conversations.Count hội thoại</span></div>
+                    @if (conversations.Count == 0) { <div class="empty-state"><span>◌</span><b>Chưa có cuộc trò chuyện</b><p>Danh sách sẽ được cập nhật khi có hội thoại trong hệ thống.</p></div> }
+                    else { <div class="table-wrap"><table><thead><tr><th>MÃ HỘI THOẠI</th><th>KHÁCH HÀNG</th><th>NHÂN VIÊN</th><th>TRẠNG THÁI</th><th>CẬP NHẬT</th></tr></thead><tbody>@foreach (var item in conversations) { <tr><td>@item.Id.ToString("N")[..8].ToUpperInvariant()</td><td>@item.CustomerName</td><td>@StaffName(item.AssignedStaffId)</td><td><span class="status-pill">@item.Status</span></td><td>@item.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td></tr> }</tbody></table></div> }
+                </section>
+            }
+            else if (section == "messages")
+            {
+                <section class="admin-panel"><div class="panel-heading"><div><h2>Lịch sử tin nhắn</h2><p>Xem nội dung và thời gian gửi các tin nhắn trong hệ thống.</p></div><span class="count-badge">@messages.Count tin nhắn</span></div>
+                    @if (messages.Count == 0) { <div class="empty-state"><span>▤</span><b>Chưa có tin nhắn</b><p>Lịch sử tin nhắn sẽ xuất hiện tại đây sau khi phát sinh hội thoại.</p></div> }
+                    else { <div class="table-wrap"><table><thead><tr><th>HỘI THOẠI</th><th>NGƯỜI GỬI</th><th>NỘI DUNG</th><th>THỜI GIAN</th></tr></thead><tbody>@foreach (var item in messages) { <tr><td>@item.ConversationId.ToString("N")[..8].ToUpperInvariant()</td><td>@item.Sender</td><td class="message-content">@item.Text</td><td>@item.SentAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td></tr> }</tbody></table></div> }
+                </section>
+            }
+            else if (section == "performance")
+            {
+                <section class="admin-panel"><div class="panel-heading"><div><h2>Hiệu suất nhân viên</h2><p>Thống kê số hội thoại và tin nhắn nhân viên đã xử lý.</p></div></div>
+                    @if (performance.Count == 0) { <div class="empty-state"><span>↗</span><b>Chưa có dữ liệu hiệu suất</b><p>Thêm nhân viên và phát sinh hội thoại để xem thống kê.</p></div> }
+                    else { <div class="table-wrap"><table><thead><tr><th>NHÂN VIÊN</th><th>VAI TRÒ</th><th>HỘI THOẠI</th><th>TIN NHẮN</th><th>TRẠNG THÁI</th></tr></thead><tbody>@foreach (var item in performance) { <tr><td>@item.FullName</td><td>@item.Role</td><td>@item.ConversationCount</td><td>@item.MessageCount</td><td><span class="status-pill @(item.Status == "Đang hoạt động" ? "is-active" : "is-inactive")">@item.Status</span></td></tr> }</tbody></table></div> }
+                </section>
+            }
+            else if (section == "settings")
+            {
+                <section class="admin-panel settings-panel"><div class="panel-heading"><div><h2>Cấu hình hệ thống</h2><p>Thiết lập thông tin và lời chào tự động của hệ thống chat.</p></div></div>
+                    <label>Tên hệ thống<input @bind="settings.SystemName" /></label><label>Email hỗ trợ<input type="email" @bind="settings.SupportEmail" /></label><label>Lời chào khách hàng<textarea rows="4" @bind="settings.WelcomeMessage"></textarea></label><label class="toggle-setting"><span><b>Bật trả lời tự động</b><small>Hiển thị lời chào khi khách hàng bắt đầu hội thoại.</small></span><input type="checkbox" @bind="settings.AutoReplyEnabled" /></label><button class="primary-button" @onclick="SaveSettingsAsync">Lưu cấu hình</button>
+                </section>
+            }
+            <footer class="admin-footer">© 2026 Hệ thống chat hỗ trợ trực tuyến <span>·</span> Bảng quản trị</footer>
+        </main>
+    </div>
+}
+
+@code {
+    private string section = "overview";
+    private string? statusMessage;
+    private AdminSummaryDto summary = new();
+    private List<CustomerDto> customers = [];
+    private List<StaffDto> staff = [];
+    private List<ConversationDto> conversations = [];
+    private List<MessageDto> messages = [];
+    private List<PerformanceDto> performance = [];
+    private SettingsDto settings = new();
+    private CustomerForm customerForm = new();
+    private StaffForm staffForm = new();
+    private Guid? editingCustomerId;
+    private Guid? editingStaffId;
+    private bool sessionChecked;
+
+    private string SectionTitle => section switch
+    {
+        "customers" => "Khách hàng", "staff" => "Nhân viên & phân quyền", "conversations" => "Cuộc trò chuyện",
+        "messages" => "Lịch sử tin nhắn", "performance" => "Hiệu suất nhân viên", "settings" => "Cấu hình hệ thống", _ => "Tổng quan"
+    };
+    private string Initials => InitialsFor(AdminSession.DisplayName ?? "Admin");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || sessionChecked) return;
+        sessionChecked = true;
+        var token = await JS.InvokeAsync<string?>("sessionStorage.getItem", "chat-admin-token");
+        var displayName = await JS.InvokeAsync<string?>("sessionStorage.getItem", "chat-admin-name");
+        var role = await JS.InvokeAsync<string?>("sessionStorage.getItem", "chat-admin-role");
+        if (string.IsNullOrWhiteSpace(token) || role != "Admin")
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+        AdminSession.SignIn(token, displayName ?? "Admin", role);
+        await LoadAsync();
+        StateHasChanged();
+    }
+
+    private void SetSection(string value) { section = value; statusMessage = null; }
+
+    private HttpClient CreateAdminClient()
+    {
+        var client = HttpClientFactory.CreateClient("ChatSupportBackend");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AdminSession.AccessToken);
+        return client;
+    }
+
+    private async Task LoadAsync()
+    {
+        statusMessage = null;
+        try
+        {
+            using var client = CreateAdminClient();
+            summary = await client.GetFromJsonAsync<AdminSummaryDto>("api/admin/summary") ?? new();
+            customers = await client.GetFromJsonAsync<List<CustomerDto>>("api/admin/customers") ?? [];
+            staff = await client.GetFromJsonAsync<List<StaffDto>>("api/admin/staff") ?? [];
+            conversations = await client.GetFromJsonAsync<List<ConversationDto>>("api/admin/conversations") ?? [];
+            messages = await client.GetFromJsonAsync<List<MessageDto>>("api/admin/messages") ?? [];
+            performance = await client.GetFromJsonAsync<List<PerformanceDto>>("api/admin/performance") ?? [];
+            settings = await client.GetFromJsonAsync<SettingsDto>("api/admin/settings") ?? new();
+        }
+        catch (HttpRequestException error) when (error.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            statusMessage = "Phiên Admin đã hết hạn. Vui lòng đăng nhập lại.";
+            AdminSession.SignOut();
+            await JS.InvokeVoidAsync("sessionStorage.clear");
+            Navigation.NavigateTo("/");
+        }
+        catch (HttpRequestException)
+        {
+            statusMessage = "Không kết nối được backend hoặc PostgreSQL. Hãy khởi động backend và kiểm tra cấu hình database.";
+        }
+    }
+
+    private async Task SaveCustomerAsync()
+    {
+        if (string.IsNullOrWhiteSpace(customerForm.FullName) || string.IsNullOrWhiteSpace(customerForm.Email)) { statusMessage = "Nhập họ tên và email khách hàng trước khi lưu."; return; }
+        using var client = CreateAdminClient();
+        var payload = new { customerForm.FullName, customerForm.Email, customerForm.Phone, customerForm.IsActive };
+        using var response = editingCustomerId.HasValue
+            ? await client.PutAsJsonAsync($"api/admin/customers/{editingCustomerId}", payload)
+            : await client.PostAsJsonAsync("api/admin/customers", payload);
+        if (!response.IsSuccessStatusCode) { statusMessage = "Không lưu được khách hàng. Email có thể đã tồn tại."; return; }
+        customerForm = new(); editingCustomerId = null; statusMessage = "Đã lưu thông tin khách hàng."; await LoadAsync();
+    }
+
+    private void EditCustomer(CustomerDto item)
+    {
+        editingCustomerId = item.Id;
+        customerForm = new CustomerForm { FullName = item.FullName, Email = item.Email, Phone = item.Phone, IsActive = item.IsActive };
+    }
+
+    private void CancelCustomerEdit() { editingCustomerId = null; customerForm = new(); }
+
+    private async Task DeleteCustomerAsync(Guid id)
+    {
+        using var client = CreateAdminClient();
+        using var response = await client.DeleteAsync($"api/admin/customers/{id}");
+        if (response.IsSuccessStatusCode) { statusMessage = "Đã xóa khách hàng."; await LoadAsync(); }
+        else statusMessage = "Không xóa được khách hàng.";
+    }
+
+    private async Task SaveStaffAsync()
+    {
+        if (string.IsNullOrWhiteSpace(staffForm.FullName) || string.IsNullOrWhiteSpace(staffForm.Email)) { statusMessage = "Nhập họ tên và email nhân viên trước khi lưu."; return; }
+        using var client = CreateAdminClient();
+        var payload = new { staffForm.FullName, staffForm.Email, staffForm.Role, staffForm.Status };
+        using var response = editingStaffId.HasValue
+            ? await client.PutAsJsonAsync($"api/admin/staff/{editingStaffId}", payload)
+            : await client.PostAsJsonAsync("api/admin/staff", payload);
+        if (!response.IsSuccessStatusCode) { statusMessage = "Không lưu được nhân viên. Email có thể đã tồn tại."; return; }
+        staffForm = new(); editingStaffId = null; statusMessage = "Đã lưu thông tin nhân viên."; await LoadAsync();
+    }
+
+    private void EditStaff(StaffDto item)
+    {
+        editingStaffId = item.Id;
+        staffForm = new StaffForm { FullName = item.FullName, Email = item.Email, Role = item.Role, Status = item.Status };
+    }
+
+    private void CancelStaffEdit() { editingStaffId = null; staffForm = new(); }
+
+    private async Task DeleteStaffAsync(Guid id)
+    {
+        using var client = CreateAdminClient();
+        using var response = await client.DeleteAsync($"api/admin/staff/{id}");
+        if (response.IsSuccessStatusCode) { statusMessage = "Đã xóa nhân viên."; await LoadAsync(); }
+        else statusMessage = "Không xóa được nhân viên.";
+    }
+
+    private async Task SaveSettingsAsync()
+    {
+        using var client = CreateAdminClient();
+        using var response = await client.PutAsJsonAsync("api/admin/settings", settings);
+        statusMessage = response.IsSuccessStatusCode ? "Đã lưu cấu hình hệ thống." : "Không lưu được cấu hình.";
+        if (response.IsSuccessStatusCode) await LoadAsync();
+    }
+
+    private async Task LogoutAsync()
+    {
+        try
+        {
+            using var client = CreateAdminClient();
+            await client.PostAsync("api/auth/logout", null);
+        }
+        catch (HttpRequestException) { }
+        AdminSession.SignOut();
+        await JS.InvokeVoidAsync("sessionStorage.clear");
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    private string StaffName(Guid? id) => staff.FirstOrDefault(item => item.Id == id)?.FullName ?? "Chưa phân công";
+    private static string InitialsFor(string name) => string.Join("", name.Split(' ', StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(part => char.ToUpperInvariant(part[0])));
+
+    private sealed class AdminSummaryDto { public int CustomerCount { get; set; } public int StaffCount { get; set; } public int ActiveStaffCount { get; set; } public int OpenConversationCount { get; set; } public int MessageCount { get; set; } }
+    private sealed class CustomerDto { public Guid Id { get; set; } public string FullName { get; set; } = ""; public string Email { get; set; } = ""; public string Phone { get; set; } = ""; public DateTimeOffset CreatedAt { get; set; } public bool IsActive { get; set; } }
+    private sealed class StaffDto { public Guid Id { get; set; } public string FullName { get; set; } = ""; public string Email { get; set; } = ""; public string Role { get; set; } = ""; public string Status { get; set; } = ""; }
+    private sealed class ConversationDto { public Guid Id { get; set; } public string CustomerName { get; set; } = ""; public Guid? AssignedStaffId { get; set; } public string Status { get; set; } = ""; public DateTimeOffset UpdatedAt { get; set; } }
+    private sealed class MessageDto { public Guid Id { get; set; } public Guid ConversationId { get; set; } public string Sender { get; set; } = ""; public string Text { get; set; } = ""; public DateTimeOffset SentAt { get; set; } }
+    private sealed class PerformanceDto { public Guid StaffId { get; set; } public string FullName { get; set; } = ""; public string Role { get; set; } = ""; public int ConversationCount { get; set; } public int MessageCount { get; set; } public string Status { get; set; } = ""; }
+    private sealed class SettingsDto { public string SystemName { get; set; } = ""; public string SupportEmail { get; set; } = ""; public bool AutoReplyEnabled { get; set; } public string WelcomeMessage { get; set; } = ""; }
+    private sealed class CustomerForm { public string FullName { get; set; } = ""; public string Email { get; set; } = ""; public string Phone { get; set; } = ""; public bool IsActive { get; set; } = true; }
+    private sealed class StaffForm { public string FullName { get; set; } = ""; public string Email { get; set; } = ""; public string Role { get; set; } = "Nhân viên hỗ trợ"; public string Status { get; set; } = "Đang hoạt động"; }
+}

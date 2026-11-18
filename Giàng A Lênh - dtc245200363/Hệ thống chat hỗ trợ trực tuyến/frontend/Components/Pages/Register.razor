@@ -1,0 +1,114 @@
+@page "/dang-ky"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+<PageTitle>Đăng ký | Hệ thống chat hỗ trợ trực tuyến</PageTitle>
+
+<main class="page">
+    <section class="intro" aria-label="Giới thiệu hệ thống">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">C</div>
+            <div><div class="brand-name">Chat hỗ trợ</div><div class="brand-caption">HỖ TRỢ KHÁCH HÀNG TRỰC TUYẾN</div></div>
+        </div>
+        <div class="hero">
+            <div class="eyebrow">ĐỒNG HÀNH CÙNG BẠN · HỖ TRỢ KỊP THỜI</div>
+            <h1>Kết nối dễ dàng,<br />hỗ trợ tận tâm.</h1>
+            <div class="hero-copy">Tạo tài khoản khách hàng để bắt đầu trò chuyện<br />và theo dõi các yêu cầu hỗ trợ của bạn.</div>
+        </div>
+        <div class="copyright">© 2026 Hệ thống chat hỗ trợ trực tuyến</div>
+    </section>
+    <section class="form-side" aria-label="Tạo tài khoản khách hàng">
+        <EditForm Model="form" OnValidSubmit="SubmitRegistration" class="login register-form">
+            <DataAnnotationsValidator />
+            <h2>Tạo tài khoản</h2>
+            <p class="subtitle">Đăng ký tài khoản khách hàng miễn phí</p>
+            <div class="field">
+                <label for="fullName">Họ và tên</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+                    <InputText id="fullName" @bind-Value="form.FullName" autocomplete="name" placeholder="Nguyễn Văn An" />
+                </div>
+                <ValidationMessage For="@(() => form.FullName)" />
+            </div>
+            <div class="field">
+                <label for="email">Email</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+                    <InputText id="email" @bind-Value="form.Email" type="email" autocomplete="email" placeholder="ten@email.com" />
+                </div>
+                <ValidationMessage For="@(() => form.Email)" />
+            </div>
+            <div class="field">
+                <label for="phone">Số điện thoại</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 3.5h10a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5Z"/><path d="M10 17.5h4"/></svg>
+                    <InputText id="phone" @bind-Value="form.Phone" type="tel" autocomplete="tel" placeholder="0912 345 678" />
+                </div>
+                <ValidationMessage For="@(() => form.Phone)" />
+            </div>
+            <div class="field">
+                <label for="password">Mật khẩu</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v2"/></svg>
+                    <InputText id="password" @bind-Value="form.Password" type="@(showPassword ? "text" : "password")" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" />
+                    <button class="toggle" type="button" @onclick="TogglePassword">@(showPassword ? "Ẩn" : "Hiện")</button>
+                </div>
+                <ValidationMessage For="@(() => form.Password)" />
+            </div>
+            <div class="field">
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <div class="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v2"/></svg>
+                    <InputText id="confirmPassword" @bind-Value="form.ConfirmPassword" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu" />
+                </div>
+                <ValidationMessage For="@(() => form.ConfirmPassword)" />
+            </div>
+            <button class="submit" type="submit">Tạo tài khoản</button>
+            <div class="notice register-notice">
+                <div class="notice-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3.5 19 6v5.3c0 4.2-2.8 7.6-7 9.2-4.2-1.6-7-5-7-9.2V6l7-2.5Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                <div><strong>Thông tin của bạn được bảo vệ</strong><span>Tài khoản này dành cho khách hàng sử dụng dịch vụ hỗ trợ.</span></div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <p class="status" role="status">@statusMessage</p>
+            }
+            <p class="help">Đã có tài khoản? <a href="/">Đăng nhập</a></p>
+        </EditForm>
+    </section>
+</main>
+
+@code {
+    private readonly RegistrationForm form = new();
+    private bool showPassword;
+    private string? statusMessage;
+
+    private void TogglePassword() => showPassword = !showPassword;
+
+    private void SubmitRegistration()
+    {
+        statusMessage = "Thông tin hợp lệ. Chức năng tạo tài khoản cần được kết nối với API đăng ký.";
+    }
+
+    private sealed class RegistrationForm
+    {
+        [Required(ErrorMessage = "Vui lòng nhập họ và tên.")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Họ tên cần có từ 2 đến 100 ký tự.")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng nhập email.")]
+        [EmailAddress(ErrorMessage = "Email chưa đúng định dạng.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại.")]
+        [Phone(ErrorMessage = "Số điện thoại chưa đúng định dạng.")]
+        public string Phone { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Mật khẩu cần có ít nhất 8 ký tự.")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng xác nhận mật khẩu.")]
+        [Compare(nameof(Password), ErrorMessage = "Mật khẩu xác nhận không khớp.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}
