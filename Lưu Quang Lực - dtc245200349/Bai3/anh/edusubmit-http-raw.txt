@@ -1,0 +1,63 @@
+curl.exe -i -X GET http://localhost:5000/api/assignments
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Wed, 18 Nov 2026 02:21:53 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+[{"id":1,"title":"Bai tap SignalR","isOpen":true},{"id":2,"title":"REST va realtime","isOpen":true}]
+
+curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H 'Content-Type: application/json' -d @.work/manual-http-valid.json
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Date: Wed, 18 Nov 2026 02:21:53 GMT
+Server: Kestrel
+Location: /api/submissions/cf6849e1-6a46-470c-8330-abf215d33753
+Transfer-Encoding: chunked
+
+{"id":"cf6849e1-6a46-470c-8330-abf215d33753","assignmentId":1,"studentCode":"dtc245200349","repositoryUrl":"https://example.com/dtc245200349/signalr","status":"received","receivedAt":"2026-11-18T02:21:53.710282+00:00","updatedAt":"2026-11-18T02:21:53.710282+00:00"}
+
+curl.exe -i -X POST http://localhost:5000/api/assignments/1/submissions -H 'Content-Type: application/json' -d @.work/manual-http-empty.json
+HTTP/1.1 400 Bad Request
+Content-Type: application/json; charset=utf-8
+Date: Wed, 18 Nov 2026 02:21:53 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{"code":"INVALID_SUBMISSION","message":"Can studentCode va repositoryUrl."}
+
+curl.exe -i -X POST http://localhost:5000/api/assignments/999/submissions -H 'Content-Type: application/json' -d @.work/manual-http-valid.json
+HTTP/1.1 404 Not Found
+Content-Type: application/json; charset=utf-8
+Date: Wed, 18 Nov 2026 02:21:53 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{"code":"ASSIGNMENT_NOT_FOUND","message":"Khong tim thay bai tap."}
+
+curl.exe -i -X GET http://localhost:5000/api/submissions/00000000-0000-0000-0000-000000000000
+HTTP/1.1 404 Not Found
+Content-Type: application/json; charset=utf-8
+Date: Wed, 18 Nov 2026 02:21:53 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{"code":"SUBMISSION_NOT_FOUND","message":"Khong tim thay luot nop."}
+
+curl.exe -i -X POST http://localhost:5000/hubs/submissions/negotiate?negotiateVersion=1
+HTTP/1.1 200 OK
+Content-Length: 316
+Content-Type: application/json
+Date: Wed, 18 Nov 2026 02:21:53 GMT
+Server: Kestrel
+
+{"negotiateVersion":1,"connectionId":"bzmFGmMUGIjDZE7-bkh0Sw","connectionToken":"neI5SjjfbH1VxTuaX0o8zQ","availableTransports":[{"transport":"WebSockets","transferFormats":["Text","Binary"]},{"transport":"ServerSentEvents","transferFormats":["Text"]},{"transport":"LongPolling","transferFormats":["Text","Binary"]}]}
+
+curl.exe -i -X GET http://localhost:5000/api/submissions/cf6849e1-6a46-470c-8330-abf215d33753
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Wed, 18 Nov 2026 02:21:58 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{"id":"cf6849e1-6a46-470c-8330-abf215d33753","assignmentId":1,"studentCode":"dtc245200349","repositoryUrl":"https://example.com/dtc245200349/signalr","status":"graded","receivedAt":"2026-11-18T02:21:53.710282+00:00","updatedAt":"2026-11-18T02:21:56.7216719+00:00"}

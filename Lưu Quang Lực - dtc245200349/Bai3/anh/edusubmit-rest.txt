@@ -1,0 +1,4 @@
+PS D:\PTUD\Bai3> POST http://localhost:5000/api/assignments/1/submissions
+HTTP 201
+Location: /api/submissions/0fb63de6-c595-4544-9b07-ad2230e536b6
+{"id":"0fb63de6-c595-4544-9b07-ad2230e536b6","assignmentId":1,"studentCode":"SV001","repositoryUrl":"https://example.com/SV001/signalr","status":"received","receivedAt":"2026-11-18T01:25:59.2800785+00:00","updatedAt":"2026-11-18T01:25:59.2800785+00:00"}

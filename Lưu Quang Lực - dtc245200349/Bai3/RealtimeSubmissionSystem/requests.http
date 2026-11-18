@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:5000
+@pingUrl = http://localhost:5200
+
+### 1. Thong tin dich vu: 200
+GET {{baseUrl}}/
+
+### 2. Danh sach bai tap dang mo: 200
+GET {{baseUrl}}/api/assignments
+
+### 3. Tao luot nop: 201 + Location; ghi nho ID tu response
+# @name createSubmission
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200349",
+  "repositoryUrl": "https://example.com/dtc245200349/signalr"
+}
+
+### 4. Chay request 3 truoc; cho 5 giay: 200, graded
+GET {{baseUrl}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Thieu hai truong: 400 INVALID_SUBMISSION
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{}
+
+### 6. Bai tap khong ton tai: 404 ASSIGNMENT_NOT_FOUND
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{}
+
+### 7. Luot nop khong ton tai: 404 SUBMISSION_NOT_FOUND
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Bat tay SignalR: 200, connectionId, cac transport
+POST {{baseUrl}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Sai duong dan: 404
+POST {{baseUrl}}/hub/submissions/negotiate?negotiateVersion=1
+
+### 10. Bai tap da dong: 400 ASSIGNMENT_CLOSED
+POST {{baseUrl}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{}
+
+### 11. PingSignalR bat tay: 200 (mo Ping.Api cong 5200 truoc)
+POST {{pingUrl}}/hubs/ping/negotiate?negotiateVersion=1
+
+### 12. Bai tap mo rong: HTTP 201 received, sau 3 giay failed vi repository khong https
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "http://example.com/invalid-repository"
+}

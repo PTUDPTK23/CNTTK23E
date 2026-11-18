@@ -1,0 +1,19 @@
+PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll http://localhost:5200 An (va Binh)
+MAY KHACH AN
+An da ket noi den PingApi. ConnectionId: OCPrTL9pCsNaRskEtjHbCA
+[Echo] Echo: Xin chao SignalR tu An
+[Group] OCPrTL9p da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu An
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu An
+[Group] 6FPa1l7a da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Binh
+[Broadcast] Xin chao tat ca tu Binh
+
+MAY KHACH BINH
+Binh da ket noi den PingApi. ConnectionId: 6FPa1l7auswSvExqkGI66g
+[Echo] Echo: Xin chao SignalR tu Binh
+[Group] 6FPa1l7a da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Binh
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu Binh

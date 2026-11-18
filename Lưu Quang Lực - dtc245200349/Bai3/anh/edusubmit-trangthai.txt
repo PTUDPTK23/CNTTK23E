@@ -1,0 +1,17 @@
+PS D:\PTUD\Bai3> POST, GET ngay, GET sau 1.4 giay, GET sau 3.4 giay
+POST /api/assignments/1/submissions
+HTTP 201
+Location: /api/submissions/797eb39d-90e9-4cce-a866-80d1f646caec
+{"id":"797eb39d-90e9-4cce-a866-80d1f646caec","assignmentId":1,"studentCode":"SV001","repositoryUrl":"https://example.com/SV001/signalr","status":"received","receivedAt":"2026-11-18T01:26:35.7568779+00:00","updatedAt":"2026-11-18T01:26:35.7568779+00:00"}
+
+GET /api/submissions/797eb39d-90e9-4cce-a866-80d1f646caec
+HTTP 200
+{"id":"797eb39d-90e9-4cce-a866-80d1f646caec","assignmentId":1,"studentCode":"SV001","repositoryUrl":"https://example.com/SV001/signalr","status":"received","receivedAt":"2026-11-18T01:26:35.7568779+00:00","updatedAt":"2026-11-18T01:26:35.7568779+00:00"}
+
+GET /api/submissions/797eb39d-90e9-4cce-a866-80d1f646caec
+HTTP 200
+{"id":"797eb39d-90e9-4cce-a866-80d1f646caec","assignmentId":1,"studentCode":"SV001","repositoryUrl":"https://example.com/SV001/signalr","status":"processing","receivedAt":"2026-11-18T01:26:35.7568779+00:00","updatedAt":"2026-11-18T01:26:36.7708972+00:00"}
+
+GET /api/submissions/797eb39d-90e9-4cce-a866-80d1f646caec
+HTTP 200
+{"id":"797eb39d-90e9-4cce-a866-80d1f646caec","assignmentId":1,"studentCode":"SV001","repositoryUrl":"https://example.com/SV001/signalr","status":"graded","receivedAt":"2026-11-18T01:26:35.7568779+00:00","updatedAt":"2026-11-18T01:26:38.7724153+00:00"}

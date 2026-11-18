@@ -1,0 +1,9 @@
+PS D:\PTUD\Bai3> dotnet run --no-build --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- http://localhost:5000 SV001
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: 7457f21b-ba93-4ae7-ad50-2d2d4d02d1cb
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 7457f21b-ba93-4ae7-ad50-2d2d4d02d1cb -> processing luc 02:18:48
+Thong bao SignalR: 7457f21b-ba93-4ae7-ad50-2d2d4d02d1cb -> graded luc 02:18:50
+Trang thai doc lai bang REST: graded

@@ -1,0 +1,6 @@
+PS D:\PTUD\Bai3> POST /hubs/submissions/negotiate?negotiateVersion=1
+POST /hubs/submissions/negotiate?negotiateVersion=1
+HTTP 200
+{"negotiateVersion":1,"connectionId":"0nY8wZp7J5Vuipv6f2g8Vg","connectionToken":"yLWeUHBn5WtbKUjPeX7GEw","availableTransports":[{"transport":"WebSockets","transferFormats":["Text","Binary"]},{"transport":"ServerSentEvents","transferFormats":["Text"]},{"transport":"LongPolling","transferFormats":["Text","Binary"]}]}
+POST /hub/submissions/negotiate?negotiateVersion=1
+HTTP 404

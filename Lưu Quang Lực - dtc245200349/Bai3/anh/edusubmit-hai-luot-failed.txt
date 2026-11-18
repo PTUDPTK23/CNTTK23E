@@ -1,0 +1,15 @@
+PS D:\PTUD\Bai3> dotnet .../Submission.RealtimeClient.dll http://localhost:5000 SV001 --count 2 --second-repository http://example.com/invalid
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: 3d6c9a50-f777-4bf3-964b-70c524609609
+Trang thai REST ban dau: received
+Da tao luot nop: 93465dfe-b234-4372-a1d3-b992330245e3
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 3d6c9a50-f777-4bf3-964b-70c524609609 -> processing luc 01:31:25
+Thong bao SignalR: 93465dfe-b234-4372-a1d3-b992330245e3 -> processing luc 01:31:25
+Thong bao SignalR: 3d6c9a50-f777-4bf3-964b-70c524609609 -> graded luc 01:31:27
+Thong bao SignalR: 93465dfe-b234-4372-a1d3-b992330245e3 -> failed luc 01:31:27
+!!! CANH BAO: luot nop 93465dfe-b234-4372-a1d3-b992330245e3 cham LOI (failed)
+Trang thai doc lai bang REST: 3d6c9a50-f777-4bf3-964b-70c524609609 -> graded
+Trang thai doc lai bang REST: 93465dfe-b234-4372-a1d3-b992330245e3 -> failed

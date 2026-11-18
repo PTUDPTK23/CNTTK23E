@@ -1,0 +1,8 @@
+PS D:\PTUD\Bai3> curl.exe --silent --show-error --include --request POST "http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1"
+HTTP/1.1 200 OK
+Content-Length: 316
+Content-Type: application/json
+Date: Wed, 18 Nov 2026 01:31:48 GMT
+Server: Kestrel
+
+{"negotiateVersion":1,"connectionId":"FkPMYFz66aFv3UwVTGVB8Q","connectionToken":"xtjD7yQUcwHwi796DignaQ","availableTransports":[{"transport":"WebSockets","transferFormats":["Text","Binary"]},{"transport":"ServerSentEvents","transferFormats":["Text"]},{"transport":"LongPolling","transferFormats":["Text","Binary"]}]}

@@ -1,0 +1,11 @@
+PS D:\PTUD\Bai3> dotnet build RealtimeSubmissionSystem/RealtimeSubmissionSystem.slnx -m:1
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Submission.RealtimeApi -> D:\PTUD\Bai3\RealtimeSubmissionSystem\src\Submission.RealtimeApi\bin\Debug\net10.0\Submission.RealtimeApi.dll
+  Submission.RealtimeClient -> D:\PTUD\Bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\bin\Debug\net10.0\Submission.RealtimeClient.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.89

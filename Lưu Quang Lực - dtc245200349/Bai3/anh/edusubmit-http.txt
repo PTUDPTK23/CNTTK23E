@@ -1,0 +1,12 @@
+PS D:\PTUD\Bai3> curl.exe (cac request tu requests.http; log day du o edusubmit-http-raw.txt)
+01 root: GET / => 200 PASS
+02 assignments: GET /api/assignments => 200 PASS
+03 create: POST /api/assignments/1/submissions => 201 PASS
+04 read after 5s: GET /api/submissions/13263a93-5733-4274-b5ce-fd0a58f64fe8 => 200 graded PASS
+05 missing fields: POST /api/assignments/1/submissions => 400 PASS
+06 unknown assignment: POST /api/assignments/999/submissions => 404 PASS
+07 unknown submission: GET /api/submissions/00000000-0000-0000-0000-000000000000 => 404 PASS
+08 negotiate: POST /hubs/submissions/negotiate?negotiateVersion=1 => 200 PASS
+09 wrong hub: POST /hub/submissions/negotiate?negotiateVersion=1 => 404 PASS
+10 closed assignment: POST /api/assignments/3/submissions => 400 PASS
+11 Ping negotiate: POST :5200/hubs/ping/negotiate => 200 PASS

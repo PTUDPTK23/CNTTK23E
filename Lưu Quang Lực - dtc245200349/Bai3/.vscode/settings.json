@@ -1,0 +1,10 @@
+{
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": false,
+  "editor.fontSize": 14,
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    ".work": true
+  }
+}
