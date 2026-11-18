@@ -27,5 +27,24 @@ await connection.InvokeAsync("Broadcast", $"Xin chao tat ca tu {name}");
 // Lắng nghe thông điệp định kỳ từ Background Service của server
 connection.On<string>("ReceiveTick", tickMsg => Console.WriteLine(tickMsg));
 
+// Đăng ký sự kiện xử lý mất kết nối và tự động kết nối lại
+connection.Reconnecting += error =>
+{
+    Console.WriteLine($"Dang ket noi lai... Loi: {error?.Message}");
+    return Task.CompletedTask;
+};
+
+connection.Reconnected += connectionId =>
+{
+    Console.WriteLine($"Da ket noi lai thanh cong! ConnectionId: {connectionId}");
+    return Task.CompletedTask;
+};
+
+connection.Closed += error =>
+{
+    Console.WriteLine($"Ket noi da bi dong hoàn toàn. Loi: {error?.Message}");
+    return Task.CompletedTask;
+};
+
 Console.WriteLine("Dang cho thong diep... Nhan Enter de thoat.");
 Console.ReadLine();
