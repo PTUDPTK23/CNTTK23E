@@ -58,9 +58,9 @@ Nhật ký thực hành Bài 3. Mỗi bước gồm: ảnh kết quả, điều 
 
 | # | Làm gì | Thấy gì | Giải thích vì sao |
 |---|--------|---------|-------------------|
-| 1 | Chạy máy khách khi máy chủ chưa chạy | | |
-| 2 | Sửa `WithUrl` thành `/hub/ping` (thiếu s) | | |
-| 3 | Sửa `On("EchoResponse")` thành `On("EchoRespone")` | | |
+| 1 | Chạy máy khách khi máy chủ chưa chạy | `HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:5200)`, chương trình dừng ngay ở StartAsync | Lỗi xảy ra ngay bước negotiate vì không có máy chủ ở cổng 5200. WithAutomaticReconnect chỉ cứu kết nối ĐÃ mở, không giúp lần nối đầu tiên |
+| 2 | Sửa `WithUrl` thành `/hub/ping` (thiếu s) | `HttpRequestException: Response status code does not indicate success: 404 (Not Found)` | Máy chủ vẫn chạy nhưng không có tuyến /hub/ping nên negotiate trả 404. Đường dẫn trong WithUrl phải khớp MapHub("/hubs/ping") |
+| 3 | Sửa `On("EchoResponse")` thành `On("EchoRespone")` | Không có lỗi nào, chương trình chạy bình thường nhưng không có dòng [Echo] | Hub vẫn gửi "EchoResponse" nhưng máy khách không đăng ký tên đó nên tin bị bỏ qua, không báo lỗi. Khi "không nhận được gì", việc đầu tiên là so tên thông điệp hai phía |
 
 ![loi1](anh/buoc7-loi1.png)
 ![loi2](anh/buoc7-loi2.png)
