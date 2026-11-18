@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.SignalR;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSignalR();
 var app = builder.Build();
 var assignments = new List<AssignmentDto>
 {
@@ -40,6 +43,7 @@ app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
             : Results.Ok(submission);
     }
 });
+app.MapHub<SubmissionHub>("/hubs/submissions");
 app.Run();
 
 record AssignmentDto(int Id, string Title, bool IsOpen);
