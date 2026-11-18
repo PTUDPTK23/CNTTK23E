@@ -3,8 +3,10 @@ import hashlib
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import zipfile
 
+sys.stdout.reconfigure(encoding='utf-8')
 root = Path(__file__).resolve().parent
 prefix = Path('Đàm Văn Việt - dtc245200682') / 'Bai3'
 destination = root / 'submission' / prefix
