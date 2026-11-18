@@ -67,58 +67,77 @@ Các tùy chọn dưới đây đứng sau `SV001` trong lệnh máy khách. V�
 | 4 | `--wrong-event` | Máy khách không nhận được sự kiện và phải đọc kết quả bằng REST. | Không có dòng thông báo SignalR. Hết 10 giây chờ, REST trả graded. | Tên đăng ký thiếu chữ `d` cuối của `SubmissionStatusChanged`. |
 | 5 | `--late-watch` | Vào nhóm sau khi trạng thái đã đổi nên lỡ cả hai thông báo. | Không có dòng thông báo SignalR sau khi Watch muộn 4 giây. REST trả graded. | SignalR không phát lại thông báo cũ. GET trả trạng thái đã lưu. |
 
-### Minh chứng chạy chương trình
+### Minh chứng chạy chương trình trên Windows
 
-Hai solution đã build trên Linux với 0 cảnh báo và 0 lỗi. Cả 9 ca trong requests.http và 7 ca chấm chạy được theo mã phản hồi mong đợi. Các ảnh trong thư mục anh được dựng từ đầu ra chạy thật trên Linux, với những dòng liên quan được trích để dễ đọc. Đây là kết quả mẫu để đối chiếu khi chạy lại trên Windows.
+Thực hành với .NET SDK 10.0.403. Cả hai solution và bốn project build thành công. Các ảnh trong `anh/windows/` ghi lại kết quả trên Windows của PingSignalR, EduSubmit, ba bài vận dụng, năm thí nghiệm EduSubmit và đủ chín ca trong `requests.http`.
 
 <details>
-<summary>PingSignalR · build, negotiate, Echo, nhóm và kết nối lại</summary>
+<summary>PingSignalR · build, bắt tay, Echo, nhóm và kết nối lại</summary>
 
-![Build hai solution](anh/buoc1-build.png)
+![Build cả hai solution](anh/windows/build-hai-solution.png)
 
-![Curl negotiate PingSignalR](anh/buoc2-negotiate.png)
+![Bước 2 · negotiate 200 và connectionId](anh/windows/ping-negotiate.png)
 
-![Echo](anh/buoc4-echo.png)
+![Bước 3–4 · Echo gửi riêng cho An](anh/windows/ping-echo.png)
 
-![An và Bình](anh/buoc5-nhom.png)
+![Bước 5 · An nhận tin nhóm và broadcast của Bình](anh/windows/ping-group-broadcast.png)
 
-![Kết nối lại](anh/buoc6-noilai.png)
+![Bước 6 · An tự kết nối lại và vào lại nhóm](anh/windows/ping-ket-noi-lai.png)
 
-![Máy chủ Ping tắt](anh/buoc7-loi1.png)
+![Bước 7 · máy chủ tắt, sai hub và sai tên sự kiện](anh/windows/ping-ba-ca-loi.png)
 
-![Đường dẫn hub Ping sai](anh/buoc7-loi2.png)
-
-![Tên sự kiện Echo sai](anh/buoc7-loi3.png)
-
-![Tên phương thức Echo sai](anh/ping-sai-ten-phuong-thuc.png)
+![Trang 31 · phương thức Ech không tồn tại](anh/windows/ping-sai-ten-phuong-thuc.png)
 
 </details>
 
 <details>
-<summary>EduSubmit · HTTP và năm thí nghiệm</summary>
+<summary>EduSubmit · trạng thái thời gian thực và bài vận dụng</summary>
 
-![Mã phản hồi HTTP](anh/edusubmit-http.png)
+![Máy chủ xử lý POST 201, gửi trạng thái và trả GET 200](anh/windows/edu-may-chu.png)
 
-![SV001 nhận graded](anh/edusubmit-graded.png)
+![Máy khách nhận processing, graded và đối chiếu qua REST](anh/windows/edu-luot-nop-graded.png)
 
-![SV002 nhận graded](anh/edusubmit-sv002.png)
+![Bài tập 2 · SignalR và REST cùng trả failed](anh/windows/edu-bai-tap-2.png)
 
-![EduSubmit API tắt](anh/edusubmit-api-tat.png)
+![Bài tập 3 · một kết nối theo dõi hai lượt nộp](anh/windows/edu-bai-tap-3.png)
 
-![Đường dẫn hub EduSubmit sai](anh/edusubmit-sai-hub.png)
-
-![Tên sự kiện EduSubmit sai](anh/edusubmit-sai-su-kien.png)
-
-![Theo dõi nhóm muộn](anh/edusubmit-vao-nhom-muon.png)
+![Bài tập 4 và thí nghiệm 2 · API tắt, localhost:5000 từ chối kết nối](anh/windows/edu-api-tat.png)
 
 </details>
 
 <details>
-<summary>Bài tập 2–3 · failed và hai lượt nộp</summary>
+<summary>EduSubmit · nhật ký thí nghiệm</summary>
 
-![Cảnh báo failed](anh/edusubmit-failed.png)
+![Thí nghiệm 1 · SV001 và SV002 chỉ nhận thông báo của lượt nộp riêng](anh/windows/edu-hai-may-khach.png)
 
-![Hai lượt nộp trên một kết nối](anh/edusubmit-hai-luot.png)
+![Thí nghiệm 3 · sai đường dẫn hub, 404](anh/windows/edu-sai-hub.png)
+
+![Thí nghiệm 4–5 · sai tên sự kiện và vào nhóm muộn](anh/windows/edu-sai-su-kien-va-vao-muon.png)
+
+[Minh chứng thí nghiệm 2 · API tắt](anh/windows/edu-api-tat.png)
+
+</details>
+
+<details>
+<summary>requests.http · 9 phản hồi trên Windows</summary>
+
+![Ca 1 · API đang chạy, 200](anh/windows/http-01-dich-vu.png)
+
+![Ca 2 · danh sách bài tập, 200](anh/windows/http-02-danh-sach.png)
+
+![Ca 3 · tạo lượt nộp, 201 và Location](anh/windows/http-03-tao-luot-nop.png)
+
+![Ca 4 · đọc lại lượt nộp, 200 và graded](anh/windows/http-04-doc-luot-nop.png)
+
+![Ca 5 · dữ liệu thiếu, 400](anh/windows/http-05-thieu-du-lieu.png)
+
+![Ca 6 · bài tập không tồn tại, 404](anh/windows/http-06-khong-co-bai-tap.png)
+
+![Ca 7 · lượt nộp không tồn tại, 404](anh/windows/http-07-khong-co-luot-nop.png)
+
+![Ca 8 · negotiate đúng hub, 200](anh/windows/http-08-dung-hub.png)
+
+![Ca 9 · negotiate sai hub, 404](anh/windows/http-09-sai-hub.png)
 
 </details>
 
@@ -158,13 +177,27 @@ Hai solution đã build trên Linux với 0 cảnh báo và 0 lỗi. Cả 9 ca t
 
 ## 6. Nộp Pull Request
 
-Trong gói ZIP có mã nguồn và `Bai3.bundle` chứa lịch sử commit. Nếu cần giữ từng commit khi nộp, mở PowerShell tại bản clone sạch của repo lớp, tạo nhánh, rồi thay đường dẫn bên dưới bằng vị trí file bundle sau khi giải nén.
+Repo lớp là [PTUDPTK23/CNTTK23E](https://github.com/PTUDPTK23/CNTTK23E). Bài nộp nằm trong thư mục `Lý Huy Hiệu - dtc245200767/Bai3`.
+
+1. Trên trang repo lớp, bấm **Fork** để tạo bản sao trong tài khoản GitHub của bạn. Nếu đã có fork, dùng lại fork đó. Sao chép địa chỉ HTTPS của fork.
+2. Giải nén ZIP. Mở PowerShell ở thư mục đang thấy file `Bai3.bundle`. Các lệnh sau tạo một clone riêng và dùng lại 9 commit đã chuẩn bị trên nhánh `main` của repo lớp.
 
 ```powershell
-git switch -c bai3-dtc245200767
-git fetch "C:\DuongDan\Bai3.bundle" refs/heads/bai3
-$commits = @(git rev-list --reverse FETCH_HEAD)
-git cherry-pick $commits
+$bundle = (Resolve-Path .\Bai3.bundle).Path
+git clone https://github.com/PTUDPTK23/CNTTK23E.git CNTTK23E-Bai3
+Set-Location .\CNTTK23E-Bai3
+git fetch $bundle refs/heads/bai3
+git switch -c bai3-dtc245200767 FETCH_HEAD
+git log --oneline -9
+git -c core.quotePath=false diff --name-only origin/main...HEAD
 ```
 
-Kiểm tra thư mục sinh viên khớp đúng tên trong repo lớp và kiểm tra `git status`. Sau khi đẩy nhánh lên remote được cấp quyền, mở PR với tiêu đề **Bai3 - DTC245200767 - Lý Huy Hiệu**. Có thể dùng trực tiếp thư mục `Bai3` để chạy và xem mã sau khi giải nén.
+3. Xem danh sách thay đổi. Mỗi đường dẫn phải bắt đầu bằng `Lý Huy Hiệu - dtc245200767/Bai3/`. Thêm URL fork rồi đẩy nhánh của bài.
+
+```powershell
+$forkUrl = Read-Host 'Dán URL HTTPS của fork CNTTK23E trên tài khoản của bạn'
+git remote add fork $forkUrl
+git push -u fork bai3-dtc245200767
+```
+
+4. Mở **Compare & pull request** trên fork. Kiểm tra repo đích là `PTUDPTK23/CNTTK23E`, nhánh đích `main`, nhánh nguồn `bai3-dtc245200767` trên fork. Dùng tiêu đề **Bai3 - dtc245200767 - Lý Huy Hiệu**, rồi bấm **Create pull request**.
