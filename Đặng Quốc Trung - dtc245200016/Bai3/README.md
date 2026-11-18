@@ -40,3 +40,16 @@
 **Kết quả:** Máy khách kết nối thành công với máy chủ tại cổng 5200 và nhận được thông điệp [Echo] Echo: Xin chao SignalR tu Trung.
 
 **Giải thích:** HubConnectionBuilder xây dựng kết nối đến Hub. On đăng ký nhận thông điệp từ máy chủ. StartAsync mở kết nối và InvokeAsync gọi phương thức Echo trên máy chủ. SignalR cho phép giao tiếp hai chiều theo thời gian thực.
+
+### Bước 5: Broadcast và Group
+
+![Kết quả Broadcast và Group](anh/buoc5-nhom.png)
+
+**Kết quả:** Hai máy khách Trung và Binh kết nối thành công vào máy chủ và tham gia nhóm lop-hoc-01. Máy khách Trung nhận được thông điệp Group và Broadcast của Binh nhưng không nhận được Echo của Binh.
+
+**Giải thích:**
+
+- Clients.Caller: Gửi thông điệp riêng cho người gọi.
+- Clients.All: Gửi thông điệp cho tất cả máy khách đang kết nối.
+- Clients.Group: Gửi thông điệp cho các máy khách trong nhóm.
+- Groups.AddToGroupAsync: Thêm kết nối vào nhóm.

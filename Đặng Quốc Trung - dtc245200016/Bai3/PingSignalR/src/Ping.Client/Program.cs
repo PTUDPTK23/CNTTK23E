@@ -1,29 +1,53 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
-var serverUrl = args.Length > 0
+string serverUrl = args.Length > 0
     ? args[0].TrimEnd('/')
     : "http://localhost:5200";
 
-var name = args.Length > 1 ? args[1] : "Client";
+string name = args.Length > 1 ? args[1] : "Client";
+const string groupName = "lop-hoc-01";
 
-// Xây dựng kết nối tới Hub
 await using var connection = new HubConnectionBuilder()
     .WithUrl($"{serverUrl}/hubs/ping")
     .WithAutomaticReconnect()
     .Build();
 
-// Đăng ký nhận thông điệp EchoResponse
-connection.On<string>("EchoResponse", message =>
+// Nhan thong diep Echo
+connection.On<string>("EchoResponse", msg =>
 {
-    Console.WriteLine($"[Echo] {message}");
+    Console.WriteLine($"[Echo] {msg}");
 });
 
-// Mở kết nối
+// Nhan thong diep Broadcast
+connection.On<string>("BroadcastMessage", msg =>
+{
+    Console.WriteLine($"[Broadcast] {msg}");
+});
+
+// Nhan thong diep nhom
+connection.On<string>("GroupMessage", msg =>
+{
+    Console.WriteLine($"[Group] {msg}");
+});
+
+// Mo ket noi
 await connection.StartAsync();
 Console.WriteLine($"{name} da ket noi den PingApi.");
 
-// Gọi phương thức Echo trên máy chủ
-await connection.InvokeAsync("Echo", $"Xin chao SignalR tu {name}");
+// Gui Echo
+await connection.InvokeAsync("Echo",
+    $"Xin chao SignalR tu {name}");
+
+// Tham gia nhom
+await connection.InvokeAsync("JoinGroup", groupName);
+
+// Gui thong bao nhom
+await connection.InvokeAsync("SendToGroup",
+    groupName, $"Thong bao nhom tu {name}");
+
+// Gui cho tat ca
+await connection.InvokeAsync("Broadcast",
+    $"Xin chao tat ca tu {name}");
 
 Console.WriteLine("Dang cho thong diep... Nhan Enter de thoat.");
 Console.ReadLine();
