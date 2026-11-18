@@ -203,16 +203,18 @@ record SubmissionStatusMessage(
 // SubmissionHub
 sealed class SubmissionHub : Hub
 {
-    public Task WatchSubmission(string submissionId)
+    public async Task WatchSubmission(string submissionId)
     {
         string groupName =
             SubmissionGroups.ForSubmission(submissionId);
 
-        return Groups.AddToGroupAsync(
+        await Groups.AddToGroupAsync(
             Context.ConnectionId, groupName);
+
+        Console.WriteLine(
+            $"[Hub] {Context.ConnectionId} theo doi {groupName}");
     }
 }
-
 // Tao nhom rieng cho tung luot nop
 static class SubmissionGroups
 {

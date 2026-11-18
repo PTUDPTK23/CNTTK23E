@@ -31,7 +31,7 @@ connection.On<SubmissionStatusMessage>(
     "SubmissionStatusChanged", message =>
 {
     Console.WriteLine(
-        $"Thong bao SignalR: {message.Id} -> {message.Status}");
+        $"Thong bao SignalR: {message.Id} -> {message.Status} luc {message.UpdatedAt.ToLocalTime():HH:mm:ss}");
 
     if (message.Status == "graded")
     {
@@ -43,6 +43,81 @@ connection.On<SubmissionStatusMessage>(
 await connection.StartAsync();
 
 Console.WriteLine("Da ket noi SignalR.");
+
+// Buoc 6.1: Lay danh sach bai tap bang REST
+var assignments =
+    await http.GetFromJsonAsync<List<AssignmentDto>>(
+        "/api/assignments");
+
+var selected = assignments?.FirstOrDefault();
+
+if (selected is null)
+{
+    Console.WriteLine("Khong co bai tap.");
+    return;
+}
+
+Console.WriteLine(
+    $"Chon bai tap: {selected.Id} - {selected.Title}");
+
+// Buoc 6.2: Tao luot nop bai bang REST
+var createResponse = await http.PostAsJsonAsync(
+    $"/api/assignments/{selected.Id}/submissions",
+    new CreateSubmissionRequest(
+        studentCode,
+        $"https://example.com/{studentCode}/signalr"));
+
+// Kiem tra ma trang thai HTTP
+if (createResponse.StatusCode != HttpStatusCode.Created)
+{
+    var error = await createResponse.Content
+        .ReadFromJsonAsync<ApiError>();
+
+    Console.WriteLine(
+        $"Loi: {error?.Code} - {error?.Message}");
+
+    return;
+}
+
+// Doc thong tin luot nop vua tao
+var created = await createResponse.Content
+    .ReadFromJsonAsync<SubmissionDto>();
+
+if (created is null)
+{
+    Console.WriteLine("Khong doc duoc luot nop.");
+    return;
+}
+
+Console.WriteLine($"Da tao luot nop: {created.Id}");
+
+Console.WriteLine(
+    $"Trang thai REST ban dau: {created.Status}");
+
+// Buoc 6.3: Tham gia nhom theo doi luot nop
+await connection.InvokeAsync(
+    "WatchSubmission", created.Id.ToString());
+
+Console.WriteLine(
+    "Dang cho thong bao trang thai tu may chu...");
+
+// Buoc 6.4: Cho thong bao graded, toi da 10 giay
+var completed = await Task.WhenAny(
+    gradedNotification.Task,
+    Task.Delay(TimeSpan.FromSeconds(10)));
+
+if (completed != gradedNotification.Task)
+{
+    Console.WriteLine(
+        "Qua thoi gian cho thong bao graded.");
+}
+
+// Buoc 6.5: Doc lai trang thai cuoi bang REST
+var latest = await http.GetFromJsonAsync<SubmissionDto>(
+    $"/api/submissions/{created.Id}");
+
+Console.WriteLine(
+    $"Trang thai doc lai bang REST: {latest?.Status}");
 
 // Cac DTO
 record AssignmentDto(

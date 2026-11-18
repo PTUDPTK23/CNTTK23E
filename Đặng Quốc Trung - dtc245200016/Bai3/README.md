@@ -176,3 +176,22 @@ Máy chủ cập nhật dữ liệu trước rồi mới gửi thông báo Signa
 - connection.On: Đăng ký nhận thông báo SubmissionStatusChanged.
 
 Máy khách sử dụng hai kênh giao tiếp là REST API và SignalR.
+
+### Bước 6: Nộp bài và nhận trạng thái realtime
+
+![Kết quả máy khách](anh/edusubmit-buoc6-client.png)
+
+![Kết quả máy chủ](anh/edusubmit-buoc6-server.png)
+
+**Kết quả:** Máy khách kết nối SignalR, tạo lượt nộp bằng REST API và nhận thông báo trạng thái processing, graded từ máy chủ. Sau khi nhận thông báo hoàn thành, máy khách đọc lại trạng thái bằng REST và nhận kết quả graded.
+
+**Giải thích:**
+
+- GET: Lấy danh sách bài tập.
+- POST: Tạo lượt nộp bài.
+- WatchSubmission: Tham gia nhóm theo dõi lượt nộp.
+- Task.WhenAny: Chờ thông báo hoàn thành trong tối đa 10 giây.
+- SubmissionStatusChanged: Nhận thông báo thay đổi trạng thái theo thời gian thực.
+- REST API: Xác nhận trạng thái cuối cùng của lượt nộp.
+
+SignalR giúp máy khách nhận thông báo chủ động mà không cần liên tục gửi yêu cầu GET. REST vẫn là nguồn cung cấp trạng thái chính xác.
