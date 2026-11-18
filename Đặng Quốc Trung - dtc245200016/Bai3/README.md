@@ -24,3 +24,11 @@
 **Kết quả:** Máy chủ chạy thành công tại cổng 5200. Lệnh negotiate trả về connectionId và ba cơ chế truyền tải: WebSockets, ServerSentEvents và LongPolling. Truy cập trực tiếp Hub trả về 400 Bad Request.
 
 **Giải thích:** AddSignalR() đăng ký các dịch vụ SignalR. MapHub() ánh xạ Hub vào đường dẫn /hubs/ping để máy khách có thể kết nối với máy chủ.
+
+### Bước 3: Xây dựng phương thức Echo
+
+![Kết quả bước 3](anh/buoc3-echo-hub.png)
+
+**Kết quả:** Build thành công, không có lỗi. Máy chủ hoạt động tại cổng 5200.
+
+**Giải thích:** Phương thức Echo sử dụng Clients.Caller để gửi thông điệp EchoResponse về đúng máy khách vừa gọi phương thức.

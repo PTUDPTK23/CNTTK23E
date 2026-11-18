@@ -17,4 +17,8 @@ app.Run();
 
 sealed class PingHub : Hub
 {
+    public async Task Echo(string message)
+    {
+        await Clients.Caller.SendAsync("EchoResponse", $"Echo: {message}");
+    }
 }
