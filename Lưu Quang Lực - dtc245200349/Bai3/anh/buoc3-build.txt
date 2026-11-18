@@ -1,0 +1,11 @@
+PS D:\PTUD\Bai3> dotnet build PingSignalR/PingSignalR.slnx -m:1
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Ping.Api -> D:\PTUD\Bai3\PingSignalR\src\Ping.Api\bin\Debug\net10.0\Ping.Api.dll
+  Ping.Client -> D:\PTUD\Bai3\PingSignalR\src\Ping.Client\bin\Debug\net10.0\Ping.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.85
