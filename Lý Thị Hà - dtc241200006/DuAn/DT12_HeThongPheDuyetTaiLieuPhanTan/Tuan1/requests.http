@@ -1,0 +1,47 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra trạng thái máy chủ
+GET {{api}}/
+
+### 2. Lấy danh sách toàn bộ tài liệu
+GET {{api}}/documents
+
+### 3. Xem chi tiết một tài liệu theo ID (Ví dụ ID = 1)
+GET {{api}}/documents/1
+
+### 4. Tạo tài liệu mới (Mặc định trạng thái Draft)
+POST {{api}}/documents
+Content-Type: application/json
+
+{
+  "title": "De an tot nghiep",
+  "description": "Bao cao tien do thiet ke he thong",
+  "creator": "Lý Thị Hà"
+}
+
+### 5. Gửi tài liệu đi phê duyệt (Draft -> Submitted, ID = 1)
+POST {{api}}/documents/1/submit
+
+### 6. Phê duyệt tài liệu (Submitted -> Approved, ID = 1)
+POST {{api}}/documents/1/approve
+
+### 7. Từ chối tài liệu (Submitted -> Rejected, ID = 2)
+POST {{api}}/documents/2/reject
+
+### --- CÁC CA KIỂM THỬ LỖI (TÙY CHỌN) ---
+
+### 8. Lỗi 404: Xem tài liệu không tồn tại
+GET {{api}}/documents/999
+
+### 9. Lỗi 400: Tạo tài liệu thiếu tiêu đề
+POST {{api}}/documents
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "Thieu tieu de",
+  "creator": "Lý Thị Hà"
+}
+
+### 10. Lỗi 400: Phê duyệt tài liệu đang ở trạng thái Draft (chưa Submit, ID = 3)
+POST {{api}}/documents/3/approve
