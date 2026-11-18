@@ -305,10 +305,13 @@ Thí nghiệm 2: sau khi dừng API, server hiện `Application is shutting down
 
 Thí nghiệm 3: API đang lắng nghe cổng 5000. Client SaiHub dùng tùy chọn `--hub-path /hub/submissions`, khác tuyến `/hubs/submissions` của API, nên bắt tay nhận `404 (Not Found)` và client kết thúc.
 
-Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
+![Sai tên sự kiện khiến client không nhận thông báo](anh/thi-nghiem4-sai-ten.png)
+
+Thí nghiệm 4: client SaiTen đăng ký `SubmissionStatusChange` thay vì `SubmissionStatusChanged`. Lượt nộp `5dd660ab-2db1-45bf-a4a4-1455fe20c429` được server đẩy `processing` rồi `graded`, nhưng client không in thông báo SignalR cho lượt này. Sau 10 giây client báo quá thời gian chờ và GET REST vẫn nhận `graded`. Ảnh có output cũ ở phía trên; kết quả thí nghiệm nằm sau lệnh chạy SaiTen.
+
+Hai ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
 
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
-![Sai tên](anh/thi-nghiem4-sai-ten.png)
 ![Watch muộn](anh/thi-nghiem5-watch-muon.png)
 
 ## Đối chiếu thang điểm trang 70
