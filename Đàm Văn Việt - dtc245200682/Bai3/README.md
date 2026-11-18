@@ -301,6 +301,10 @@ Trong lần chạy mới ở nửa dưới ảnh, SV001 theo dõi ID `0ab42cfc-5
 
 Thí nghiệm 2: sau khi dừng API, server hiện `Application is shutting down...` và trở về dấu nhắc PowerShell. Chạy client Offline tại `http://localhost:5000` nhận `Loi ket noi` do máy đích từ chối kết nối. Client kết thúc mà không tạo lượt nộp; `WithAutomaticReconnect` không tự thử lại lần kết nối đầu thất bại.
 
+![EduSubmit sai đường dẫn hub trả 404](anh/thi-nghiem3-sai-hub.png)
+
+Thí nghiệm 3: API đang lắng nghe cổng 5000. Client SaiHub dùng tùy chọn `--hub-path /hub/submissions`, khác tuyến `/hubs/submissions` của API, nên bắt tay nhận `404 (Not Found)` và client kết thúc.
+
 Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
 
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
