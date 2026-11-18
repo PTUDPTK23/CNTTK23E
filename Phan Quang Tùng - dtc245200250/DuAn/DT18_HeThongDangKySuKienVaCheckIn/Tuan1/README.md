@@ -1,4 +1,4 @@
-# Đề tài 18: Hệ thống Đăng ký Sự kiện và Check-in (EventFlow)
+# Tuần 1 - Đề tài 18: Hệ thống Đăng ký Sự kiện và Check-in (DT18_HeThongDangKySuKienVaCheckIn)
 
 **Sinh viên thực hiện:** Phan Quang Tùng  
 **Mã sinh viên:** DTC245200250  
@@ -35,7 +35,7 @@ Dự án **EventFlow** quản lý đăng ký và check-in sự kiện phân tán
 
 ### Bước 1: Di chuyển vào thư mục dự án
 ```powershell
-cd "Phan Quang Tùng - dtc245200250/DuAn/DeTai18_EventFlow"
+cd "Phan Quang Tùng - dtc245200250/DuAn/DT18_HeThongDangKySuKienVaCheckIn/Tuan1"
 ```
 
 ### Bước 2: Build giải pháp
