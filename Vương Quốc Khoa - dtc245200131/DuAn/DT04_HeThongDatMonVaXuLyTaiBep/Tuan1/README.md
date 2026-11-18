@@ -38,7 +38,7 @@ Dự án được xây dựng tuân thủ nghiêm ngặt **phạm vi kiến th�
 ## 3. Cấu trúc thư mục dự án
 
 ```text
-F:\Code_demo\FoodOrderingKitchen/
+Vương Quốc Khoa - dtc245200131/DuAn/DT04_HeThongDatMonVaXuLyTaiBep/Tuan1/
 ├── FoodOrderingKitchen.slnx                 # Solution quản lý các project (.NET 10)
 ├── .gitignore                               # Quy tắc bỏ qua file tạm build / IDE
 ├── requests.http                            # Kịch bản kiểm thử API REST Client (13 ca test)
@@ -68,7 +68,7 @@ F:\Code_demo\FoodOrderingKitchen/
 ### 4.2. Biên dịch toàn bộ Solution
 Mở terminal tại thư mục gốc của dự án:
 ```powershell
-cd F:\Code_demo\FoodOrderingKitchen
+cd "Vương Quốc Khoa - dtc245200131/DuAn/DT04_HeThongDatMonVaXuLyTaiBep/Tuan1"
 dotnet build FoodOrderingKitchen.slnx
 ```
 
@@ -92,7 +92,7 @@ dotnet run --project src/FoodOrdering.Client -- http://localhost:5227
 
 ### 4.5. Kiểm thử bằng file `requests.http`
 Sử dụng extension **REST Client** (Huachao Mao) trong Visual Studio Code:
-1. Mở file `F:\Code_demo\FoodOrderingKitchen\requests.http`.
+1. Mở file `requests.http` tại thư mục dự án `Tuan1`.
 2. Kiểm tra biến địa chỉ đầu file trỏ đúng `http://localhost:5227`:
    ```http
    @baseUrl = http://localhost:5227

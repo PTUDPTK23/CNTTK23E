@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5055
+@baseUrl = http://localhost:5227
 
 ### 1. Kiểm tra trạng thái máy chủ (GET /)
 # Kỳ vọng: HTTP 200 OK
