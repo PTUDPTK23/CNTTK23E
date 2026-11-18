@@ -1,0 +1,90 @@
+@api = http://localhost:5000
+@closedAssignmentId = 2
+
+### 1. Danh sach bai tap (mong doi 200)
+GET {{api}}/api/assignments
+
+### 2. Chi tiet bai tap 1 (mong doi 200)
+GET {{api}}/api/assignments/1
+
+### 3. Bai tap khong ton tai (mong doi 404 ASSIGNMENT_NOT_FOUND)
+GET {{api}}/api/assignments/999
+
+### 4. Tao bai nop (mong doi 201 Created va header Location)
+# Chay request nay truoc cac request can ID phia duoi.
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/rest-api"
+}
+
+### 5. Doc lai bai nop vua tao (mong doi 200)
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 6. Body rong (mong doi 400 INVALID_SUBMISSION)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 7. Nop vao bai tap khong ton tai (mong doi 404 ASSIGNMENT_NOT_FOUND)
+POST {{api}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV999",
+  "repositoryUrl": "https://example.com/sv999"
+}
+
+### 8. Thieu Content-Type (mong doi 415)
+POST {{api}}/api/assignments/1/submissions
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://example.com/sv002"
+}
+
+### 9. JSON hong (mong doi 400 tu framework)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{"studentCode": "SV003",
+
+### 10. PUT khong duoc ho tro (mong doi 405)
+PUT {{api}}/api/assignments/1
+Content-Type: application/json
+
+{}
+
+### 11. Bai tap da dong (mong doi 400 ASSIGNMENT_CLOSED)
+# Truoc tien tam sua IsOpen cua bai tap 2 thanh false trong List<AssignmentDto> o Program.cs,
+# khoi dong lai API, sau do gui request nay. Sua lai true va khoi dong lai API sau khi thu.
+POST {{api}}/api/assignments/{{closedAssignmentId}}/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV010",
+  "repositoryUrl": "https://example.com/sv010"
+}
+
+### 12. Nop trung bai tap (mong doi 409 DUPLICATE_SUBMISSION)
+# Gui lai sau request 4; StudentCode duoc so sanh khong phan biet hoa thuong.
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "sv001",
+  "repositoryUrl": "https://example.com/sv001/duplicate"
+}
+
+### 13. Xoa bai nop vua tao (mong doi 204 No Content)
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 14. Doc bai nop da xoa (mong doi 404 SUBMISSION_NOT_FOUND)
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
