@@ -253,10 +253,13 @@ Client SaiTen đăng ký `EchoRespone`, vẫn kết nối và nhận Group/Broad
 
 ### EduSubmit và bài tập mở rộng
 
-Các ảnh EduSubmit dưới đây được tạo bằng cách mở log kiểm thử tự động trong trình duyệt rồi chụp lại. Chưa có ảnh chụp trực tiếp terminal cho các mục này; có thể đối chiếu kết quả với các file TXT trong `evidence/`.
+![Client nhận graded](anh/edusubmit-SV001.png)
+
+Ảnh terminal lúc khoảng 09:57 ngày 18/11/2026: API chạy cổng 5000; client SV001 tạo lượt nộp `c131e243-af7a-45c4-b3c1-953ce520520c` với trạng thái `received`. Server đẩy `processing` rồi `graded`, client nhận đủ hai thông báo và đọc lại REST được `graded`, sau đó tự thoát. Hai thông báo có thời điểm 02:57:25.686 và 02:57:27.702 UTC, cách nhau khoảng 2 giây.
+
+Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt; chưa có ảnh chụp trực tiếp request/response hoặc terminal cho các mục này. Log gốc nằm trong `evidence/`.
 
 ![REST](anh/edusubmit-requests.png)
-![Client nhận graded](anh/edusubmit-SV001.png)
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
 ![Sai tên](anh/thi-nghiem4-sai-ten.png)
 ![Watch muộn](anh/thi-nghiem5-watch-muon.png)
