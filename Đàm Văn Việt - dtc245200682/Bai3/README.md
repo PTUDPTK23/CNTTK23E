@@ -327,7 +327,7 @@ Toàn bộ ảnh trong mục minh chứng là ảnh chụp trực tiếp termina
 | requests.http | 2 | EduSubmit 17 ca, bao gồm 9 ca bắt buộc, có 200/201/400/404/negotiate; Ping thêm 4 ca. |
 | Giải thích | 2 | Ba câu đầu giờ và ôn tập, mô tả hợp đồng/luồng phía trên. |
 | Thí nghiệm | 1 | Bảng 5 dòng dự đoán + kết quả thật + giải thích, có log từng ca. |
-| Git & PR | 1 | Có hơn 8 commit cục bộ; .gitignore loại bin/obj. Chưa push và chưa mở PR. Xem [trạng thái Git](PR-STATUS.md). |
+| Git & PR | 1 | Có hơn 8 commit theo bước; .gitignore loại bin/obj. Đã push bằng Viet0810 và mở [PR #109](https://github.com/PTUDPTK23/CNTTK23E/pull/109) vào main repo lớp. Email commit: dtc245200682@ictu.edu.vn. Xem [trạng thái Git](PR-STATUS.md). |
 | Bài tập cộng | ≤0,5 | failed, cảnh báo đỏ và theo dõi hai lượt trên một kết nối đã chạy thật. |
 
 Hạn nộp theo thông báo của lớp; PDF không ghi ngày cụ thể.
