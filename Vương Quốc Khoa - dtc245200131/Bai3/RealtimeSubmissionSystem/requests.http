@@ -1,0 +1,65 @@
+@host = http://localhost:5000
+
+### 1. Kiểm tra trạng thái máy chủ (GET /)
+# Kỳ vọng: HTTP 200 OK
+GET {{host}}/
+Accept: application/json
+
+### 2. Xem danh sách bài tập (GET /api/assignments)
+# Kỳ vọng: HTTP 200 OK, trả về danh sách bài tập có sẵn
+GET {{host}}/api/assignments
+Accept: application/json
+
+### 3. Tạo lượt nộp hợp lệ (POST /api/assignments/1/submissions)
+# Kỳ vọng: HTTP 201 Created + header Location, status = "received"
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 4. Đọc lại trạng thái lượt nộp (GET /api/submissions/{id})
+# Kỳ vọng: HTTP 200 OK, đọc lại trạng thái (received -> processing -> graded)
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+Accept: application/json
+
+### 5. Tạo lượt nộp thiếu dữ liệu đầu vào (POST /api/assignments/1/submissions)
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_SUBMISSION
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. Tạo lượt nộp vào bài tập không tồn tại (POST /api/assignments/99/submissions)
+# Kỳ vọng: HTTP 404 Not Found, ApiError ASSIGNMENT_NOT_FOUND
+POST {{host}}/api/assignments/99/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 7. Tra cứu bài nộp với Guid không tồn tại (GET /api/submissions/{id})
+# Kỳ vọng: HTTP 404 Not Found, ApiError SUBMISSION_NOT_FOUND
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+### 8. Bắt tay SignalR hợp lệ (POST /hubs/submissions/negotiate)
+# Kỳ vọng: HTTP 200 OK + connectionId và availableTransports
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+Accept: application/json
+
+### 9. Bắt tay SignalR sai đường dẫn hub (POST /hub/submissions/negotiate)
+# Kỳ vọng: HTTP 404 Not Found
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
+Accept: application/json
