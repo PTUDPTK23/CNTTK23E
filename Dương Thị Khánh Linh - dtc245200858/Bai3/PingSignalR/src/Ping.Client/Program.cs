@@ -1,11 +1,11 @@
-﻿
+
 using Microsoft.AspNetCore.SignalR.Client;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 // 1. Khởi tạo kết nối SignalR
 var connection = new HubConnectionBuilder()
-    .WithUrl("http://localhost:5200/pingHub")
+    .WithUrl("http://localhost:5200/hubs/ping")
     .WithAutomaticReconnect()
     .Build();
 

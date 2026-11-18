@@ -9,7 +9,7 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Ping SignalR API is running!");
 
-app.MapHub<PingHub>("/pingHub");
+app.MapHub<PingHub>("/hubs/ping");
 
 app.Run("http://localhost:5200");
 
