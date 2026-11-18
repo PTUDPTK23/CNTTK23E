@@ -1,4 +1,10 @@
+using Microsoft.AspNetCore.SignalR;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Dang ky dich vu SignalR
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Danh sach bai tap
@@ -90,6 +96,9 @@ app.MapGet("/api/submissions/{submissionId:guid}",
     }
 });
 
+// Buoc 3: Anh xa Hub SignalR
+app.MapHub<SubmissionHub>("/hubs/submissions");
+
 app.Run();
 
 // Cac DTO
@@ -114,3 +123,30 @@ record SubmissionDto(
 record ApiError(
     string Code,
     string Message);
+
+// Buoc 3: Xay dung SubmissionHub
+sealed class SubmissionHub : Hub
+{
+    public Task WatchSubmission(string submissionId)
+    {
+        string groupName =
+            SubmissionGroups.ForSubmission(submissionId);
+
+        return Groups.AddToGroupAsync(
+            Context.ConnectionId, groupName);
+    }
+}
+
+// Buoc 3: Tao nhom rieng cho tung luot nop
+static class SubmissionGroups
+{
+    public static string ForSubmission(Guid id)
+    {
+        return ForSubmission(id.ToString());
+    }
+
+    public static string ForSubmission(string id)
+    {
+        return $"submission:{id}";
+    }
+}

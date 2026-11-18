@@ -127,3 +127,18 @@ Sau khi kết nối lại, ConnectionId thay đổi. Máy khách cần tham gia 
 - UpdatedAt lưu thời điểm cập nhật trạng thái gần nhất.
 - lock bảo vệ dữ liệu khi nhiều luồng cùng truy cập.
 - REST là nguồn cung cấp trạng thái chính xác của lượt nộp.
+
+### Bước 3: SubmissionHub và Group
+
+![Kết quả negotiate EduSubmit](anh/edusubmit-buoc3-negotiate.png)
+
+**Kết quả:** Đường dẫn /hubs/submissions/negotiate trả về HTTP 200 OK, connectionId và các cơ chế truyền tải. Khi sử dụng sai đường dẫn Hub, máy chủ trả về HTTP 404 Not Found.
+
+**Giải thích:**
+
+- AddSignalR(): Đăng ký dịch vụ SignalR.
+- MapHub(): Ánh xạ SubmissionHub vào đường dẫn /hubs/submissions.
+- WatchSubmission(): Đăng ký theo dõi một lượt nộp bài.
+- SubmissionGroups: Tạo tên nhóm riêng theo mã lượt nộp.
+
+Việc sử dụng Group giúp gửi thông báo đến đúng nhóm máy khách, hạn chế lộ dữ liệu và tiết kiệm băng thông.
