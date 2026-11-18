@@ -1,0 +1,69 @@
+@host = http://localhost:5000
+
+### 1. Kiem tra dich vu dang chay -> 200 OK
+GET {{host}}/
+
+### 2. Lay danh sach bai tap -> 200 OK
+GET {{host}}/api/assignments
+
+### 3. Tao luot nop hop le -> 201 Created + Location, status = received
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 4. Doc lai trang thai luot nop (bam nhieu lan: received -> processing -> graded) -> 200 OK
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Tao luot nop thieu du lieu (studentCode / repositoryUrl) -> 400 Bad Request
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. Tao luot nop cho bai tap khong ton tai (bai 99) -> 404 Not Found
+POST {{host}}/api/assignments/99/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 7. Doc luot nop voi id rong khong ton tai -> 404 Not Found
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Bat tay SignalR (negotiate) -> 200 OK + connectionId + availableTransports
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Sai duong dan hub (/hub/submissions thieu s) -> 404 Not Found
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
+
+### 10. (Bo sung) Nop bai vao bai tap da dong (bai 3) -> 400 Bad Request (ASSIGNMENT_CLOSED)
+POST {{host}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 11. (Bai tap 2) Tao luot nop khong dung https:// -> 201 Created, sau 3s thanh failed
+# @name createFailedSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "http://example.com/sv002/signalr"
+}
+
+### 12. (Bai tap 2) Doc lai luot nop loi sau 3s -> 200 OK, status = failed
+GET {{host}}/api/submissions/{{createFailedSubmission.response.body.$.id}}
