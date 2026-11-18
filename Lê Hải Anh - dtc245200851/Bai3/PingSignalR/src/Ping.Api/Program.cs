@@ -9,4 +9,6 @@ app.Run();
 
 sealed class PingHub : Hub
 {
+    public Task Echo(string message)
+        => Clients.Caller.SendAsync("EchoResponse", $"Echo: {message}");
 }
