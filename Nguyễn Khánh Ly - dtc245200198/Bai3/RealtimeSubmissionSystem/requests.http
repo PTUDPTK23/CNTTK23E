@@ -1,0 +1,47 @@
+@host = http://localhost:5000
+
+### 1. Kiểm tra API gốc -> 200
+GET {{host}}/
+
+### 2. Lấy danh sách bài tập -> 200
+GET {{host}}/api/assignments
+
+### 3. Tạo lượt nộp hợp lệ -> 201 + Location
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV009",
+  "repositoryUrl": "https://github.com/example/SV009"
+}
+
+### 4. Đọc lại lượt nộp vừa tạo -> 200
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Tạo lượt nộp thiếu dữ liệu -> 400
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. Nộp bài cho assignment không tồn tại -> 404
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV010",
+  "repositoryUrl": "https://github.com/example/SV010"
+}
+
+### 7. Đọc lượt nộp không tồn tại -> 404
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Bắt tay SignalR đúng đường dẫn -> 200
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Bắt tay SignalR sai đường dẫn -> 404
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
