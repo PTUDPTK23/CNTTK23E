@@ -1,0 +1,13 @@
+@host = http://localhost:5200
+
+### 1. Kiểm tra trạng thái máy chủ PingApi -> 200 OK
+GET {{host}}/
+
+### 2. Bước bắt tay negotiate của PingHub -> 200 OK + connectionId
+POST {{host}}/hubs/ping/negotiate?negotiateVersion=1
+
+### 3. Gọi thẳng vào tuyến Hub khi chưa có connectionId -> 400 Bad Request
+GET {{host}}/hubs/ping
+
+### 4. Thử nghiệm sai đường dẫn Hub (thiếu 's') -> 404 Not Found
+POST {{host}}/hub/ping/negotiate?negotiateVersion=1
