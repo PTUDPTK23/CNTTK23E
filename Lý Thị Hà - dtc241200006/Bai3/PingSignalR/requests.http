@@ -1,0 +1,46 @@
+@HostAddress = http://localhost:5200
+@HubPath = /pinghub
+
+1. Kiểm tra trang gốc của Server (Ping.Api)
+
+GET {{HostAddress}}/
+Accept: text/plain
+
+2. Kiểm tra trạng thái hoạt động (Health Check)
+
+GET {{HostAddress}}/health
+Accept: application/json
+
+3. SignalR Negotiate (Bắt tay khởi tạo kết nối tới Hub)
+
+POST {{HostAddress}}{{HubPath}}/negotiate?negotiateVersion=1
+Content-Type: application/json
+
+4. Gửi yêu cầu Ping qua HTTP GET
+
+GET {{HostAddress}}/ping
+Accept: application/json
+
+5. Gửi dữ liệu Ping kèm nội dung qua HTTP POST
+
+POST {{HostAddress}}/ping
+Content-Type: application/json
+
+{
+"clientName": "Ping.Client",
+"message": "Ping từ HTTP Request"
+}
+
+6. Lấy danh sách các kết nối / lịch sử Ping
+
+GET {{HostAddress}}/ping/history
+Accept: application/json
+
+7. Gửi thông báo broadcast tới toàn bộ Client đang kết nối Hub
+
+POST {{HostAddress}}/api/notify
+Content-Type: application/json
+
+{
+"message": "Thông báo kiểm thử từ file .http"
+}
