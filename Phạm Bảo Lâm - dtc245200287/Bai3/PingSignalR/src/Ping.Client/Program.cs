@@ -19,5 +19,10 @@ Console.WriteLine($"{name} da ket noi den PingApi.");
 // Gọi phương thức Echo trên hub
 await connection.InvokeAsync("Echo", $"Xin chao SignalR tu {name}");
 
+// PHẦN MỚI THÊM: Gọi JoinGroup, SendToGroup và Broadcast
+await connection.InvokeAsync("JoinGroup", "lop-hoc-01");
+await connection.InvokeAsync("SendToGroup", "lop-hoc-01", $"Thong bao nhom tu {name}");
+await connection.InvokeAsync("Broadcast", $"Xin chao tat ca tu {name}");
+
 Console.WriteLine("Dang cho thong diep... Nhan Enter de thoat.");
 Console.ReadLine();
