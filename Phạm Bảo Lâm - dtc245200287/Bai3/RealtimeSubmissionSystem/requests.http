@@ -1,0 +1,19 @@
+### 1. Lấy danh sách (Trả về 200 OK)
+GET http://localhost:5000/api/submissions
+
+### 2. Tạo mới submission (Trả về 201 Created)
+POST http://localhost:5000/api/submissions
+Content-Type: application/json
+
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "assignmentId": 1,
+  "studentCode": "dtc245200287",
+  "repositoryUrl": "https://github.com/dtc245200287-creator/EduSubmit",
+  "status": "submitted",
+  "receivedAt": "2026-11-18T10:00:00Z",
+  "updatedAt": "2026-11-18T10:00:00Z"
+}
+
+### 3. Không tìm thấy (Trả về 404 Not Found)
+GET http://localhost:5000/api/submissions/3fa85f64-5717-4562-b3fc-2c963f66afa0
