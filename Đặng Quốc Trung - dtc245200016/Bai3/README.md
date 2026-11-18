@@ -195,3 +195,65 @@ Máy khách sử dụng hai kênh giao tiếp là REST API và SignalR.
 - REST API: Xác nhận trạng thái cuối cùng của lượt nộp.
 
 SignalR giúp máy khách nhận thông báo chủ động mà không cần liên tục gửi yêu cầu GET. REST vẫn là nguồn cung cấp trạng thái chính xác.
+
+### Bước 7: Thí nghiệm hệ thống phân tán
+
+#### Dự đoán trước khi thực hiện
+
+- Thí nghiệm 1: Hai máy khách chỉ nhận thông báo của lượt nộp riêng.
+- Thí nghiệm 2: Máy khách không thể kết nối khi máy chủ chưa chạy.
+- Thí nghiệm 3: Sai đường dẫn Hub sẽ trả về lỗi 404.
+- Thí nghiệm 4: Sai tên sự kiện khiến máy khách không nhận được thông báo.
+- Thí nghiệm 5: Theo dõi lượt nộp quá muộn sẽ bỏ lỡ thông báo SignalR nhưng REST vẫn đọc được trạng thái graded.
+
+#### Kết quả thực nghiệm
+
+##### Thí nghiệm 1: Hai máy khách chạy đồng thời
+
+![Thí nghiệm 1](anh/edusubmit-buoc7-tn1.png)
+
+**Kết quả:** Hai máy khách SV001 và SV002 chỉ nhận được thông báo trạng thái của lượt nộp riêng.
+
+**Giải thích:** SignalR Group giúp phân chia thông báo theo từng lượt nộp, tránh gửi nhầm thông tin giữa các máy khách.
+
+##### Thí nghiệm 2: Máy chủ chưa chạy
+
+![Thí nghiệm 2](anh/edusubmit-buoc7-tn2.png)
+
+**Kết quả:** Máy khách gặp lỗi HttpRequestException và SocketException (10061) khi kết nối đến localhost:5000.
+
+**Giải thích:** Máy chủ chưa hoạt động nên máy khách không thể thiết lập kết nối. WithAutomaticReconnect không tự động thử lại lần kết nối đầu tiên thất bại.
+
+##### Thí nghiệm 3: Sai đường dẫn Hub
+
+![Thí nghiệm 3](anh/edusubmit-buoc7-tn3.png)
+
+**Kết quả:** Máy khách nhận lỗi HTTP 404 Not Found.
+
+**Giải thích:** Đường dẫn /hub/submissions không khớp với đường dẫn /hubs/submissions được khai báo trên máy chủ.
+
+##### Thí nghiệm 4: Sai tên sự kiện SignalR
+
+![Thí nghiệm 4](anh/edusubmit-buoc7-tn4.png)
+
+**Kết quả:** Máy khách kết nối và nộp bài thành công nhưng không nhận được thông báo SignalR. Sau 10 giây chờ, REST vẫn trả về trạng thái graded.
+
+**Giải thích:** Tên sự kiện đăng ký trên máy khách không khớp với tên thông điệp do máy chủ gửi.
+
+##### Thí nghiệm 5: Theo dõi lượt nộp quá muộn
+
+![Thí nghiệm 5](anh/edusubmit-buoc7-tn5.png)
+
+**Kết quả:** Máy khách đăng ký theo dõi sau 4 giây nên bỏ lỡ thông báo processing và graded. Tuy nhiên, khi đọc lại bằng REST, trạng thái vẫn là graded.
+
+**Giải thích:** Các thông báo SignalR đã được gửi trước khi máy khách tham gia nhóm.
+
+#### Kết luận
+
+- SignalR giúp nhận thông báo theo thời gian thực.
+- Group giúp gửi thông báo đến đúng đối tượng.
+- Đường dẫn Hub và tên sự kiện phải khớp giữa máy chủ và máy khách.
+- Thông báo thời gian thực có thể bị bỏ lỡ.
+- REST vẫn là nguồn cung cấp trạng thái chính xác của hệ thống.
+
+Sau khi hoàn thành các thí nghiệm, khôi phục code ban đầu và kiểm tra lại hoạt động của hệ thống.
