@@ -17,6 +17,24 @@ app.Run();
 
 sealed class PingHub : Hub
 {
+    // Bước 6: máy chủ biết khi có máy khách nối vào
+    public override async Task OnConnectedAsync()
+    {
+        Console.WriteLine($"[Hub] + {Context.ConnectionId[..8]} ket noi");
+        await Clients.All.SendAsync("SystemMessage",
+            $"Client {Context.ConnectionId[..8]} da ket noi.");
+        await base.OnConnectedAsync();
+    }
+
+    // Bước 6: máy chủ biết khi máy khách ngắt
+    public override async Task OnDisconnectedAsync(Exception? ex)
+    {
+        Console.WriteLine($"[Hub] - {Context.ConnectionId[..8]} ngat");
+        await Clients.All.SendAsync("SystemMessage",
+            $"Client {Context.ConnectionId[..8]} da ngat ket noi.");
+        await base.OnDisconnectedAsync(ex);
+    }
+
     // Máy khách gọi Echo -> trả lời RIÊNG người gọi
     public async Task Echo(string message)
     {

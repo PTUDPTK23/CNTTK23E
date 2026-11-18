@@ -43,11 +43,16 @@ Nhật ký thực hành Bài 3. Mỗi bước gồm: ảnh kết quả, điều 
 
 - **Giải thích:** 
         Hub có 3 phạm vi gửi: Clients.Caller chỉ gửi người gọi (Echo), Clients.All gửi mọi kết nối đang mở (Broadcast), Clients.Group gửi các kết nối đã JoinGroup vào nhóm lop-hoc-01. SignalR chỉ đẩy tin tới kết nối đang mở tại thời điểm gửi, không lưu tin cũ, nên Bình vào sau không nhận được tin An đã gửi trước đó.
+
 ### Bước 6: vòng đời kết nối và kết nối lại
 ![noilai](anh/buoc6-noilai.png)
+![maychu](anh/buoc6-maychu.png)
 
 - **Thấy:** 
+        Khi tắt máy chủ, An in "[Lifecycle] Dang ket noi lai..."; bật lại máy chủ thì An in "[Lifecycle] Da ket noi lai: chMEd3BW" và "[System] Client chMEd3BW da ket noi.". Máy chủ in [Hub] + nZEB_1Mj ket noi, [Hub] - nZEB_1Mj ngat, rồi [Hub] + chMEd3BW ket noi.
+
 - **Giải thích:** 
+        OnConnectedAsync/OnDisconnectedAsync cho máy chủ biết khi có kết nối mở hoặc ngắt; Reconnecting/Reconnected/Closed cho máy khách biết khi rớt mạng. WithAutomaticReconnect thử lại sau 0, 2, 10, 30 giây; nối lại được thì ConnectionId đổi (nZEB_1Mj → chMEd3BW), máy chủ coi là kết nối MỚI nên An mất nhóm lop-hoc-01 (muốn ở lại phải gọi JoinGroup trong Reconnected). Tin gửi lúc rớt mạng bị mất vì SignalR không lưu lại để gửi sau.
 
 ### Bước 7: ba thí nghiệm lỗi
 
