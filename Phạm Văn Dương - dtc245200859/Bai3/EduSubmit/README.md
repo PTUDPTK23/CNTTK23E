@@ -10,7 +10,7 @@ EduSubmit giu nguyen REST cua Bai 2 va bo sung thong bao trang thai thoi gian th
 - `GET /api/submissions/{submissionId}`: doc lai luot nop theo `Location`.
 - `GET/POST /hubs/submissions`: endpoint SignalR.
 
-Client goi `JoinSubmission(submissionId)` de vao group `submission:{id}`. Server phat event `SubmissionStatusChanged` voi cac trang thai:
+Client goi `WatchSubmission(submissionId)` de vao group `submission:{id}`. Server phat event `SubmissionStatusChanged` voi cac trang thai:
 
 ```json
 {
