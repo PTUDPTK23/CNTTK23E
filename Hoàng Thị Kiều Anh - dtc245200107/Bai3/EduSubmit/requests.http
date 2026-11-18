@@ -1,0 +1,44 @@
+@host = http://localhost:5000
+
+### 1. Health check - 200
+GET {{host}}/
+
+### 2. Assignments - 200
+GET {{host}}/api/assignments
+
+### 3. Create - 201, Location, received, updatedAt
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "HTTP-{{$guid}}",
+  "repositoryUrl": "https://example.com/edusubmit/signalr"
+}
+
+### 4. Read case 3 - 200, received -> processing -> graded
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Missing fields - 400 INVALID_SUBMISSION
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{}
+
+### 6. Missing assignment - 404 ASSIGNMENT_NOT_FOUND
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "HTTP-001",
+  "repositoryUrl": "https://example.com/edusubmit/signalr"
+}
+
+### 7. Missing submission - 404 SUBMISSION_NOT_FOUND
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. SignalR negotiate - 200 with connectionId
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Wrong hub URL - 404
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
