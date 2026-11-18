@@ -257,7 +257,11 @@ Client SaiTen đăng ký `EchoRespone`, vẫn kết nối và nhận Group/Broad
 
 Ảnh terminal lúc khoảng 09:57 ngày 18/11/2026: API chạy cổng 5000; client SV001 tạo lượt nộp `c131e243-af7a-45c4-b3c1-953ce520520c` với trạng thái `received`. Server đẩy `processing` rồi `graded`, client nhận đủ hai thông báo và đọc lại REST được `graded`, sau đó tự thoát. Hai thông báo có thời điểm 02:57:25.686 và 02:57:27.702 UTC, cách nhau khoảng 2 giây.
 
-Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt; chưa có ảnh chụp trực tiếp request/response hoặc terminal cho các mục này. Log gốc nằm trong `evidence/`.
+![POST tạo lượt nộp trả 201 Created](anh/edusubmit-http03.png)
+
+Ca 3 trong `requests.http` gửi mã sinh viên SV001 và đường dẫn repository. Response trả `201 Created`, header `Location` trỏ tới `/api/submissions/5f0faa2a-8002-4ff6-8275-ed70737c9448`, body có trạng thái `received` cùng thời điểm nhận và cập nhật. Ảnh chụp trực tiếp request/response trong VS Code lúc khoảng 10:03 ngày 18/11/2026.
+
+Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Các ca REST khác, bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp request/response hoặc terminal. Log gốc nằm trong `evidence/`.
 
 ![REST](anh/edusubmit-requests.png)
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
