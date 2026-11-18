@@ -1,0 +1,14 @@
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\bin\Debug\net10.0\Catalog.Client.exe
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\bin\Debug\net10.0\Catalog.Client.deps.json
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\bin\Debug\net10.0\Catalog.Client.runtimeconfig.json
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\bin\Debug\net10.0\Catalog.Client.dll
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\bin\Debug\net10.0\Catalog.Client.pdb
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.GeneratedMSBuildEditorConfig.editorconfig
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.AssemblyInfoInputs.cache
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.AssemblyInfo.cs
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.csproj.CoreCompileInputs.cache
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.dll
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\refint\Catalog.Client.dll
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.pdb
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\Catalog.Client.genruntimeconfig.cache
+D:\PHAT TRIEN UNG DUNG PHAN TAN\Bai2\CatalogApi\src\Catalog.Client\obj\Debug\net10.0\ref\Catalog.Client.dll
