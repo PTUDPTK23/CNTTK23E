@@ -1,0 +1,45 @@
+@host = http://localhost:5000
+@assignmentId = 1
+
+### Kiểm tra API
+GET {{host}}/
+
+### Lấy danh sách bài tập
+GET {{host}}/api/assignments
+
+### Tạo lượt nộp (201 Created)
+# @name createSubmission
+POST {{host}}/api/assignments/{{assignmentId}}/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### Đọc trạng thái lượt nộp vừa tạo (đợi khoảng 4 giây để thấy graded)
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Bài tập không tồn tại (404)
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### SignalR negotiate
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### Hub mẫu PingSignalR negotiate
+POST {{host}}/hubs/ping/negotiate?negotiateVersion=1
+
+### Payload sai (400 Bad Request)
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": "not-a-url"
+}
