@@ -1,0 +1,55 @@
+# ====================================================================
+# File .gitignore cho Bai 3: Giao tiep thoi gian thuc voi SignalR
+# Loai bo tat ca cac file khong thuoc ma nguon & bao cao Bai 3
+# ====================================================================
+
+# 1. Tai lieu bai giang, slide, sach (khong push len Git)
+*.pdf
+Bai3_SignalR_Bai-giang.pdf
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+
+# 2. File nen, sao luu tam thoi
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bak
+*.tmp
+*.temp
+
+# 3. Thu muc Build & Restore cua .NET / C# (Bat buoc theo quy dinh cham)
+[Bb]in/
+[Oo]bj/
+**/bin/
+**/obj/
+[Dd]ebug/
+[Rr]elease/
+**/Debug/
+**/Release/
+
+# 4. Cau hinh moi truong & may ca nhan cua Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# 5. File he dieu hanh Windows / macOS
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# 6. Scripts ho tro & cache tam
+*.py
+__pycache__/
+*.log
