@@ -309,10 +309,13 @@ Thí nghiệm 3: API đang lắng nghe cổng 5000. Client SaiHub dùng tùy ch�
 
 Thí nghiệm 4: client SaiTen đăng ký `SubmissionStatusChange` thay vì `SubmissionStatusChanged`. Lượt nộp `5dd660ab-2db1-45bf-a4a4-1455fe20c429` được server đẩy `processing` rồi `graded`, nhưng client không in thông báo SignalR cho lượt này. Sau 10 giây client báo quá thời gian chờ và GET REST vẫn nhận `graded`. Ảnh có output cũ ở phía trên; kết quả thí nghiệm nằm sau lệnh chạy SaiTen.
 
-Hai ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
+![Watch muộn làm lỡ thông báo nhưng REST vẫn trả graded](anh/thi-nghiem5-watch-muon.png)
+
+Thí nghiệm 5: với lượt nộp `2ee616b8-9637-4ede-a6cc-48b8ae79a955`, log server ghi `processing`, `graded` rồi mới ghi client theo dõi nhóm. Client WatchMuon không nhận thông báo cho ID này, báo quá thời gian chờ và GET REST được `graded`. Điều này cho thấy tham gia nhóm muộn không nhận lại thông điệp đã phát trước đó.
+
+Ảnh bài tập thêm dưới đây hiển thị log kiểm thử tự động qua trình duyệt; chưa có ảnh chụp terminal cho phần này. Log gốc nằm trong `evidence/`.
 
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
-![Watch muộn](anh/thi-nghiem5-watch-muon.png)
 
 ## Đối chiếu thang điểm trang 70
 
