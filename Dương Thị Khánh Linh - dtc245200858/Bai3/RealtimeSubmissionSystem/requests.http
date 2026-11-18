@@ -1,0 +1,75 @@
+
+@baseUrl = http://localhost:5000
+
+### 1. Kiem tra API
+GET {{baseUrl}}/
+
+###
+
+### 2. Lay danh sach bai tap
+GET {{baseUrl}}/api/assignments
+
+###
+
+### 3. Gui bai nop hop le - HTTP 201
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV003",
+  "repositoryUrl": "https://github.com/example/SV003"
+}
+
+###
+
+### 4. Gui bai nop thieu StudentCode - HTTP 400
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/example/SV004"
+}
+
+###
+
+### 5. Gui bai nop thieu RepositoryUrl - HTTP 400
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV005",
+  "repositoryUrl": ""
+}
+
+###
+
+### 6. Gui bai nop voi AssignmentId khong ton tai - HTTP 404
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV006",
+  "repositoryUrl": "https://github.com/example/SV006"
+}
+
+###
+
+### 7. Tra cuu bai nop khong ton tai - HTTP 404
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+###
+
+### 8. Kiem tra SignalR negotiate - HTTP 200
+POST {{baseUrl}}/hubs/submissions/negotiate?negotiateVersion=1
+Content-Type: application/json
+
+{}
+
+###
+
+### 9. Kiem tra sai duong dan Hub - HTTP 404
+POST {{baseUrl}}/hub/submissions/negotiate?negotiateVersion=1
+Content-Type: application/json
+
+{}
