@@ -3,7 +3,10 @@
 .packages/
 .local/
 .env
-TestResults/
+TestResults/*
+!TestResults/smoke-results.json
+!TestResults/patient-live.png
+!TestResults/staff-live.png
 *.user
 ~$*.docx
 __pycache__/

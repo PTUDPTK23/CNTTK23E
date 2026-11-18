@@ -1,5 +1,9 @@
 # Kết quả xác minh thực tế
 
+## Kiểm tra bản nộp
+
+Build lại bằng `dotnet build Clinic.sln --no-restore --tl:off`: **0 warning, 0 error**. Bộ smoke Docker không được chạy lại trong bước nộp; 14/14 ca và ảnh bên dưới thuộc lần kiểm thử ngày 17/11/2026. Kết quả JSON và hai ảnh được nộp kèm trong `TestResults/`. Thông tin repository và PR hiện tại xem [NOP-BAI.md](NOP-BAI.md); các mô tả trạng thái Git trong phần lịch sử bên dưới phản ánh thời điểm kiểm thử tương ứng.
+
 ## Bản tối ưu ngày 17/11/2026 — kết quả mới nhất
 
 Hoàn tất **08:17:39 ngày 17/11/2026, giờ Việt Nam** (UTC+7), run ID **478dcef3**. Suite trả exit code **0**, `failed=false`, **14/14 ca PASS** trong [TestResults/smoke-results.json](TestResults/smoke-results.json). Mười ca có sẵn tiếp tục đạt; bốn ca mới kiểm tra các thay đổi ở bản tối ưu.

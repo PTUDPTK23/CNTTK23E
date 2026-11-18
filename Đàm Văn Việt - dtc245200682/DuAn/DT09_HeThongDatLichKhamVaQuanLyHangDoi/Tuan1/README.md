@@ -1,5 +1,10 @@
 # Đề tài 09 — Hệ thống đặt lịch khám và quản lý hàng đợi
 
+Sinh viên: **Đàm Văn Việt** · MSSV: **dtc245200682** · GitHub: **Viet0810**
+Email: **dtc245200682@ictu.edu.vn**.
+
+Bản nộp Tuần 1 đặt tại `Đàm Văn Việt - dtc245200682/DuAn/DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1/` trong repo lớp. Thông tin nộp bài ở [NOP-BAI.md](NOP-BAI.md). Khi chạy từ bản clone bài nộp, mở terminal tại thư mục `Tuan1` chứa `Clinic.sln` và `docker-compose.yml`.
+
 Ứng dụng demo C# / **.NET 10 Minimal API**, PostgreSQL, RabbitMQ, Worker Service và SignalR. Giao diện web tiếng Việt, không cần Node.js. Đối chiếu hai tài liệu gốc: `09-he-thong-dat-lich-kham-va-hang-doi.md.pdf` và `HUONG-DAN-CHUNG.md.pdf`. Báo cáo đầy đủ ở [BAO-CAO.md](BAO-CAO.md), kịch bản thuyết trình ở [DEMO.md](DEMO.md). Git bắt đầu ghi nhận từ bản bàn giao tối ưu; không tái tạo lịch sử phát triển trước đó. Hướng dẫn chuẩn bị repository GitHub ở [GIT-HANDOFF.md](GIT-HANDOFF.md).
 
 ## Khởi động nhanh

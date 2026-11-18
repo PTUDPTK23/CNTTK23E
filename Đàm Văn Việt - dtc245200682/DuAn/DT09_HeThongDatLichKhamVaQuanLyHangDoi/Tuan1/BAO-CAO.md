@@ -6,7 +6,7 @@ Hệ thống hỗ trợ bệnh nhân tìm bác sĩ, giữ chỗ theo khung giờ
 
 Sinh viên: **Đàm Văn Việt**. Tác giả Git: **Viet0810**, email **dtc245200682@ictu.edu.vn**.
 
-Hai PDF gốc quy định .NET 10, C#, Minimal API, service độc lập, Dockerfile/Compose và hai chặng RabbitMQ. README ghi rõ các quy tắc bổ sung khi đề chưa quy định. Bản báo cáo này mô tả mã nguồn sau tối ưu ngày 17/11/2026. Repository cục bộ bắt đầu từ bản bàn giao; GitHub cần được bổ sung khi đã chọn repository đích. Không có lịch sử phát triển trước đó để tái dựng.
+Hai PDF gốc quy định .NET 10, C#, Minimal API, service độc lập, Dockerfile/Compose và hai chặng RabbitMQ. README ghi rõ các quy tắc bổ sung khi đề chưa quy định. Bản báo cáo này mô tả mã nguồn sau tối ưu ngày 17/11/2026. Bản nộp nằm trong `Đàm Văn Việt - dtc245200682/DuAn/DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1/` của repo lớp CNTTK23E, thông tin PR được ghi ở NOP-BAI.md. Git bắt đầu từ bản bàn giao và các commit chuẩn bị nộp; không tái dựng lịch sử trước đó.
 
 ## Phân tích yêu cầu
 
@@ -23,7 +23,7 @@ Hai tác nhân chính là bệnh nhân và nhân viên điều phối. Bệnh nh
 | Notification gửi SignalR | Nhóm bác sĩ/ngày và nhóm lịch cá nhân | Hai cửa sổ cập nhật, reconnect lấy snapshot |
 | Tra cứu lịch và hàng đợi | GET /appointments/{id}, GET /queues/{doctorId} | Khóa riêng đúng/sai, bảng số công khai |
 
-Yêu cầu chung được đáp ứng bằng C#/.NET 10 Minimal API, ba tiến trình service, Dockerfile riêng, Compose và cấu hình qua environment. Logging có ID message/lịch và lỗi retry. Phần nộp GitHub cần đối chiếu theo GIT-HANDOFF.md; báo cáo không coi repository cục bộ là đã upload.
+Yêu cầu chung được đáp ứng bằng C#/.NET 10 Minimal API, ba tiến trình service, Dockerfile riêng, Compose và cấu hình qua environment. Logging có ID message/lịch và lỗi retry. Tài khoản GitHub nộp bài là Viet0810; email Git dtc245200682@ictu.edu.vn. Liên kết và trạng thái PR được ghi riêng ở NOP-BAI.md.
 
 Các quy tắc nghiệp vụ do dự án lựa chọn: một hàng đợi cho mỗi bác sĩ/ngày theo giờ Việt Nam; số tăng từ 1 và không dùng lại số đã hủy; ưu tiên khung giờ sớm đã bắt đầu, rồi số trong khung; không gọi lượt mới khi đang Serving. Chỉ ngày hôm nay được điều phối. Khung giờ hết hạn không được đặt thêm; lịch Waiting trong ngày vẫn được gọi khi khung đã qua. Đây là quy tắc triển khai bổ sung, không phải toàn bộ đều được PDF quy định chi tiết.
 
