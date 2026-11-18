@@ -1,6 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Library.Api/Library.Api.csproj" />
-    <Project Path="src/Library.Client/Library.Client.csproj" />
-  </Folder>
-</Solution>

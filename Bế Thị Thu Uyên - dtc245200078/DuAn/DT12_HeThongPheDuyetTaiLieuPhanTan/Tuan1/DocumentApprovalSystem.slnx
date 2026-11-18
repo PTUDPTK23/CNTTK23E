@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="DocumentApi/DocumentApi.csproj" />
-  <Project Path="DocumentWorker/DocumentWorker.csproj" />
-</Solution>

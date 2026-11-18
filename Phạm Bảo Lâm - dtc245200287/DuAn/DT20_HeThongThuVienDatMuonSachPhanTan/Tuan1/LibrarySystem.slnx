@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Library.Api/Library.Api.csproj" />
-    <Project Path="src/Library.Client/Library.Client.csproj" />
-    <Project Path="src/Library.Shared/Library.Shared.csproj" />
-    <Project Path="src/Library.Worker/Library.Worker.csproj" />
-  </Folder>
-</Solution>

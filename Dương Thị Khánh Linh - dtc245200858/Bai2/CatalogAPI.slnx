@@ -1,6 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Catalog.API/Catalog.API.csproj" />
-    <Project Path="src/Catalog.Client/Catalog.Client.csproj" />
-  </Folder>
-</Solution>
