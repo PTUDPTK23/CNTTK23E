@@ -261,7 +261,27 @@ Client SaiTen đăng ký `EchoRespone`, vẫn kết nối và nhận Group/Broad
 
 Ca 3 trong `requests.http` gửi mã sinh viên SV001 và đường dẫn repository. Response trả `201 Created`, header `Location` trỏ tới `/api/submissions/5f0faa2a-8002-4ff6-8275-ed70737c9448`, body có trạng thái `received` cùng thời điểm nhận và cập nhật. Ảnh chụp trực tiếp request/response trong VS Code lúc khoảng 10:03 ngày 18/11/2026.
 
-Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Các ca REST khác, bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp request/response hoặc terminal. Log gốc nằm trong `evidence/`.
+![GET lượt nộp trả 200 và graded](anh/edusubmit-http04.png)
+
+Ca 4 đọc lại lượt nộp vừa tạo ở ca 3. Response trả `200 OK`, trạng thái `graded`; `updatedAt` đã tăng so với `receivedAt`.
+
+![POST thiếu dữ liệu trả 400](anh/edusubmit-http05.png)
+
+Ca 5 gửi mã sinh viên và repository rỗng, nhận `400 Bad Request` với mã lỗi `INVALID_SUBMISSION`.
+
+![POST bài không tồn tại trả 404](anh/edusubmit-http06.png)
+
+Ca 6 nộp bài vào assignment 999, nhận `404 Not Found` với mã lỗi `ASSIGNMENT_NOT_FOUND`.
+
+![Negotiate trả 200 và ba transport](anh/edusubmit-http08.png)
+
+Ca 8 bắt tay tại `/hubs/submissions/negotiate`, nhận `200 OK`, `connectionId` và đủ WebSockets, ServerSentEvents, LongPolling.
+
+![Sai đường dẫn hub trả 404](anh/edusubmit-http09.png)
+
+Ca 9 dùng `/hub/submissions/negotiate`, nhận `404 Not Found`, body rỗng vì không khớp route. Các ảnh ca 4, 5, 6, 8, 9 chụp trực tiếp trong VS Code lúc khoảng 10:05–10:06 ngày 18/11/2026.
+
+Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Ca REST 1, 2, 7, bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
 
 ![REST](anh/edusubmit-requests.png)
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
