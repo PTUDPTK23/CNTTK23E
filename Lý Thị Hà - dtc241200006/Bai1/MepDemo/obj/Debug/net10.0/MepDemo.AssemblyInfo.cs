@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MepDemo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+29853a094e536554003b4a457e5f0cee0cbcffa3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5550489fdd09bd76fa697d4b8d7600451297fc25")]
 [assembly: System.Reflection.AssemblyProductAttribute("MepDemo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MepDemo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
