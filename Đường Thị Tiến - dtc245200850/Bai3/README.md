@@ -1,5 +1,10 @@
 # Báo Cáo Thực Hành Bài 3: Giao Tiếp Thời Gian Thực Với SignalR
 
+- **Sinh viên thực hiện:** Đường Thị Tiến
+- **Mã sinh viên:** DTC245200850
+- **Lớp:** CNTTK23E
+- **Học phần:** Phát triển ứng dụng phân tán
+- **Giảng viên hướng dẫn:** TS. Dương Thu Mây
 
 ---
 
