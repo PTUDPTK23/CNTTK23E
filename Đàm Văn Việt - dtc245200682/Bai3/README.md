@@ -11,7 +11,7 @@ Bài thực hành gồm hai phần: PingSignalR để tìm hiểu Echo, gửi nh
 - Hai client dùng `Microsoft.AspNetCore.SignalR.Client` **10.0.15**.
 - Internet cho lần NuGet restore đầu. Server SignalR có sẵn trong ASP.NET Core, không thêm gói server.
 - Cổng **5200** cho Ping, **5000** cho EduSubmit. Dừng API Bài 2 ở cổng 5000 trước khi chạy.
-- Python 3 để chạy kiểm thử tự động; Microsoft Edge chỉ cần khi tạo lại ảnh xem log.
+- Python 3 để chạy kiểm thử tự động. Các ảnh minh chứng hiện tại được chụp trực tiếp trong VS Code.
 
 ```text
 Bai3/
@@ -25,7 +25,7 @@ Bai3/
 ├── verify.py
 ├── evidence/                 # log gốc, có lệnh và thời điểm
 ├── capture-evidence.py
-└── anh/                      # ảnh terminal và ảnh hiển thị log kiểm thử
+└── anh/                      # ảnh terminal và request/response trong VS Code
 ```
 
 ## Lệnh build và chạy
@@ -313,9 +313,11 @@ Thí nghiệm 4: client SaiTen đăng ký `SubmissionStatusChange` thay vì `Sub
 
 Thí nghiệm 5: với lượt nộp `2ee616b8-9637-4ede-a6cc-48b8ae79a955`, log server ghi `processing`, `graded` rồi mới ghi client theo dõi nhóm. Client WatchMuon không nhận thông báo cho ID này, báo quá thời gian chờ và GET REST được `graded`. Điều này cho thấy tham gia nhóm muộn không nhận lại thông điệp đã phát trước đó.
 
-Ảnh bài tập thêm dưới đây hiển thị log kiểm thử tự động qua trình duyệt; chưa có ảnh chụp terminal cho phần này. Log gốc nằm trong `evidence/`.
-
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
+
+Chạy client với `Multi --two` tạo hai lượt nộp trên cùng một kết nối SignalR. Log server ghi cùng ConnectionId có tiền tố `TknNEfaD` theo dõi cả hai nhóm. Lượt Multi có ID `9ab34140-bd93-4f3a-ace3-66206d7b7809` chuyển `processing → graded`; lượt Multi-02 có ID `2c01add3-7f2d-4595-a44f-7cc6ffa179ba` chuyển `processing → failed`, đồng thời client hiện cảnh báo đỏ. Kết quả cuối lần lượt là `Multi: SignalR = graded, REST = graded` và `Multi-02: SignalR = failed, REST = failed`. Client tự thoát khi cả hai lượt kết thúc.
+
+Toàn bộ ảnh trong mục minh chứng là ảnh chụp trực tiếp terminal hoặc request/response trong VS Code. Các log kiểm thử tự động trước đó vẫn được giữ riêng trong `evidence/` để đối chiếu.
 
 ## Đối chiếu thang điểm trang 70
 
