@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Course.Service/Course.Service.csproj" />
-    <Project Path="src/GraphQL.Api/GraphQL.Api.csproj" />
-    <Project Path="src/Student.Service/Student.Service.csproj" />
-    <Project Path="src/Study.Client/Study.Client.csproj" />
-  </Folder>
-</Solution>
