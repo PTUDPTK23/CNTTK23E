@@ -1,0 +1,43 @@
+
+@api = http://localhost:5100
+
+### 1. Kiểm tra máy chủ - 200
+GET {{api}}/
+
+### 2. Danh sách sản phẩm - 200
+GET {{api}}/api/products
+
+### 3. Chi tiết sản phẩm - 200
+GET {{api}}/api/products/1
+
+### 4. Sản phẩm không tồn tại - 404
+GET {{api}}/api/products/999
+
+### 5. ID sai định dạng - 404
+GET {{api}}/api/products/abc
+
+### 6. Tạo sản phẩm hợp lệ - 201
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lập trình gRPC",
+  "description": "Tài liệu học gRPC",
+  "price": 180000
+}
+
+### 7. Tạo sản phẩm không hợp lệ - 400
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "Kiểm thử",
+  "price": 0
+}
+
+### 8. Sai Content-Type - 415
+POST {{api}}/api/products
+Content-Type: text/plain
+
+{"name":"Kiểm thử","description":"Sai Content-Type","price":100000}

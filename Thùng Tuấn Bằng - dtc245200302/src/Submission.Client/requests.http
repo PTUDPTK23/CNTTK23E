@@ -1,0 +1,36 @@
+
+@api = http://localhost:5092
+
+### 1. Kiem tra API
+GET {{api}}/
+
+### 2. Danh sach bai tap
+GET {{api}}/api/assignments
+
+### 3. Tao bai nop - 201 Created
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "DTC245200302",
+  "repositoryUrl": "https://github.com/example/EduSubmit"
+}
+
+### 4. Doc lai bai nop - 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. Bai nop khong ton tai - 404 Not Found
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000001
+
+### 6. Du lieu khong hop le - 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/example/EduSubmit"
+}
+
