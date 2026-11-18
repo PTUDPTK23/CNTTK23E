@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:5000
+
+### 1. Danh sach bai tap - 200
+GET {{baseUrl}}/api/assignments
+
+### 2. Tao luot nop hop le - 201 + Location
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/example/sv001"
+}
+
+### 3. Thieu studentCode - 400
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "repositoryUrl": "https://github.com/example/sv001"
+}
+
+### 4. Thieu repositoryUrl - 400
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001"
+}
+
+### 5. Assignment khong ton tai - 404
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/example/sv001"
+}
+
+### 6. Doc submission theo id - thay GUID bang id tra ve o request 2
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 7. SignalR negotiate - 200
+POST {{baseUrl}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 8. Sai duong dan hub - 404
+POST {{baseUrl}}/hub/submissions/negotiate?negotiateVersion=1
+
+### 9. Root API
+GET {{baseUrl}}/
