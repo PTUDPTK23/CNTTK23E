@@ -1,0 +1,6 @@
+Thoi diem: 2026-11-18T08:23:38.826209+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\PingSignalR\src\Ping.Client\bin\Debug\net10.0\Ping.Client.dll http://localhost:5200 SaiMethod --method Ech0
+SaiMethod da ket noi den PingApi. ConnectionId: WMryQyzBY2yHAP0CtdW1hA
+[System] Client WMryQyzB da ket noi.
+HubException: Failed to invoke 'Ech0' due to an error on the server. HubException: Method does not exist.
+[Lifecycle] Ket noi da dong.

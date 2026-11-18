@@ -1,0 +1,13 @@
+Thoi diem: 2026-11-18T08:23:33.780642+07:00
+PS D:\ptudpt\bai3> dotnet build RealtimeSubmissionSystem/RealtimeSubmissionSystem.slnx --ignore-failed-sources
+  Determining projects to restore...
+  Restored D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeApi\Submission.RealtimeApi.csproj (in 98 ms).
+  Restored D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\Submission.RealtimeClient.csproj (in 260 ms).
+  Submission.RealtimeClient -> D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\bin\Debug\net10.0\Submission.RealtimeClient.dll
+  Submission.RealtimeApi -> D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeApi\bin\Debug\net10.0\Submission.RealtimeApi.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.02

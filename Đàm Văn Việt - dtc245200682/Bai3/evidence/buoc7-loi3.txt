@@ -1,0 +1,9 @@
+Thoi diem: 2026-11-18T08:23:38.516729+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\PingSignalR\src\Ping.Client\bin\Debug\net10.0\Ping.Client.dll http://localhost:5200 SaiTen --event EchoRespone --wait-seconds 1
+SaiTen da ket noi den PingApi. ConnectionId: OgwbBskrLEvBUkO9VeWZdQ
+[System] Client OgwbBskr da ket noi.
+[Group] OgwbBskr da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu SaiTen
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu SaiTen
+[Lifecycle] Ket noi da dong.

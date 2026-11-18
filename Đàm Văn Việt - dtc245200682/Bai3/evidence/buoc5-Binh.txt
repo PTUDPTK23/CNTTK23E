@@ -1,0 +1,9 @@
+Thoi diem: 2026-11-18T08:23:35.015520+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\PingSignalR\src\Ping.Client\bin\Debug\net10.0\Ping.Client.dll http://localhost:5200 Binh
+Binh da ket noi den PingApi. ConnectionId: xeC9Nbs6l6atTMs-tQKy8Q
+[System] Client xeC9Nbs6 da ket noi.
+[Echo] Echo: Xin chao SignalR tu Binh
+[Group] xeC9Nbs6 da tham gia nhom lop-hoc-01
+[Group] Thong bao nhom tu Binh
+Dang cho thong diep... Nhan Enter de thoat.
+[Broadcast] Xin chao tat ca tu Binh

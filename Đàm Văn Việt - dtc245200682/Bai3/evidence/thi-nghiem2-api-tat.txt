@@ -1,0 +1,3 @@
+Thoi diem: 2026-11-18T08:24:09.918811+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\bin\Debug\net10.0\Submission.RealtimeClient.dll http://localhost:5000 Offline
+Loi ket noi: No connection could be made because the target machine actively refused it. (localhost:5000)

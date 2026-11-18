@@ -1,0 +1,11 @@
+Thoi diem: 2026-11-18T08:23:54.595139+07:00
+PS D:\ptudpt\bai3> dotnet D:\ptudpt\bai3\RealtimeSubmissionSystem\src\Submission.RealtimeClient\bin\Debug\net10.0\Submission.RealtimeClient.dll http://localhost:5000 SV001
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: 8be0b30e-009e-4dcf-a4e6-efb2ac898fa2
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 8be0b30e-009e-4dcf-a4e6-efb2ac898fa2 -> processing luc 01:23:52.541 UTC
+Thong bao SignalR: 8be0b30e-009e-4dcf-a4e6-efb2ac898fa2 -> graded luc 01:23:54.547 UTC
+Trang thai doc lai bang REST: graded
+[Lifecycle] Ket noi da dong.

@@ -1,0 +1,13 @@
+@host = http://localhost:5200
+
+### Server -> 200
+GET {{host}}/
+
+### Bat tay -> 200 connectionId + WebSockets/SSE/LongPolling
+POST {{host}}/hubs/ping/negotiate?negotiateVersion=1
+
+### Goi hub nhu REST, thieu ConnectionId -> 400
+GET {{host}}/hubs/ping
+
+### Sai duong dan -> 404
+POST {{host}}/hub/ping/negotiate?negotiateVersion=1
