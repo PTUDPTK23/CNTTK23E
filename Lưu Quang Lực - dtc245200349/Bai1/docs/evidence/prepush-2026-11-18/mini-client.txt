@@ -1,0 +1,6 @@
+COMMAND: dotnet run --no-build --project Demos/MiniDistributedSystem/src/Submission.Client -- http://localhost:15012
+Danh sach bai tap:
+- 1: Bai tap 1
+- 2: Bai tap 2
+Da nop bai. Ma luot nop: d89662bb-8292-46b9-8a3f-6564d33f31f7
+Trang thai: received

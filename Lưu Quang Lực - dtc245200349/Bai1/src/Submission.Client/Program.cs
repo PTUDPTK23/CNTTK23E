@@ -13,9 +13,9 @@ try {
     foreach (var assignment in assignments ?? [])
         Console.WriteLine($"- {assignment.Id}: {assignment.Title}");
 
-    // URL vi du: thay bang repository thuc khi da tao tren GitHub.
+    // Repository Bai 1 cua sinh vien.
     var request = new CreateSubmissionRequest(1, "DTC245200349",
-        "https://example.com/DTC245200349/EduSubmit");
+        "https://github.com/dtc245200349-collab/EduSubmit-DTC245200349");
     using var response = await http.PostAsJsonAsync("/api/submissions", request);
     response.EnsureSuccessStatusCode();
     var result = await response.Content.ReadFromJsonAsync<SubmissionResult>()

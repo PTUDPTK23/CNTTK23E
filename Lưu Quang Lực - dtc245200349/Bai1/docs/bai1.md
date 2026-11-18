@@ -104,7 +104,7 @@ Client -- HTTP POST /api/submissions --> API -- 201 + JSON + Location --> Client
 Client -- HTTP GET /api/submissions/{id} --> API -- 200 + JSON --> Client
 ```
 
-Tất cả là request–response. API dùng ConcurrentDictionary thay cho List được gợi ý trong đề để hỗ trợ truy cập đồng thời. Dữ liệu mất khi API khởi động lại. RepositoryUrl đang là URL ví dụ, chưa phải link repository thật.
+Tất cả là request–response. API dùng ConcurrentDictionary thay cho List được gợi ý trong đề để hỗ trợ truy cập đồng thời. Dữ liệu mất khi API khởi động lại. RepositoryUrl đã được cập nhật tới repository thật `https://github.com/dtc245200349-collab/EduSubmit-DTC245200349` trong bản chuẩn bị ngày 18/11/2026.
 
 Phần tham khảo: Codex đã đọc Program.cs của cả ba chương trình mẫu để chuẩn bị mã và giải thích. Người học chưa xác nhận tự viết lại mã.
 
@@ -124,6 +124,14 @@ Phần tham khảo: Codex đã đọc Program.cs của cả ba chương trình m
 ## 8. Việc còn cần trước khi nộp
 
 - Làm debug breakpoint; bổ sung ảnh chụp giao diện REST Client/Terminal nếu giảng viên yêu cầu đúng định dạng đó.
-- Repository GitHub đã có; URL ví dụ trong client và requests.http vẫn cần thay bằng link thật nếu dùng làm thông tin nộp bài.
-- Commit phần bổ sung, chuyển tag bai1 tới commit cuối nếu có sửa, rồi đẩy main và tag lên repository.
+- Repository GitHub đã có; bản chuẩn bị ngày 18/11 đã dùng URL thật trong client và request nộp hợp lệ.
+- Tag `bai1` cũ được giữ nguyên để bảo toàn bản đã công bố. Bản chuẩn bị mới được lưu bằng commit mới trên main và nhánh fork riêng.
 - Nộp link lên LMS theo yêu cầu giảng viên. Chưa thực hiện thao tác nộp bài.
+
+## 9. Kiểm tra trước khi chuẩn bị push ngày 18/11/2026
+
+Đã gom ba chương trình mẫu vào `Demos/` để repository có đủ mã tham khảo khi đọc nhật ký.
+Mã mẫu này không được khai báo là phần sinh viên tự gõ. API/Client chính vẫn nằm trong `src/`.
+Lần kiểm tra mới không thay thế các ảnh báo cáo ngày 08/11 và không chứng minh đã làm debug tương tác.
+
+Xem [kết quả kiểm tra mới](evidence/prepush-2026-11-18/kiem-tra.md).

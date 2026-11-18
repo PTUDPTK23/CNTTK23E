@@ -11,7 +11,7 @@ GET {{api}}/api/assignments
 POST {{api}}/api/submissions
 Content-Type: application/json
 
-{ "assignmentId": 1, "studentCode": "DTC245200349", "repositoryUrl": "https://example.com/DTC245200349/EduSubmit" }
+{ "assignmentId": 1, "studentCode": "DTC245200349", "repositoryUrl": "https://github.com/dtc245200349-collab/EduSubmit-DTC245200349" }
 
 ### Thieu ma sinh vien -> 400
 POST {{api}}/api/submissions
