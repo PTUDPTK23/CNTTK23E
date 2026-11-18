@@ -1,4 +1,11 @@
 <Solution>
+<<<<<<< HEAD
   <Project Path="src/Ping.Api/Ping.Api.csproj" />
   <Project Path="src/Ping.Client/Ping.Client.csproj" />
+=======
+  <Folder Name="/src/">
+    <Project Path="src/Ping.Api/Ping.Api.csproj" />
+    <Project Path="src/Ping.Client/Ping.Client.csproj" />
+  </Folder>
+>>>>>>> d93af16 (Bai 3 - SignalR - DTC245200767)
 </Solution>

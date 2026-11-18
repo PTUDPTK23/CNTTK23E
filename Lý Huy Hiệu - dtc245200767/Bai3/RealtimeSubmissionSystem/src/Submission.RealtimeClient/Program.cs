@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
@@ -139,3 +140,27 @@ sealed record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, strin
     string Status, DateTimeOffset ReceivedAt, DateTimeOffset UpdatedAt);
 sealed record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt);
 sealed record ApiError(string Code, string Message);
+=======
+﻿using Microsoft.AspNetCore.SignalR.Client;
+
+var connection = new HubConnectionBuilder()
+    .WithUrl("http://localhost:5000/hubs/submissions")
+    .WithAutomaticReconnect()
+    .Build();
+
+connection.On<string, string>(
+    "SubmissionStatusChanged",
+    (studentId, status) =>
+    {
+        Console.WriteLine(
+            $"[Realtime] {studentId}: {status}");
+    });
+
+await connection.StartAsync();
+
+Console.WriteLine("Da ket noi SignalR!");
+Console.WriteLine("Dang cho thong bao...");
+Console.ReadLine();
+
+await connection.DisposeAsync();
+>>>>>>> d93af16 (Bai 3 - SignalR - DTC245200767)

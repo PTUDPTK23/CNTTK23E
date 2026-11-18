@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+<<<<<<< HEAD
+=======
+
+>>>>>>> d93af16 (Bai 3 - SignalR - DTC245200767)
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+<<<<<<< HEAD
+=======
+
+>>>>>>> d93af16 (Bai 3 - SignalR - DTC245200767)
 </Project>

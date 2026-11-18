@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+<<<<<<< HEAD
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls(builder.Configuration["urls"] ?? "http://localhost:5000");
@@ -97,3 +98,66 @@ sealed record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, strin
     string Status, DateTimeOffset ReceivedAt, DateTimeOffset UpdatedAt);
 sealed record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt);
 sealed record ApiError(string Code, string Message);
+=======
+using System.Collections.Concurrent;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<SubmissionStore>();
+
+var app = builder.Build();
+
+app.MapGet("/", () => "EduSubmit API is running");
+
+app.MapPost("/api/submissions", async (
+    CreateSubmissionRequest request,
+    SubmissionStore store,
+    IHubContext<SubmissionHub> hub) =>{
+    if (string.IsNullOrWhiteSpace(request.StudentId))
+        return Results.BadRequest("StudentId is required");
+
+    var submission = new Submission
+    {
+        Id = Guid.NewGuid(),
+        StudentId = request.StudentId,
+        Status = "submitted",
+        UpdatedAt = DateTimeOffset.UtcNow
+    };
+
+    store.Items[submission.Id] = submission;
+await hub.Clients.All.SendAsync(
+    "SubmissionStatusChanged",
+    submission.StudentId,
+    submission.Status);
+
+    return Results.Created(
+        $"/api/submissions/{submission.Id}", submission);
+});
+
+app.MapGet("/api/submissions/{id:guid}",
+    (Guid id, SubmissionStore store) =>
+{
+    return store.Items.TryGetValue(id, out var submission)
+        ? Results.Ok(submission)
+        : Results.NotFound();
+});
+
+app.MapHub<SubmissionHub>("/hubs/submissions");
+
+app.Run();
+
+record CreateSubmissionRequest(string StudentId);
+
+class Submission
+{
+    public Guid Id { get; set; }
+    public string StudentId { get; set; } = "";
+    public string Status { get; set; } = "";
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+class SubmissionStore
+{
+    public ConcurrentDictionary<Guid, Submission> Items { get; } = new();
+}
+>>>>>>> d93af16 (Bai 3 - SignalR - DTC245200767)
