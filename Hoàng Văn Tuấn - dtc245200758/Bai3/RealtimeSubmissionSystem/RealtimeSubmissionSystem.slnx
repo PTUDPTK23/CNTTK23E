@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Submission.RealtimeApi/Submission.RealtimeApi.csproj" />
+  <Project Path="src/Submission.RealtimeClient/Submission.RealtimeClient.csproj" />
+</Solution>
