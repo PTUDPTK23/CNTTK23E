@@ -1,0 +1,7 @@
+COMMAND: dotnet run --no-build --project src/Submission.Client -- http://localhost:15011
+Danh sach bai tap:
+- 1: Bai tap 1
+- 2: Bai tap 2
+Da nop bai. Ma luot nop: 8276d92b-cb59-429d-a671-32f25e94ea19
+Trang thai: received
+Doc lai luot nop: 8276d92b-cb59-429d-a671-32f25e94ea19 | DTC245200349 | received

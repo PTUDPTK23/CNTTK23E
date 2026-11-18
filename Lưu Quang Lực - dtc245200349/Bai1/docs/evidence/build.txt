@@ -1,0 +1,11 @@
+Determining projects to restore...
+  Restored [LOCAL]\EduSubmit-DTC245200349\src\Submission.Api\Submission.Api.csproj (in 125 ms).
+  Restored [LOCAL]\EduSubmit-DTC245200349\src\Submission.Client\Submission.Client.csproj (in 125 ms).
+  Submission.Client -> [LOCAL]\EduSubmit-DTC245200349\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+  Submission.Api -> [LOCAL]\EduSubmit-DTC245200349\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.25

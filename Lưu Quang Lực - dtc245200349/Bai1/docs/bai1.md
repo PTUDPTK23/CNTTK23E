@@ -1,0 +1,139 @@
+# Bài 1 – Tổng quan hệ thống và MEP
+
+- Họ tên: Lưu Quang Lực
+- MSSV: DTC245200349
+- Lớp: CNTT K23E
+- Ngày thực hành: 04/11/2026
+
+## Phạm vi thực hành và nguồn kết quả
+
+Nội dung thực hành gồm MepDemo, BasicWebApi, EduSubmit, phần tiếng Nhật và các thí nghiệm trên bản sao chương trình mẫu. Mã tham khảo nằm trong `Demos/`. Nhật ký chưa xác nhận việc tự gõ lại toàn bộ mã. Buổi debug tương tác với breakpoint chưa thực hiện; hướng dẫn ở mục 3.
+
+### Bộ minh chứng cập nhật ngày 08/11/2026
+
+Bộ minh chứng gồm 13 ảnh báo cáo dựng từ kết quả chạy lại thực tế: môi trường và Hello World, MEP, HTTP 200/201/400, tiếng Nhật, API/Client, bốn thí nghiệm lỗi, EduSubmit và đọc lại 200/404. Đây là ảnh trình bày log và phản hồi HTTP, **không phải ảnh chụp giao diện REST Client hoặc hai cửa sổ Terminal**. Nội dung kiểm tra tương ứng mẫu; nếu giảng viên yêu cầu đúng giao diện, cần chụp trực tiếp bổ sung. Không có ảnh debug breakpoint vì chưa thực hiện buổi debug tương tác.
+
+[Danh mục lần chạy](evidence/run-2026-11-08/manifest.json) · [Phản hồi HTTP nguyên bản](evidence/run-2026-11-08/http-results.json).
+
+Một số đường dẫn cục bộ trong log văn bản được ẩn bằng `[LOCAL]`. Mã trạng thái, ID, thời gian và kết quả kiểm thử được giữ nguyên. Ảnh gốc và lịch sử các lần chạy vẫn được lưu để đối chiếu.
+
+## 1. Cài đặt
+
+Đã kiểm tra máy có .NET SDK 10.0.401 và Git 2.55.0.windows.5. C# Dev Kit và REST Client đã được quan sát trong ảnh người học cung cấp. Build EduSubmit thành công: [log](evidence/build.txt). Tên thư mục có khoảng trắng vẫn build thành công; khi gõ đường dẫn đầy đủ cần đặt trong dấu nháy.
+
+![Môi trường, Git và Hello World](evidence/run-2026-11-08/01-environment.png)
+
+## 2. MepDemo
+
+1. Request–response: gửi yêu cầu và chờ phản hồi; ví dụ SV001 nhận 8.5 điểm, SV002 quá thời gian chờ 1 giây. Timeout trong demo là tình huống chủ động minh họa.
+2. One-way: sender gửi log rồi tiếp tục, không chờ kết quả nghiệp vụ ghi log.
+3. Queue: mỗi bài nộp được một worker xử lý; các worker cạnh tranh lấy việc trong cùng hàng đợi. Trong lần chạy người học gửi, Worker-A xử lý sub-1, sub-4; Worker-B xử lý sub-2, sub-3. Cách phân chia có thể khác giữa các lần chạy.
+4. Publish–subscribe: một sự kiện SubmissionGraded tới cả ba dịch vụ ScoreService, NotificationService và StatsService.
+5. Streaming: client nhận liên tiếp received, processing 30%, processing 70%, graded: 8.5.
+
+Queue dùng để chia việc giữa các worker; publish–subscribe dùng để phát cùng sự kiện cho nhiều bên có trách nhiệm khác nhau. Demo dùng các thành phần trong một tiến trình để mô phỏng, không phải broker hay hệ thống mạng thực.
+
+[Kết quả chạy MepDemo](evidence/MepDemo-output.txt).
+
+![Đầu ra 5 MEP](evidence/run-2026-11-08/02-mep.png)
+
+## 3. BasicWebApi
+
+- GET trả 200: lấy thông tin hoặc lời chào.
+- POST tên Binh trả 201, có Location /greetings/1.
+- POST tên rỗng trả 400 với Name must not be empty.
+- Đã thêm language=ja trả Konnichiwa, An! trong bản mẫu hoàn thiện.
+
+Trả lời câu hỏi:
+
+1. builder.Services.AddSingleton phải đứng trước builder.Build để đăng ký GreetingService vào bộ chứa dịch vụ trước khi xây dựng ứng dụng.
+2. name lấy từ route /hello/{name}; language lấy từ query string sau dấu ?.
+3. POST hợp lệ tạo tài nguyên mới nên trả 201 Created, kèm Location chỉ tài nguyên được tạo. 200 biểu thị yêu cầu thành công nói chung.
+
+Debug tương tác cần người học thực hiện thêm: mở đúng thư mục BasicWebApi trong VS Code, dừng API đang chạy, đặt breakpoint ở var greeting = service.Create(...), chọn Debug → Start New Instance trong Solution Explorer. Gửi POST, xem request.Name, dùng F10 bước tiếp, F5 tiếp tục và Shift+F5 dừng. Cổng thực tế khi debug có thể theo launch profile; sửa @api cho khớp.
+
+![Phản hồi BasicWebApi 200](evidence/run-2026-11-08/03-basic-200.png)
+
+![Phản hồi BasicWebApi 201](evidence/run-2026-11-08/03-basic-201.png)
+
+![Phản hồi BasicWebApi 400](evidence/run-2026-11-08/03-basic-400.png)
+
+![Lời chào tiếng Nhật](evidence/run-2026-11-08/03-basic-ja.png)
+
+## 4. MiniDistributedSystem
+
+API và Client là hai tiến trình độc lập.
+
+| Yêu cầu | Kết quả |
+|---|---|
+| GET /api/assignments | 200, mảng bài tập |
+| POST /api/submissions | 201, mã GUID và trạng thái received |
+
+Client không tham chiếu project API. Hai bên thống nhất qua HTTP, endpoint, method, mã trạng thái và cấu trúc JSON. Truyền URL từ tham số giúp đổi máy chủ hoặc cổng mà không sửa mã nguồn. Mỗi lần gửi POST hợp lệ sinh GUID mới.
+
+[Kết quả API + Client mẫu](evidence/mini-client.txt).
+
+![API và Client mẫu — hai tiến trình](evidence/run-2026-11-08/04-mini-api-client.png)
+
+## 5. Thí nghiệm lỗi
+
+Bảng dưới ghi dự đoán trước khi thực hiện thí nghiệm trên bản sao MiniDistributedSystem. Cổng 15000/15050 dùng thay cho 5000/5050 để tránh ảnh hưởng API đang chạy trên máy; cơ chế tương đương. Sau mỗi thí nghiệm, mã nguồn mẫu được hoàn nguyên và build lại.
+
+| # | Dự đoán trước khi chạy | Thực tế | Đúng/Sai | Giải thích |
+|---|---|---|---|---|
+| a | Thêm bài tập 3, client tự in thêm mà không sửa code | Client in 3: Bai tap 3, nộp bài thành công | Đúng | Client đọc mảng JSON và duyệt mọi phần tử; hợp đồng không đổi |
+| b | Tắt API, client không kết nối được | HttpRequestException, tiến trình client kết thúc lỗi | Đúng | Kết nối mạng phụ thuộc tiến trình đích, cổng và đường truyền. Gọi hàm nội bộ không có lỗi mạng này nhưng vẫn có thể phát sinh ngoại lệ khác |
+| c | StudentCode rỗng bị API từ chối | HTTP 400; EnsureSuccessStatusCode ném HttpRequestException | Đúng | Hàm này ném ngoại lệ nếu mã không thuộc 200–299. Server phải tự kiểm tra vì mọi client đều có thể gửi dữ liệu không hợp lệ |
+| d | API đổi cổng, client gọi cổng cũ sẽ lỗi | Cổng cũ kết nối thất bại; truyền URL mới thì thành công | Đúng | Đổi tham số sau --, không cần sửa code |
+
+Log: [a](evidence/experiment-a.txt), [b](evidence/experiment-b.txt), [c](evidence/experiment-c.txt), [d](evidence/experiment-d.txt).
+
+![Thí nghiệm a](evidence/run-2026-11-08/05-experiment-a.png)
+
+![Thí nghiệm b](evidence/run-2026-11-08/05-experiment-b.png)
+
+![Thí nghiệm c](evidence/run-2026-11-08/05-experiment-c.png)
+
+![Thí nghiệm d](evidence/run-2026-11-08/05-experiment-d.png)
+
+## 6. EduSubmit và phần mở rộng
+
+Đã có solution EduSubmit.slnx với hai project không tham chiếu nhau. API kiểm tra dữ liệu, tạo GUID, trả 201 + Location và lưu lượt nộp trong bộ nhớ. GET /api/submissions/{id:guid} trả 200 nếu tồn tại, 404 nếu không. Client đọc lại lượt nộp ngay sau khi tạo.
+
+```text
+Client -- HTTP GET /api/assignments --> API -- 200 + JSON --> Client
+Client -- HTTP POST /api/submissions --> API -- 201 + JSON + Location --> Client
+Client -- HTTP GET /api/submissions/{id} --> API -- 200 + JSON --> Client
+```
+
+Tất cả là request–response. API dùng ConcurrentDictionary thay cho List được gợi ý trong đề để hỗ trợ truy cập đồng thời. Dữ liệu mất khi API khởi động lại. RepositoryUrl đã được cập nhật tới repository thật `https://github.com/dtc245200349-collab/EduSubmit-DTC245200349` trong bản chuẩn bị ngày 18/11/2026.
+
+Phần tham khảo: cấu trúc và hợp đồng dữ liệu của ba chương trình mẫu trong `Demos/`. Việc tự gõ lại toàn bộ mã chưa được xác nhận trong nhật ký.
+
+[Client EduSubmit](evidence/edusubmit-client.txt) · [HTTP chi tiết](evidence/http-results.json) · [Trang xem kết quả](ket-qua-kiem-thu.html).
+
+![EduSubmit — tạo và đọc lại lượt nộp](evidence/run-2026-11-08/06-edusubmit.png)
+
+![Đọc lại 200 và không tìm thấy 404](evidence/run-2026-11-08/06-readback-200-404.png)
+
+## 7. Khó khăn và cách giải quyết
+
+- Mở file BasicWebApi trong workspace MepDemo khiến C# Dev Kit cảnh báo project chưa thuộc workspace: thêm project hoặc mở đúng thư mục solution.
+- Không thấy Send Request: cài REST Client của Huachao Mao.
+- GET /favicon.ico trả 404 vì dự án không có biểu tượng trang; không ảnh hưởng endpoint bài tập.
+- Cổng bị chiếm: kiểm tra URL đang nghe; dùng cổng khác và đồng bộ URL cho client/requests.http.
+
+## 8. Việc còn cần trước khi nộp
+
+- Làm debug breakpoint; bổ sung ảnh chụp giao diện REST Client/Terminal nếu giảng viên yêu cầu đúng định dạng đó.
+- Repository GitHub đã có; bản chuẩn bị ngày 18/11 đã dùng URL thật trong client và request nộp hợp lệ.
+- Tag `bai1` cũ được giữ nguyên để bảo toàn bản đã công bố. Bản chuẩn bị mới được lưu bằng commit mới trên main và nhánh fork riêng.
+- Nộp link lên LMS theo yêu cầu giảng viên. Chưa thực hiện thao tác nộp bài.
+
+## 9. Kiểm tra trước khi chuẩn bị push ngày 18/11/2026
+
+Đã gom ba chương trình mẫu vào `Demos/` để repository có đủ mã tham khảo khi đọc nhật ký.
+Mã mẫu này không được khai báo là phần sinh viên tự gõ. API/Client chính vẫn nằm trong `src/`.
+Lần kiểm tra mới không thay thế các ảnh báo cáo ngày 08/11 và không chứng minh đã làm debug tương tác.
+
+Xem [kết quả kiểm tra mới](evidence/prepush-2026-11-18/kiem-tra.md).

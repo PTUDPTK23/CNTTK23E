@@ -1,0 +1,12 @@
+COMMAND: dotnet build EduSubmit.slnx -m:1 --tl:off
+  Determining projects to restore...
+  Restored D:\PTUD\EduSubmit-DTC245200349\src\Submission.Client\Submission.Client.csproj (in 273 ms).
+  Restored D:\PTUD\EduSubmit-DTC245200349\src\Submission.Api\Submission.Api.csproj (in 273 ms).
+  Submission.Api -> D:\PTUD\EduSubmit-DTC245200349\src\Submission.Api\bin\Debug\net10.0\Submission.Api.dll
+  Submission.Client -> D:\PTUD\EduSubmit-DTC245200349\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:11.84

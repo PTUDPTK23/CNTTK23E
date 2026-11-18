@@ -1,0 +1,20 @@
+{
+  "capturedAt": "08/11/2026 22:19:50 UTC+7",
+  "source": "Actual process stdout and HTTP responses; rendered report images, not UI screenshots",
+  "httpChecks": 16,
+  "images": [
+    "01-environment.png",
+    "02-mep.png",
+    "03-basic-200.png",
+    "03-basic-201.png",
+    "03-basic-400.png",
+    "03-basic-ja.png",
+    "04-mini-api-client.png",
+    "05-experiment-a.png",
+    "05-experiment-b.png",
+    "05-experiment-c.png",
+    "05-experiment-d.png",
+    "06-edusubmit.png",
+    "06-readback-200-404.png"
+  ]
+}
