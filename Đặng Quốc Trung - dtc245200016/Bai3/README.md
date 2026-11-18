@@ -53,3 +53,20 @@
 - Clients.All: Gửi thông điệp cho tất cả máy khách đang kết nối.
 - Clients.Group: Gửi thông điệp cho các máy khách trong nhóm.
 - Groups.AddToGroupAsync: Thêm kết nối vào nhóm.
+
+### Bước 6: Vòng đời kết nối và tự động kết nối lại
+
+![Kết quả tự động kết nối lại](anh/buoc6-noilai.png)
+
+**Kết quả:** Khi máy chủ bị tắt, máy khách hiển thị thông báo Dang ket noi lai... Sau khi máy chủ hoạt động trở lại, máy khách tự kết nối thành công với ConnectionId mới.
+
+**Giải thích:**
+
+- OnConnectedAsync: Xử lý khi máy khách kết nối.
+- OnDisconnectedAsync: Xử lý khi máy khách ngắt kết nối.
+- WithAutomaticReconnect: Cho phép tự động kết nối lại.
+- Reconnecting: Thông báo đang thử kết nối lại.
+- Reconnected: Thông báo kết nối lại thành công.
+- Closed: Thông báo kết nối đã đóng.
+
+Sau khi kết nối lại, ConnectionId thay đổi. Máy khách cần tham gia lại nhóm nếu muốn tiếp tục nhận thông báo nhóm. Các thông điệp bị bỏ lỡ trong lúc mất kết nối không được tự động gửi lại.

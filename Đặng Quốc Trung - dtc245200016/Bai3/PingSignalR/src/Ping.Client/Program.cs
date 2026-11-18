@@ -12,40 +12,54 @@ await using var connection = new HubConnectionBuilder()
     .WithAutomaticReconnect()
     .Build();
 
-// Nhan thong diep Echo
 connection.On<string>("EchoResponse", msg =>
-{
-    Console.WriteLine($"[Echo] {msg}");
-});
+    Console.WriteLine($"[Echo] {msg}"));
 
-// Nhan thong diep Broadcast
 connection.On<string>("BroadcastMessage", msg =>
-{
-    Console.WriteLine($"[Broadcast] {msg}");
-});
+    Console.WriteLine($"[Broadcast] {msg}"));
 
-// Nhan thong diep nhom
 connection.On<string>("GroupMessage", msg =>
+    Console.WriteLine($"[Group] {msg}"));
+
+connection.On<string>("SystemMessage", msg =>
+    Console.WriteLine($"[System] {msg}"));
+
+// Buoc 6: Dang ket noi lai
+connection.Reconnecting += error =>
 {
-    Console.WriteLine($"[Group] {msg}");
-});
+    Console.WriteLine("[Lifecycle] Dang ket noi lai...");
+    return Task.CompletedTask;
+};
 
-// Mo ket noi
+// Buoc 6: Da ket noi lai
+connection.Reconnected += newId =>
+{
+    Console.WriteLine(
+        $"[Lifecycle] Da ket noi lai: {newId?[..8]}");
+
+    return Task.CompletedTask;
+};
+
+// Buoc 6: Ket noi da dong
+connection.Closed += error =>
+{
+    Console.WriteLine("[Lifecycle] Ket noi da dong.");
+    return Task.CompletedTask;
+};
+
 await connection.StartAsync();
-Console.WriteLine($"{name} da ket noi den PingApi.");
 
-// Gui Echo
+Console.WriteLine(
+    $"{name} da ket noi den PingApi. ConnectionId: {connection.ConnectionId?[..8]}");
+
 await connection.InvokeAsync("Echo",
     $"Xin chao SignalR tu {name}");
 
-// Tham gia nhom
 await connection.InvokeAsync("JoinGroup", groupName);
 
-// Gui thong bao nhom
 await connection.InvokeAsync("SendToGroup",
     groupName, $"Thong bao nhom tu {name}");
 
-// Gui cho tat ca
 await connection.InvokeAsync("Broadcast",
     $"Xin chao tat ca tu {name}");
 

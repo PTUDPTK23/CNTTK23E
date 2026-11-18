@@ -15,37 +15,57 @@ app.Run();
 
 sealed class PingHub : Hub
 {
-    // Gui rieng cho nguoi goi
     public Task Echo(string message)
     {
         return Clients.Caller.SendAsync(
             "EchoResponse", $"Echo: {message}");
     }
 
-    // Gui cho tat ca may khach
     public Task Broadcast(string message)
     {
         return Clients.All.SendAsync(
             "BroadcastMessage", message);
     }
 
-    // Tham gia nhom
     public async Task JoinGroup(string groupName)
     {
         await Groups.AddToGroupAsync(
             Context.ConnectionId, groupName);
 
-        string message =
-            $"{Context.ConnectionId[..8]} da tham gia nhom {groupName}";
-
-        await Clients.Group(groupName)
-            .SendAsync("GroupMessage", message);
+        await Clients.Group(groupName).SendAsync(
+            "GroupMessage",
+            $"{Context.ConnectionId[..8]} da tham gia nhom {groupName}");
     }
 
-    // Gui thong diep den nhom
     public Task SendToGroup(string groupName, string message)
     {
         return Clients.Group(groupName)
             .SendAsync("GroupMessage", message);
+    }
+
+    // Buoc 6: Khi may khach ket noi
+    public override async Task OnConnectedAsync()
+    {
+        var id = Context.ConnectionId[..8];
+
+        Console.WriteLine($"[Hub] + {id} ket noi");
+
+        await Clients.All.SendAsync(
+            "SystemMessage", $"Client {id} da ket noi.");
+
+        await base.OnConnectedAsync();
+    }
+
+    // Buoc 6: Khi may khach ngat ket noi
+    public override async Task OnDisconnectedAsync(Exception? ex)
+    {
+        var id = Context.ConnectionId[..8];
+
+        Console.WriteLine($"[Hub] - {id} ngat");
+
+        await Clients.All.SendAsync(
+            "SystemMessage", $"Client {id} da ngat ket noi.");
+
+        await base.OnDisconnectedAsync(ex);
     }
 }
