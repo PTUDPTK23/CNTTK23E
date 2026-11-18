@@ -297,6 +297,10 @@ Ca 9 dùng `/hub/submissions/negotiate`, nhận `404 Not Found`, body rỗng vì
 
 Trong lần chạy mới ở nửa dưới ảnh, SV001 theo dõi ID `0ab42cfc-55f4-4a9a-ae39-feb3f4e364dd`, SV002 theo dõi ID `9d84483f-09a4-4c97-8f30-bc58757de47e`. Log server cho thấy client thứ hai đã Watch trước khi lượt thứ nhất chuyển sang `graded`, nên hai lượt có thời gian xử lý chồng nhau. SV001 nhận `processing` lúc 03:14:51.606 và `graded` lúc 03:14:53.617 UTC; SV002 nhận hai trạng thái lúc 03:14:54.386 và 03:14:56.392 UTC. Mỗi client chỉ nhận thông báo cho ID mình theo dõi, đọc lại REST được `graded` và tự thoát. Phần trên ảnh còn output của lần chạy trước.
 
+![EduSubmit: client chạy khi API đã tắt](anh/thi-nghiem2-api-tat.png)
+
+Thí nghiệm 2: sau khi dừng API, server hiện `Application is shutting down...` và trở về dấu nhắc PowerShell. Chạy client Offline tại `http://localhost:5000` nhận `Loi ket noi` do máy đích từ chối kết nối. Client kết thúc mà không tạo lượt nộp; `WithAutomaticReconnect` không tự thử lại lần kết nối đầu thất bại.
+
 Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
 
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
