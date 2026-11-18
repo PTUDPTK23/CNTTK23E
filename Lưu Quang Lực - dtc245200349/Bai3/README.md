@@ -167,7 +167,7 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 [![Kết quả HTTP](anh/edusubmit-http.png)](anh/edusubmit-http.png)
 [![Hai solution build 0 lỗi](anh/build-cuoi.png)](anh/build-cuoi.png)
 
-Chi tiết header/body HTTP nằm trong [edusubmit-http-raw.txt](anh/edusubmit-http-raw.txt). Git có commit theo từng bước, vượt tối thiểu 8 commit; bin/ và obj/ được loại bằng .gitignore. Chưa push/mở PR cho Bài 3. Khi nộp, đặt cả Bai3 trong thư mục cá nhân ở repo lớp; tiêu đề PR: **Bai3 - dtc245200349 - Lưu Quang Lực**.
+Chi tiết header/body HTTP nằm trong [edusubmit-http-raw.txt](anh/edusubmit-http-raw.txt). Git có commit theo từng bước, vượt tối thiểu 8 commit; bin/ và obj/ được loại bằng .gitignore. Khi nộp, đặt cả Bai3 trong thư mục cá nhân ở repo lớp; tiêu đề PR: **Bai3 - dtc245200349 - Lưu Quang Lực**.
 
 ## 8. Trả lời ba câu hỏi đầu giờ
 
