@@ -134,14 +134,46 @@ Phan Thế Vinh - dtc245200309/
 1. **Sự kiện nào?**
    Khi trạng thái xử lý của lượt nộp thay đổi trên máy chủ: `received` → `processing` → `graded` (hoặc `failed` nếu URL không an toàn).
 2. **Gửi cho ai?**
-   Gửi đích danh tới nhóm `Clients.Group("submission:{id}")` đại diện cho lượt nộp cụ thể. Không gửi `Clients.All` để đảm bảo an toàn, bảo mật thông tin sinh viên và tránh lãng phí băng thông đường truyền.
+   Gửi đích danh tới nhóm `Clients.Group($"submission:{id}")` đại diện cho lượt nộp cụ thể. Không gửi `Clients.All` để khoanh vùng phạm vi nhận tin (scoping/routing) và tránh lãng phí băng thông đường truyền.
+   *(Lưu ý kỹ thuật: Group chỉ đóng vai trò phân luồng thông điệp, hoàn toàn không phải cơ chế bảo mật hay phân quyền).*
 3. **Gửi kèm gì?**
    Dữ liệu tối thiểu cần thiết để máy khách cập nhật giao diện người dùng:
    ```csharp
    record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt);
    ```
 4. **Mất kết nối thì sao?**
-   Nếu mạng bị ngắt đúng lúc máy chủ đẩy thông điệp, máy khách kết nối lại và gọi phương thức REST `GET /api/submissions/{id}` để đọc trạng thái chính xác nhất được lưu trữ bền vững trên máy chủ.
+   Nếu mạng bị ngắt đúng lúc máy chủ đẩy thông điệp, thông điệp đó bị mất vĩnh viễn trên kênh SignalR (vì SignalR không lưu hàng đợi tin nhắn). Khi có mạng trở lại, máy khách kết nối lại (nhận ConnectionId mới), chủ động gọi lại `WatchSubmission` và ngay lập tức gọi phương thức REST `GET /api/submissions/{id}` để đọc trạng thái chính xác nhất được lưu trữ bền vững trên máy chủ.
+
+### Phân tích Bảo mật Group và Kiểm soát truy cập (Group Security & Authorization)
+
+Trong kiến trúc SignalR của EduSubmit, cơ chế Group đóng vai trò rất quan trọng nhưng cần được hiểu đúng về mặt an toàn thông tin:
+
+1. **Bản chất của SignalR Group:**
+   - Group trong ASP.NET Core SignalR là một **danh sách định tuyến trong bộ nhớ (in-memory routing/scoping mechanism)**, gán nhãn `ConnectionId` vào một chuỗi định danh nhóm.
+   - **Group KHÔNG PHẢI là cơ chế bảo mật hay phân quyền (Group is NOT an authorization boundary).** Nhóm không tự động mã hóa hay ngăn cản người ngoài nếu máy chủ không kiểm tra logic trước khi gọi `Groups.AddToGroupAsync`.
+   - Nếu máy chủ cho phép bất kỳ ai gửi `WatchSubmission(submissionId)` cũng được vào nhóm, kẻ tấn công có thể thực hiện tấn công dò quét hoặc đoán ID (lỗ hổng IDOR - Insecure Direct Object References) để nghe lén trạng thái bài thi của người khác. Ngoài ra, việc gửi ID rác làm máy chủ tạo các nhóm vô nghĩa trong bộ nhớ RAM.
+
+2. **Giải pháp bảo mật đã triển khai thực tế trong Bài 3:**
+   - **Kiểm tra định dạng GUID hợp lệ:** Máy chủ xác thực chuỗi `submissionId` gửi lên bằng `Guid.TryParse(submissionId, out var parsedId)`. Nếu sai định dạng, máy chủ từ chối ngay và ném ngoại lệ `HubException("Ma luot nop khong dung dinh dang GUID.")`.
+   - **Kiểm tra sự tồn tại của tài nguyên trên máy chủ:** Máy chủ truy vấn danh sách `store.Submissions.Any(s => s.Id == parsedId)`. Chỉ khi lượt nộp thực sự tồn tại trong hệ thống thì mới thực hiện `Groups.AddToGroupAsync(Context.ConnectionId, $"submission:{submissionId}")`. Nếu không tồn tại, máy chủ từ chối với ngoại lệ `HubException("Luot nop khong ton tai tren he thong.")`.
+
+3. **Giải pháp bảo mật toàn diện cần tích hợp khi có hệ thống Xác thực (Bài 8–9 theo Slide 67):**
+   - **Xác thực danh tính (Authentication):** Áp dụng thuộc tính `[Authorize]` trên `SubmissionHub`. Vì WebSocket không gửi header tùy biến trong trình duyệt, token JWT Bearer sẽ được truyền qua query string (`?access_token=...`) trong bước bắt tay negotiate và được framework trích xuất tự động vào `Context.User`.
+   - **Kiểm tra quyền sở hữu (Ownership Authorization):** Trước khi cho vào nhóm `submission:{id}`, máy chủ đọc thông tin người dùng từ `Context.UserIdentifier` (hoặc claim `student_code`) và đối chiếu với bản ghi trong CSDL:
+     ```csharp
+     // Mô hình kiến trúc production (Bài 8-9)
+     var submission = await dbContext.Submissions.FindAsync(parsedId);
+     if (submission == null) throw new HubException("Không tìm thấy bài nộp.");
+
+     bool isOwner = submission.StudentCode == Context.UserIdentifier;
+     bool isLecturer = Context.User.IsInRole("Lecturer") || Context.User.IsInRole("Admin");
+
+     if (!isOwner && !isLecturer)
+     {
+         throw new HubException("Truy cập bị từ chối: Bạn không có quyền theo dõi bài nộp này.");
+     }
+     await Groups.AddToGroupAsync(Context.ConnectionId, $"submission:{parsedId}");
+     ```
 
 ### Vai trò của `IHubContext<SubmissionHub>`
 - Trong ASP.NET Core SignalR, đối tượng `Hub` chỉ được khởi tạo trong phạm vi một lời gọi RPC từ máy khách và bị hủy ngay sau khi hàm thực thi xong (transient per invocation).
@@ -223,11 +255,11 @@ SV002: SignalR = failed, REST = failed
 
 | STT | Tình huống | Dự đoán | Kết quả thực tế | Giải thích & Bài học phân tán |
 |:---:|---|---|---|---|
-| **1** | Chạy 2 máy khách SV001 và SV002 cùng lúc | Mỗi máy khách chỉ nhận thông báo về bài nộp của chính mình, không thấy bài của người kia | Cả hai máy khách cùng nhận được thông báo `processing` và `graded` nhưng chỉ đúng ID lượt nộp mà mình đã tạo | **Nhóm `submission:{id}` phân tách chính xác người nhận.** Máy chủ quản lý danh sách thành viên nhóm trong bộ nhớ, đảm bảo tính riêng tư tuyệt đối cho sinh viên và tối ưu hóa băng thông. |
+| **1** | Chạy 2 máy khách SV001 và SV002 cùng lúc | Mỗi máy khách chỉ nhận thông báo về bài nộp của chính mình, không thấy bài của người kia | Cả hai máy khách cùng nhận được thông báo `processing` và `graded` nhưng chỉ đúng ID lượt nộp mà mình đã tạo | **Nhóm `submission:{id}` phân tách phạm vi nhận tin (scoping/routing) trong bộ nhớ máy chủ.** Cơ chế này giúp tối ưu hóa băng thông mạng và tránh lộ thông báo qua broadcast. *(Lưu ý: Group chỉ là gom luồng định tuyến; để bảo mật tuyệt đối, máy chủ phải xác thực danh tính và kiểm tra quyền sở hữu bài nộp trước khi cho phép vào nhóm).* |
 | **2** | Chạy máy khách khi máy chủ chưa chạy | Khách báo lỗi không thể kết nối ngay lập tức | Ném ngoại lệ `HttpRequestException: Connection refused (localhost:5000)` và dừng chương trình | **Lần nối đầu tiên không được tự động thử lại.** `WithAutomaticReconnect` không bảo vệ được bước bắt tay ban đầu. Ứng dụng production cần tự bọc `try/catch` vòng lặp `StartAsync` nếu muốn đợi server khởi động. |
 | **3** | Sửa WithUrl thành `/hub/submissions` | Máy khách báo lỗi 404 Not Found ở bước negotiate | Báo lỗi `HttpRequestException: Response status code does not indicate success: 404 (Not Found)` | **Bắt tay thất bại ở tầng HTTP.** Đường dẫn kết nối phải khớp hoàn toàn với cấu hình định tuyến của máy chủ (`MapHub`). |
 | **4** | Sửa `On("SubmissionStatusChanged")` thành `On("SubmissionStatusChange")` | Máy khách không nhận được thông báo nào, sau 10 giây báo quá thời gian chờ | Chương trình im lặng, không có lỗi ngoại lệ; sau 10 giây in `Qua thoi gian cho thong bao graded.`; đọc lại bằng REST vẫn ra `graded` | **Sai tên chiều xuống là im lặng (Silent failure).** Khách vẫn giữ kết nối nhưng không kích hoạt handler. Vì vậy, REST luôn đóng vai trò là "chốt chặn an toàn" để kiểm tra trạng thái cuối. |
-| **5** | Chờ 4 giây rồi mới gọi `WatchSubmission` | Vì sau 3 giây bài đã chấm xong, máy khách vào nhóm muộn sẽ bị lỡ hết thông điệp | Khách không nhận được bất kỳ tin SignalR nào; khi gọi `GET /api/submissions/{id}` bằng REST ở cuối vẫn đọc được kết quả `graded` | **Thông điệp thời gian thực không lưu trữ chờ người nhận đến muộn.** SignalR là cơ chế truyền phát tức thời (fire-and-forget), không có message queue lưu trữ lịch sử. Mô hình chuẩn là: **Push để nhanh, REST để chắc.** |
+| **5** | Chờ 4 giây rồi mới gọi `WatchSubmission` | Vì sau 3 giây bài đã chấm xong, máy khách vào nhóm muộn sẽ bị lỡ hết thông điệp | Khách không nhận được bất kỳ tin SignalR nào; khi gọi `GET /api/submissions/{id}` bằng REST ở cuối vẫn đọc được kết quả `graded` | **Thông điệp SignalR không lưu trữ chờ người nhận đến muộn.** SignalR là cơ chế phát tin tức thời (fire-and-forget), không tự động lưu lại các tin nhắn đã lỡ vào message queue. Do đó, REST luôn là nguồn sự thật bền vững: máy khách gọi lại `GET /api/submissions/{id}` để đồng bộ kết quả. Mô hình chuẩn là: **Push để nhanh, REST để chắc.** |
 
 ---
 
@@ -244,7 +276,7 @@ SV002: SignalR = failed, REST = failed
    - Hai công nghệ phối hợp theo nguyên tắc: *"Push để nhanh, REST để chắc"*.
 
 3. **Nếu đứt mạng đúng lúc máy chủ báo "đã chấm xong" thì sao?**  
-   *Trả lời:* Thông điệp đẩy qua SignalR lúc đó sẽ bị mất vĩnh viễn vì SignalR không có cơ chế lưu trữ hàng đợi tin nhắn cho kết nối đã đứt. Tuy nhiên, nhờ cấu hình `WithAutomaticReconnect()`, khi có mạng trở lại, máy khách sẽ tự động kết nối lại (nhận ConnectionId mới), chủ động gọi `WatchSubmission` vào lại nhóm và ngay lập tức gọi REST endpoint `GET /api/submissions/{id}` để đồng bộ trạng thái chính xác nhất từ cơ sở dữ liệu.
+   *Trả lời:* Thông điệp đẩy qua SignalR lúc đó sẽ bị mất vĩnh viễn vì SignalR không có cơ chế lưu trữ hàng đợi tin nhắn cho kết nối đã đứt. Khi có mạng trở lại, `WithAutomaticReconnect()` sẽ tự động kết nối lại máy chủ nhưng **được cấp ConnectionId mới và máy chủ KHÔNG tự khôi phục danh sách nhóm của kết nối cũ, cũng KHÔNG tự gửi lại tin nhắn đã lỡ**. Do đó, máy khách phải chủ động tham gia lại nhóm (trong sự kiện `Reconnected` hoặc gọi lại `WatchSubmission`) và ngay lập tức gọi phương thức REST `GET /api/submissions/{id}` để đồng bộ trạng thái chính xác nhất được lưu trữ bền vững trên máy chủ.
 
 ---
 
@@ -252,7 +284,7 @@ SV002: SignalR = failed, REST = failed
 
 1. **Polling khác Push ở số yêu cầu và độ trễ thế nào?**  
    - *Polling (thăm dò định kỳ):* Máy khách định kỳ gửi request (ví dụ 2 giây/lần). Đa số các yêu cầu trả về dữ liệu cũ không đổi (gây lãng phí tài nguyên CPU, mạng). Độ trễ nhận tin có thể lên tới bằng chu kỳ thăm dò (trễ tới 2 giây).
-   - *Push (đẩy dữ liệu):* Kết nối giữ mở liên tục. Máy chủ chỉ gửi thông điệp khi sự kiện thực sự xảy ra (không có yêu cầu thừa). Độ trễ gần như bằng 0 (tức thì).
+   - *Push (đẩy dữ liệu):* Kết nối song công giữ mở liên tục. Máy chủ chỉ gửi thông điệp khi sự kiện thực sự xảy ra (không có yêu cầu thừa). Độ trễ rất thấp (chỉ phụ thuộc vào RTT mạng - Round-Trip Time, tính bằng mili-giây) vì thông điệp được đẩy ngay khi phát sinh sự kiện.
 
 2. **Phân biệt 3 mô hình MEP (Message Exchange Patterns) theo hướng khởi tạo và số thông điệp:**  
    - *Yêu cầu - phản hồi (Request-Reply):* Khởi tạo bởi **Máy khách**. Số thông điệp: Đúng **1 yêu cầu → 1 phản hồi**.
@@ -270,7 +302,7 @@ SV002: SignalR = failed, REST = failed
    - Ưu tiên 3: **Long Polling** (máy khách gửi HTTP request, máy chủ giữ kết nối cho đến khi có tin hoặc hết thời gian chờ rồi lặp lại).
 
 5. **Vì sao tạo nhóm `submission:{id}` thay vì gửi tất cả (`Clients.All`)?**  
-   - *Bảo mật & Riêng tư:* Tránh để lộ thông tin nhạy cảm (mã sinh viên, trạng thái chấm, điểm số) của sinh viên này sang sinh viên khác.
+   - *Khoanh vùng phạm vi nhận tin (Scoping):* Tránh làm tràn ngập thông báo bài nộp của người này sang máy khách của người khác; kết hợp với phân quyền phía máy chủ để bảo vệ tính riêng tư bài nộp.
    - *Tiết kiệm băng thông:* Nếu lớp có 100 sinh viên, dùng `Clients.All` sẽ sinh ra 100 × 200 = 20.000 thông điệp tràn ngập mạng; dùng nhóm thì chỉ đúng 200 thông điệp được chuyển đến máy khách quan tâm.
 
 6. **`IHubContext` cho phép làm gì?**  
@@ -289,10 +321,10 @@ SV002: SignalR = failed, REST = failed
      3. Tạo tài nguyên là một thao tác một-lần cần tính bảo đảm cao (idempotent/transactional), không cần thiết phải dùng socket hai chiều.
 
 9. **`WithAutomaticReconnect()` có tác dụng gì?**  
-   Tự động kích hoạt cơ chế thử kết nối lại khi kết nối mạng bị rớt đột ngột. Theo mặc định, thư viện sẽ thử lại sau 0s, 2s, 10s, 30s. Trong quá trình đó, các sự kiện `Reconnecting` và `Reconnected` được kích hoạt để giao diện phản hồi trạng thái.
+   Tự động kích hoạt cơ chế thử kết nối lại khi kết nối mạng bị rớt đột ngột. Theo mặc định, thư viện sẽ thử lại sau 0s, 2s, 10s, 30s. Trong quá trình đó, các sự kiện `Reconnecting` và `Reconnected` được kích hoạt để cập nhật trạng thái UI. *(Lưu ý: Sau khi Reconnected, máy chủ cấp ConnectionId mới và KHÔNG tự khôi phục Group membership của kết nối cũ, máy khách cần chủ động tham gia lại nhóm).*
 
 10. **Mất kết nối đúng lúc báo graded thì làm gì?**  
-    Khi phát hiện kết nối bị ngắt (hoặc sau khi đã `Reconnected`), máy khách sẽ gọi phương thức REST `GET /api/submissions/{id}` để truy vấn trực tiếp trạng thái cuối cùng được lưu trữ trên máy chủ, đảm bảo không bị bỏ sót kết quả.
+    Vì SignalR không lưu trữ hàng đợi tin nhắn và không tự gửi lại tin đã lỡ trong thời gian đứt kết nối, máy khách sau khi kết nối lại (hoặc phát hiện quá thời gian chờ) sẽ gọi phương thức REST `GET /api/submissions/{id}` để truy vấn trực tiếp trạng thái cuối cùng được lưu trữ bền vững trên máy chủ, đảm bảo tính toàn vẹn dữ liệu.
 
 ---
 
@@ -325,71 +357,83 @@ $$\text{Mô hình kết hợp} = \text{REST (Nguồn sự thật)} + \text{Signa
    - Nguồn sự thật duy nhất (Single Source of Truth) khi cần kiểm tra lại trạng thái.
 2. **SignalR chịu trách nhiệm:**
    - Kênh thông báo một chiều nhanh chóng từ máy chủ tới máy khách.
-   - Cung cấp trải nghiệm người dùng tức thời (Zero-latency UX), giải phóng giao diện khỏi việc chờ đợi hoặc liên tục refresh trang.
+   - Cung cấp trải nghiệm người dùng tức thời với độ trễ tối thiểu theo RTT mạng (tính bằng mili-giây), giải phóng giao diện khỏi việc chờ đợi hoặc liên tục thăm dò (polling).
    - Tiết kiệm tối đa tài nguyên mạng và CPU cho máy chủ.
 3. **Khẩu hiệu cốt lõi:**
    > **"Push để nhanh, REST để chắc."**
 
 ---
 
-## 9. DANH MỤC ẢNH MINH CHỨNG & HƯỚNG DẪN CHỤP ẢNH THẬT
+## 9. DANH MỤC ẢNH MINH CHỨNG & HÌNH ẢNH CHẠY THẬT
 
-Tất cả các ảnh minh chứng phải được chụp trực tiếp từ màn hình dòng lệnh chạy thật (thể hiện rõ đường dẫn thư mục bài làm và kết quả chạy) và lưu vào thư mục `anh/`:
+Tất cả các ảnh minh chứng đã được chụp trực tiếp từ màn hình dòng lệnh chạy thật (thể hiện rõ đường dẫn thư mục bài làm và kết quả chạy) và lưu đầy đủ trong thư mục `anh/`:
 
-| Tên tệp ảnh | Nội dung cần thể hiện trên ảnh |
-|---|---|
-| `buoc1-build.png` | Lệnh `dotnet build` tại thư mục `PingSignalR`, hiển thị `Build succeeded, 0 Warning(s), 0 Error(s)`. |
-| `buoc2-negotiate.png` | Cửa sổ terminal chạy các lệnh curl: `curl http://localhost:5200/` và `curl -X POST http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1` trả về `connectionId`. |
-| `buoc4-echo.png` | Máy chủ `Ping.Api` đang chạy, máy khách `Ping.Client` in dòng `[Echo] Echo: Xin chao SignalR tu An`. |
-| `buoc5-nhom.png` | Cả hai máy khách An và Bình đang chạy: Cửa sổ của An thấy `[Group]` và `[Broadcast]` của Bình nhưng không có `[Echo]` của Bình. |
-| `buoc6-noilai.png` | Máy chủ bị tắt và bật lại: Máy khách in `[Lifecycle] Dang ket noi lai...` rồi `[Lifecycle] Da ket noi lai: ...` với ConnectionId mới. |
-| `buoc7-loi1.png` | Lỗi 1: Máy chủ chưa chạy, máy khách in ngoại lệ `HttpRequestException: Connection refused (localhost:5200)`. |
-| `buoc7-loi2.png` | Lỗi 2: Sai đường dẫn hub (`/hub/ping`), curl hoặc máy khách in lỗi `404 (Not Found)`. |
-| `buoc7-loi3.png` | Lỗi 3: Sai tên thông điệp (`On("EchoRespone")`), máy khách kết nối được nhưng hoàn toàn im lặng. |
-| `edusubmit-requests.png` | Kết quả chạy kiểm thử file `requests.http` hiển thị các mã trạng thái `200`, `201`, `400`, `404`. |
-| `edusubmit-realtime.png` | Hai cửa sổ terminal: Máy chủ `Submission.RealtimeApi` (hiển thị Push `processing` → `graded`) và máy khách `Submission.RealtimeClient` (hiển thị đủ 8 dòng trạng thái). |
+| Tên tệp ảnh | Nội dung thể hiện trên ảnh | Trạng thái |
+|---|---|:---:|
+| `buoc1-build.png` | Lệnh `dotnet build` tại thư mục `PingSignalR`, hiển thị `Build succeeded, 0 Warning(s), 0 Error(s)`. | **Đã có** |
+| `buoc2-negotiate.png` | Cửa sổ terminal chạy các lệnh curl: `curl http://localhost:5200/` và `curl -X POST http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1` trả về `connectionId`. | **Đã có** |
+| `buoc4-echo.png` | Máy chủ `Ping.Api` đang chạy, máy khách `Ping.Client` in dòng `[Echo] Echo: Xin chao SignalR tu An`. | **Đã có** |
+| `buoc5-nhom.png` | Cả hai máy khách An và Bình đang chạy: Cửa sổ của An thấy `[Group]` và `[Broadcast]` của Bình nhưng không có `[Echo]` của Bình. | **Đã có** |
+| `buoc6-noilai.png` | Máy chủ bị tắt và bật lại: Máy khách in `[Lifecycle] Dang ket noi lai...` rồi `[Lifecycle] Da ket noi lai: ...` với ConnectionId mới. | **Đã có** |
+| `buoc7-loi1.png` | Lỗi 1: Máy chủ chưa chạy, máy khách in ngoại lệ `HttpRequestException: Connection refused (localhost:5200)`. | **Đã có** |
+| `buoc7-loi2.png` | Lỗi 2: Sai đường dẫn hub (`/hub/ping`), curl hoặc máy khách in lỗi `404 (Not Found)`. | **Đã có** |
+| `buoc7-loi3.png` | Lỗi 3: Sai tên thông điệp (`On("EchoRespone")`), máy khách kết nối được nhưng hoàn toàn im lặng. | **Đã có** |
+| `edusubmit-requests.png` | Kết quả chạy kiểm thử file `requests.http` hiển thị các mã trạng thái `200`, `201`, `400`, `404`. | **Đã có** |
+| `edusubmit-realtime.png` | Hai cửa sổ terminal: Máy chủ `Submission.RealtimeApi` (hiển thị Push `processing` → `graded`) và máy khách `Submission.RealtimeClient` (hiển thị đủ 8 dòng trạng thái). | **Đã có** |
 
-### Hướng dẫn sinh viên chụp ảnh (Win + Shift + S):
+---
+
+### Chi tiết hình ảnh minh chứng thực tế
+
+#### 1. Phần PingSignalR
+
+- **Bước 1: Build dự án thành công (0 lỗi, 0 cảnh báo)**
+![buoc1-build](anh/buoc1-build.png)
+
+- **Bước 2: Bắt tay đàm phán negotiate (Cổng 5200)**
+![buoc2-negotiate](anh/buoc2-negotiate.png)
+
+- **Bước 4: Kiểm thử thông điệp Echo riêng cho Caller**
+![buoc4-echo](anh/buoc4-echo.png)
+
+- **Bước 5: Kiểm thử phân tách Group và Broadcast giữa An và Bình**
+![buoc5-nhom](anh/buoc5-nhom.png)
+
+- **Bước 6: Khôi phục kết nối tự động khi máy chủ khởi động lại**
+![buoc6-noilai](anh/buoc6-noilai.png)
+
+- **Bước 7: Thí nghiệm 3 lỗi cố ý**
+  - *Lỗi 1: Máy chủ chưa chạy:*
+  ![buoc7-loi1](anh/buoc7-loi1.png)
+  - *Lỗi 2: Sai đường dẫn Hub:*
+  ![buoc7-loi2](anh/buoc7-loi2.png)
+  - *Lỗi 3: Sai tên sự kiện EchoRespone (im lặng hoàn toàn):*
+  ![buoc7-loi3](anh/buoc7-loi3.png)
+
+---
+
+#### 2. Phần EduSubmit Realtime
+
+- **Kiểm thử 9 ca trong `requests.http`:**
+![edusubmit-requests](anh/edusubmit-requests.png)
+
+- **Chạy thực tế luồng thời gian thực EduSubmit (Server và Client kết hợp REST + SignalR):**
+![edusubmit-realtime](anh/edusubmit-realtime.png)
+
+---
+
+### Hướng dẫn sinh viên chụp lại khi cần (Win + Shift + S):
 1. **Ảnh `buoc1-build.png`:**
-   Mở terminal tại thư mục `Phan Thế Vinh - dtc245200309\Bai3\PingSignalR`, gõ lệnh:
-   ```powershell
-   dotnet build
-   ```
-   Nhấn tổ hợp phím `Win + Shift + S`, kéo chọn vùng hiển thị terminal và lưu ảnh vào `Bai3/anh/buoc1-build.png`.
-
+   Mở terminal tại thư mục `Phan Thế Vinh - dtc245200309\Bai3\PingSignalR`, gõ lệnh `dotnet build`.
 2. **Ảnh `buoc2-negotiate.png`:**
-   Chạy `Ping.Api` trên Terminal 1:
-   ```powershell
-   dotnet run --project src/Ping.Api --urls http://localhost:5200
-   ```
-   Mở Terminal 2 chạy:
-   ```powershell
-   curl.exe -X POST "http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1"
-   ```
-   Chụp cửa sổ Terminal 2 và lưu vào `Bai3/anh/buoc2-negotiate.png`.
-
+   Chạy `Ping.Api` cổng 5200 và dùng terminal chạy `curl.exe -X POST "http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1"`.
 3. **Ảnh `buoc4-echo.png`:**
-   Terminal 1 chạy `Ping.Api`. Terminal 2 chạy:
-   ```powershell
-   dotnet run --project src/Ping.Client -- http://localhost:5200 An
-   ```
-   Chụp cả 2 cửa sổ hoặc cửa sổ Terminal 2 có dòng `[Echo] Echo: Xin chao SignalR tu An`, lưu vào `Bai3/anh/buoc4-echo.png`.
-
+   Chạy `Ping.Api` và `Ping.Client`, xem dòng `[Echo] Echo: Xin chao SignalR tu An`.
 4. **Ảnh `buoc5-nhom.png`:**
-   Mở 3 terminal cạnh nhau: Terminal 1 (Api), Terminal 2 (An), Terminal 3 (Bình).
-   Terminal 2 chạy: `dotnet run --project src/Ping.Client -- http://localhost:5200 An`
-   Terminal 3 chạy: `dotnet run --project src/Ping.Client -- http://localhost:5200 Binh`
-   Chụp 3 cửa sổ, lưu vào `Bai3/anh/buoc5-nhom.png`.
-
+   Chạy đồng thời `Ping.Api`, client `An` và client `Binh`.
 5. **Ảnh `buoc6-noilai.png`:**
-   Khi An đang chạy, tại Terminal 1 nhấn `Ctrl+C` để tắt server, rồi chạy lại lệnh `dotnet run --project src/Ping.Api --urls http://localhost:5200`.
-   Tại cửa sổ An sẽ xuất hiện `Dang ket noi lai...` và `Da ket noi lai: ...`. Chụp màn hình và lưu vào `Bai3/anh/buoc6-noilai.png`.
-
+   Tắt và bật lại `Ping.Api` khi client đang chạy, xem dòng `Dang ket noi lai...` và `Da ket noi lai: ...`.
 6. **Ảnh `buoc7-loi1.png`, `buoc7-loi2.png`, `buoc7-loi3.png`:**
-   - `buoc7-loi1.png`: Tắt server, chạy `dotnet run --project src/Ping.Client -- http://localhost:5200 An` thấy lỗi `Connection refused`. Chụp ảnh.
-   - `buoc7-loi2.png`: Chạy `curl.exe -i -X POST "http://localhost:5200/hub/ping/negotiate?negotiateVersion=1"` thấy `404 Not Found`. Chụp ảnh.
-   - `buoc7-loi3.png`: Sửa `On("EchoResponse")` thành `On("EchoRespone")`, chạy client thấy kết nối nhưng không in tin `[Echo]`. Chụp ảnh.
-
+   Làm theo các bước thí nghiệm lỗi trong bảng ở Mục 6.
 7. **Ảnh `edusubmit-requests.png` và `edusubmit-realtime.png`:**
-   - `edusubmit-requests.png`: Mở VS Code chạy file `requests.http` hoặc cửa sổ terminal chạy curl các ca 200, 201, 400, 404. Chụp ảnh.
-   - `edusubmit-realtime.png`: Terminal 1 chạy `Submission.RealtimeApi`, Terminal 2 chạy `dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV001`. Chụp hai cửa sổ, lưu vào `Bai3/anh/edusubmit-realtime.png`.
+   Mở `requests.http` bấm Send Request, và chạy đồng thời `Submission.RealtimeApi` (5000) cùng `Submission.RealtimeClient`.
