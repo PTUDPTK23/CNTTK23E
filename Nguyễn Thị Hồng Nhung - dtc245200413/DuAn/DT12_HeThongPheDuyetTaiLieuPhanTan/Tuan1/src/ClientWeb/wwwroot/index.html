@@ -1,0 +1,3378 @@
+﻿
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocFlow — Hệ thống Phê duyệt Tài liệu Phân tán</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --subtle: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-2: #334155;
+      --muted: #64748b;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-soft: #eff6ff;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 16px 36px rgba(15, 23, 42, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      font-size: 14px;
+    }
+
+    /* Sticky Top Chrome */
+    .top-chrome {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Top Dark Navbar */
+    .navbar {
+      background: #0f172a;
+      color: #fff;
+      border-bottom: 1px solid #1e293b;
+    }
+    .navbar-inner {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-mark {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #f8fafc;
+    }
+
+    /* Right Navbar Controls */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+    .node-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .node-status-pill.offline {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .node-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+    .node-status-pill.offline .node-dot {
+      background: #ef4444;
+      box-shadow: none;
+    }
+
+    /* Notification Bell Button */
+    .bell-btn {
+      position: relative;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .bell-btn:hover {
+      background: #334155;
+      color: #fff;
+    }
+    .bell-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #0f172a;
+    }
+
+    /* Notification Dropdown Popover */
+    .notif-popover {
+      position: absolute;
+      top: 48px;
+      right: 140px;
+      width: 390px;
+      max-width: calc(100vw - 32px);
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 90;
+      overflow: hidden;
+    }
+    .notif-popover.open { display: block; }
+    .notif-pop-head {
+      padding: 12px 16px;
+      background: var(--subtle);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .notif-pop-title {
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .notif-pop-body {
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    /* User Profile Dropdown */
+    .user-menu-wrap {
+      position: relative;
+    }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 5px 12px 5px 7px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: 0.15s;
+      color: #fff;
+      font-family: inherit;
+    }
+    .user-pill:hover {
+      background: #273549;
+      border-color: #475569;
+    }
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .user-info {
+      text-align: left;
+      line-height: 1.25;
+    }
+    .user-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .user-role {
+      font-size: 0.71rem;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .user-dropdown {
+      position: absolute;
+      top: 48px;
+      right: 0;
+      width: 265px;
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 95;
+      overflow: hidden;
+    }
+    .user-dropdown.open { display: block; }
+    .user-dd-header {
+      padding: 13px 15px;
+      background: var(--subtle);
+      border-bottom: 1px solid var(--border);
+    }
+    .user-dd-name {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+    .user-dd-meta {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .user-dd-body {
+      padding: 8px;
+    }
+    .dd-item-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      padding: 9px 11px;
+      border-radius: 7px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #b91c1c;
+      transition: 0.15s;
+    }
+    .dd-item-btn:hover {
+      background: #fef2f2;
+    }
+
+    /* Sub Navigation Bar */
+    .subnav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+    .subnav-inner {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .nav-tab {
+      background: transparent;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      padding: 13px 16px;
+      font-size: 0.87rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.15s;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+    .subnav-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      padding: 8px 0;
+    }
+
+    /* Auth Screen */
+    .auth-wrapper {
+      min-height: calc(100vh - 58px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .auth-card {
+      background: var(--surface);
+      width: 100%;
+      max-width: 440px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .auth-header {
+      padding: 24px 26px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--subtle);
+    }
+    .auth-header h2 {
+      margin: 0 0 5px;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .auth-header p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #f1f5f9;
+      padding: 4px;
+      margin: 18px 26px 0;
+      border-radius: 8px;
+    }
+    .auth-tab {
+      border: none;
+      background: transparent;
+      padding: 8px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.15s;
+    }
+    .auth-tab.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+    .auth-body { padding: 20px 26px 26px; }
+
+    /* Main Container (Full-width responsive workspace) */
+    .main-wrap {
+      max-width: 100%;
+      margin: 22px auto;
+      padding: 0 28px 48px;
+    }
+
+    /* VIEW 1: KPI + Primary CTA Header Row */
+    .kpi-action-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1024px) {
+      .kpi-action-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .kpi-action-bar { grid-template-columns: 1fr; }
+    }
+
+    .kpi-pill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid #cbd5e1;
+      border-radius: 11px;
+      padding: 15px 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.15s;
+    }
+    .kpi-pill-card:hover { box-shadow: var(--shadow-md); }
+    .kpi-pill-card.accent-green { border-top-color: #10b981; }
+    .kpi-pill-card.accent-amber { border-top-color: #f59e0b; }
+    .kpi-pill-card.accent-blue { border-top-color: #2563eb; }
+    .kpi-pill-card.accent-red { border-top-color: #dc2626; }
+
+    .kpi-inline-text {
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .kpi-inline-text strong {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+    .kpi-num-green { color: #16a34a; }
+    .kpi-num-amber { color: #d97706; }
+    .kpi-num-blue { color: #2563eb; }
+    .kpi-num-red { color: #dc2626; }
+
+    .btn-create-hero {
+      background: #1d4ed8;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 22px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+    .btn-create-hero:hover {
+      background: #1e40af;
+      transform: translateY(-1px);
+    }
+
+    /* VIEW 2 (Tra cứu & Báo cáo): Rich Metric Cards with Icon Badges */
+    .report-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1024px) { .report-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .report-kpi-grid { grid-template-columns: 1fr; } }
+
+    .rep-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: 0.15s;
+    }
+    .rep-card:hover { box-shadow: var(--shadow-md); }
+    .rep-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .rep-card-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .rep-icon-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rep-icon-green { background: #dcfce7; color: #16a34a; }
+    .rep-icon-red { background: #fee2e2; color: #dc2626; }
+    .rep-icon-amber { background: #fef3c7; color: #d97706; }
+    .rep-icon-blue { background: #dbeafe; color: #2563eb; }
+
+    .rep-card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .rep-card-val {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .rep-card-val.red { color: #b91c1c; }
+    .rep-card-val.amber { color: #b45309; }
+    .rep-card-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* KPI Grid 4 (for Users Directory) */
+    .kpi-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1024px) { .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 14px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-card.kpi-total { border-top-color: #2563eb; }
+    .kpi-card.kpi-draft { border-top-color: #64748b; }
+    .kpi-card.kpi-submitted { border-top-color: #d97706; }
+    .kpi-card.kpi-approved { border-top-color: #059669; }
+    .kpi-label {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+    .kpi-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+    .kpi-sub { font-size: 0.74rem; color: var(--muted); }
+
+    /* Main Workspace Card */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .panel-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel-title {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rbac-scope-pill {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .panel-body { padding: 20px; }
+
+    /* Underline Scope Tabs */
+    .underline-tabs-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      background: #fff;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .underline-tabs {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .u-tab {
+      background: transparent;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      padding: 14px 2px 12px;
+      font-size: 0.87rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.15s;
+    }
+    .u-tab:hover { color: var(--text); }
+    .u-tab.active {
+      color: var(--text);
+      font-weight: 700;
+      border-bottom-color: var(--primary);
+    }
+
+    /* Search + Status Filter Row */
+    .search-filter-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 680px) {
+      .search-filter-row { grid-template-columns: 1fr; }
+    }
+    .search-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-input-wrap svg {
+      position: absolute;
+      left: 13px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .search-input-wrap input {
+      padding-left: 38px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      font-size: 0.86rem;
+    }
+    .status-select {
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+
+    /* Form Controls */
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+      transition: 0.15s;
+    }
+    input[readonly] {
+      background: #f1f5f9;
+      color: #475569;
+      cursor: not-allowed;
+    }
+    .password-mask {
+      -webkit-text-security: disc;
+      text-security: disc;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+    textarea { resize: vertical; min-height: 92px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 15px;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-ghost {
+      background: #fff;
+      color: var(--text-2);
+      border: 1px solid var(--border-strong);
+      padding: 7px 13px;
+      font-size: 0.81rem;
+    }
+    .btn-ghost:hover { background: #f1f5f9; color: var(--text); }
+    .btn-soft {
+      background: #f1f5f9;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      font-size: 0.82rem;
+    }
+    .btn-soft:hover { background: #e2e8f0; color: var(--text); }
+    .btn-sm { padding: 7px 14px; font-size: 0.82rem; border-radius: 8px; }
+    .btn-submit { background: #1d4ed8; color: #fff; }
+    .btn-submit:hover { background: #1e40af; }
+    .btn-approve { background: #047857; color: #fff; }
+    .btn-approve:hover { background: #065f46; }
+    .btn-reject { background: #b91c1c; color: #fff; }
+    .btn-reject:hover { background: #991b1b; }
+
+    /* Document Cards */
+    .doc-card {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      background: #fff;
+      transition: 0.15s;
+    }
+    .doc-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+    .doc-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .doc-title-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .doc-icon-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .doc-title {
+      margin: 0;
+      font-size: 1.03rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.38;
+    }
+
+    .tag-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 7px;
+    }
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 6px;
+    }
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .tag-cat {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .tag-cat .pill-dot { background: #2563eb; }
+
+    .prio-normal { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .prio-normal .pill-dot { background: #64748b; }
+    .prio-urgent { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+    .prio-urgent .pill-dot { background: #eab308; }
+    .prio-critical { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .prio-critical .pill-dot { background: #dc2626; }
+
+    .due-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: #b91c1c;
+    }
+    .due-inline .pill-dot { background: #dc2626; }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-Draft { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .badge-Submitted { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    .badge-Approved { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-Rejected { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+    /* Horizontal Stepper Bar */
+    .flow-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 13px 0 11px 46px;
+      padding: 7px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 768px) {
+      .flow-bar { margin-left: 0; }
+    }
+    .flow-steps {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+    }
+    .flow-step {
+      padding: 4px 11px;
+      border-radius: 6px;
+      color: var(--muted);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .flow-step.current {
+      background: #e0edff;
+      color: #1e40af;
+      font-weight: 600;
+      border: 1px solid #bfdbfe;
+    }
+    .flow-step.done {
+      color: #047857;
+      font-weight: 600;
+    }
+    .flow-step.rejected {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: 600;
+    }
+    .flow-arrow {
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+    .flow-tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .icon-tool-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .icon-tool-btn:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .icon-tool-btn.danger:hover {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* Inline Meta & Actions */
+    .doc-body-indent {
+      margin-left: 46px;
+    }
+    @media (max-width: 768px) {
+      .doc-body-indent { margin-left: 0; }
+    }
+    .doc-meta-inline {
+      font-size: 0.8rem;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .doc-meta-inline strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .meta-sep { color: #cbd5e1; }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 2px 7px;
+      border-radius: 5px;
+      color: #334155;
+      display: inline-block;
+    }
+
+    .doc-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .role-hint {
+      font-size: 0.77rem;
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    /* Notification Cards inside Bell Popover */
+    .notif-card {
+      border: 1px solid var(--border);
+      border-left: 3px solid #94a3b8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #fff;
+      font-size: 0.8rem;
+    }
+    .notif-card:last-child { margin-bottom: 0; }
+    .notif-card.unread {
+      background: #f8fbff;
+      border-color: #bfdbfe;
+      border-left-color: #2563eb;
+    }
+    .notif-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+    .notif-title { font-weight: 700; color: var(--text); }
+    .notif-time { font-size: 0.71rem; color: var(--muted); white-space: nowrap; }
+    .notif-msg { color: var(--text-2); line-height: 1.42; margin-bottom: 5px; }
+    .notif-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.71rem;
+      color: var(--muted);
+    }
+
+    /* Archive Filter Bar */
+    .archive-filter-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 185px 185px auto;
+      gap: 10px;
+      margin-bottom: 18px;
+      background: var(--subtle);
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      align-items: center;
+    }
+    @media (max-width: 820px) { .archive-filter-bar { grid-template-columns: 1fr; } }
+
+    .archive-filter-bar .search-input-wrap input {
+      height: 38px;
+      background: #fff;
+    }
+    .archive-filter-bar select {
+      height: 38px;
+      border-radius: 8px;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      text-align: left;
+    }
+    table.data-table th {
+      background: var(--subtle);
+      color: var(--text-2);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    table.data-table tr:last-child td { border-bottom: none; }
+    table.data-table tr:hover td { background: #f8fafc; }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 16px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      background: var(--subtle);
+      border-radius: 10px;
+      border: 1px dashed var(--border-strong);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      padding: 16px;
+    }
+    .modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .modal-box.modal-lg { max-width: 820px; }
+    .modal-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--subtle);
+      gap: 8px;
+    }
+    .modal-body {
+      padding: 18px;
+      max-height: 78vh;
+      overflow-y: auto;
+    }
+    .modal-foot {
+      padding: 12px 18px;
+      background: var(--subtle);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* FULL-SCREEN DOCUMENT CREATION EDITOR */
+    .fullscreen-editor-backdrop {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      z-index: 130;
+    }
+    .fs-topbar {
+      background: #0f172a;
+      color: #fff;
+      height: 62px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid #1e293b;
+      flex-shrink: 0;
+    }
+    .fs-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+    .btn-fs-back {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 7px 13px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s;
+    }
+    .btn-fs-back:hover {
+      background: #334155;
+    }
+    .fs-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .fs-title-wrap h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fs-draft-tag {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      color: #93c5fd;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .fs-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-fs-sample {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .btn-fs-sample:hover {
+      background: #334155;
+      color: #fff;
+    }
+    .btn-fs-draft {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .btn-fs-draft:hover {
+      background: #f1f5f9;
+    }
+    .btn-fs-submit {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+      transition: 0.15s;
+    }
+    .btn-fs-submit:hover {
+      background: #1d4ed8;
+    }
+
+    .fs-workspace {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px 36px;
+      width: 100%;
+    }
+    .fs-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 410px;
+      gap: 24px;
+      width: 100%;
+      min-height: calc(100vh - 122px);
+      align-items: stretch;
+    }
+    @media (max-width: 980px) {
+      .fs-grid {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+    }
+    .fs-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+    }
+    .fs-card-title {
+      margin: 0 0 18px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .fs-input-title {
+      height: 46px;
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 10px 14px;
+    }
+    .fs-content-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+    .fs-textarea-content {
+      flex: 1;
+      min-height: 360px;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      padding: 14px;
+    }
+    .fs-route-preview {
+      margin-top: auto;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .fs-route-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .fs-route-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+    .fs-route-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--text-2);
+      font-weight: 500;
+    }
+    .fs-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 0.74rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .fs-route-item.active .fs-step-num {
+      background: #2563eb;
+      color: #fff;
+    }
+    .fs-route-item.active {
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    /* Official Print Sheet & Discussion inside Detail Modal */
+    .sheet-box {
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 20px;
+      background: #fff;
+    }
+    .sheet-header {
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .sheet-header h3 {
+      margin: 0 0 4px;
+      font-size: 1.08rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .sheet-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 18px;
+      font-size: 0.84rem;
+      margin-bottom: 14px;
+    }
+    .sheet-content {
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+    .note-box {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-strong);
+    }
+    .note-item {
+      font-size: 0.8rem;
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+    }
+    .note-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: #0f172a;
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      font-size: 0.84rem;
+      font-weight: 500;
+      z-index: 250;
+      display: none;
+      border-left: 4px solid #2563eb;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #detailModal, #detailModal * { visibility: visible; }
+      #detailModal {
+        position: static;
+        inset: auto;
+        background: #fff;
+        padding: 0;
+        display: block !important;
+      }
+      #detailModal .modal-box {
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+      }
+      #detailModal .modal-body {
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-chrome">
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="brand">
+        <span class="brand-mark">DOCFLOW</span>
+        <h1>Hệ thống Phê duyệt Tài liệu Phân tán</h1>
+      </div>
+
+      <div class="nav-right" id="userBar" style="display:none;">
+        <!-- Distributed Nodes Status Pill -->
+        <div class="node-status-pill" id="nodeStatusPill" title="Trạng thái cụm máy chủ phân tán">
+          <span class="node-dot"></span>
+          <span id="nodeStatusText">3/3 Nodes Online</span>
+        </div>
+
+        <!-- Notification Bell -->
+        <button class="bell-btn" id="bellBtn" onclick="toggleNotifPopover(event)" title="Thông báo của tôi">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="bell-badge" id="unreadBadge">0</span>
+        </button>
+
+        <!-- Notification Popover -->
+        <div class="notif-popover" id="notifPopover" onclick="event.stopPropagation()">
+          <div class="notif-pop-head">
+            <div class="notif-pop-title">
+              <span>Thông báo của tôi</span>
+              <span class="mono" id="notifOwnerTag">-</span>
+            </div>
+            <button class="btn btn-ghost" style="padding:4px 9px;font-size:0.75rem;" onclick="markAllRead()">Đọc tất cả</button>
+          </div>
+          <div class="notif-pop-body" id="notifList">
+            <div class="empty-state" style="padding:20px 12px;">Chưa có thông báo nào.</div>
+          </div>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        <div class="user-menu-wrap">
+          <button class="user-pill" onclick="toggleUserDropdown(event)">
+            <div class="user-avatar" id="navAvatar">NH</div>
+            <div class="user-info">
+              <div class="user-name" id="navFullName">Nguyễn Thị Hồng Nhung (nhung.nt)</div>
+              <div class="user-role" id="navRole">• Người tạo hồ sơ</div>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="user-dropdown" id="userDropdown" onclick="event.stopPropagation()">
+            <div class="user-dd-header">
+              <div class="user-dd-name" id="ddFullName">Nguyễn Thị Hồng Nhung</div>
+              <div class="user-dd-meta" id="ddDept">Phòng Kế hoạch - Tổng hợp</div>
+            </div>
+            <div class="user-dd-body">
+              <button class="dd-item-btn" onclick="logout()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Đăng xuất khỏi hệ thống</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- THANH ĐIỀU HƯỚNG CHỨC NĂNG -->
+  <nav class="subnav" id="subNav" style="display:none;">
+    <div class="subnav-inner">
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="navWorkspace" onclick="switchWorkspaceView('workspace')">Không gian làm việc</button>
+        <button class="nav-tab" id="navArchive" onclick="switchWorkspaceView('archive')">Tra cứu &amp; Báo cáo</button>
+        <button class="nav-tab" id="navUsers" style="display:none;" onclick="switchWorkspaceView('users')">Danh bạ &amp; Phân quyền</button>
+      </div>
+      <div class="subnav-meta" id="liveClock"></div>
+    </div>
+  </nav>
+</div>
+
+<!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+<section class="auth-wrapper" id="authView">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Cổng Xác Thực Người Dùng</h2>
+      <p>Đăng nhập hoặc tạo tài khoản để khởi tạo và phê duyệt hồ sơ</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Đăng nhập</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Đăng ký tài khoản</button>
+    </div>
+
+    <!-- Form Đăng nhập -->
+    <div class="auth-body" id="loginForm">
+      <div class="form-group">
+        <label>Tên đăng nhập *</label>
+        <input id="loginUsername" autocomplete="off" spellcheck="false" placeholder="Nhập tên đăng nhập (vd: nhung.nt)" onkeydown="if(event.key==='Enter') handleLogin()" />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu *</label>
+        <input id="loginPassword" type="text" class="password-mask" autocomplete="off" spellcheck="false" placeholder="Nhập mật khẩu" onkeydown="if(event.key==='Enter') handleLogin()" />
+      </div>
+      <button class="btn btn-primary" onclick="handleLogin()">Đăng nhập vào hệ thống</button>
+    </div>
+
+    <!-- Form Đăng ký -->
+    <div class="auth-body" id="registerForm" style="display:none;">
+      <div class="form-group">
+        <label>Họ và tên *</label>
+        <input id="regFullName" placeholder="Nhập họ và tên" />
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Tên đăng nhập *</label>
+          <input id="regUsername" autocomplete="off" spellcheck="false" placeholder="Nhập tên đăng nhập" />
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu *</label>
+          <input id="regPassword" type="text" class="password-mask" autocomplete="off" spellcheck="false" placeholder="Nhập mật khẩu" />
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Vai trò hệ thống *</label>
+          <select id="regRole">
+            <option value="creator">Người tạo hồ sơ</option>
+            <option value="approver">Người phê duyệt</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Đơn vị / Phòng ban</label>
+          <input id="regDept" placeholder="Nhập đơn vị / phòng ban" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="handleRegister()">Hoàn tất đăng ký &amp; Vào hệ thống</button>
+    </div>
+  </div>
+</section>
+
+<!-- MÀN HÌNH LÀM VIỆC CHÍNH -->
+<main class="main-wrap" id="appView" style="display:none;">
+
+  <!-- VIEW 1: KHÔNG GIAN LÀM VIỆC -->
+  <div id="viewWorkspace">
+    <!-- 4 KPI Cards + Nút + Tạo hồ sơ mới -->
+    <section class="kpi-action-bar">
+      <div class="kpi-pill-card accent-green">
+        <span class="kpi-inline-text"><span id="kpiLabel1">Hồ sơ của tôi:</span> <strong id="kpiVal1" class="kpi-num-green">0</strong></span>
+      </div>
+      <div class="kpi-pill-card accent-amber">
+        <span class="kpi-inline-text"><span id="kpiLabel2">Bản nháp (Draft):</span> <strong id="kpiVal2" class="kpi-num-amber">0</strong></span>
+      </div>
+      <div class="kpi-pill-card accent-blue">
+        <span class="kpi-inline-text"><span id="kpiLabel3">Đang chờ duyệt:</span> <strong id="kpiVal3" class="kpi-num-blue">0</strong></span>
+      </div>
+      <div class="kpi-pill-card accent-red">
+        <span class="kpi-inline-text"><span id="kpiLabel4">Đã phê duyệt:</span> <strong id="kpiVal4" class="kpi-num-red">0</strong></span>
+      </div>
+      <button class="btn-create-hero" onclick="openCreateModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Tạo hồ sơ mới</span>
+      </button>
+    </section>
+
+    <!-- Main Document List Card -->
+    <section class="panel">
+      <div class="underline-tabs-bar">
+        <div class="underline-tabs" id="docScopeTabs">
+          <button class="u-tab active" id="tabScope0" onclick="setDocScope('all')">Tất cả hồ sơ (0)</button>
+          <button class="u-tab" id="tabScope1" onclick="setDocScope('draft')">Bản nháp (0)</button>
+          <button class="u-tab" id="tabScope2" onclick="setDocScope('submitted')">Chờ duyệt (0)</button>
+          <button class="u-tab" id="tabScope3" onclick="setDocScope('completed')">Đã hoàn tất (0)</button>
+        </div>
+        <button class="btn btn-ghost" style="margin:8px 0;" onclick="loadAll()">Làm mới</button>
+      </div>
+
+      <div class="panel-body">
+        <div class="search-filter-row">
+          <div class="search-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input id="searchKeyword" placeholder="Tìm kiếm hồ sơ theo tiêu đề, người tạo, mã CID..." onkeyup="renderDocumentList()" />
+          </div>
+          <select class="status-select" id="filterStatus" onchange="renderDocumentList()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Draft">Draft (Bản nháp)</option>
+            <option value="Submitted">Submitted (Chờ duyệt)</option>
+            <option value="Approved">Approved (Đã phê duyệt)</option>
+            <option value="Rejected">Rejected (Từ chối)</option>
+          </select>
+        </div>
+
+        <div id="docList"><div class="empty-state">Đang tải danh sách hồ sơ...</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- VIEW 2: TRA CỨU & BÁO CÁO -->
+  <div id="viewArchive" style="display:none;">
+    <section class="report-kpi-grid">
+      <div class="rep-card">
+        <div class="rep-card-top">
+          <span class="rep-card-label">Tỷ lệ phê duyệt</span>
+          <span class="rep-icon-badge rep-icon-green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </span>
+        </div>
+        <div class="rep-card-bottom">
+          <div class="rep-card-val">
+            <span id="repApprovalRate">0%</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </div>
+          <span class="rep-card-sub">Trên tổng số đã trình</span>
+        </div>
+      </div>
+
+      <div class="rep-card">
+        <div class="rep-card-top">
+          <span class="rep-card-label">Hồ sơ Khẩn / Hỏa tốc</span>
+          <span class="rep-icon-badge rep-icon-red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </span>
+        </div>
+        <div class="rep-card-bottom">
+          <div class="rep-card-val red" id="repUrgentCount">0</div>
+          <span class="rep-card-sub">Ưu tiên xử lý cao</span>
+        </div>
+      </div>
+
+      <div class="rep-card">
+        <div class="rep-card-top">
+          <span class="rep-card-label">Đang luân chuyển</span>
+          <span class="rep-icon-badge rep-icon-amber">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="rep-card-bottom">
+          <div class="rep-card-val amber" id="repPendingCount">0</div>
+          <span class="rep-card-sub">Chờ cấp duyệt ký</span>
+        </div>
+      </div>
+
+      <div class="rep-card">
+        <div class="rep-card-top">
+          <span class="rep-card-label">Kết quả tra cứu</span>
+          <span class="rep-icon-badge rep-icon-blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </span>
+        </div>
+        <div class="rep-card-bottom">
+          <div class="rep-card-val" id="repFilteredCount">0</div>
+          <span class="rep-card-sub">Bản ghi hiển thị</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <h2 class="panel-title">Tra cứu hồ sơ tổng hợp &amp; Xuất báo cáo</h2>
+          <span class="rbac-scope-pill" id="rbacScopeBadge">Phạm vi: Phòng Kế hoạch - Tổng hợp (RBAC)</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="loadDocuments()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            <span>Cập nhật dữ liệu</span>
+          </button>
+          <button class="btn btn-submit btn-sm" onclick="exportDocumentsCSV()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Xuất tệp CSV</span>
+          </button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="archive-filter-bar">
+          <div class="search-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input id="archiveSearch" placeholder="Tìm kiếm theo tiêu đề, nội dung, người tạo hoặc người duyệt..." onkeyup="renderArchiveTable()" />
+          </div>
+          <select id="archiveCategory" onchange="renderArchiveTable()">
+            <option value="">Tất cả phân loại</option>
+            <option value="Đề xuất">Đề xuất</option>
+            <option value="Báo cáo">Báo cáo</option>
+            <option value="Kế hoạch">Kế hoạch</option>
+            <option value="Hợp đồng">Hợp đồng</option>
+            <option value="Tài chính">Tài chính</option>
+          </select>
+          <select id="archiveStatus" onchange="renderArchiveTable()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Draft">Draft (Bản nháp)</option>
+            <option value="Submitted">Chờ duyệt</option>
+            <option value="Approved">Đã duyệt</option>
+            <option value="Rejected">Từ chối</option>
+          </select>
+          <button class="btn btn-ghost" onclick="resetArchiveFilters()">Đặt lại</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã hồ sơ</th>
+                <th>Tiêu đề tài liệu</th>
+                <th>Phân loại</th>
+                <th>Mức độ</th>
+                <th>Người tạo</th>
+                <th>Người duyệt</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="archiveTableBody">
+              <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">Đang tải dữ liệu...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: DANH BẠ & PHÂN QUYỀN (Chỉ hiển thị cho Cấp phê duyệt) -->
+  <div id="viewUsers" style="display:none;">
+    <section class="kpi-grid-4">
+      <div class="kpi-card kpi-total">
+        <div class="kpi-label">Tổng tài khoản</div>
+        <div class="kpi-row">
+          <div class="kpi-value" id="usrTotal">0</div>
+          <span class="kpi-sub">Đang hoạt động</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-draft">
+        <div class="kpi-label">Người tạo hồ sơ</div>
+        <div class="kpi-row">
+          <div class="kpi-value" id="usrCreators">0</div>
+          <span class="kpi-sub">Quyền khởi tạo &amp; trình</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-approved">
+        <div class="kpi-label">Người phê duyệt</div>
+        <div class="kpi-row">
+          <div class="kpi-value" id="usrApprovers" style="color:#047857;">0</div>
+          <span class="kpi-sub">Quyền ký duyệt / từ chối</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-submitted">
+        <div class="kpi-label">Đơn vị / Phòng ban</div>
+        <div class="kpi-row">
+          <div class="kpi-value" id="usrDepts" style="color:#b45309;">0</div>
+          <span class="kpi-sub">Tham gia quy trình</span>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:grid; grid-template-columns: 360px minmax(0, 1fr); gap: 18px; align-items: start;">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Thêm tài khoản mới</h2>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label>Họ và tên *</label>
+            <input id="adminFullName" placeholder="Nhập họ và tên" />
+          </div>
+          <div class="form-group">
+            <label>Tên đăng nhập *</label>
+            <input id="adminUsername" placeholder="Nhập tên đăng nhập" />
+          </div>
+          <div class="form-group">
+            <label>Mật khẩu *</label>
+            <input id="adminPassword" type="text" class="password-mask" autocomplete="off" spellcheck="false" placeholder="Nhập mật khẩu" />
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Vai trò *</label>
+              <select id="adminRole">
+                <option value="creator">Người tạo hồ sơ</option>
+                <option value="approver">Người phê duyệt</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Đơn vị / Phòng ban</label>
+              <input id="adminDept" placeholder="Nhập phòng ban" />
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="adminCreateUser()">Lưu tài khoản</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Danh sách tài khoản hệ thống</h2>
+        </div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tên đăng nhập</th>
+                  <th>Họ và tên</th>
+                  <th>Vai trò</th>
+                  <th>Đơn vị / Phòng ban</th>
+                  <th>Chuyển phiên nhanh</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- GIAO DIỆN KHỞI TẠO HỒ SƠ MỚI FULL MÀN HÌNH (+ Tạo hồ sơ mới) -->
+<div class="fullscreen-editor-backdrop" id="createModal">
+  <header class="fs-topbar">
+    <div class="fs-topbar-left">
+      <button class="btn-fs-back" type="button" onclick="closeCreateModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Quay lại</span>
+      </button>
+      <div class="fs-title-wrap">
+        <h2>Khởi tạo hồ sơ trình duyệt mới</h2>
+        <span class="fs-draft-tag">SOẠN THẢO HỒ SƠ</span>
+      </div>
+    </div>
+
+    <div class="fs-topbar-actions">
+      <button class="btn-fs-sample" type="button" onclick="fillSample()">Điền dữ liệu mẫu</button>
+      <button class="btn-fs-draft" type="button" onclick="createDocument(false)">Lưu bản nháp (Draft)</button>
+      <button class="btn-fs-submit" type="button" onclick="createDocument(true)">Tạo &amp; Gửi duyệt ngay</button>
+    </div>
+  </header>
+
+  <div class="fs-workspace">
+    <div class="fs-grid">
+      <!-- Cột trái: Khu vực soạn thảo tiêu đề & nội dung rộng rãi -->
+      <div class="fs-card">
+        <h3 class="fs-card-title">
+          <span>Nội dung tài liệu trình duyệt</span>
+          <span style="font-size:0.76rem;font-weight:500;color:var(--muted);">Các trường có dấu (*) là bắt buộc</span>
+        </h3>
+
+        <div class="form-group">
+          <label for="title">Tiêu đề tài liệu *</label>
+          <input id="title" class="fs-input-title" placeholder="Nhập tiêu đề tài liệu trình duyệt (ví dụ: Đề xuất nâng cấp hạ tầng máy chủ lưu trữ nội bộ)..." />
+        </div>
+
+        <div class="form-group fs-content-group">
+          <label for="content">Nội dung tóm tắt / Chi tiết tờ trình</label>
+          <textarea id="content" class="fs-textarea-content" placeholder="Nhập nội dung chi tiết, căn cứ đề xuất, phạm vi thực hiện và kiến nghị phê duyệt..."></textarea>
+        </div>
+      </div>
+
+      <!-- Cột phải: Thiết lập phân loại, người duyệt & luồng xử lý -->
+      <div class="fs-card">
+        <h3 class="fs-card-title">
+          <span>Thông tin phân loại &amp; Luồng phê duyệt</span>
+        </h3>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="category">Phân loại hồ sơ</label>
+            <select id="category">
+              <option value="Đề xuất">Đề xuất</option>
+              <option value="Báo cáo">Báo cáo</option>
+              <option value="Kế hoạch">Kế hoạch</option>
+              <option value="Hợp đồng">Hợp đồng</option>
+              <option value="Tài chính">Tài chính</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="priority">Mức độ ưu tiên</label>
+            <select id="priority">
+              <option value="Bình thường">Bình thường</option>
+              <option value="Khẩn">Khẩn</option>
+              <option value="Hỏa tốc">Hỏa tốc</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="createdBy">Người tạo hồ sơ</label>
+          <input id="createdBy" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="approver">Người phê duyệt *</label>
+          <select id="approver"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="dueDate">Hạn xử lý dự kiến</label>
+          <input id="dueDate" type="date" />
+        </div>
+
+        <div class="fs-route-preview">
+          <div class="fs-route-title">Quy trình luân chuyển phân tán</div>
+          <div class="fs-route-steps">
+            <div class="fs-route-item active">
+              <span class="fs-step-num">1</span>
+              <span>Khởi tạo hồ sơ (Draft)</span>
+            </div>
+            <div class="fs-route-item">
+              <span class="fs-step-num">2</span>
+              <span>Trình duyệt &amp; cấp mã theo dõi CID</span>
+            </div>
+            <div class="fs-route-item">
+              <span class="fs-step-num">3</span>
+              <span>Cấp quản lý xem xét ký duyệt</span>
+            </div>
+            <div class="fs-route-item">
+              <span class="fs-step-num">4</span>
+              <span>Lưu trữ kết quả &amp; phát thông báo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal xác nhận thao tác (Submit / Approve / Reject) -->
+<div class="modal-backdrop" id="actionModal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span id="modalTitle">Xác nhận thao tác</span>
+      <button class="btn btn-ghost" style="padding:3px 8px;" onclick="closeModal()">Đóng</button>
+    </div>
+    <div class="modal-body">
+      <p id="modalSubtitle" style="margin:0 0 12px;font-size:0.85rem;color:var(--text-2);line-height:1.5;"></p>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Ghi chú / Ý kiến xử lý</label>
+        <textarea id="modalComment" placeholder="Nhập ghi chú phê duyệt hoặc lý do từ chối..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Hủy</button>
+      <button class="btn btn-submit" id="modalConfirmBtn" onclick="confirmModalAction()">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Chi tiết, Nhật ký CID, Trao đổi & In phiếu trình -->
+<div class="modal-backdrop" id="detailModal" onclick="if(event.target===this) closeDetailModal()">
+  <div class="modal-box modal-lg">
+    <div class="modal-head no-print">
+      <span>Chi tiết hồ sơ, Nhật ký CID &amp; Phiếu trình</span>
+      <button class="btn btn-ghost" style="padding:3px 8px;" onclick="closeDetailModal()">Đóng</button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+    <div class="modal-foot no-print">
+      <button class="btn btn-ghost" onclick="closeDetailModal()">Đóng</button>
+      <button class="btn btn-submit" onclick="window.print()">In phiếu trình</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const USERS_KEY = 'docflow_users_v2';
+  const SESSION_KEY = 'docflow_session_v2';
+  const META_KEY = 'docflow_doc_meta_v2';
+  const NOTES_KEY = 'docflow_doc_notes_v2';
+  const HIDDEN_DOCS_KEY = 'docflow_hidden_docs_v1';
+
+  const defaultUsers = [
+    { username: 'nhung.nt', password: '123456', fullName: 'Nguyễn Thị Hồng Nhung', role: 'creator', department: 'Phòng Kế hoạch' },
+    { username: 'minh.dq', password: '123456', fullName: 'Đỗ Quang Minh', role: 'creator', department: 'Phòng Kỹ thuật' },
+    { username: 'truongphong.kh', password: '123456', fullName: 'Trần Minh Tuấn', role: 'approver', department: 'Ban Quản lý Vận hành' },
+    { username: 'giamdoc.tc', password: '123456', fullName: 'Lê Hoàng Nam', role: 'approver', department: 'Ban Giám đốc Tài chính' }
+  ];
+
+  let currentUser = null;
+  let allDocuments = [];
+  let myNotifications = [];
+  let docScope = 'all';
+  let lastLiveCount = 0;
+  let pendingAction = null;
+  let pollTimer = null;
+
+  function escHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function statusLabelVN(st) {
+    if (st === 'Draft') return 'DRAFT';
+    if (st === 'Submitted') return 'CHỜ DUYỆT';
+    if (st === 'Approved') return 'ĐÃ DUYỆT';
+    if (st === 'Rejected') return 'TỪ CHỐI';
+    return st;
+  }
+
+  function getUsers() {
+    try {
+      const raw = localStorage.getItem(USERS_KEY);
+      if (!raw) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
+        return [...defaultUsers];
+      }
+      const list = JSON.parse(raw);
+      let changed = false;
+      list.forEach(u => {
+        if (u.username === 'nhung.nt' && u.fullName === 'Nguyễn Thị Nhung') {
+          u.fullName = 'Nguyễn Thị Hồng Nhung';
+          changed = true;
+        }
+      });
+      if (changed) saveUsers(list);
+      return list;
+    } catch {
+      return [...defaultUsers];
+    }
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  function getUserFullName(username) {
+    const u = getUsers().find(item => item.username === username);
+    return u ? u.fullName : username;
+  }
+
+  function getDocMetaMap() {
+    try { return JSON.parse(localStorage.getItem(META_KEY) || '{}'); } catch { return {}; }
+  }
+
+  function saveDocMeta(key, meta) {
+    const map = getDocMetaMap();
+    map[key] = meta;
+    localStorage.setItem(META_KEY, JSON.stringify(map));
+  }
+
+  function getDocNotesMap() {
+    try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '{}'); } catch { return {}; }
+  }
+
+  function getHiddenDocIds() {
+    try { return JSON.parse(localStorage.getItem(HIDDEN_DOCS_KEY) || '[]'); } catch { return []; }
+  }
+
+  function hideDraftDoc(docId) {
+    const hidden = getHiddenDocIds();
+    if (!hidden.includes(docId)) {
+      hidden.push(docId);
+      localStorage.setItem(HIDDEN_DOCS_KEY, JSON.stringify(hidden));
+    }
+    loadDocuments();
+    showToast('Đã gỡ bản nháp khỏi danh sách hiển thị');
+  }
+
+  function addDocNote(docId) {
+    const input = document.getElementById(`modalNoteInput_${docId}`);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    const map = getDocNotesMap();
+    if (!map[docId]) map[docId] = [];
+    map[docId].push({
+      author: currentUser.username,
+      text,
+      time: new Date().toLocaleTimeString('vi-VN')
+    });
+    localStorage.setItem(NOTES_KEY, JSON.stringify(map));
+    openDetailModal(docId);
+    showToast('Đã thêm ghi chú trao đổi vào hồ sơ');
+  }
+
+  function formatDateVN(isoDate) {
+    if (!isoDate) return '';
+    const parts = String(isoDate).split('-');
+    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return isoDate;
+  }
+
+  /* Dropdowns in Top Navbar */
+  function toggleNotifPopover(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('userDropdown').classList.remove('open');
+    document.getElementById('notifPopover').classList.toggle('open');
+  }
+
+  function toggleUserDropdown(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('notifPopover').classList.remove('open');
+    document.getElementById('userDropdown').classList.toggle('open');
+  }
+
+  document.addEventListener('click', () => {
+    const np = document.getElementById('notifPopover');
+    const ud = document.getElementById('userDropdown');
+    if (np) np.classList.remove('open');
+    if (ud) ud.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeDetailModal();
+      closeCreateModal();
+    }
+  });
+
+  /* Auth Handlers */
+  function switchAuthTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('tabLogin').classList.toggle('active', isLogin);
+    document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+    document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+  }
+
+  function handleLogin() {
+    const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    if (!username || !password) {
+      showToast('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');
+      return;
+    }
+
+    const users = getUsers();
+    const found = users.find(u => u.username.toLowerCase() === username && u.password === password);
+    if (!found) {
+      showToast('Sai tên đăng nhập hoặc mật khẩu');
+      return;
+    }
+
+    resetAuthForms();
+    setSession(found);
+    showToast(`Xin chào ${found.fullName} (${found.username})`);
+  }
+
+  function handleRegister() {
+    const fullName = document.getElementById('regFullName').value.trim();
+    const username = document.getElementById('regUsername').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+    const role = document.getElementById('regRole').value;
+    const department = document.getElementById('regDept').value.trim() || 'Văn phòng';
+
+    if (!fullName || !username || !password) {
+      showToast('Vui lòng nhập đầy đủ họ tên, tên đăng nhập và mật khẩu');
+      return;
+    }
+    if (/\s/.test(username)) {
+      showToast('Tên đăng nhập không được chứa khoảng trắng');
+      return;
+    }
+    if (password.length < 4) {
+      showToast('Mật khẩu cần ít nhất 4 ký tự');
+      return;
+    }
+
+    const users = getUsers();
+    if (users.some(u => u.username.toLowerCase() === username)) {
+      showToast('Tên đăng nhập này đã tồn tại, vui lòng chọn tên khác');
+      return;
+    }
+
+    const newUser = { username, password, fullName, role, department };
+    users.push(newUser);
+    saveUsers(users);
+    resetAuthForms();
+    setSession(newUser);
+    showToast(`Đăng ký thành công tài khoản ${username}`);
+  }
+
+  function adminCreateUser() {
+    if (!currentUser || currentUser.role !== 'approver') return;
+    const fullName = document.getElementById('adminFullName').value.trim();
+    const username = document.getElementById('adminUsername').value.trim().toLowerCase();
+    const password = document.getElementById('adminPassword').value;
+    const role = document.getElementById('adminRole').value;
+    const department = document.getElementById('adminDept').value.trim() || 'Văn phòng';
+
+    if (!fullName || !username || !password) {
+      showToast('Vui lòng nhập đầy đủ thông tin tài khoản');
+      return;
+    }
+    if (/\s/.test(username)) {
+      showToast('Tên đăng nhập không được chứa khoảng trắng');
+      return;
+    }
+
+    const users = getUsers();
+    if (users.some(u => u.username.toLowerCase() === username)) {
+      showToast('Tên đăng nhập đã tồn tại');
+      return;
+    }
+
+    users.push({ username, password, fullName, role, department });
+    saveUsers(users);
+    document.getElementById('adminFullName').value = '';
+    document.getElementById('adminUsername').value = '';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminDept').value = '';
+    renderUsersTable();
+    refreshApproverDatalist();
+    showToast(`Đã tạo tài khoản ${username}`);
+  }
+
+  function switchToUser(username) {
+    const users = getUsers();
+    const found = users.find(u => u.username === username);
+    if (found) {
+      setSession(found);
+      showToast(`Đã chuyển sang phiên làm việc của ${found.username}`);
+    }
+  }
+
+  function setSession(user) {
+    currentUser = user;
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    renderAppForUser();
+  }
+
+  function resetAuthForms() {
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('regFullName').value = '';
+    document.getElementById('regUsername').value = '';
+    document.getElementById('regPassword').value = '';
+    document.getElementById('regRole').value = 'creator';
+    document.getElementById('regDept').value = '';
+    switchAuthTab('login');
+  }
+
+  function logout() {
+    currentUser = null;
+    localStorage.removeItem(SESSION_KEY);
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+    closeCreateModal();
+    resetAuthForms();
+    document.getElementById('userDropdown').classList.remove('open');
+    document.getElementById('notifPopover').classList.remove('open');
+    document.getElementById('userBar').style.display = 'none';
+    document.getElementById('subNav').style.display = 'none';
+    document.getElementById('appView').style.display = 'none';
+    document.getElementById('authView').style.display = 'flex';
+    showToast('Đã đăng xuất khỏi hệ thống');
+  }
+
+  function switchWorkspaceView(view) {
+    if (view === 'users' && (!currentUser || currentUser.role !== 'approver')) {
+      view = 'workspace';
+    }
+
+    document.getElementById('navWorkspace').classList.toggle('active', view === 'workspace');
+    document.getElementById('navArchive').classList.toggle('active', view === 'archive');
+    const navUsers = document.getElementById('navUsers');
+    if (navUsers) navUsers.classList.toggle('active', view === 'users');
+
+    document.getElementById('viewWorkspace').style.display = view === 'workspace' ? 'block' : 'none';
+    document.getElementById('viewArchive').style.display = view === 'archive' ? 'block' : 'none';
+    document.getElementById('viewUsers').style.display = view === 'users' ? 'block' : 'none';
+
+    if (view === 'archive') renderArchiveTable();
+    if (view === 'users' && currentUser && currentUser.role === 'approver') renderUsersTable();
+  }
+
+  function refreshApproverDatalist() {
+    const users = getUsers();
+    const approvers = users.filter(u => u.role === 'approver');
+    const select = document.getElementById('approver');
+    if (!select) return;
+    const prevValue = select.value;
+
+    if (!approvers.length) {
+      select.innerHTML = '<option value="">-- Chưa có người phê duyệt --</option>';
+      return;
+    }
+
+    select.innerHTML = approvers
+      .map(a => `<option value="${escAttr(a.username)}">${escHtml(a.fullName)} (${escHtml(a.username)})</option>`)
+      .join('');
+
+    if (prevValue && approvers.some(a => a.username === prevValue)) {
+      select.value = prevValue;
+    } else if (approvers.some(a => a.username === 'truongphong.kh')) {
+      select.value = 'truongphong.kh';
+    }
+  }
+
+  function renderAppForUser() {
+    if (!currentUser) return;
+
+    document.getElementById('authView').style.display = 'none';
+    document.getElementById('appView').style.display = 'block';
+    document.getElementById('userBar').style.display = 'flex';
+    document.getElementById('subNav').style.display = 'block';
+
+    const isApprover = currentUser.role === 'approver';
+    const roleLabel = isApprover ? 'Người phê duyệt' : 'Người tạo hồ sơ';
+    const initials = currentUser.username.slice(0, 2).toUpperCase();
+    const deptName = currentUser.department || 'Phòng Kế hoạch';
+
+    document.getElementById('navAvatar').textContent = initials;
+    document.getElementById('navFullName').textContent = `${currentUser.fullName} (${currentUser.username})`;
+    document.getElementById('navRole').textContent = `• ${roleLabel}`;
+    document.getElementById('ddFullName').textContent = currentUser.fullName;
+    document.getElementById('ddDept').textContent = `${roleLabel} • ${deptName}`;
+    document.getElementById('notifOwnerTag').textContent = currentUser.username;
+
+    const rbacPill = document.getElementById('rbacScopeBadge');
+    if (rbacPill) {
+      rbacPill.textContent = isApprover
+        ? 'Phạm vi: Toàn hệ thống (Cấp phê duyệt)'
+        : `Phạm vi: ${deptName} (RBAC)`;
+    }
+
+    const navUsers = document.getElementById('navUsers');
+    if (navUsers) {
+      navUsers.style.display = isApprover ? 'inline-block' : 'none';
+    }
+
+    if (isApprover) {
+      document.getElementById('kpiLabel1').textContent = 'Hồ sơ phụ trách:';
+      document.getElementById('kpiLabel2').textContent = 'Cần tôi duyệt:';
+      document.getElementById('kpiLabel3').textContent = 'Đã phê duyệt:';
+      document.getElementById('kpiLabel4').textContent = 'Đã từ chối:';
+      docScope = 'actionable';
+    } else {
+      document.getElementById('kpiLabel1').textContent = 'Hồ sơ của tôi:';
+      document.getElementById('kpiLabel2').textContent = 'Bản nháp (Draft):';
+      document.getElementById('kpiLabel3').textContent = 'Đang chờ duyệt:';
+      document.getElementById('kpiLabel4').textContent = 'Đã phê duyệt:';
+      docScope = 'all';
+    }
+
+    document.getElementById('createdBy').value = currentUser.username;
+    refreshApproverDatalist();
+    switchWorkspaceView('workspace');
+
+    loadAll();
+    if (!pollTimer) {
+      pollTimer = setInterval(pollLiveEvents, 2000);
+    }
+  }
+
+  /* Full-Screen Document Creation Editor */
+  function openCreateModal() {
+    if (!currentUser) return;
+    document.getElementById('createdBy').value = currentUser.username;
+    refreshApproverDatalist();
+    document.getElementById('createModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('title').focus(), 50);
+  }
+
+  function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  const sampleDocs = [
+    {
+      title: 'Đề xuất nâng cấp hạ tầng máy chủ lưu trữ nội bộ',
+      category: 'Đề xuất',
+      priority: 'Khẩn',
+      preferredApprover: 'truongphong.kh',
+      daysOffset: 8,
+      content: 'Bổ sung 02 máy chủ dự phòng và cấu hình cân bằng tải phục vụ vận hành hệ thống giao dịch phân tán.'
+    },
+    {
+      title: 'Báo cáo ngân sách Q4',
+      category: 'Báo cáo',
+      priority: 'Bình thường',
+      preferredApprover: 'giamdoc.tc',
+      daysOffset: 5,
+      content: 'Tổng hợp tình hình thu chi và quyết toán ngân sách hoạt động quý IV năm 2026.'
+    },
+    {
+      title: 'Kế hoạch tuyển dụng 2027',
+      category: 'Kế hoạch',
+      priority: 'Khẩn',
+      preferredApprover: 'truongphong.kh',
+      daysOffset: 10,
+      content: 'Kế hoạch bổ sung nhân sự kỹ thuật hệ thống phân tán và vận hành hạ tầng cho năm 2027.'
+    },
+    {
+      title: 'Hợp đồng cung cấp dịch vụ bảo trì hệ thống mạng & bảo mật năm 2026',
+      category: 'Hợp đồng',
+      priority: 'Hỏa tốc',
+      preferredApprover: 'giamdoc.tc',
+      daysOffset: 4,
+      content: 'Ký kết hợp đồng bảo trì định kỳ 24/7 với đối tác hạ tầng viễn thông cho toàn bộ chi nhánh.'
+    },
+    {
+      title: 'Tờ trình thanh toán chi phí kiểm toán báo cáo tài chính quý III',
+      category: 'Tài chính',
+      priority: 'Khẩn',
+      preferredApprover: 'giamdoc.tc',
+      daysOffset: 3,
+      content: 'Đề nghị giải ngân đợt 2 theo biên bản nghiệm thu khối lượng công việc với đơn vị kiểm toán độc lập.'
+    }
+  ];
+  let sampleIdx = 0;
+
+  function fillSample() {
+    const idx = sampleIdx % sampleDocs.length;
+    const s = sampleDocs[idx];
+    sampleIdx++;
+    document.getElementById('title').value = s.title;
+    document.getElementById('category').value = s.category;
+    document.getElementById('priority').value = s.priority;
+    document.getElementById('content').value = s.content;
+
+    const approverSel = document.getElementById('approver');
+    if (s.preferredApprover && Array.from(approverSel.options).some(o => o.value === s.preferredApprover)) {
+      approverSel.value = s.preferredApprover;
+    }
+
+    const targetDate = new Date(Date.now() + (s.daysOffset || 7) * 86400000).toISOString().slice(0, 10);
+    document.getElementById('dueDate').value = targetDate;
+    showToast(`Đã điền dữ liệu mẫu (${s.category} • ${s.priority})`);
+  }
+
+  async function createDocument(submitImmediately = false) {
+    if (!currentUser) return;
+    const titleVal = document.getElementById('title').value.trim();
+    const categoryVal = document.getElementById('category').value;
+    const contentVal = document.getElementById('content').value;
+    const approverVal = document.getElementById('approver').value.trim();
+    const priorityVal = document.getElementById('priority').value;
+    const dueDateVal = document.getElementById('dueDate').value;
+
+    if (!titleVal) {
+      showToast('Vui lòng nhập tiêu đề tài liệu');
+      document.getElementById('title').focus();
+      return;
+    }
+    if (!approverVal) {
+      showToast('Vui lòng chọn người phê duyệt');
+      document.getElementById('approver').focus();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: titleVal,
+          category: categoryVal,
+          content: contentVal,
+          createdBy: currentUser.username,
+          approver: approverVal
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.message || 'Không thể khởi tạo hồ sơ');
+        return;
+      }
+
+      const metaKey = data.id || `${titleVal}__${currentUser.username}`;
+      saveDocMeta(metaKey, { priority: priorityVal, dueDate: dueDateVal });
+
+      if (submitImmediately && data.id) {
+        await fetch(`/api/documents/${data.id}/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            actor: currentUser.username,
+            comment: 'Kính trình cấp quản lý xem xét phê duyệt.'
+          })
+        });
+      }
+
+      document.getElementById('title').value = '';
+      document.getElementById('content').value = '';
+      document.getElementById('dueDate').value = '';
+      closeCreateModal();
+
+      showToast(submitImmediately ? 'Đã tạo hồ sơ và gửi phê duyệt thành công' : 'Đã lưu hồ sơ nháp (Draft)');
+      await loadAll();
+    } catch {
+      showToast('Lỗi kết nối tới máy chủ tài liệu');
+    }
+  }
+
+  function cloneRejectedDoc(docId) {
+    const doc = allDocuments.find(d => d.id === docId);
+    if (!doc) return;
+    const metaMap = getDocMetaMap();
+    const meta = metaMap[doc.id] || metaMap[`${doc.title}__${doc.createdBy}`] || {};
+
+    openCreateModal();
+    document.getElementById('title').value = doc.title + ' (Bản chỉnh sửa)';
+    document.getElementById('category').value = doc.category;
+    document.getElementById('content').value = doc.content || '';
+    const approverSel = document.getElementById('approver');
+    if (doc.approver && Array.from(approverSel.options).some(o => o.value === doc.approver)) {
+      approverSel.value = doc.approver;
+    }
+    if (meta.priority) document.getElementById('priority').value = meta.priority;
+    if (meta.dueDate) document.getElementById('dueDate').value = meta.dueDate;
+    showToast('Đã sao chép nội dung để lập bản chỉnh sửa');
+  }
+
+  function copyCid(cid) {
+    if (!cid) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cid).catch(() => {});
+    }
+    showToast(`Đã sao chép mã CID: ${cid}`);
+  }
+
+  /* Stepper */
+  function renderFlowStepper(doc, isCreator) {
+    const st = doc.status;
+    const latestCid = (doc.histories && doc.histories.length)
+      ? doc.histories[doc.histories.length - 1].correlationId
+      : doc.id;
+
+    let s1Cls = 'done';
+    let s2Cls = '';
+    let s3Cls = '';
+    let s4Cls = '';
+    let s4Text = '4. Kết quả duyệt';
+
+    if (st === 'Draft') {
+      s1Cls = 'current';
+    } else if (st === 'Submitted') {
+      s1Cls = 'done';
+      s2Cls = 'done';
+      s3Cls = 'current';
+    } else if (st === 'Approved') {
+      s1Cls = 'done';
+      s2Cls = 'done';
+      s3Cls = 'done';
+      s4Cls = 'done';
+      s4Text = '4. Đã phê duyệt';
+    } else if (st === 'Rejected') {
+      s1Cls = 'done';
+      s2Cls = 'done';
+      s3Cls = 'done';
+      s4Cls = 'rejected';
+      s4Text = '4. Bị từ chối';
+    }
+
+    const deleteDraftBtn = (st === 'Draft' && isCreator)
+      ? `<button class="icon-tool-btn danger" title="Gỡ bản nháp này" onclick="hideDraftDoc('${escAttr(doc.id)}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>`
+      : '';
+
+    return `
+      <div class="flow-bar">
+        <div class="flow-steps">
+          <span class="flow-step ${s1Cls}">1. Khởi tạo (Draft)</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="flow-step ${s2Cls}">2. Trình duyệt</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="flow-step ${s3Cls}">3. Chờ phê duyệt</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="flow-step ${s4Cls}">${s4Text}</span>
+        </div>
+        <div class="flow-tools">
+          <button class="icon-tool-btn" title="Sao chép mã CID: ${escAttr(latestCid)}" onclick="copyCid('${escAttr(latestCid)}')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+            </svg>
+          </button>
+          ${deleteDraftBtn}
+        </div>
+      </div>
+    `;
+  }
+
+  /* Detail & Print Modal */
+  function openDetailModal(docId) {
+    const d = allDocuments.find(item => item.id === docId);
+    if (!d) return;
+    const metaMap = getDocMetaMap();
+    const meta = metaMap[d.id] || metaMap[`${d.title}__${d.createdBy}`] || {};
+    const notesMap = getDocNotesMap();
+    const notes = notesMap[d.id] || [];
+
+    const historiesRows = (d.histories || []).map(h => `
+      <tr>
+        <td><strong>${escHtml(h.action)}</strong></td>
+        <td>${h.fromStatus ? statusLabelVN(h.fromStatus) + ' &rarr; ' : ''}${statusLabelVN(h.toStatus)}</td>
+        <td>${escHtml(getUserFullName(h.actor))} <span class="mono">${escHtml(h.actor)}</span></td>
+        <td>${new Date(h.timestamp).toLocaleString('vi-VN')}</td>
+        <td><span class="mono">${escHtml(h.correlationId)}</span></td>
+        <td>${escHtml(h.comment || '-')}</td>
+      </tr>
+    `).join('');
+
+    const notesHtml = notes.length
+      ? notes.map(n => `
+          <div class="note-item">
+            <strong>${escHtml(getUserFullName(n.author))}</strong> <span class="mono">${escHtml(n.author)}</span>
+            <span style="color:var(--muted);font-size:0.74rem;">(${escHtml(n.time)})</span>: ${escHtml(n.text)}
+          </div>
+        `).join('')
+      : '<div style="font-size:0.8rem;color:var(--muted);">Chưa có ghi chú trao đổi nào.</div>';
+
+    document.getElementById('detailModalBody').innerHTML = `
+      <div class="sheet-box">
+        <div class="sheet-header">
+          <h3>Phiếu trình phê duyệt tài liệu</h3>
+          <div style="font-size:0.78rem;color:var(--muted);">Mã hồ sơ: <span class="mono">${escHtml(d.id)}</span></div>
+        </div>
+        <div class="sheet-grid">
+          <div><strong>Tiêu đề:</strong> ${escHtml(d.title)}</div>
+          <div><strong>Trạng thái hiện tại:</strong> <span class="status-badge badge-${escAttr(d.status)}">${statusLabelVN(d.status)}</span></div>
+          <div><strong>Phân loại:</strong> ${escHtml(d.category)}</div>
+          <div><strong>Mức độ ưu tiên:</strong> ${escHtml(meta.priority || 'Bình thường')}</div>
+          <div><strong>Người đề xuất:</strong> ${escHtml(getUserFullName(d.createdBy))} (${escHtml(d.createdBy)})</div>
+          <div><strong>Cấp phê duyệt:</strong> ${escHtml(getUserFullName(d.approver))} (${escHtml(d.approver)})</div>
+          <div><strong>Hạn xử lý:</strong> ${meta.dueDate ? formatDateVN(meta.dueDate) : 'Không giới hạn'}</div>
+          <div><strong>Ngày xuất phiếu:</strong> ${new Date().toLocaleDateString('vi-VN')}</div>
+        </div>
+        <div style="font-weight:600;font-size:0.83rem;margin-bottom:6px;">Nội dung trình duyệt:</div>
+        <div class="sheet-content">${escHtml(d.content || 'Không có mô tả chi tiết.')}</div>
+
+        <div style="font-weight:600;font-size:0.83rem;margin-bottom:6px;">Nhật ký luân chuyển &amp; Correlation ID:</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Hành động</th>
+                <th>Trạng thái</th>
+                <th>Người thực hiện</th>
+                <th>Thời gian</th>
+                <th>CID</th>
+                <th>Ý kiến xử lý</th>
+              </tr>
+            </thead>
+            <tbody>${historiesRows}</tbody>
+          </table>
+        </div>
+
+        <div class="note-box no-print">
+          <div style="font-weight:600;font-size:0.83rem;margin-bottom:8px;">Trao đổi nội bộ (${notes.length})</div>
+          ${notesHtml}
+          <div class="note-input-row">
+            <input id="modalNoteInput_${escAttr(d.id)}" placeholder="Nhập ghi chú trao đổi về hồ sơ này..." onkeydown="if(event.key==='Enter') addDocNote('${escAttr(d.id)}')" />
+            <button class="btn btn-sm btn-submit" onclick="addDocNote('${escAttr(d.id)}')">Gửi ghi chú</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('detailModal').style.display = 'flex';
+  }
+
+  function closeDetailModal() {
+    document.getElementById('detailModal').style.display = 'none';
+  }
+
+  /* Action Modal (Submit / Approve / Reject) */
+  function openActionModal(id, action, actor, title) {
+    pendingAction = { id, action, actor };
+    const labels = {
+      submit: { head: 'Gửi trình phê duyệt', btn: 'Gửi phê duyệt', cls: 'btn-submit', note: 'Kính trình cấp quản lý xem xét phê duyệt.' },
+      approve: { head: 'Phê duyệt hồ sơ', btn: 'Phê duyệt', cls: 'btn-approve', note: 'Đồng ý phê duyệt theo nội dung đề xuất.' },
+      reject: { head: 'Từ chối hồ sơ', btn: 'Từ chối', cls: 'btn-reject', note: 'Đề nghị bổ sung và chỉnh sửa nội dung trước khi trình lại.' }
+    };
+    const cfg = labels[action];
+    document.getElementById('modalTitle').textContent = cfg.head;
+    document.getElementById('modalSubtitle').innerHTML = `Tài liệu: <strong>${escHtml(title)}</strong><br>Người thực hiện: <span class="mono">${escHtml(actor)}</span>`;
+    document.getElementById('modalComment').value = cfg.note;
+    const btn = document.getElementById('modalConfirmBtn');
+    btn.textContent = cfg.btn;
+    btn.className = 'btn ' + cfg.cls;
+    document.getElementById('actionModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('actionModal').style.display = 'none';
+    pendingAction = null;
+  }
+
+  async function confirmModalAction() {
+    if (!pendingAction) return;
+    const { id, action, actor } = pendingAction;
+    const comment = document.getElementById('modalComment').value;
+    closeModal();
+
+    try {
+      const res = await fetch(`/api/documents/${id}/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actor, comment })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.message || 'Thao tác thất bại');
+        return;
+      }
+
+      const doneMsg = action === 'submit'
+        ? 'Đã gửi trình phê duyệt thành công'
+        : action === 'approve'
+          ? 'Đã phê duyệt hồ sơ'
+          : 'Đã từ chối hồ sơ';
+      showToast(doneMsg);
+      setTimeout(loadAll, 300);
+    } catch {
+      showToast('Lỗi kết nối tới máy chủ khi xử lý hồ sơ');
+    }
+  }
+
+  /* Scope Tabs & Document Loading */
+  function setDocScope(scope) {
+    docScope = scope;
+    updateScopeTabClasses();
+    renderDocumentList();
+  }
+
+  function updateScopeTabClasses() {
+    const isApprover = currentUser && currentUser.role === 'approver';
+    const order = isApprover
+      ? ['actionable', 'all', 'approved', 'rejected']
+      : ['all', 'draft', 'submitted', 'completed'];
+
+    order.forEach((sc, i) => {
+      const el = document.getElementById(`tabScope${i}`);
+      if (el) el.classList.toggle('active', docScope === sc);
+    });
+  }
+
+  async function loadDocuments() {
+    if (!currentUser) return;
+    const container = document.getElementById('docList');
+    const pill = document.getElementById('nodeStatusPill');
+    const pillText = document.getElementById('nodeStatusText');
+
+    try {
+      const res = await fetch('/api/documents');
+      if (!res.ok) throw new Error('Server error');
+
+      if (pill) pill.classList.remove('offline');
+      if (pillText) pillText.textContent = '3/3 Nodes Online';
+
+      const rawDocs = await res.json();
+      const hidden = getHiddenDocIds();
+      allDocuments = rawDocs.filter(d => !hidden.includes(d.id));
+
+      updateKpisAndTabLabels();
+      renderDocumentList();
+      renderArchiveTable();
+    } catch {
+      if (pill) pill.classList.add('offline');
+      if (pillText) pillText.textContent = 'Node Offline';
+      container.innerHTML = '<div class="empty-state" style="color:#b91c1c;">Không thể kết nối tới máy chủ tài liệu.</div>';
+    }
+  }
+
+  function updateKpisAndTabLabels() {
+    if (!currentUser) return;
+    const isApprover = currentUser.role === 'approver';
+
+    if (isApprover) {
+      const assigned = allDocuments.filter(d => d.approver === currentUser.username);
+      const pendingMe = assigned.filter(d => d.status === 'Submitted');
+      const approvedMe = assigned.filter(d => d.status === 'Approved');
+      const rejectedMe = assigned.filter(d => d.status === 'Rejected');
+
+      document.getElementById('kpiVal1').textContent = assigned.length;
+      document.getElementById('kpiVal2').textContent = pendingMe.length;
+      document.getElementById('kpiVal3').textContent = approvedMe.length;
+      document.getElementById('kpiVal4').textContent = rejectedMe.length;
+
+      const tabs = [
+        { sc: 'actionable', label: `Cần tôi duyệt (${pendingMe.length})` },
+        { sc: 'all', label: `Tất cả hồ sơ (${allDocuments.length})` },
+        { sc: 'approved', label: `Đã phê duyệt (${approvedMe.length})` },
+        { sc: 'rejected', label: `Đã từ chối (${rejectedMe.length})` }
+      ];
+      tabs.forEach((t, idx) => {
+        const el = document.getElementById(`tabScope${idx}`);
+        if (el) {
+          el.textContent = t.label;
+          el.onclick = () => setDocScope(t.sc);
+        }
+      });
+    } else {
+      const mine = allDocuments.filter(d => d.createdBy === currentUser.username);
+      const drafts = mine.filter(d => d.status === 'Draft');
+      const submitted = mine.filter(d => d.status === 'Submitted');
+      const approved = mine.filter(d => d.status === 'Approved');
+      const completed = mine.filter(d => d.status === 'Approved' || d.status === 'Rejected');
+
+      document.getElementById('kpiVal1').textContent = mine.length;
+      document.getElementById('kpiVal2').textContent = drafts.length;
+      document.getElementById('kpiVal3').textContent = submitted.length;
+      document.getElementById('kpiVal4').textContent = approved.length;
+
+      const tabs = [
+        { sc: 'all', label: `Tất cả hồ sơ (${mine.length})` },
+        { sc: 'draft', label: `Bản nháp (${drafts.length})` },
+        { sc: 'submitted', label: `Chờ duyệt (${submitted.length})` },
+        { sc: 'completed', label: `Đã hoàn tất (${completed.length})` }
+      ];
+      tabs.forEach((t, idx) => {
+        const el = document.getElementById(`tabScope${idx}`);
+        if (el) {
+          el.textContent = t.label;
+          el.onclick = () => setDocScope(t.sc);
+        }
+      });
+    }
+
+    updateScopeTabClasses();
+  }
+
+  function renderDocumentList() {
+    const container = document.getElementById('docList');
+    if (!container || !currentUser) return;
+
+    const keyword = (document.getElementById('searchKeyword').value || '').trim().toLowerCase();
+    const statusFilter = document.getElementById('filterStatus').value;
+    const metaMap = getDocMetaMap();
+    const isApprover = currentUser.role === 'approver';
+
+    let filtered = isApprover
+      ? [...allDocuments]
+      : allDocuments.filter(d => d.createdBy === currentUser.username);
+
+    if (isApprover) {
+      if (docScope === 'actionable') {
+        filtered = filtered.filter(d => d.status === 'Submitted' && d.approver === currentUser.username);
+      } else if (docScope === 'approved') {
+        filtered = filtered.filter(d => d.status === 'Approved' && d.approver === currentUser.username);
+      } else if (docScope === 'rejected') {
+        filtered = filtered.filter(d => d.status === 'Rejected' && d.approver === currentUser.username);
+      }
+    } else {
+      if (docScope === 'draft') {
+        filtered = filtered.filter(d => d.status === 'Draft');
+      } else if (docScope === 'submitted') {
+        filtered = filtered.filter(d => d.status === 'Submitted');
+      } else if (docScope === 'completed') {
+        filtered = filtered.filter(d => d.status === 'Approved' || d.status === 'Rejected');
+      }
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(d => d.status === statusFilter);
+    }
+
+    if (keyword) {
+      filtered = filtered.filter(d => {
+        const latestCid = (d.histories && d.histories.length) ? d.histories[d.histories.length - 1].correlationId : '';
+        return (
+          d.title.toLowerCase().includes(keyword) ||
+          d.id.toLowerCase().includes(keyword) ||
+          d.createdBy.toLowerCase().includes(keyword) ||
+          d.approver.toLowerCase().includes(keyword) ||
+          getUserFullName(d.approver).toLowerCase().includes(keyword) ||
+          latestCid.toLowerCase().includes(keyword)
+        );
+      });
+    }
+
+    if (!filtered.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div style="margin-bottom:12px;">Chưa có hồ sơ nào trong mục này. Bấm <strong>+ Tạo hồ sơ mới</strong> ở góc trên bên phải để bắt đầu.</div>
+          <button class="btn btn-sm btn-submit" onclick="openCreateModal()">+ Tạo hồ sơ mới</button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(d => {
+      const meta = metaMap[d.id] || metaMap[`${d.title}__${d.createdBy}`] || {};
+      const prio = meta.priority || 'Bình thường';
+      const prioClass = prio === 'Hỏa tốc' ? 'prio-critical' : prio === 'Khẩn' ? 'prio-urgent' : 'prio-normal';
+      const latestCid = (d.histories && d.histories.length)
+        ? d.histories[d.histories.length - 1].correlationId
+        : d.id.slice(0, 8);
+      const isDocCreator = d.createdBy === currentUser.username;
+
+      let primaryAction = '';
+      if (d.status === 'Draft' && isDocCreator) {
+        primaryAction = `<button class="btn btn-sm btn-submit" onclick="openActionModal('${escAttr(d.id)}', 'submit', '${escAttr(currentUser.username)}', '${escAttr(d.title)}')">Gửi phê duyệt</button>`;
+      } else if (d.status === 'Submitted') {
+        if (d.approver === currentUser.username) {
+          primaryAction = `
+            <button class="btn btn-sm btn-approve" onclick="openActionModal('${escAttr(d.id)}', 'approve', '${escAttr(currentUser.username)}', '${escAttr(d.title)}')">Phê duyệt</button>
+            <button class="btn btn-sm btn-reject" onclick="openActionModal('${escAttr(d.id)}', 'reject', '${escAttr(currentUser.username)}', '${escAttr(d.title)}')">Từ chối</button>
+          `;
+        } else {
+          primaryAction = `<span class="role-hint">Đang chờ ${escHtml(getUserFullName(d.approver))} phê duyệt</span>`;
+        }
+      } else if (d.status === 'Rejected' && isDocCreator) {
+        primaryAction = `<button class="btn btn-sm btn-submit" onclick="cloneRejectedDoc('${escAttr(d.id)}')">Lập bản chỉnh sửa</button>`;
+      }
+
+      return `
+        <div class="doc-card">
+          <div class="doc-header-row">
+            <div class="doc-title-wrap">
+              <div class="doc-icon-box">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+              <div>
+                <h3 class="doc-title">${escHtml(d.title)}</h3>
+                <div class="tag-row">
+                  <span class="pill-tag tag-cat"><span class="pill-dot"></span>${escHtml(d.category)}</span>
+                  <span class="pill-tag ${prioClass}"><span class="pill-dot"></span>${escHtml(prio)}</span>
+                  ${meta.dueDate ? `<span class="due-inline"><span class="pill-dot"></span>Hạn: ${formatDateVN(meta.dueDate)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <span class="status-badge badge-${escAttr(d.status)}">${statusLabelVN(d.status)}</span>
+          </div>
+
+          ${renderFlowStepper(d, isDocCreator)}
+
+          <div class="doc-body-indent">
+            <div class="doc-meta-inline">
+              <span>Người tạo: <strong>${escHtml(d.createdBy)}</strong></span>
+              <span class="meta-sep">&bull;</span>
+              <span>Người duyệt: <strong>${escHtml(getUserFullName(d.approver))}</strong></span>
+              <span class="meta-sep">&bull;</span>
+              <span>CID: <span class="mono">${escHtml(latestCid)}</span></span>
+            </div>
+
+            <div class="doc-actions-row">
+              ${primaryAction}
+              <button class="btn btn-sm btn-soft" onclick="openDetailModal('${escAttr(d.id)}')">Chi tiết</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* Archive & Reports Table */
+  function renderArchiveTable() {
+    const tbody = document.getElementById('archiveTableBody');
+    if (!tbody || !currentUser) return;
+    const kw = (document.getElementById('archiveSearch').value || '').trim().toLowerCase();
+    const cat = document.getElementById('archiveCategory').value;
+    const st = document.getElementById('archiveStatus').value;
+    const metaMap = getDocMetaMap();
+
+    const baseDocs = currentUser.role === 'approver'
+      ? allDocuments
+      : allDocuments.filter(d => d.createdBy === currentUser.username);
+
+    const decided = baseDocs.filter(d => d.status === 'Approved' || d.status === 'Rejected').length;
+    const approvedCount = baseDocs.filter(d => d.status === 'Approved').length;
+    const approvalRate = decided > 0 ? Math.round((approvedCount / decided) * 100) : 0;
+    const urgentCount = baseDocs.filter(d => {
+      const m = metaMap[d.id] || metaMap[`${d.title}__${d.createdBy}`] || {};
+      return m.priority === 'Khẩn' || m.priority === 'Hỏa tốc';
+    }).length;
+    const pendingCount = baseDocs.filter(d => d.status === 'Submitted').length;
+
+    document.getElementById('repApprovalRate').textContent = `${approvalRate}%`;
+    document.getElementById('repUrgentCount').textContent = urgentCount;
+    document.getElementById('repPendingCount').textContent = pendingCount;
+
+    const rows = baseDocs.filter(d => {
+      if (cat && d.category !== cat) return false;
+      if (st && d.status !== st) return false;
+      if (kw) {
+        const latestCid = (d.histories && d.histories.length) ? d.histories[d.histories.length - 1].correlationId : '';
+        const hay = `${d.title} ${d.content || ''} ${d.createdBy} ${d.approver} ${getUserFullName(d.approver)} ${d.id} ${latestCid}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      return true;
+    });
+
+    document.getElementById('repFilteredCount').textContent = rows.length;
+
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px;">Không tìm thấy hồ sơ nào khớp điều kiện tra cứu.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(d => {
+      const meta = metaMap[d.id] || metaMap[`${d.title}__${d.createdBy}`] || {};
+      const cidDisplay = (d.histories && d.histories.length)
+        ? d.histories[d.histories.length - 1].correlationId
+        : d.id.slice(0, 8);
+      return `
+        <tr>
+          <td><span class="mono">${escHtml(cidDisplay)}</span></td>
+          <td><strong>${escHtml(d.title)}</strong></td>
+          <td>${escHtml(d.category)}</td>
+          <td>${escHtml(meta.priority || 'Bình thường')}</td>
+          <td>${escHtml(d.createdBy)}</td>
+          <td>${escHtml(getUserFullName(d.approver))}</td>
+          <td><span class="status-badge badge-${escAttr(d.status)}">${statusLabelVN(d.status)}</span></td>
+          <td>
+            <button class="btn btn-sm btn-ghost" onclick="openDetailModal('${escAttr(d.id)}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Xem phiếu</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function resetArchiveFilters() {
+    document.getElementById('archiveSearch').value = '';
+    document.getElementById('archiveCategory').value = '';
+    document.getElementById('archiveStatus').value = '';
+    renderArchiveTable();
+  }
+
+  function exportDocumentsCSV() {
+    const baseDocs = currentUser && currentUser.role === 'approver'
+      ? allDocuments
+      : allDocuments.filter(d => d.createdBy === currentUser.username);
+
+    if (!baseDocs.length) {
+      showToast('Chưa có dữ liệu hồ sơ để xuất');
+      return;
+    }
+    const headers = ['MaCID', 'TieuDe', 'PhanLoai', 'NguoiTao', 'NguoiDuyet', 'TrangThai'];
+    const lines = [headers.join(',')];
+    baseDocs.forEach(d => {
+      const cidDisplay = (d.histories && d.histories.length)
+        ? d.histories[d.histories.length - 1].correlationId
+        : d.id.slice(0, 8);
+      const row = [
+        cidDisplay,
+        `"${String(d.title).replace(/"/g, '""')}"`,
+        `"${d.category}"`,
+        d.createdBy,
+        d.approver,
+        statusLabelVN(d.status)
+      ];
+      lines.push(row.join(','));
+    });
+    const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bao-cao-ho-so-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Đã xuất danh sách hồ sơ ra tệp CSV');
+  }
+
+  /* Users Directory (Only for Approvers) */
+  function renderUsersTable() {
+    const tbody = document.getElementById('usersTableBody');
+    if (!tbody) return;
+    const users = getUsers();
+
+    const creators = users.filter(u => u.role === 'creator').length;
+    const approvers = users.filter(u => u.role === 'approver').length;
+    const depts = new Set(users.map(u => (u.department || 'Văn phòng').trim())).size;
+
+    document.getElementById('usrTotal').textContent = users.length;
+    document.getElementById('usrCreators').textContent = creators;
+    document.getElementById('usrApprovers').textContent = approvers;
+    document.getElementById('usrDepts').textContent = depts;
+
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td><span class="mono">${escHtml(u.username)}</span></td>
+        <td><strong>${escHtml(u.fullName)}</strong></td>
+        <td>${u.role === 'approver' ? 'Người phê duyệt' : 'Người tạo hồ sơ'}</td>
+        <td>${escHtml(u.department || 'Văn phòng')}</td>
+        <td>
+          ${currentUser && currentUser.username === u.username
+            ? '<span style="font-size:0.76rem;color:#047857;font-weight:600;">Đang đăng nhập</span>'
+            : `<button class="btn btn-sm btn-ghost" onclick="switchToUser('${escAttr(u.username)}')">Đăng nhập tài khoản này</button>`
+          }
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  /* Personal Notifications */
+  async function loadNotifications() {
+    if (!currentUser) return;
+    const params = new URLSearchParams();
+    params.set('recipient', currentUser.username);
+    const container = document.getElementById('notifList');
+
+    try {
+      const res = await fetch('/api/notifications?' + params.toString());
+      if (!res.ok) throw new Error('Notif service down');
+
+      const rawList = await res.json();
+      myNotifications = rawList.filter(n => n.recipient === currentUser.username);
+      const unread = myNotifications.filter(n => !n.isRead).length;
+      const badgeEl = document.getElementById('unreadBadge');
+      badgeEl.textContent = unread;
+      badgeEl.style.display = unread > 0 ? 'flex' : 'none';
+
+      if (!myNotifications.length) {
+        container.innerHTML = `<div class="empty-state" style="padding:20px 12px;">Chưa có thông báo nào gửi tới <strong>${escHtml(currentUser.username)}</strong>.</div>`;
+        return;
+      }
+
+      container.innerHTML = myNotifications.map(n => `
+        <div class="notif-card ${n.isRead ? '' : 'unread'}">
+          <div class="notif-head">
+            <span class="notif-title">${escHtml(n.title)}</span>
+            <span class="notif-time">${new Date(n.createdAt).toLocaleTimeString('vi-VN')}</span>
+          </div>
+          <div class="notif-msg">${escHtml(n.message)}</div>
+          <div class="notif-foot">
+            <span>Người nhận: <strong>${escHtml(n.recipient)}</strong></span>
+            <span class="mono">${escHtml(n.correlationId)}</span>
+          </div>
+        </div>
+      `).join('');
+    } catch {
+      container.innerHTML = '<div class="empty-state" style="color:#b91c1c;padding:18px;">Dịch vụ thông báo đang tạm dừng.</div>';
+    }
+  }
+
+  async function pollLiveEvents() {
+    if (!currentUser) return;
+    try {
+      const res = await fetch('/api/live-events');
+      if (res.ok) {
+        const events = await res.json();
+        if (events.length > lastLiveCount) {
+          lastLiveCount = events.length;
+          await loadNotifications();
+          await loadDocuments();
+        }
+      }
+    } catch {}
+  }
+
+  async function markAllRead() {
+    if (!currentUser) return;
+    try {
+      await fetch('/api/notifications/read-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: currentUser.username })
+      });
+      await loadNotifications();
+      showToast('Đã đánh dấu tất cả thông báo là đã đọc');
+    } catch {
+      showToast('Không thể cập nhật trạng thái thông báo');
+    }
+  }
+
+  async function loadAll() {
+    await Promise.all([loadDocuments(), loadNotifications()]);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3500);
+  }
+
+  function escAttr(str) {
+    return String(str ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  function updateClock() {
+    const el = document.getElementById('liveClock');
+    if (el) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false });
+      const dateStr = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      el.textContent = `${timeStr} ${dateStr}`;
+    }
+  }
+
+  (function init() {
+    if (!CSS.supports('-webkit-text-security', 'disc') && !CSS.supports('text-security', 'disc')) {
+      document.querySelectorAll('.password-mask').forEach(el => { el.type = 'password'; });
+    }
+    localStorage.removeItem('docflow_users_v1');
+    localStorage.removeItem('docflow_session_v1');
+
+    getUsers();
+    updateClock();
+    setInterval(updateClock, 1000);
+    try {
+      const saved = localStorage.getItem(SESSION_KEY);
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        if (currentUser.username === 'nhung.nt' && currentUser.fullName === 'Nguyễn Thị Nhung') {
+          currentUser.fullName = 'Nguyễn Thị Hồng Nhung';
+          localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        }
+        renderAppForUser();
+      }
+    } catch {}
+  })();
+</script>
+</body>
+</html>
+

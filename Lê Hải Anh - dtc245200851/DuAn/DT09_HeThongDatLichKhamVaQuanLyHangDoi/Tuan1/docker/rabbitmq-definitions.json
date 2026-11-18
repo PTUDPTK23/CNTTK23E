@@ -1,0 +1,136 @@
+{
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "clinic.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "clinic.events.dlx",
+      "vhost": "/",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "queue.ticket.requested",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 86400000,
+        "x-dead-letter-exchange": "clinic.events.dlx"
+      }
+    },
+    {
+      "name": "queue.ticket.assigned",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 86400000,
+        "x-dead-letter-exchange": "clinic.events.dlx"
+      }
+    },
+    {
+      "name": "queue.queue.changed",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 86400000,
+        "x-dead-letter-exchange": "clinic.events.dlx"
+      }
+    },
+    {
+      "name": "queue.appointment.cancelled",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 86400000,
+        "x-dead-letter-exchange": "clinic.events.dlx"
+      }
+    },
+    {
+      "name": "queue.ticket.assigned.api",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 86400000,
+        "x-dead-letter-exchange": "clinic.events.dlx"
+      }
+    },
+    {
+      "name": "queue.events.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "clinic.events",
+      "vhost": "/",
+      "destination": "queue.ticket.requested",
+      "destination_type": "queue",
+      "routing_key": "ticket.requested",
+      "arguments": {}
+    },
+    {
+      "source": "clinic.events",
+      "vhost": "/",
+      "destination": "queue.ticket.assigned",
+      "destination_type": "queue",
+      "routing_key": "ticket.assigned",
+      "arguments": {}
+    },
+    {
+      "source": "clinic.events",
+      "vhost": "/",
+      "destination": "queue.queue.changed",
+      "destination_type": "queue",
+      "routing_key": "queue.changed",
+      "arguments": {}
+    },
+    {
+      "source": "clinic.events",
+      "vhost": "/",
+      "destination": "queue.appointment.cancelled",
+      "destination_type": "queue",
+      "routing_key": "appointment.cancelled",
+      "arguments": {}
+    },
+    {
+      "source": "clinic.events",
+      "vhost": "/",
+      "destination": "queue.ticket.assigned.api",
+      "destination_type": "queue",
+      "routing_key": "ticket.assigned",
+      "arguments": {}
+    },
+    {
+      "source": "clinic.events.dlx",
+      "vhost": "/",
+      "destination": "queue.events.dlq",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    }
+  ]
+}
