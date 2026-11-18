@@ -1,0 +1,11 @@
+<Solution>
+<<<<<<< HEAD
+  <Project Path="src/Submission.RealtimeApi/Submission.RealtimeApi.csproj" />
+  <Project Path="src/Submission.RealtimeClient/Submission.RealtimeClient.csproj" />
+=======
+  <Folder Name="/src/">
+    <Project Path="src/Submission.RealtimeApi/Submission.RealtimeApi.csproj" />
+    <Project Path="src/Submission.RealtimeClient/Submission.RealtimeClient.csproj" />
+  </Folder>
+>>>>>>> d93af16 (Bai 3 - SignalR - DTC245200767)
+</Solution>
