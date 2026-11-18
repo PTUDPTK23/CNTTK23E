@@ -72,7 +72,8 @@ app.MapPost(
     "/api/assignments/{assignmentId:int}/submissions",
     (
         int assignmentId,
-        CreateSubmissionRequest request
+        CreateSubmissionRequest request,
+        IHubContext<SubmissionHub> hubContext
     ) =>
     {
         // Kiểm tra bài tập tồn tại
@@ -132,6 +133,15 @@ app.MapPost(
             submissions.Add(submission);
         }
 
+        // BƯỚC 4: Bắt đầu mô phỏng chấm bài nền
+        _ = SimulateGradingAsync(
+            submission.Id,
+            submissions,
+            submissionsLock,
+            hubContext
+        );
+
+        // Trả kết quả ngay, không chờ quá trình chấm bài
         return Results.Created(
             $"/api/submissions/{submission.Id}",
             submission
@@ -146,8 +156,95 @@ app.Run();
 
 
 // =============================================
+// BƯỚC 4: MÔ PHỎNG QUÁ TRÌNH CHẤM BÀI NỀN
+// =============================================
+
+static async Task SimulateGradingAsync(
+    Guid submissionId,
+    List<SubmissionDto> submissions,
+    object submissionsLock,
+    IHubContext<SubmissionHub> hubContext)
+{
+    // Sau 1 giây chuyển sang processing
+    await Task.Delay(TimeSpan.FromSeconds(1));
+
+    await UpdateStatusAsync(
+        submissionId,
+        "processing",
+        submissions,
+        submissionsLock,
+        hubContext
+    );
+
+    // Sau 2 giây tiếp theo chuyển sang graded
+    await Task.Delay(TimeSpan.FromSeconds(2));
+
+    await UpdateStatusAsync(
+        submissionId,
+        "graded",
+        submissions,
+        submissionsLock,
+        hubContext
+    );
+}
+
+
+// =============================================
+// BƯỚC 4: CẬP NHẬT VÀ GỬI TRẠNG THÁI
+// =============================================
+
+static async Task UpdateStatusAsync(
+    Guid submissionId,
+    string status,
+    List<SubmissionDto> submissions,
+    object submissionsLock,
+    IHubContext<SubmissionHub> hubContext)
+{
+    SubmissionDto? updatedSubmission = null;
+
+    // Cập nhật dữ liệu trong vùng khóa
+    lock (submissionsLock)
+    {
+        var index = submissions.FindIndex(
+            item => item.Id == submissionId
+        );
+
+        if (index >= 0)
+        {
+            updatedSubmission = submissions[index] with
+            {
+                Status = status,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+
+            submissions[index] = updatedSubmission;
+        }
+    }
+
+    if (updatedSubmission is null)
+    {
+        return;
+    }
+
+    // Tạo thông báo trạng thái
+    var message = new SubmissionStatusMessage(
+        updatedSubmission.Id,
+        updatedSubmission.Status,
+        updatedSubmission.UpdatedAt
+    );
+
+    // Gửi thông báo đến các client thuộc group tương ứng
+    await hubContext.Clients
+        .Group(SubmissionGroups.ForSubmission(submissionId))
+        .SendAsync("SubmissionStatusChanged", message);
+}
+
+
+// =============================================
 // BƯỚC 3: SIGNALR HUB
 // =============================================
+
+
 
 sealed class SubmissionHub : Hub
 {
@@ -159,6 +256,7 @@ sealed class SubmissionHub : Hub
         );
     }
 }
+
 
 
 // =============================================
@@ -176,6 +274,64 @@ static class SubmissionGroups
     {
         return $"submission:{submissionId}";
     }
+
+static async Task SimulateGradingAsync(
+    Guid submissionId,
+    List<SubmissionDto> submissions,
+    object submissionsLock,
+    IHubContext<SubmissionHub> hubContext)
+{
+    await Task.Delay(1000);
+
+    await UpdateStatusAsync(
+        submissionId, "processing",
+        submissions, submissionsLock, hubContext);
+
+    await Task.Delay(2000);
+
+    await UpdateStatusAsync(
+        submissionId, "graded",
+        submissions, submissionsLock, hubContext);
+}
+
+static async Task UpdateStatusAsync(
+    Guid submissionId,
+    string status,
+    List<SubmissionDto> submissions,
+    object submissionsLock,
+    IHubContext<SubmissionHub> hubContext)
+{
+    SubmissionDto? updatedSubmission = null;
+
+    lock (submissionsLock)
+    {
+        var index = submissions.FindIndex(x => x.Id == submissionId);
+
+        if (index >= 0)
+        {
+            updatedSubmission = submissions[index] with
+            {
+                Status = status,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+
+            submissions[index] = updatedSubmission;
+        }
+    }
+
+    if (updatedSubmission is null)
+        return;
+
+    var message = new SubmissionStatusMessage(
+        updatedSubmission.Id,
+        updatedSubmission.Status,
+        updatedSubmission.UpdatedAt);
+
+    await hubContext.Clients
+        .Group(SubmissionGroups.ForSubmission(submissionId))
+        .SendAsync("SubmissionStatusChanged", message);
+}
+
 }
 
 
@@ -202,6 +358,13 @@ record SubmissionDto(
     string RepositoryUrl,
     string Status,
     DateTimeOffset ReceivedAt,
+    DateTimeOffset UpdatedAt
+);
+
+
+record SubmissionStatusMessage(
+    Guid SubmissionId,
+    string Status,
     DateTimeOffset UpdatedAt
 );
 
