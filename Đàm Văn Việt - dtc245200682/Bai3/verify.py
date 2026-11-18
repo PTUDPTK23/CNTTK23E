@@ -127,7 +127,10 @@ try:
     assert negotiated['connectionId']
     assert {t['transport'] for t in negotiated['availableTransports']} == {'WebSockets','ServerSentEvents','LongPolling'}
     request(base, 'GET', '/hubs/ping', 400)
-    save('buoc2-negotiate', 'curl.exe -X POST "http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1"', raw)
+    curl_command = ['curl.exe', '-sS', '-X', 'POST', base + '/hubs/ping/negotiate?negotiateVersion=1']
+    curl = subprocess.run(curl_command, capture_output=True, text=True, timeout=10)
+    assert curl.returncode == 0 and json.loads(curl.stdout)['connectionId']
+    save('buoc2-negotiate', subprocess.list2cmdline(curl_command), curl.stdout)
     an = ping('An'); an.until('Nhan Enter de thoat.')
     binh = ping('Binh'); binh.until('Nhan Enter de thoat.')
     an.until('[Broadcast] Xin chao tat ca tu Binh')
