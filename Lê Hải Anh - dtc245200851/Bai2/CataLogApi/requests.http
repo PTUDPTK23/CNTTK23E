@@ -1,0 +1,34 @@
+@api = http://localhost:5100
+
+### 1. Kiem tra server -> 200
+GET {{api}}/
+
+### 2. Danh sach -> 200 (3 san pham khi vua khoi dong)
+GET {{api}}/api/products
+
+### 3. Chi tiet -> 200
+GET {{api}}/api/products/1
+
+### 4. Khong ton tai -> 404 + ApiError
+GET {{api}}/api/products/999
+
+### 5. Sai kieu route -> 404, body rong
+GET {{api}}/api/products/abc
+
+### 6. Tao hop le -> 201 + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }
+
+### 7. Gia am -> 400 + INVALID_PRODUCT
+POST {{api}}/api/products
+Content-Type: application/json
+
+{ "name": "San pham loi", "description": "", "price": -1 }
+
+### 8. Sai Content-Type -> 415 (curl thieu -H cung gui kieu nay)
+POST {{api}}/api/products
+Content-Type: application/x-www-form-urlencoded
+
+{ "name": "Lap trinh gRPC", "description": "Tai lieu bai 5", "price": 80000 }

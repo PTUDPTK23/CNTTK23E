@@ -1,0 +1,62 @@
+@api = http://localhost:5000
+
+### 1. Kiem tra may chu dang chay -> 200 OK
+GET {{api}}/
+
+### 2. Danh sach bai tap dang mo -> 200 OK
+GET {{api}}/api/assignments
+
+### 3. Chi tiet bai tap 1 -> 200 OK
+GET {{api}}/api/assignments/1
+
+### 4. Bai tap khong ton tai -> 404 Not Found + ApiError
+GET {{api}}/api/assignments/999
+
+### 5. Nop bai hop le cho bai tap 1 -> 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/sv001/EduSubmit"
+}
+
+### 6. Doc lai luot nop vua tao qua Location -> 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 7. Doc luot nop khong ton tai -> 404 Not Found + ApiError
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Nop trung bai tap da nop -> 409 Conflict + ApiError
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/sv001/EduSubmit"
+}
+
+### 9. Nop thieu thong tin -> 400 Bad Request + ApiError
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 10. Nop vao bai tap da dong -> 400 Bad Request + ApiError
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://github.com/sv002/EduSubmit"
+}
+
+### 11. Xoa luot nop (Bai mo rong) -> 204 No Content
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 12. Xoa lai luot nop da xoa -> 404 Not Found
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}

@@ -1,0 +1,59 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra trạng thái API -> 200 OK
+GET {{api}}/
+
+### 2. Danh sách bài tập -> 200 OK
+GET {{api}}/api/assignments
+
+### 3. Chi tiết bài tập tồn tại -> 200 OK
+GET {{api}}/api/assignments/1
+
+### 4. Chi tiết bài tập không tồn tại -> 404 Not Found + ASSIGNMENT_NOT_FOUND
+GET {{api}}/api/assignments/999
+
+### 5. Nộp bài hợp lệ theo tài nguyên con -> 201 Created + Location
+# @name createSubmission
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200850",
+  "repositoryUrl": "https://github.com/dtc245200850-spec/EduSubmit-Bai2"
+}
+
+### 6. Đọc lại lượt nộp vừa tạo theo Location Id -> 200 OK
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 7. Thử nộp trùng bài tập -> 409 Conflict + DUPLICATE_SUBMISSION (Slide 102)
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200850",
+  "repositoryUrl": "https://github.com/dtc245200850-spec/EduSubmit-Bai2"
+}
+
+### 8. Nộp bài vào bài tập đã đóng -> 400 Bad Request + ASSIGNMENT_CLOSED
+POST {{api}}/api/assignments/3/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV002",
+  "repositoryUrl": "https://github.com/sv002/EduSubmit"
+}
+
+### 9. Nộp bài thiếu thông tin -> 400 Bad Request + INVALID_SUBMISSION
+POST {{api}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 10. Đọc lượt nộp không tồn tại -> 404 Not Found + SUBMISSION_NOT_FOUND
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 11. Hủy / rút lượt nộp -> 204 No Content (Slide 103)
+DELETE {{api}}/api/submissions/{{createSubmission.response.body.$.id}}

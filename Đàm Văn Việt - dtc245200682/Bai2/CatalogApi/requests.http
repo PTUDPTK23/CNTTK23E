@@ -1,0 +1,34 @@
+@api = http://localhost:5100
+
+### 1. Kiem tra server -> 200
+GET {{api}}/
+
+### 2. Danh sach -> 200
+GET {{api}}/api/products
+
+### 3. Chi tiet -> 200
+GET {{api}}/api/products/1
+
+### 4. Khong ton tai -> 404 + PRODUCT_NOT_FOUND
+GET {{api}}/api/products/999
+
+### 5. Khong khop route int -> 404 body rong
+GET {{api}}/api/products/abc
+
+### 6. Tao hop le -> 201 + Location
+POST {{api}}/api/products
+Content-Type: application/json
+
+< ./src/Catalog.Api/sp-hop-le.json
+
+### 7. Gia am -> 400 + INVALID_PRODUCT
+POST {{api}}/api/products
+Content-Type: application/json
+
+< ./src/Catalog.Api/Properties/sp-sai.json
+
+### 8. Sai Content-Type (tuong duong curl -d khong co -H JSON) -> 415
+POST {{api}}/api/products
+Content-Type: application/x-www-form-urlencoded
+
+< ./src/Catalog.Api/sp-hop-le.json

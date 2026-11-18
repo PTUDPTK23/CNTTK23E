@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Catalog.Api/Catalog.Api.csproj" />
+  <Project Path="Catalog.Client/Catalog.Client.csproj" />
+  <Project Path="EduSubmit.Api/EduSubmit.Api.csproj" />
+  <Project Path="EduSubmit.Client/EduSubmit.Client.csproj" />
+</Solution>

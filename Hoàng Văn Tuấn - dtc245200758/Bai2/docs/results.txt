@@ -1,0 +1,10 @@
+﻿PASS | GET danh sach bai tap | Expected: 200 | Actual: 200
+PASS | GET bai tap ID 1 | Expected: 200 | Actual: 200
+PASS | GET bai tap ID 999 | Expected: 404 | Actual: 404
+PASS | POST nop bai hop le | Expected: 201 | Actual: 201
+PASS | GET doc lai luot nop | Expected: 200 | Actual: 200
+PASS | POST du lieu khong hop le | Expected: 400 | Actual: 400
+PASS | GET submission khong ton tai | Expected: 404 | Actual: 404
+
+Tong so loi: 0
+Thoi gian: 2026-11-15 20:55:44

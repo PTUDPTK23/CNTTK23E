@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ClinicQueue.Api/ClinicQueue.Api.csproj" />
+    <Project Path="src/ClinicQueue.Contracts/ClinicQueue.Contracts.csproj" />
+    <Project Path="src/ClinicQueue.Notification/ClinicQueue.Notification.csproj" />
+    <Project Path="src/ClinicQueue.Worker/ClinicQueue.Worker.csproj" />
+  </Folder>
+</Solution>
