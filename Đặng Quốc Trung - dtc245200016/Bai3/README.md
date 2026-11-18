@@ -257,3 +257,152 @@ SignalR giúp máy khách nhận thông báo chủ động mà không cần liê
 - REST vẫn là nguồn cung cấp trạng thái chính xác của hệ thống.
 
 Sau khi hoàn thành các thí nghiệm, khôi phục code ban đầu và kiểm tra lại hoạt động của hệ thống.
+
+### Bước 8: Hoàn thiện kiểm thử và bài tập vận dụng
+
+Ngày 18/11/2026, hệ thống được hoàn thiện và kiểm tra lại với các nội dung sau:
+
+- Thêm `RealtimeSubmissionSystem/requests.http` gồm đủ 10 ca kiểm thử REST và SignalR negotiate.
+- Cố định cổng chạy mặc định: PingSignalR dùng `http://localhost:5200`, EduSubmit dùng `http://localhost:5000`.
+- Bổ sung quy tắc chấm: `RepositoryUrl` không bắt đầu bằng `https://` sẽ kết thúc ở trạng thái `failed`.
+- Bổ sung cảnh báo màu đỏ ở máy khách khi lượt nộp nhận trạng thái `failed`.
+- Bổ sung chế độ `--two` để theo dõi hai lượt nộp bằng một kết nối SignalR. Mỗi GUID có một `TaskCompletionSource<string>` riêng trong `ConcurrentDictionary`.
+- Xử lý rõ lỗi kết nối ban đầu khi API chưa chạy và trả mã thoát 1.
+- Giữ nguyên chế độ mặc định: máy khách nộp một bài hợp lệ, nhận `processing`, `graded`, đọc lại bằng REST rồi tự thoát.
+
+#### Kết quả build và chạy PingSignalR
+
+- `dotnet build PingSignalR.slnx --no-restore`: thành công, 0 cảnh báo, 0 lỗi; build đủ `Ping.Api` và `Ping.Client`.
+- `Ping.Api` lắng nghe thực tế tại `http://localhost:5200`.
+- `Ping.Client` kết nối thành công và nhận được: `[Echo] Echo: Xin chao SignalR tu Trung`.
+
+#### Bảng kết quả kiểm thử HTTP thực tế
+
+Các ca dưới đây được chạy thực tế ngày 18/11/2026 với API tại `http://localhost:5000`:
+
+| STT | Ca kiểm thử                                              | Mong đợi | Thực tế | Kết quả |
+| --: | -------------------------------------------------------- | -------: | ------: | :-----: |
+|   1 | `GET /`                                                  |      200 |     200 |   Đạt   |
+|   2 | `GET /api/assignments`                                   |      200 |     200 |   Đạt   |
+|   3 | `POST /api/assignments/1/submissions` với dữ liệu hợp lệ |      201 |     201 |   Đạt   |
+|   4 | `GET /api/submissions/{id}` với ID vừa tạo               |      200 |     200 |   Đạt   |
+|   5 | `POST` thiếu mã sinh viên và URL                         |      400 |     400 |   Đạt   |
+|   6 | `POST /api/assignments/99/submissions`                   |      404 |     404 |   Đạt   |
+|   7 | `GET` với GUID `00000000-0000-0000-0000-000000000000`    |      404 |     404 |   Đạt   |
+|   8 | `POST /hubs/submissions/negotiate?negotiateVersion=1`    |      200 |     200 |   Đạt   |
+|   9 | `POST /hub/submissions/negotiate?negotiateVersion=1`     |      404 |     404 |   Đạt   |
+|  10 | `POST /api/assignments/999/submissions`                  |      404 |     404 |   Đạt   |
+
+Lượt nộp của ca số 3 có ID thực tế `2d646c9e-5fd7-4a9e-8e8a-fc1b00b57047`. Kết quả tổng hợp: **10/10 ca đạt**.
+
+#### Kết quả thực tế 8 dòng của máy khách EduSubmit
+
+Chạy chế độ mặc định bằng `dotnet run --no-build --project src/Submission.RealtimeClient/Submission.RealtimeClient.csproj`, máy khách tự kết thúc với đúng 8 dòng:
+
+```text
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai 3 - SignalR
+Da tao luot nop: 0af5987f-a540-4c45-8918-94c1802a436c
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: 0af5987f-a540-4c45-8918-94c1802a436c -> processing luc 10:40:04
+Thong bao SignalR: 0af5987f-a540-4c45-8918-94c1802a436c -> graded luc 10:40:06
+Trang thai doc lai bang REST: graded
+```
+
+#### Trả lời ba câu hỏi đầu giờ
+
+1. **SignalR dùng để làm gì?** SignalR tạo kênh giao tiếp hai chiều theo thời gian thực, cho phép máy chủ chủ động đẩy thay đổi trạng thái đến máy khách thay vì máy khách phải liên tục polling.
+2. **REST và SignalR có vai trò gì trong EduSubmit?** REST tạo và đọc tài nguyên, đồng thời là nguồn trạng thái cuối đáng tin cậy. SignalR thông báo nhanh các thay đổi `processing`, `graded` hoặc `failed`.
+3. **Nếu mất kết nối đúng lúc nhận `graded` thì sao?** Máy khách có thể bỏ lỡ thông báo vì SignalR không tự phát lại sự kiện cũ. Sau khi kết nối lại, máy khách phải tham gia lại Group và đọc trạng thái bằng REST để đồng bộ.
+
+#### Bài tập vận dụng 2: URL repository không an toàn
+
+Máy chủ vẫn nhận lượt nộp hợp lệ về cấu trúc và chuyển qua `received`, `processing`. Ở bước cuối, URL không bắt đầu bằng `https://` làm trạng thái chuyển thành `failed`. Máy khách kiểm tra sự kiện này, đổi `Console.ForegroundColor` sang đỏ để in cảnh báo rồi khôi phục màu cũ.
+
+Lệnh đã chạy thực tế:
+
+```powershell
+dotnet run --no-build --project src\Submission.RealtimeClient\Submission.RealtimeClient.csproj -- --repository=http://example.com/SV001/signalr
+```
+
+Kết quả cuối:
+
+```text
+Thong bao SignalR: b34fb14d-e992-4fa2-a5ab-3a1d61fdd4e8 -> failed luc 10:40:17
+CANH BAO: Luot nop b34fb14d-e992-4fa2-a5ab-3a1d61fdd4e8 cham that bai do RepositoryUrl khong bat dau bang https://.
+Trang thai doc lai bang REST: failed
+```
+
+#### Bài tập vận dụng 3: Theo dõi hai lượt nộp trên một kết nối
+
+Chạy máy khách với tùy chọn `--two`. Chương trình chỉ tạo một `HubConnection`, sau đó tạo hai lượt nộp và gọi `WatchSubmission` cho từng GUID. `ConcurrentDictionary<Guid, TaskCompletionSource<string>>` ánh xạ đúng thông báo đến tác vụ đang chờ; vì vậy hai lượt nộp không hoàn thành nhầm lẫn nhau.
+
+Kết quả thực tế: hai GUID `c79789ca-c46b-499e-b73f-f63107ab38c5` và `9e2993d1-b715-48b5-b269-064c85069e86` đều nhận đủ `processing`, `graded`; hai lần đọc lại REST đều trả về `graded`, máy khách tự thoát với mã 0.
+
+#### Bài tập vận dụng 4: Chạy máy khách khi API tắt
+
+Sau khi xác nhận cổng 5000 không còn tiến trình lắng nghe, máy khách được chạy và cho kết quả thực tế:
+
+```text
+Khong the ket noi den may chu: No connection could be made because the target machine actively refused it. (localhost:5000)
+```
+
+Máy khách kết thúc với mã 1. Lỗi xảy ra tại `StartAsync` vì kết nối ban đầu bị từ chối. `WithAutomaticReconnect` chỉ xử lý việc rớt kết nối sau khi đã kết nối thành công, không tự lặp lại lần kết nối đầu tiên thất bại.
+
+#### Câu hỏi ôn tập và thảo luận SignalR
+
+1. **Hub là gì?** Hub là lớp mức cao để máy khách và máy chủ gọi phương thức, gửi hoặc nhận thông điệp SignalR.
+2. **Đăng ký và ánh xạ Hub thế nào?** Gọi `AddSignalR()` khi đăng ký dịch vụ và `MapHub<T>(đường_dẫn)` khi tạo endpoint.
+3. **`Clients.Caller`, `Clients.All`, `Clients.Group` khác nhau thế nào?** Chúng lần lượt gửi cho người gọi, mọi kết nối và các kết nối thuộc một Group.
+4. **Vì sao EduSubmit dùng Group theo submission ID?** Để mỗi máy khách chỉ nhận trạng thái của lượt nộp đang theo dõi, giảm gửi thừa và tránh lộ dữ liệu giữa các lượt nộp.
+5. **Group có bền sau khi kết nối lại không?** Không nên giả định là bền; kết nối mới có ID mới và cần gọi lại `WatchSubmission`.
+6. **`WithAutomaticReconnect` có bảo đảm không mất thông điệp không?** Không. Nó hỗ trợ nối lại nhưng các sự kiện phát trong thời gian mất kết nối có thể bị bỏ lỡ.
+7. **Tại sao vẫn cần REST khi đã có SignalR?** SignalR phù hợp để báo thay đổi nhanh; REST dùng để tạo tài nguyên và truy vấn lại trạng thái hiện tại một cách xác định.
+8. **`IHubContext` dùng khi nào?** Dùng để gửi thông điệp SignalR từ dịch vụ hoặc tác vụ nền bên ngoài lớp Hub.
+9. **Tại sao dùng `ConcurrentDictionary` ở máy khách?** Callback SignalR và luồng chờ có thể truy cập đồng thời; cấu trúc này ánh xạ GUID đến bộ chờ tương ứng một cách an toàn.
+10. **Nếu đăng ký theo dõi quá muộn thì sao?** Thông báo đã phát không được phát lại; máy khách phải GET bằng REST để biết trạng thái mới nhất.
+
+#### Ảnh minh chứng cần tự chụp bổ sung
+
+Không tạo ảnh giả. Trước khi nộp bài, cần tự chụp các màn hình sau và bổ sung liên kết ảnh thật vào README:
+
+- Build hai solution, thể hiện đủ bốn project và `0 Warning(s)`, `0 Error(s)`.
+- `requests.http` hoặc cửa sổ kiểm thử thể hiện đủ 10/10 mã HTTP thực tế.
+- Ping.Api ở cổng 5200 và Ping.Client nhận dòng Echo.
+- EduSubmit API ở cổng 5000 cùng 8 dòng của client mặc định.
+- Bài tập 2: dòng `failed` và cảnh báo màu đỏ trên terminal.
+- Bài tập 3: hai GUID cùng nhận `processing`, `graded` trên một client.
+- Bài tập 4: thông báo kết nối bị từ chối khi API đã tắt.
+
+## Minh chứng kiểm thử Bước 8
+
+### Nộp bài hợp lệ - 201 Created
+
+![201 Created](anh/edusubmit-buoc8-created.png)
+
+### Đọc trạng thái lượt nộp - 200 OK
+
+![200 OK](anh/edusubmit-buoc8-graded.png)
+
+### Nộp bài thiếu dữ liệu - 400 Bad Request
+
+![400 Bad Request](anh/edusubmit-buoc8-invalid.png)
+
+### Bài tập không tồn tại - 404 Not Found
+
+![404 Not Found](anh/edusubmit-buoc8-notfound.png)
+
+## Minh chứng bài tập vận dụng
+
+### Bài tập 2: Trạng thái failed
+
+![Bài tập 2](anh/edusubmit-bt2.png)
+
+### Bài tập 3: Theo dõi hai lượt nộp
+
+![Bài tập 3](anh/edusubmit-bt3.png)
+
+### Bài tập 4: Chạy khi máy chủ API tắt
+
+![Bài tập 4](anh/edusubmit-bt4.png)

@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:5000
+
+### 1. Kiem tra dich vu - mong doi 200 OK
+GET {{baseUrl}}/
+Accept: application/json
+
+### 2. Lay danh sach bai tap - mong doi 200 OK
+GET {{baseUrl}}/api/assignments
+Accept: application/json
+
+### 3. Nop bai hop le - mong doi 201 Created
+# @name validSubmission
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200016",
+  "repositoryUrl": "https://github.com/trungdtt123-cmd/CNTTK23E"
+}
+
+### 4. Lay luot nop vua tao - mong doi 200 OK
+GET {{baseUrl}}/api/submissions/{{validSubmission.response.body.$.id}}
+Accept: application/json
+
+### 5. Nop bai thieu du lieu - mong doi 400 Bad Request
+POST {{baseUrl}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. Nop vao bai tap ID 99 - mong doi 404 Not Found
+POST {{baseUrl}}/api/assignments/99/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200016",
+  "repositoryUrl": "https://github.com/trungdtt123-cmd/CNTTK23E"
+}
+
+### 7. Lay luot nop voi GUID rong - mong doi 404 Not Found
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+### 8. Bat tay SignalR dung duong dan - mong doi 200 OK
+POST {{baseUrl}}/hubs/submissions/negotiate?negotiateVersion=1
+Content-Type: application/json
+
+### 9. Bat tay SignalR sai duong dan - mong doi 404 Not Found
+POST {{baseUrl}}/hub/submissions/negotiate?negotiateVersion=1
+Content-Type: application/json
+
+### 10. Nop vao bai tap ID 999 - mong doi 404 Not Found
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "dtc245200016",
+  "repositoryUrl": "https://github.com/trungdtt123-cmd/CNTTK23E"
+}

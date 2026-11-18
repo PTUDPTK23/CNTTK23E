@@ -123,8 +123,20 @@ static async Task SimulateGradingAsync(
 
     await Task.Delay(2000);
 
+    string finalStatus;
+
+    lock (submissionsLock)
+    {
+        var submission = submissions.FirstOrDefault(s => s.Id == id);
+
+        finalStatus = submission?.RepositoryUrl.StartsWith(
+            "https://", StringComparison.OrdinalIgnoreCase) == true
+                ? "graded"
+                : "failed";
+    }
+
     await UpdateStatusAsync(
-        id, "graded",
+        id, finalStatus,
         submissions, submissionsLock, hubContext);
 }
 
