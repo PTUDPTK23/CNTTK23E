@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+.env
+.env.*
+!.env.example
+.local/
+tmp/
+TestResults/
+*.user
+*.suo
+*.log
+/11-he-thong-gui-thong-bao-hang-loat.md.pdf
+/HUONG-DAN-CHUNG.md.pdf

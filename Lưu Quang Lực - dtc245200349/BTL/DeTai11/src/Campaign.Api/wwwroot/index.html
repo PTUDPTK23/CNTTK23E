@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chiến dịch · NotifyLab</title>
+  <link rel="stylesheet" href="/styles.css?v=admin-audit">
+  <script src="/app.js?v=admin-audit" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="wordmark" href="/" aria-label="NotifyLab, trang chiến dịch"><span class="mark" aria-hidden="true">✉</span>NotifyLab</a>
+    <nav aria-label="Điều hướng chính">
+      <a class="nav-current" href="/" aria-current="page"><span aria-hidden="true">▤</span> Chiến dịch</a>
+    </nav>
+    <button id="open-create" class="primary"><span aria-hidden="true">＋</span> Tạo chiến dịch</button>
+    <a id="mailpit-link" class="inbox-link" href="http://localhost:8025" target="_blank" rel="noopener">Hộp thư Mailpit <span aria-hidden="true">↗</span></a>
+    <button id="logout" class="secondary session-action" type="button" hidden>Đăng xuất</button>
+  </aside>
+  <main>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <p id="smtp-mode" class="hint delivery-note" hidden>SMTP thật đang bật. Chiến dịch sẽ gửi thư đến các địa chỉ bạn nhập.</p>
+    <section id="campaigns">
+      <header class="page-header">
+        <div><h1>Chiến dịch</h1><p>Quản lý các đợt gửi email và kiểm tra kết quả.</p></div>
+      </header>
+      <div class="panel">
+        <div class="toolbar">
+          <h2>Tất cả chiến dịch</h2>
+          <button id="refresh" class="secondary">Làm mới</button>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Bảng chiến dịch">
+          <table>
+            <thead><tr><th scope="col">Tên chiến dịch</th><th scope="col">Trạng thái</th><th scope="col" class="numeric">Người nhận</th><th scope="col" class="numeric">Đã gửi</th><th scope="col">Ngày tạo</th></tr></thead>
+            <tbody id="campaign-list"><tr><td colspan="5" class="empty">Đang tải chiến dịch…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pager"><span id="campaign-page">Trang 1</span><button id="campaign-prev" class="secondary" disabled>Trước</button><button id="campaign-next" class="secondary" disabled>Sau</button></div>
+      </div>
+    </section>
+    <section id="details" hidden>
+      <button id="back" class="text-button back">← Tất cả chiến dịch</button>
+      <header class="page-header">
+        <div><h1 id="detail-name" tabindex="-1"></h1><div id="detail-status"></div><p id="detail-subject"></p></div>
+        <div class="actions"><button id="start" class="primary">Bắt đầu gửi</button><button id="retry" class="secondary">Gửi lại thư lỗi</button><button id="show-audit" class="secondary">Nhật ký audit</button></div>
+      </header>
+      <div class="panel overview">
+        <dl class="stats">
+          <div><dt>Người nhận</dt><dd id="total">0</dd></div>
+          <div><dt>Đang chờ / xử lý</dt><dd id="pending">0</dd></div>
+          <div><dt>Đã gửi</dt><dd id="sent">0</dd></div>
+          <div><dt>Thất bại</dt><dd id="failed">0</dd></div>
+        </dl>
+        <progress id="progress" max="100" value="0" aria-label="Tiến độ xử lý"></progress>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <h2>Kết quả gửi</h2>
+          <select id="filter" aria-label="Lọc kết quả theo trạng thái"><option value="">Tất cả trạng thái</option><option value="Pending">Đang chờ / xử lý</option><option value="Sent">Đã gửi</option><option value="Failed">Thất bại</option></select>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Bảng kết quả gửi">
+          <table class="deliveries">
+            <thead><tr><th scope="col">Người nhận</th><th scope="col">Trạng thái</th><th scope="col" class="numeric">Số lần thử</th><th scope="col">Kết quả gần nhất</th><th scope="col">Lịch sử</th></tr></thead>
+            <tbody id="delivery-list"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span id="page-label">Trang 1</span><button id="prev" class="secondary">Trước</button><button id="next" class="secondary">Sau</button></div>
+      </div>
+      <p class="hint delivery-note">“Đã gửi” nghĩa là máy chủ SMTP đã chấp nhận thư.</p>
+    </section>
+  </main>
+  <dialog id="create-dialog" aria-labelledby="create-title">
+    <header class="dialog-header"><h2 id="create-title">Tạo chiến dịch</h2><button id="close-create" type="button" class="icon-button" aria-label="Đóng">×</button></header>
+    <form id="create-form">
+      <div class="dialog-body">
+        <p id="create-error" class="form-error" role="alert" hidden></p>
+        <label for="name">Tên chiến dịch</label><input id="name" required maxlength="120" autofocus>
+        <label for="subject">Tiêu đề email</label><input id="subject" required maxlength="200">
+        <label for="body">Nội dung email</label><textarea id="body" required maxlength="20000" rows="4"></textarea>
+        <div class="label-row"><label for="recipients">Người nhận</label><button id="sample" type="button" class="text-button">Điền ví dụ</button></div>
+        <textarea id="recipients" required rows="4" placeholder="an@example.test&#10;binh@example.test" aria-describedby="recipients-hint demo-note"></textarea>
+        <p id="recipients-hint" class="hint">Tối đa 5.000 địa chỉ, phân cách bằng dòng mới, dấu phẩy hoặc chấm phẩy.</p>
+        <label for="import-file" class="file-label">Nhập danh sách từ tệp .txt</label><input id="import-file" type="file" accept=".txt,text/plain">
+        <p id="demo-note" class="hint" hidden></p>
+      </div>
+      <footer class="dialog-footer"><button id="cancel-create" type="button" class="secondary">Hủy</button><button id="create-button" type="submit" class="primary">Tạo bản nháp</button></footer>
+    </form>
+  </dialog>
+  <dialog id="history" aria-labelledby="history-title">
+    <header class="dialog-header"><div><h2 id="history-title">Lịch sử gửi</h2><p id="history-address" class="hint"></p></div><button id="close-history" class="icon-button" aria-label="Đóng">×</button></header>
+    <div id="history-content" class="dialog-body"></div>
+  </dialog>
+  <dialog id="audit" class="audit-dialog" aria-labelledby="audit-title">
+    <header class="dialog-header">
+      <div><h2 id="audit-title">Nhật ký audit</h2><p id="audit-campaign" class="hint"></p></div>
+      <button id="close-audit" class="icon-button" aria-label="Đóng">×</button>
+    </header>
+    <div id="audit-table" class="table-wrap" tabindex="0" role="region" aria-label="Bảng sự kiện gửi" hidden>
+      <table><thead><tr><th scope="col">Thời điểm</th><th scope="col">Kết quả</th><th scope="col">Mã lượt gửi</th><th scope="col">Phiên</th></tr></thead>
+        <tbody id="audit-events"></tbody></table>
+    </div>
+    <p id="audit-status" class="dialog-body hint" aria-live="polite"></p>
+    <div class="pager">
+      <span id="audit-page">Trang 1</span>
+      <button id="audit-prev" class="secondary" disabled>Trước</button>
+      <button id="audit-next" class="secondary" disabled>Sau</button>
+      <button id="audit-refresh" class="secondary">Làm mới</button>
+    </div>
+  </dialog>
+</body>
+</html>
