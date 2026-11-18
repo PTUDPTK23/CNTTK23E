@@ -1,0 +1,32 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra máy chủ → 200
+GET {{api}}/
+
+### 2. Danh sách bài tập → 200
+GET {{api}}/api/assignments
+
+### 3. Nộp bài hợp lệ → 201 + Location
+# @name createSubmission
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "SV001", "repositoryUrl": "https://github.com/sv001/EduSubmit" }
+
+### 4. Nộp bài thiếu studentCode → 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 1, "studentCode": "", "repositoryUrl": "https://github.com/sv001/EduSubmit" }
+
+### 5. Nộp bài assignmentId = 0 → 400
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{ "assignmentId": 0, "studentCode": "SV001", "repositoryUrl": "https://github.com/sv001/EduSubmit" }
+
+### 6. (Mở rộng) Đọc lại lượt nộp vừa tạo → 200
+GET {{api}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 7. (Mở rộng) Lượt nộp không tồn tại → 404
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000

@@ -1,0 +1,31 @@
+using System.Net.Http.Json;
+
+// 1. Địa chỉ API lấy từ tham số dòng lệnh, không viết cứng
+var apiBaseUrl = args.Length > 0 ? args[0] : "http://localhost:5000";
+
+// 2. HttpClient với địa chỉ gốc
+using var http = new HttpClient { BaseAddress = new Uri(apiBaseUrl) };
+
+// 3. GET /api/assignments
+var assignments = await http.GetFromJsonAsync<List<Assignment>>("/api/assignments");
+Console.WriteLine("Danh sach bai tap:");
+foreach (var a in assignments ?? [])
+    Console.WriteLine($"- {a.Id}: {a.Title}");
+
+// 4. POST /api/submissions
+var request = new CreateSubmissionRequest(1, "SV001", "https://github.com/sv001/EduSubmit");
+var response = await http.PostAsJsonAsync("/api/submissions", request);
+response.EnsureSuccessStatusCode();   // mã 4xx/5xx thì ném lỗi ngay
+var created = await response.Content.ReadFromJsonAsync<SubmissionResult>();
+Console.WriteLine($"Da nop bai. Ma luot nop: {created?.Id}");
+Console.WriteLine($"Trang thai: {created?.Status}");
+
+// Bước 12 (mở rộng): đọc lại lượt nộp vừa tạo
+var again = await http.GetFromJsonAsync<SubmissionResult>($"/api/submissions/{created?.Id}");
+Console.WriteLine($"Doc lai luot nop: {again?.Id} - {again?.StudentCode} - {again?.Status}");
+
+// 5. Client tự khai báo record, không dùng chung code với API
+record Assignment(int Id, string Title, string Description);
+record CreateSubmissionRequest(int AssignmentId, string StudentCode, string RepositoryUrl);
+record SubmissionResult(Guid Id, int AssignmentId, string StudentCode,
+    string Status, DateTimeOffset ReceivedAt);
