@@ -12,14 +12,20 @@ Nhật ký thực hành Bài 3. Mỗi bước gồm: ảnh kết quả, điều 
 ![build](anh/buoc1-build.jpg)
 
 - **Thấy:** 
+        Chạy `dotnet build -tl:off` trong thư mục PingSignalR: cả hai project Ping.Api và Ping.Client đều build xong, kết quả Build succeeded, 0 Warning(s), 0 Error(s).
+
 - **Giải thích:** 
+        Solution PingSignalR gồm 2 project được ghi danh vào PingSignalR.slnx: Ping.Api là máy chủ (template web), Ping.Client là máy khách (template console). Chỉ máy khách phải thêm gói Microsoft.AspNetCore.SignalR.Client 10.0.15, vì máy chủ dùng Microsoft.AspNetCore.App đã có sẵn SignalR, còn chương trình console thì chưa có.
 
 ### Bước 2: máy chủ thêm AddSignalR + MapHub, kiểm tra negotiate
 ![negotiate](anh/buoc2-negotiate.png)
 
 - **Thấy:** 
-- **Giải thích:** 
+        GET / trả về {"service":"PingApi","status":"running"}. POST /hubs/ping/negotiate trả về connectionId, connectionToken và availableTransports gồm 3 cơ chế: WebSockets, ServerSentEvents, LongPolling. GET /hubs/ping trả về 400 Bad Request kèm "Connection ID required".
 
+- **Giải thích:** 
+        AddSignalR() đăng ký dịch vụ SignalR (quản lý kết nối, nhóm, chuyển thông điệp thành JSON), MapHub<PingHub>("/hubs/ping") mở địa chỉ cho hub. Negotiate là bước bắt tay đầu tiên: máy chủ cấp mã kết nối và báo các cách truyền tải nó hỗ trợ để máy khách chọn. Gọi thẳng /hubs/ping như REST bị 400 vì chưa có ConnectionId từ bước bắt tay; hub không trả lời như endpoint REST, còn endpoint REST "/" vẫn chạy song song bình thường.
+        
 ### Bước 3–4: phương thức Echo và máy khách
 ![echo](anh/buoc4-echo.png)
 
