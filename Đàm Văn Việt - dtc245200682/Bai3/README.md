@@ -211,7 +211,7 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 
 ## Ảnh minh chứng
 
-Ba ảnh terminal dưới đây ghi lại lần chạy lúc khoảng 09:41 ngày 18/11/2026. Log trong `evidence/` thuộc lần kiểm thử tự động lúc 08:23–08:24 nên ID và thời điểm khác với ảnh terminal.
+Các ảnh terminal Ping dưới đây ghi lại các lần chạy từ khoảng 09:41 đến 09:55 ngày 18/11/2026. Log trong `evidence/` thuộc lần kiểm thử tự động lúc 08:23–08:24 nên ID và thời điểm khác với ảnh terminal.
 
 ### Bước 1: build hai solution
 
@@ -231,21 +231,29 @@ Lệnh negotiate trả về `connectionId` và ba transport: WebSockets, ServerS
 
 An nhận Echo riêng, sau đó nhận Group/Broadcast từ Bình. Cửa sổ An không có Echo của Bình vì Echo dùng `Clients.Caller`. ID kết nối của Bình có tiền tố `E1HLEW2R` xuất hiện ở cả hai cửa sổ.
 
-### Kết quả kiểm thử tự động
-
-Các ảnh dưới đây được tạo bằng cách mở log kiểm thử tự động trong trình duyệt rồi chụp lại. Chưa có ảnh chụp trực tiếp terminal cho các mục này; có thể đối chiếu kết quả với các file TXT trong `evidence/`.
-
-#### Bước 6: nối lại
+### Bước 6: nối lại
 
 ![Kết nối lại](anh/buoc6-noilai.png)
 
-#### Bước 7: ba lỗi Ping
+Sau khi dừng và khởi động lại API, client An hiện `Dang ket noi lai...`, sau đó `Da ket noi lai`. ConnectionId đổi từ tiền tố `9BVB2HnH` sang `SEF2WKfX`; client tham gia lại nhóm `lop-hoc-01` thành công.
+
+### Bước 7: ba lỗi Ping
 
 ![API tắt](anh/buoc7-loi1.png)
+
+Khi API đã dừng, client Offline báo kết nối bị từ chối tại `localhost:5200`.
+
 ![Sai tuyến](anh/buoc7-loi2.png)
+
+API đang chạy nhưng client dùng `/hub/ping` thay cho `/hubs/ping`, nên bước bắt tay trả `404 (Not Found)`.
+
 ![Sai sự kiện](anh/buoc7-loi3.png)
 
-#### EduSubmit và bài tập mở rộng
+Client SaiTen đăng ký `EchoRespone`, vẫn kết nối và nhận Group/Broadcast, nhưng không nhận dòng Echo trong lần chạy này. Sau 2 giây client tự đóng kết nối.
+
+### EduSubmit và bài tập mở rộng
+
+Các ảnh EduSubmit dưới đây được tạo bằng cách mở log kiểm thử tự động trong trình duyệt rồi chụp lại. Chưa có ảnh chụp trực tiếp terminal cho các mục này; có thể đối chiếu kết quả với các file TXT trong `evidence/`.
 
 ![REST](anh/edusubmit-requests.png)
 ![Client nhận graded](anh/edusubmit-SV001.png)
