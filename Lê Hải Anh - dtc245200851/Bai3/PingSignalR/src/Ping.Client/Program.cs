@@ -2,11 +2,15 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 var serverUrl = args.Length > 0 ? args[0].TrimEnd('/') : "http://localhost:5200";
 var name = args.Length > 1 ? args[1] : "Client";
+var experiment = args.Length > 2 ? args[2] : "normal";
+var hubPath = experiment == "wrong-hub" ? "/hub/ping" : "/hubs/ping";
+var echoEvent = experiment == "wrong-event" ? "EchoRespone" : "EchoResponse";
+Console.WriteLine($"Thi nghiem: {experiment}; hub: {hubPath}; su kien: {echoEvent}");
 await using var connection = new HubConnectionBuilder()
-    .WithUrl($"{serverUrl}/hubs/ping")
+    .WithUrl($"{serverUrl}{hubPath}")
     .WithAutomaticReconnect()
     .Build();
-connection.On<string>("EchoResponse", m => Console.WriteLine($"[Echo] {m}"));
+connection.On<string>(echoEvent, m => Console.WriteLine($"[Echo] {m}"));
 connection.On<string>("BroadcastMessage", m => Console.WriteLine($"[Broadcast] {m}"));
 connection.On<string>("GroupMessage", m => Console.WriteLine($"[Group] {m}"));
 connection.On<string>("SystemMessage", m => Console.WriteLine($"[System] {m}"));
