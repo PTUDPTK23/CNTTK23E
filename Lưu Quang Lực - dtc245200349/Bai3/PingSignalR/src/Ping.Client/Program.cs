@@ -8,6 +8,10 @@ await using var connection = new HubConnectionBuilder()
 connection.On<string>("EchoResponse", message => Console.WriteLine($"[Echo] {message}"));
 connection.On<string>("BroadcastMessage", message => Console.WriteLine($"[Broadcast] {message}"));
 connection.On<string>("GroupMessage", message => Console.WriteLine($"[Group] {message}"));
+connection.On<string>("SystemMessage", message => Console.WriteLine($"[System] {message}"));
+connection.Reconnecting += _ => { Console.WriteLine("[Lifecycle] Dang ket noi lai..."); return Task.CompletedTask; };
+connection.Reconnected += id => { Console.WriteLine($"[Lifecycle] Da ket noi lai: {id}"); return Task.CompletedTask; };
+connection.Closed += _ => { Console.WriteLine("[Lifecycle] Ket noi da dong."); return Task.CompletedTask; };
 await connection.StartAsync();
 Console.WriteLine($"{name} da ket noi den PingApi. ConnectionId: {connection.ConnectionId}");
 await connection.InvokeAsync("Echo", $"Xin chao SignalR tu {name}");
