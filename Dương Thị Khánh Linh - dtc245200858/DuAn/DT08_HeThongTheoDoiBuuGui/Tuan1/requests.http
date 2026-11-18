@@ -1,0 +1,44 @@
+
+### 1. Kiểm tra API
+GET http://localhost:5100/
+
+### 2. Xem danh sách bưu gửi
+GET http://localhost:5100/api/parcels
+
+### 3. Tra cứu bưu gửi BG001
+GET http://localhost:5100/api/parcels/BG001
+
+### 4. Tra cứu mã không tồn tại
+GET http://localhost:5100/api/parcels/BG999
+
+### 5. Tạo bưu gửi mới
+POST http://localhost:5100/api/parcels
+Content-Type: application/json
+
+{
+  "sender": "Nguyen Van C",
+  "receiver": "Le Thi D",
+  "address": "Ha Noi",
+  "description": "Sach va tai lieu"
+}
+
+### 6. Tạo bưu gửi thiếu thông tin
+POST http://localhost:5100/api/parcels
+Content-Type: application/json
+
+{
+  "sender": "",
+  "receiver": "Le Thi D",
+  "address": "Ha Noi",
+  "description": "Tai lieu"
+}
+
+### 7. Cập nhật trạng thái bưu gửi
+PUT http://localhost:5100/api/parcels/BG001/status
+Content-Type: application/json
+
+{
+  "status": "InTransit"
+}
+### 8. Kiểm tra lại trạng thái BG001
+GET http://localhost:5100/api/parcels/BG001
