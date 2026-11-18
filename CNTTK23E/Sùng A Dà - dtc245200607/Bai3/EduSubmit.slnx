@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="EduSubmit.Api/EduSubmit.Api.csproj" />
+  <Project Path="EduSubmit.Client/EduSubmit.Client.csproj" />
+</Solution>
