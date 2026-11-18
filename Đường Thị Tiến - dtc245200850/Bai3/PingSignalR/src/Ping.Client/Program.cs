@@ -10,13 +10,27 @@ await using var connection = new HubConnectionBuilder()
     .WithAutomaticReconnect()
     .Build();
 
-// ② Đăng ký hàm xử lý cho từng TÊN thông điệp
+// ② Đăng ký hàm xử lý cho từng TÊN thông điệp và vòng đời kết nối
 connection.On<string>("EchoResponse",
     msg => Console.WriteLine($"[Echo] {msg}"));
 connection.On<string>("BroadcastMessage",
     m => Console.WriteLine($"[Broadcast] {m}"));
 connection.On<string>("GroupMessage",
     m => Console.WriteLine($"[Group] {m}"));
+connection.On<string>("SystemMessage",
+    m => Console.WriteLine($"[System] {m}"));
+
+connection.Reconnecting += _ => {
+    Console.WriteLine("[Lifecycle] Dang ket noi lai...");
+    return Task.CompletedTask; };
+
+connection.Reconnected += newId => {
+    Console.WriteLine($"[Lifecycle] Da ket noi lai: {newId?[..8]}");
+    return Task.CompletedTask; };
+
+connection.Closed += _ => {
+    Console.WriteLine("[Lifecycle] Ket noi da dong.");
+    return Task.CompletedTask; };
 
 // ③ Mở kết nối: negotiate + chọn WebSocket
 await connection.StartAsync();
