@@ -1,3 +1,5 @@
+using Submission.RealtimeApi;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // 👇 ĐĂNG KÝ DỊCH VỤ SIGNALR
@@ -14,8 +16,12 @@ app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) => {
         if (submission is null)
             return Results.NotFound(new ApiError("SUBMISSION_NOT_FOUND", "Không tìm thấy submission"));
         return Results.Ok(submission);
+        
     }
 });
+
+// Thêm dòng này vào Program.cs (phần khai báo các endpoint)
+app.MapGet("/api/submissions", () => Results.Ok(submissions));
 
 app.MapPost("/api/submissions", (SubmissionDto dto) => {
     lock (submissionsLock) {
