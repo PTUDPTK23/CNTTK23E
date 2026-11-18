@@ -1,0 +1,42 @@
+@host = http://localhost:5000
+
+### 1. GET trang chủ / danh sách bài tập
+GET {{host}}/api/assignments
+200
+
+### 2. Tạo lượt nộp bài hợp lệ (POST) -> 201 Created
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 3. Đọc lại trạng thái lượt nộp vừa tạo (thay id vào đây)
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 4. POST thiếu dữ liệu -> 400 Bad Request
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 5. POST sai mã bài tập -> 404 Not Found
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 6. Bắt tay SignalR negotiate -> 200 + connectionId
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 7. Sai đường dẫn hub -> 404
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
