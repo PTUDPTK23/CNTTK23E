@@ -1,4 +1,4 @@
-PS D:\PTUD\Bai3> dotnet run --project PingSignalR/src/Ping.Client (On EchoRespone)
+PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll (On EchoRespone)
 An da ket noi den PingApi. ConnectionId: L2Vkr4HjWEAU-x_c5IySyA
 [System] Client L2Vkr4Hj da ket noi.
 [Group] L2Vkr4Hj da tham gia nhom lop-hoc-01

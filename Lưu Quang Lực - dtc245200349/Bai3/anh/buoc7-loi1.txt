@@ -1,4 +1,4 @@
-PS D:\PTUD\Bai3> dotnet run --project PingSignalR/src/Ping.Client (API dang tat)
+PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll (API dang tat)
 Unhandled exception. System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:5200)
  ---> System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
    at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)

@@ -1,4 +1,4 @@
-PS D:\PTUD\Bai3> dotnet run --project PingSignalR/src/Ping.Client (WithUrl /hub/ping)
+PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll (WithUrl /hub/ping)
 Unhandled exception. System.Net.Http.HttpRequestException: Response status code does not indicate success: 404 (Not Found).
    at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at Microsoft.AspNetCore.Http.Connections.Client.HttpConnection.NegotiateAsync(Uri url, HttpClient httpClient, ILogger logger, CancellationToken cancellationToken)

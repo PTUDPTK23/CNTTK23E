@@ -1,4 +1,4 @@
-PS D:\PTUD\Bai3> dotnet run --project PingSignalR/src/Ping.Client -- http://localhost:5200 An
+PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll http://localhost:5200 An
 MAY CHU
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:5200

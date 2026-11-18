@@ -1,4 +1,4 @@
-PS D:\PTUD\Bai3> dotnet run --project PingSignalR/src/Ping.Client -- http://localhost:5200 An (tat va chay lai API)
+PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll http://localhost:5200 An (tat va chay lai API)
 An da ket noi den PingApi. ConnectionId: ynLfKCgIxzwa0ck_Wl0ZUw
 [System] Client ynLfKCgI da ket noi.
 [Echo] Echo: Xin chao SignalR tu An
