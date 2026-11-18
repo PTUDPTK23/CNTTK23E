@@ -293,6 +293,10 @@ Ca 8 bắt tay tại `/hubs/submissions/negotiate`, nhận `200 OK`, `connection
 
 Ca 9 dùng `/hub/submissions/negotiate`, nhận `404 Not Found`, body rỗng vì không khớp route. Các ảnh ca 4, 5, 6, 8, 9 chụp trực tiếp trong VS Code lúc khoảng 10:05–10:06 ngày 18/11/2026.
 
+![Hai client SV001 và SV002 nhận đúng ID lượt nộp](anh/edusubmit-hai-client.png)
+
+SV001 nhận `processing` và `graded` cho ID `faf206fc-a842-4fcc-80b3-84a1f3b1da00`; SV002 nhận hai trạng thái cho ID `bb904d4f-a360-43d9-8f1b-77682cec0b81`. Mỗi client đọc lại REST được `graded`. Trong ảnh này SV001 hoàn tất lúc 03:12:16.261 UTC, SV002 bắt đầu nhận `processing` lúc 03:12:23.215 UTC, nên hai lượt chưa chạy chồng thời gian. Ảnh minh họa việc nhận đúng ID ở hai client; kiểm tra hai client đồng thời được lưu riêng trong log kiểm thử tự động.
+
 Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
 
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
