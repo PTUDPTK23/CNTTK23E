@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Shared/Shared.csproj" />
+    <Project Path="src/Submission.Api/Submission.Api.csproj" />
+    <Project Path="src/Grading.Worker/Grading.Worker.csproj" />
+    <Project Path="src/Notification.Service/Notification.Service.csproj" />
+    <Project Path="src/Student.Client/Student.Client.csproj" />
+  </Folder>
+</Solution>
