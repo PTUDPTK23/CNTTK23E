@@ -9,6 +9,7 @@ Email: dtc245200682@ictu.edu.vn
 
 - Bước Ping 1: tạo solution, hai project .NET 10; thêm SignalR.Client 10.0.15 đúng phiên bản trang 25.
 - NuGet bị chặn mạng trong sandbox; đã xin chạy tải gói ngoài sandbox.
+- Ping B2–4: build 0 lỗi, negotiate có đủ 3 transport; client An nhận Echo của chính mình. Đã chạy thực tế trước khi thêm gửi nhóm.
 
 ## Dự đoán trước 5 thí nghiệm EduSubmit (trang 58)
 
