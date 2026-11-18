@@ -114,3 +114,16 @@ Sau khi kết nối lại, ConnectionId thay đổi. Máy khách cần tham gia 
 **Kết quả:** Khởi tạo thành công solution RealtimeSubmissionSystem và hai project Submission.RealtimeApi, Submission.RealtimeClient. Build thành công, không có lỗi.
 
 **Giải thích:** Submission.RealtimeApi là máy chủ kết hợp REST API và SignalR. Submission.RealtimeClient là máy khách sử dụng HttpClient và SignalR để nộp bài, đọc dữ liệu và nhận thông báo theo thời gian thực.
+
+### Bước 2: Xây dựng REST API
+
+![Kết quả REST API](anh/edusubmit-buoc2-rest.png)
+
+**Kết quả:** Máy chủ hoạt động tại cổng 5000. Lấy danh sách bài tập thành công. Yêu cầu POST trả về HTTP 201 Created, Location, trạng thái received và trường updatedAt.
+
+**Giải thích:**
+
+- REST API hỗ trợ tạo và đọc thông tin lượt nộp.
+- UpdatedAt lưu thời điểm cập nhật trạng thái gần nhất.
+- lock bảo vệ dữ liệu khi nhiều luồng cùng truy cập.
+- REST là nguồn cung cấp trạng thái chính xác của lượt nộp.
