@@ -104,3 +104,13 @@ Sau khi kết nối lại, ConnectionId thay đổi. Máy khách cần tham gia 
 **Giải thích:** Tên thông điệp đăng ký ở máy khách không khớp với tên thông điệp được gửi từ máy chủ.
 
 **Kết luận:** Sau khi thực hiện ba thí nghiệm, mã nguồn được khôi phục về trạng thái đúng, build thành công và máy khách nhận lại được thông điệp Echo.
+
+## Phần 2: EduSubmit realtime
+
+### Bước 1: Khởi tạo solution và hai project
+
+![Kết quả build EduSubmit](anh/edusubmit-buoc1-build.png)
+
+**Kết quả:** Khởi tạo thành công solution RealtimeSubmissionSystem và hai project Submission.RealtimeApi, Submission.RealtimeClient. Build thành công, không có lỗi.
+
+**Giải thích:** Submission.RealtimeApi là máy chủ kết hợp REST API và SignalR. Submission.RealtimeClient là máy khách sử dụng HttpClient và SignalR để nộp bài, đọc dữ liệu và nhận thông báo theo thời gian thực.
