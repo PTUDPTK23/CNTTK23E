@@ -1,0 +1,22 @@
+@url = http://localhost:8080
+### 1. Danh sach (200)
+GET {{url}}/api/parcels
+### 2. Tra cuu (200)
+GET {{url}}/api/parcels/VN20260000852
+### 3. Khong ton tai (404)
+GET {{url}}/api/parcels/VN99999999999
+### 4. Tao moi (201)
+POST {{url}}/api/parcels
+Content-Type: application/json
+
+{"tracking_code":"VN20260001001","sender_name":"Nguyen Anh Son","receiver_name":"Le Thi C","origin_hub":"HUB-TN01","dest_hub":"HUB-DN01"}
+### 5. Loi thieu du lieu (400)
+POST {{url}}/api/parcels
+Content-Type: application/json
+
+{"sender_name":"Nguyen Anh Son"}
+### 6. Cap nhat hanh trinh (201)
+POST {{url}}/api/parcels/VN20260001001/events
+Content-Type: application/json
+
+{"hub_code":"HUB-HN01","status":"IN_TRANSIT","note":"Dang trung chuyen"}

@@ -1,0 +1,119 @@
+name: clinicqueue
+x-backend: &backend
+  restart: unless-stopped
+  networks: [clinicqueue]
+services:
+  sqlserver:
+    <<: *backend
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${SQL_PASSWORD:?Set SQL_PASSWORD in .env}
+    ports: ["127.0.0.1:${SQL_PORT:-14333}:1433"]
+    volumes: [sql-data:/var/opt/mssql]
+    healthcheck:
+      test: [CMD-SHELL, '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" -b -o /dev/null']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+  rabbitmq:
+    <<: *backend
+    hostname: clinicqueue-rabbitmq
+    image: rabbitmq:4.2-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-clinicqueue}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:-5673}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15673}:15672"
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
+      - ./docker/rabbitmq-init.sh:/etc/rabbitmq/clinicqueue-init.sh:ro
+      - ./docker/rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
+    post_start:
+      - command: ["/bin/sh", "/etc/rabbitmq/clinicqueue-init.sh"]
+    healthcheck:
+      test: [CMD-SHELL, "rabbitmq-diagnostics -q ping && test -f /tmp/clinicqueue-topology.ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+  api-migrate:
+    build: {context: ., args: {SERVICE: Api}}
+    image: clinicqueue-api:local
+    command: ["--migrate"]
+    environment: &database
+      ConnectionStrings__ClinicQueue: "Server=sqlserver;Database=ClinicQueue;User Id=sa;Password=${SQL_PASSWORD:?Set SQL_PASSWORD};Encrypt=True;TrustServerCertificate=True"
+    networks: [clinicqueue]
+    depends_on:
+      sqlserver: {condition: service_healthy}
+    restart: "no"
+  worker-migrate:
+    build: {context: ., args: {SERVICE: Worker}}
+    image: clinicqueue-worker:local
+    command: ["--migrate"]
+    environment: *database
+    networks: [clinicqueue]
+    depends_on:
+      api-migrate: {condition: service_completed_successfully}
+    restart: "no"
+  api:
+    <<: *backend
+    build: {context: ., args: {SERVICE: Api}}
+    image: clinicqueue-api:local
+    environment: *database
+    ports: ["127.0.0.1:${API_PORT:-5000}:8080"]
+    depends_on:
+      worker-migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost:8080/health]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  worker:
+    <<: *backend
+    build: {context: ., args: {SERVICE: Worker}}
+    image: clinicqueue-worker:local
+    environment:
+      <<: *database
+      Health__HeartbeatPath: /tmp/clinicqueue-worker.healthy
+    depends_on:
+      worker-migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
+    healthcheck:
+      test: [CMD-SHELL, 'test -n "$$(find /tmp -maxdepth 1 -name clinicqueue-worker.healthy -mmin -1 -print)"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  notification:
+    <<: *backend
+    build: {context: ., args: {SERVICE: Notification}}
+    image: clinicqueue-notification:local
+    ports: ["127.0.0.1:${NOTIFICATION_PORT:-5001}:8080"]
+    depends_on:
+      rabbitmq: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost:8080/health]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  web:
+    <<: *backend
+    build: ./src/clinicqueue-web
+    ports: ["127.0.0.1:${WEB_PORT:-8088}:80"]
+    depends_on:
+      api: {condition: service_healthy}
+      notification: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1/health]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+networks:
+  clinicqueue:
+volumes:
+  sql-data:
+  rabbit-data:

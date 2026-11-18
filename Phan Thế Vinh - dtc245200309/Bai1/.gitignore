@@ -1,0 +1,28 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## User secrets and sensitive data
+secrets.json
+*.local.json
+*.env
+*.env.*
+*.pfx
+*.key
+*.pem
+
+## OS and temporary files
+.DS_Store
+Thumbs.db
+[Tt]mp/
+[Tt]emp/
