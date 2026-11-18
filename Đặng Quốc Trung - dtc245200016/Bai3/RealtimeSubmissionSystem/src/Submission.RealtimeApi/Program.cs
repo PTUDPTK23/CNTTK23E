@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Dang ky dich vu SignalR
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -31,7 +30,9 @@ app.MapGet("/api/assignments", () =>
 
 // Tao luot nop bai
 app.MapPost("/api/assignments/{assignmentId:int}/submissions",
-    (int assignmentId, CreateSubmissionRequest request) =>
+    (int assignmentId,
+     CreateSubmissionRequest request,
+     IHubContext<SubmissionHub> hubContext) =>
 {
     var assignment = assignments.FirstOrDefault(
         a => a.Id == assignmentId);
@@ -75,6 +76,13 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
         submissions.Add(submission);
     }
 
+    // Buoc 4: Khoi dong cham bai nen
+    _ = SimulateGradingAsync(
+        submission.Id,
+        submissions,
+        submissionsLock,
+        hubContext);
+
     return Results.Created(
         $"/api/submissions/{submission.Id}", submission);
 });
@@ -96,10 +104,72 @@ app.MapGet("/api/submissions/{submissionId:guid}",
     }
 });
 
-// Buoc 3: Anh xa Hub SignalR
 app.MapHub<SubmissionHub>("/hubs/submissions");
 
 app.Run();
+
+// Buoc 4: Mo phong qua trinh cham bai
+static async Task SimulateGradingAsync(
+    Guid id,
+    List<SubmissionDto> submissions,
+    object submissionsLock,
+    IHubContext<SubmissionHub> hubContext)
+{
+    await Task.Delay(1000);
+
+    await UpdateStatusAsync(
+        id, "processing",
+        submissions, submissionsLock, hubContext);
+
+    await Task.Delay(2000);
+
+    await UpdateStatusAsync(
+        id, "graded",
+        submissions, submissionsLock, hubContext);
+}
+
+// Cap nhat trang thai va gui thong bao SignalR
+static async Task UpdateStatusAsync(
+    Guid id,
+    string status,
+    List<SubmissionDto> submissions,
+    object submissionsLock,
+    IHubContext<SubmissionHub> hubContext)
+{
+    SubmissionDto? updated = null;
+
+    lock (submissionsLock)
+    {
+        int index = submissions.FindIndex(s => s.Id == id);
+
+        if (index >= 0)
+        {
+            updated = submissions[index] with
+            {
+                Status = status,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+
+            submissions[index] = updated;
+        }
+    }
+
+    if (updated is null)
+    {
+        return;
+    }
+
+    var message = new SubmissionStatusMessage(
+        updated.Id,
+        updated.Status,
+        updated.UpdatedAt);
+
+    await hubContext.Clients
+        .Group(SubmissionGroups.ForSubmission(id))
+        .SendAsync("SubmissionStatusChanged", message);
+
+    Console.WriteLine($"[Push] {id} -> {status}");
+}
 
 // Cac DTO
 record AssignmentDto(
@@ -124,7 +194,13 @@ record ApiError(
     string Code,
     string Message);
 
-// Buoc 3: Xay dung SubmissionHub
+// Du lieu thong bao SignalR
+record SubmissionStatusMessage(
+    Guid Id,
+    string Status,
+    DateTimeOffset UpdatedAt);
+
+// SubmissionHub
 sealed class SubmissionHub : Hub
 {
     public Task WatchSubmission(string submissionId)
@@ -137,7 +213,7 @@ sealed class SubmissionHub : Hub
     }
 }
 
-// Buoc 3: Tao nhom rieng cho tung luot nop
+// Tao nhom rieng cho tung luot nop
 static class SubmissionGroups
 {
     public static string ForSubmission(Guid id)

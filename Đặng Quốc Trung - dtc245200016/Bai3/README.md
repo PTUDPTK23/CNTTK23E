@@ -142,3 +142,21 @@ Sau khi kết nối lại, ConnectionId thay đổi. Máy khách cần tham gia 
 - SubmissionGroups: Tạo tên nhóm riêng theo mã lượt nộp.
 
 Việc sử dụng Group giúp gửi thông báo đến đúng nhóm máy khách, hạn chế lộ dữ liệu và tiết kiệm băng thông.
+
+### Bước 4: Mô phỏng chấm bài tự động
+
+![Kết quả chấm bài](anh/edusubmit-buoc4-grading.png)
+
+![Thông báo từ máy chủ](anh/edusubmit-buoc4-push.png)
+
+**Kết quả:** Máy chủ tiếp nhận lượt nộp và trả về HTTP 201 Created. Trạng thái tự động thay đổi từ received sang processing và graded. Terminal máy chủ hiển thị thông báo Push khi trạng thái thay đổi.
+
+**Giải thích:**
+
+- IHubContext: Cho phép gửi thông báo SignalR từ bên ngoài Hub.
+- SimulateGradingAsync: Mô phỏng quá trình chấm bài chạy nền.
+- UpdateStatusAsync: Cập nhật trạng thái và thời điểm thay đổi.
+- Task.Delay: Mô phỏng thời gian chấm bài mà không chặn luồng.
+- SubmissionStatusChanged: Gửi thông báo đến đúng nhóm theo dõi lượt nộp.
+
+Máy chủ cập nhật dữ liệu trước rồi mới gửi thông báo SignalR. REST vẫn là nguồn cung cấp trạng thái chính xác của lượt nộp.
