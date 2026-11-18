@@ -56,7 +56,10 @@ async Task SimulateGradingAsync(SubmissionDto submission, IHubContext<Submission
     await Task.Delay(TimeSpan.FromSeconds(1));
     await UpdateStatusAsync(submission.Id, "processing", hub);
     await Task.Delay(TimeSpan.FromSeconds(2));
-    await UpdateStatusAsync(submission.Id, "graded", hub);
+    var finalStatus = submission.RepositoryUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+        ? "graded"
+        : "failed";
+    await UpdateStatusAsync(submission.Id, finalStatus, hub);
 }
 
 async Task UpdateStatusAsync(Guid id, string status, IHubContext<SubmissionHub> hub)
