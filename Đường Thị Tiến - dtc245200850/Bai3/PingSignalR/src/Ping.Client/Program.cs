@@ -9,7 +9,10 @@ await using var connection = new HubConnectionBuilder()
 .Build();
 // ② Đăng ký hàm xử lý cho từng TÊN thông điệp
 connection.On<string>("EchoResponse",
-msg => Console.WriteLine($"[Echo] {msg}"));
+    msg => Console.WriteLine($"[Echo] {msg}"));
 // ③ Mở kết nối: negotiate + chọn WebSocket
 await connection.StartAsync();
 Console.WriteLine($"{name} da ket noi den PingApi.");
+await connection.InvokeAsync("Echo", $"Xin chao SignalR tu {name}");
+Console.WriteLine("Dang cho thong diep... Nhan Enter de thoat.");
+Console.ReadLine();
