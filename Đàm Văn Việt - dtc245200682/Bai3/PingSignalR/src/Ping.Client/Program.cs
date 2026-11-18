@@ -8,6 +8,27 @@ await using var connection = new HubConnectionBuilder()
 connection.On<string>("EchoResponse", msg => Console.WriteLine($"[Echo] {msg}"));
 connection.On<string>("BroadcastMessage", msg => Console.WriteLine($"[Broadcast] {msg}"));
 connection.On<string>("GroupMessage", msg => Console.WriteLine($"[Group] {msg}"));
+connection.On<string>("SystemMessage", msg => Console.WriteLine($"[System] {msg}"));
+connection.Reconnecting += _ =>
+{
+    Console.WriteLine("[Lifecycle] Dang ket noi lai...");
+    return Task.CompletedTask;
+};
+connection.Reconnected += async id =>
+{
+    Console.WriteLine($"[Lifecycle] Da ket noi lai: {id}");
+    try
+    {
+        await connection.InvokeAsync("JoinGroup", "lop-hoc-01");
+        Console.WriteLine("[Lifecycle] Da vao lai nhom lop-hoc-01.");
+    }
+    catch (Exception ex) { Console.WriteLine($"[Lifecycle] Khong vao lai duoc nhom: {ex.Message}"); }
+};
+connection.Closed += _ =>
+{
+    Console.WriteLine("[Lifecycle] Ket noi da dong.");
+    return Task.CompletedTask;
+};
 try
 {
     await connection.StartAsync();
