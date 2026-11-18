@@ -217,7 +217,7 @@ Ba ảnh đầu là **ảnh terminal do sinh viên cung cấp**, chụp ngày 18
 
 ![Build hai solution và khởi động Ping API](anh/build-hai-solution.png)
 
-Ảnh gốc `Screenshot 2026-11-18 094138.png`: thấy lệnh build hai solution, cả bốn project có kết quả `succeeded`, Ping API lắng nghe cổng 5200 và nhật ký hai kết nối. Phần tổng kết build bị xen dòng lệnh tiếp theo, chưa hiển thị riêng dòng `0 Error(s)`; nên bổ sung hai ảnh build tách riêng để đối chiếu đúng mẫu slide.
+Ảnh gốc `Screenshot 2026-11-18 094138.png`: thấy lệnh build hai solution, cả bốn project có kết quả `succeeded`, Ping API lắng nghe cổng 5200 và nhật ký hai kết nối. Dùng ảnh này làm minh chứng build và khởi động server. Phần tổng kết bị xen dòng lệnh tiếp theo, không hiển thị riêng dòng `0 Error(s)`; kết quả build đầy đủ của lần kiểm thử tự động được lưu riêng trong `evidence/build-PingSignalR.txt` và `evidence/build-RealtimeSubmissionSystem.txt`.
 
 ### Bước 2 và 5: negotiate và máy khách Bình
 
