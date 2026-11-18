@@ -9,7 +9,9 @@
 - Thư mục: `Đàm Văn Việt - dtc245200682/DuAn/DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan1/`.
 - Nhánh: `duan-tuan1-dtc245200682`.
 - Tiêu đề PR: **DuAn-Tuan1-dtc245200682-Đàm Văn Việt**.
-- Chưa có liên kết PR tại thời điểm chuẩn bị; sẽ cập nhật sau khi GitHub xác nhận.
+- PR: **[#112](https://github.com/PTUDPTK23/CNTTK23E/pull/112)**.
+- Tác giả PR: **Viet0810**. Nhánh nguồn `Viet0810:duan-tuan1-dtc245200682`; nhánh đích `PTUDPTK23/CNTTK23E:main`.
+- Đã push toàn bộ bản nộp và tạo PR; việc gộp/chấm do giảng viên quyết định.
 - Phạm vi nộp: toàn bộ bản dự án hiện có. Các thay đổi tiếp theo sẽ được ghi nhận bằng commit mới; mỗi tuần nộp theo thư mục và PR tương ứng theo hướng dẫn lớp.
 
 ## Bản nộp và kiểm chứng
