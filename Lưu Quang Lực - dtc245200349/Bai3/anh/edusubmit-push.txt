@@ -1,0 +1,5 @@
+PS D:\PTUD\Bai3> dotnet RealtimeSubmissionSystem/src/Submission.RealtimeApi/bin/Debug/net10.0/Submission.RealtimeApi.dll --urls http://localhost:5000
+      Now listening on: http://localhost:5000
+[Hub] rPUH1PZb theo doi submission:6be8623c-e81c-4059-9ecc-cb8fc30e8d48
+[Push] submission:6be8623c-e81c-4059-9ecc-cb8fc30e8d48 -> processing
+[Push] submission:6be8623c-e81c-4059-9ecc-cb8fc30e8d48 -> graded
