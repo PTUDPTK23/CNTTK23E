@@ -1,0 +1,13 @@
+PS D:\PTUD\Bai3> curl.exe -i -X POST "http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1"
+curl.exe -i -X GET http://localhost:5200/
+HTTP 200
+{"service":"PingApi","status":"running"}
+
+curl.exe -i -X POST http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1
+HTTP 200
+{"negotiateVersion":1,"connectionId":"l9wLWYGLjl_5OwfPOltR0Q","connectionToken":"RM6mbD0DNA20sCytP8NqmQ","availableTransports":[{"transport":"WebSockets","transferFormats":["Text","Binary"]},{"transport":"ServerSentEvents","transferFormats":["Text"]},{"transport":"LongPolling","transferFormats":["Text","Binary"]}]}
+
+curl.exe -i -X GET http://localhost:5200/hubs/ping
+HTTP 400
+Connection ID required
+
