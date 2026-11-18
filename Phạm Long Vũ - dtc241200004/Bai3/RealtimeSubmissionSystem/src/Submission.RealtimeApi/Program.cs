@@ -31,8 +31,8 @@ app.MapGet("/api/assignments/{assignmentId:int}", (int assignmentId) =>
 });
 
 app.MapPost("/api/assignments/{assignmentId:int}/submissions",
-    (int assignmentId, CreateSubmissionRequest request) =>
-{
+    (int assignmentId, CreateSubmissionRequest request,IHubContext<SubmissionHub> hubContext) =>
+{   
     var assignment = assignments.FirstOrDefault(i => i.Id == assignmentId);
     if (assignment is null)
         return Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", "Khong tim thay bai tap."));
@@ -57,7 +57,8 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions",
     {
         submissions.Add(submission);
     }
-
+    _ = SimulateGradingAsync(submission.Id, submissions,
+submissionsLock, hubContext);
     return Results.Created($"/api/submissions/{submission.Id}", submission);
 });
 
@@ -76,6 +77,39 @@ app.MapHub<SubmissionHub>("/hubs/submissions");
 
 app.Run();
 
+static async Task SimulateGradingAsync(Guid id, List<SubmissionDto> list,
+    object gate, IHubContext<SubmissionHub> hub)
+{
+    await Task.Delay(TimeSpan.FromSeconds(1));
+    await UpdateStatusAsync(id, "processing", list, gate, hub);
+    await Task.Delay(TimeSpan.FromSeconds(2));
+    await UpdateStatusAsync(id, "graded", list, gate, hub);
+}
+
+static async Task UpdateStatusAsync(Guid id, string status,
+    List<SubmissionDto> list, object gate, IHubContext<SubmissionHub> hub)
+{
+    SubmissionDto? updated = null;
+    lock (gate)
+    {
+        var i = list.FindIndex(s => s.Id == id);
+        if (i >= 0)
+        {
+            updated = list[i] with
+            {
+                Status = status,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            list[i] = updated;
+        }
+    }
+    if (updated is null) return;
+
+    var msg = new SubmissionStatusMessage(updated.Id, updated.Status, updated.UpdatedAt);
+    Console.WriteLine($"[Push] {SubmissionGroups.ForSubmission(id)} -> {status}");
+    await hub.Clients.Group(SubmissionGroups.ForSubmission(id))
+        .SendAsync("SubmissionStatusChanged", msg);
+}
 record AssignmentDto(int Id, string Title, string Description, bool IsOpen);
 record CreateSubmissionRequest(string StudentCode, string RepositoryUrl);
 record SubmissionDto(Guid Id, int AssignmentId, string StudentCode, string RepositoryUrl, string Status, DateTimeOffset ReceivedAt, DateTimeOffset UpdatedAt);
@@ -96,3 +130,5 @@ static class SubmissionGroups
     public static string ForSubmission(Guid id) => ForSubmission(id.ToString());
     public static string ForSubmission(string id) => $"submission:{id}";
 }
+record SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt);
+
