@@ -105,4 +105,79 @@ Build succeeded in 3.0s
 
 **Kết quả:** Client 1 nhận được thông báo `Echo: Xin chao SignalR`. Client 2 không nhận thông báo này vì Server sử dụng `Clients.Caller` để phản hồi riêng cho Client gửi yêu cầu.
 
-**Minh chứng:** ![alt text](buoc4-echo.png)
+**Ảnh minh chứng:**
+
+![Kiểm thử chức năng Echo](anh/buoc4-echo.png)
+### Bước 5: Kiểm thử chức năng gửi tin nhắn nhóm
+
+**Mục tiêu:** Kiểm tra khả năng cho Client tham gia nhóm và gửi tin nhắn đến các Client trong cùng nhóm.
+
+**Thực hiện:**
+1. Khởi động API và hai Client.
+2. Tại Client 1, nhập `/join NhomA`.
+3. Tại Client 2, nhập `/join NhomA`.
+4. Tại Client 1, nhập `/group NhomA Xin chao nhom`.
+5. Quan sát kết quả tại hai Client.
+
+**Kết quả:** Hai Client cùng tham gia nhóm `NhomA` đều nhận được tin nhắn gửi đến nhóm.
+
+**Ảnh minh chứng:**
+
+![Kiểm thử gửi tin nhắn nhóm](anh/buoc5-nhom.png)
+
+### Bước 6: Kiểm thử khả năng kết nối lại
+
+**Mục tiêu:** Kiểm tra khả năng tự động kết nối lại của Client khi máy chủ SignalR khởi động lại.
+
+**Thực hiện:**
+1. Khởi động API và hai Client.
+2. Dừng API để tạo tình huống mất kết nối.
+3. Khởi động lại API.
+4. Quan sát thông báo trạng thái kết nối trên Client.
+
+**Kết quả:** Client phát hiện mất kết nối và thực hiện kết nối lại khi máy chủ hoạt động trở lại.
+
+**Ảnh minh chứng:**
+
+![Kiểm thử kết nối lại](anh/buoc6-noilai.png)
+
+### Bước 7: Kiểm thử các trường hợp lỗi
+
+**Mục tiêu:** Kiểm tra cách ứng dụng xử lý các tình huống không hợp lệ hoặc mất kết nối.
+
+**Các trường hợp kiểm thử:**
+
+| Trường hợp | Kết quả mong đợi |
+|---|---|
+| API chưa chạy, khởi động Client | Client thông báo không thể kết nối |
+| Nhập lệnh không hợp lệ | Client thông báo lệnh không hợp lệ |
+| API dừng khi Client đang chạy | Client thông báo trạng thái mất kết nối |
+
+**Kết quả:** Ứng dụng hiển thị thông báo phù hợp với các tình huống kiểm thử.
+
+**Ảnh minh chứng:**
+
+- **API chưa chạy:**
+
+![API chưa chạy](anh/buoc7-loi1.png)
+
+- **Lệnh không hợp lệ:**
+
+![Lệnh không hợp lệ](anh/buoc7-loi2.png)
+
+- **Mất kết nối khi đang sử dụng:**
+
+![Mất kết nối khi đang sử dụng](anh/buoc7-loi3.png)
+## 3. Kết luận
+
+Sau khi hoàn thành bài tập, em đã xây dựng và kiểm thử thành công ứng dụng thời gian thực sử dụng SignalR với hai thành phần `Ping.Api` và `Ping.Client`.
+
+Các chức năng đã thực hiện:
+- Thiết lập kết nối giữa Client và Server thông qua SignalR Hub.
+- Kiểm tra quá trình Negotiation.
+- Xây dựng chức năng Echo, phản hồi riêng cho Client gửi yêu cầu.
+- Gửi tin nhắn đến các Client trong cùng một nhóm.
+- Hỗ trợ tự động kết nối lại khi mất kết nối.
+- Xử lý và kiểm thử các trường hợp lỗi.
+
+**Kết quả:** Hai project biên dịch thành công và các chức năng chính đã được kiểm thử. Qua bài tập, em hiểu rõ hơn về giao tiếp thời gian thực giữa Client và Server bằng SignalR trong .NET.
