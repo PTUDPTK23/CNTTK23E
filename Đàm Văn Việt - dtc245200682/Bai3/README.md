@@ -211,31 +211,41 @@ dotnet run --project RealtimeSubmissionSystem/src/Submission.RealtimeClient -- h
 
 ## Ảnh minh chứng
 
-Các PNG dưới đây là **ảnh chụp trình duyệt hiển thị log đã lưu từ tiến trình thật**, tạo bằng Edge headless qua `python capture-evidence.py`. Có lệnh, thư mục và kết quả; không dùng output mẫu. Chúng không phải ảnh chụp cửa sổ PowerShell bằng Win+Shift+S như thao tác thủ công trên slide. Log TXT gốc được nộp kèm để đối chiếu.
+Ba ảnh đầu là **ảnh terminal do sinh viên cung cấp**, chụp ngày 18/11/2026 lúc khoảng 09:41. Giữ nguyên ảnh gốc, không cắt ghép hay thay nội dung kết quả. Các ảnh xem log tương ứng trước đây đã được thay khỏi bài nộp. Log TXT trong `evidence/` thuộc lần kiểm thử tự động trước đó nên ID và thời điểm có thể khác ảnh mới.
 
 ### Bước 1: build hai solution
 
-![Ping build](anh/build-PingSignalR.png)
-![EduSubmit build](anh/build-RealtimeSubmissionSystem.png)
+![Build hai solution và khởi động Ping API](anh/build-hai-solution.png)
 
-### Bước 2 và 4: negotiate và Echo
+Ảnh gốc `Screenshot 2026-11-18 094138.png`: thấy lệnh build hai solution, cả bốn project có kết quả `succeeded`, Ping API lắng nghe cổng 5200 và nhật ký hai kết nối. Phần tổng kết build bị xen dòng lệnh tiếp theo, chưa hiển thị riêng dòng `0 Error(s)`; nên bổ sung hai ảnh build tách riêng để đối chiếu đúng mẫu slide.
 
-![negotiate](anh/buoc2-negotiate.png)
-![Echo](anh/buoc4-echo.png)
+### Bước 2 và 5: negotiate và máy khách Bình
 
-### Bước 5–6: nhóm và nối lại
+![Negotiate và client Bình](anh/ping-negotiate-Binh.png)
 
-![An](anh/buoc5-An.png)
-![Binh](anh/buoc5-Binh.png)
+Ảnh gốc `Screenshot 2026-11-18 094151.png`: negotiate trả `connectionId`, đủ WebSockets/ServerSentEvents/LongPolling; Bình kết nối, nhận Echo của mình, tham gia nhóm và nhận Group/Broadcast.
+
+### Bước 4–5: Echo và nhận tin nhóm tại An
+
+![Client An nhận Echo riêng và Group/Broadcast của Bình](anh/ping-An.png)
+
+Ảnh gốc `Screenshot 2026-11-18 094145.png`: An nhận Echo của An, sau đó nhận Group/Broadcast của Bình; không có Echo của Bình. Hai ảnh client cùng thể hiện ID kết nối Bình có tiền tố `E1HLEW2R`, giúp đối chiếu đúng lần chạy.
+
+### Các mục còn cần ảnh terminal thay thế
+
+Các ảnh dưới đây vẫn là **ảnh trình duyệt hiển thị log kiểm thử tự động**, chưa phải ảnh terminal sinh viên tự chụp. Cần bổ sung ảnh thật cho nối lại, ba lỗi Ping, REST/EduSubmit và bài tập mở rộng. Không chạy `capture-evidence.py` để thay thế ảnh terminal mới.
+
+#### Bước 6: nối lại
+
 ![Kết nối lại](anh/buoc6-noilai.png)
 
-### Bước 7: ba lỗi Ping
+#### Bước 7: ba lỗi Ping
 
 ![API tắt](anh/buoc7-loi1.png)
 ![Sai tuyến](anh/buoc7-loi2.png)
 ![Sai sự kiện](anh/buoc7-loi3.png)
 
-### EduSubmit và bài tập mở rộng
+#### EduSubmit và bài tập mở rộng
 
 ![REST](anh/edusubmit-requests.png)
 ![Client nhận graded](anh/edusubmit-SV001.png)
