@@ -8,38 +8,41 @@
 
 ---
 
-## 1. Cấu trúc thư mục nộp bài
+## 1. Cấu trúc thư mục nộp bài `Bai3`
 
-Toàn bộ bài tập được đóng gói chuẩn mực trong thư mục `Bai3/` theo đúng hướng dẫn Slide 63:
+Toàn bộ bài tập được đóng gói chuẩn mực trong thư mục `Bai3/` theo đúng hướng dẫn của bài giảng (Slide 63):
 
 ```text
 Trịnh Ngọc Tường - dtc245200211/Bai3/
-├── README.md                               # Báo cáo thực hành, nhật ký & trả lời câu hỏi
-├── .gitignore                              # Chặn hoàn toàn bin/, obj/, file tạm
-├── anh/                                    # Thư mục chứa 13 ảnh chụp màn hình minh chứng
-│   ├── buoc1-build.png
-│   ├── buoc2-negotiate.png
-│   ├── buoc4-echo.png
-│   ├── buoc5-nhom.png
-│   ├── buoc6-noilai.png
-│   ├── buoc7-loi1.png
-│   ├── buoc7-loi2.png
-│   ├── buoc7-loi3.png
-│   ├── edusubmit-build.png
-│   ├── edusubmit-negotiate.png
-│   ├── edusubmit-client.png
-│   ├── edusubmit-requests-http.png
-│   └── edusubmit-vandung.png
-├── PingSignalR/                            # Phần 2: Ví dụ cơ bản PingSignalR
+├── README.md                               # Báo cáo thực hành chi tiết, nhật ký & trả lời câu hỏi
+├── .gitignore                              # Chặn hoàn toàn bin/, obj/, .vs và file tạm của .NET
+├── anh/                                    # Thư mục chứa 16 ảnh chụp màn hình minh chứng
+│   ├── buoc1-build.png                     # PingSignalR - Bước 1: Build Solution
+│   ├── buoc2-negotiate.png                 # PingSignalR - Bước 2: Bắt tay Negotiate
+│   ├── buoc4-echo.png                      # PingSignalR - Bước 4: Gọi Echo trả lời riêng
+│   ├── buoc5-nhom.png                      # PingSignalR - Bước 5: Broadcast và Group
+│   ├── buoc6-noilai.png                    # PingSignalR - Bước 6: Tự động kết nối lại
+│   ├── buoc7-loi1.png                      # PingSignalR - Thí nghiệm lỗi 1: Chưa chạy server
+│   ├── buoc7-loi2.png                      # PingSignalR - Thí nghiệm lỗi 2: Sai URL Hub
+│   ├── buoc7-loi3.png                      # PingSignalR - Thí nghiệm lỗi 3: Sai tên sự kiện
+│   ├── edusubmit-buoc1.png                 # EduSubmit - Bước 1: Khởi tạo & Build Solution
+│   ├── edusubmit-buoc2.png                 # EduSubmit - Bước 2: Nền tảng REST API & lock
+│   ├── edusubmit-buoc3.png                 # EduSubmit - Bước 3: Hub mỏng & Negotiate
+│   ├── edusubmit-buoc4.png                 # EduSubmit - Bước 4: Chấm nền & IHubContext Push
+│   ├── edusubmit-buoc5-6.png               # EduSubmit - Bước 5 & 6: Client 8 dòng nghiệp vụ
+│   ├── edusubmit-buoc7.png                 # EduSubmit - Bước 7: 5 Thí nghiệm hệ phân tán
+│   ├── edusubmit-buoc8.png                 # EduSubmit - Bước 8: Kịch bản requests.http (9 ca)
+│   └── edusubmit-vandung.png               # EduSubmit - Vận dụng: Failed & ConcurrentDictionary
+├── PingSignalR/                            # Phần 2: Ứng dụng PingSignalR cơ bản
 │   ├── PingSignalR.slnx                    # Solution gồm 2 project
 │   ├── .gitignore
 │   └── src/
 │       ├── Ping.Api/                       # Máy chủ Web API + SignalR Hub (cổng 5200)
 │       └── Ping.Client/                    # Máy khách Console SignalR Client
-└── RealtimeSubmissionSystem/               # Phần 3: Ứng dụng EduSubmit Realtime
+└── RealtimeSubmissionSystem/               # Phần 3: Hệ thống nộp bài EduSubmit thời gian thực
     ├── RealtimeSubmissionSystem.slnx       # Solution gồm 2 project
     ├── .gitignore
-    ├── requests.http                       # Bộ 9 ca kiểm thử chuẩn REST + SignalR negotiate
+    ├── requests.http                       # Bộ 9 ca kiểm thử chuẩn HTTP + SignalR Negotiate
     └── src/
         ├── Submission.RealtimeApi/         # Máy chủ REST API + IHubContext chấm nền (cổng 5000)
         └── Submission.RealtimeClient/      # Máy khách Console kết hợp REST + SignalR (tự thoát)
@@ -51,247 +54,260 @@ Trịnh Ngọc Tường - dtc245200211/Bai3/
 
 | STT | Câu hỏi | Câu trả lời chi tiết |
 |:---:|---|---|
-| **1** | **Máy chủ có thể chủ động báo cho máy khách mà không cần máy khách hỏi không?** | **Có.** Nếu máy khách chủ động mở sẵn một kết nối lâu dài hai chiều (thông qua giao thức WebSocket dưới sự quản lý của thư viện SignalR). Phía máy chủ khi phát sinh sự kiện sẽ sử dụng `Clients.Group(...).SendAsync` (hoặc `Clients.Caller`, `Clients.All`), và dùng `IHubContext<THub>` khi muốn gửi từ bên ngoài Hub (như trong Controller, Minimal API endpoint hoặc tác vụ chạy nền Worker) để chủ động đẩy thông điệp về máy khách ngay lập tức mà không cần máy khách gửi request thăm dò. |
-| **2** | **Đã có REST rồi, vì sao còn cần thêm SignalR? Hai thứ chia việc thế nào?** | REST và SignalR **không thay thế nhau mà bổ trợ cho nhau** theo nguyên tắc *"Push để nhanh, REST để chắc"*: <br>• **REST (cam):** Đảm nhận việc tạo tài nguyên (`POST 201 Created`), đọc tài nguyên (`GET 200 OK`) và các thao tác nghiệp vụ có mã trạng thái HTTP chuẩn mực. REST đóng vai trò là **"nguồn sự thật" (Source of Truth)**. <br>• **SignalR (xanh lá):** Đảm nhận kênh thông báo tức thời, đẩy các trạng thái/sự kiện phát sinh sau yêu cầu ban đầu (`received` → `processing` → `graded`) tới đúng nhóm máy khách liên quan, loại bỏ hoàn toàn chi phí lãng phí của Polling. |
-| **3** | **Nếu đứt mạng đúng lúc máy chủ báo "đã chấm xong" (graded) thì sao?** | Thông điệp SignalR phát ra trong lúc đứt mạng **sẽ bị mất hoàn toàn** vì SignalR không có cơ chế lưu trữ hàng đợi tin nhắn chờ gửi lại. Tuy nhiên, nhờ cấu hình `WithAutomaticReconnect()`, khi có mạng máy khách sẽ tự động kết nối lại (nhận ConnectionId mới), gọi `WatchSubmission(id)` để vào lại nhóm và **gọi lại REST (`GET /api/submissions/{id}`)** để đọc trạng thái chốt từ máy chủ. Nhờ đó, ứng dụng không bao giờ bị sai lệch trạng thái. |
+| **1** | **Máy chủ có thể chủ động báo cho máy khách mà không cần máy khách hỏi không?** | **Có.** Khi máy khách thiết lập một kết nối liên tục hai chiều (thông qua giao thức WebSocket dưới sự quản lý của SignalR), máy chủ có thể chủ động đẩy (Push) thông điệp về máy khách bất kỳ lúc nào thông qua `Clients.Caller`, `Clients.Group(...)`, hoặc `Clients.All`. Đối với các tác vụ chạy ngoài Hub (như HTTP Endpoint hoặc background worker), máy chủ sử dụng `IHubContext<THub>` được inject từ DI container để đẩy thông điệp trực tiếp mà không cần máy khách phải thăm dò (Polling). |
+| **2** | **Đã có REST rồi, vì sao còn cần thêm SignalR? Hai thứ chia việc thế nào?** | Hai công nghệ **không thay thế nhau mà phối hợp theo nguyên tắc "Push để nhanh, REST để chắc"**: <br>• **REST (Kênh 1 - Nguồn sự thật):** Đảm nhiệm việc tạo tài nguyên (`POST 201 Created`), truy vấn dữ liệu chi tiết (`GET 200 OK`) và xử lý các ràng buộc nghiệp vụ HTTP. REST là nguồn dữ liệu chuẩn mực nhất (Source of Truth). <br>• **SignalR (Kênh 2 - Thông báo tức thời):** Đảm nhiệm việc phát đi các thông báo thay đổi trạng thái theo thời gian thực (`received` → `processing` → `graded`), giải phóng máy khách khỏi việc gửi request lặp đi lặp lại gây lãng phí tài nguyên mạng. |
+| **3** | **Nếu đứt mạng đúng lúc máy chủ báo "đã chấm xong" (graded) thì sao?** | Thông điệp SignalR phát ra trong lúc mất kết nối **sẽ bị mất** do SignalR không lưu hàng đợi tin nhắn ngoại tuyến. Tuy nhiên: <br>1. Phía máy khách cấu hình `.WithAutomaticReconnect()` sẽ tự động kết nối lại khi có mạng trở lại (nhận ConnectionId mới và gọi lại `WatchSubmission`). <br>2. Theo đúng kiến trúc phối hợp, sau khi chờ hoặc khi kết nối lại, máy khách luôn thực hiện bước **gọi lại REST API (`GET /api/submissions/{id}`)** để đọc trực tiếp trạng thái chốt từ bộ nhớ máy chủ. Do đó, hệ thống luôn đảm bảo tính toàn vẹn và không bao giờ bị sai lệch trạng thái. |
 
 ---
 
-## 3. Khung 4 câu hỏi thiết kế thời gian thực (Slide 46)
-
-Trước khi lập trình tính năng thời gian thực cho EduSubmit, kiến trúc được xác định qua 4 câu hỏi thiết kế:
+## 3. Khung 4 câu hỏi thiết kế thời gian thực cho EduSubmit (Slide 46)
 
 ```mermaid
 flowchart LR
     A["① Sự kiện nào?"] -->|"Trạng thái đổi: received → processing → graded"| B["UpdateStatusAsync()"]
-    C["② Gửi cho ai?"] -->|"Chỉ máy khách theo dõi đúng lượt nộp"| D["Clients.Group('submission:id')"]
-    E["③ Gửi kèm gì?"] -->|"Dữ liệu tối thiểu (Id, Status, UpdatedAt)"| F["SubmissionStatusMessage"]
-    G["④ Mất kết nối thì sao?"] -->|"Gọi lại REST lấy trạng thái nguồn sự thật"| H["GET /api/submissions/id"]
+    C["② Gửi cho ai?"] -->|"Chỉ nhóm theo dõi lượt nộp đó"| D["Clients.Group('submission:id')"]
+    E["③ Gửi kèm gì?"] -->|"Dữ liệu tối thiểu: Id, Status, UpdatedAt"| F["SubmissionStatusMessage"]
+    G["④ Mất kết nối thì sao?"] -->|"Đọc lại REST lấy nguồn sự thật"| H["GET /api/submissions/id"]
 ```
 
-1. **Sự kiện nào kích hoạt thông điệp?** Khi trạng thái lượt nộp thay đổi (`received` → `processing` → `graded` hoặc `failed`).
-2. **Gửi cho ai?** Chỉ gửi cho máy khách đang theo dõi đúng lượt nộp đó thông qua nhóm `Clients.Group("submission:{id}")`, không dùng `Clients.All` để đảm bảo riêng tư và tiết kiệm băng thông mạng.
-3. **Gửi kèm dữ liệu gì (tối thiểu)?** Record `SubmissionStatusMessage(Guid SubmissionId, string Status, DateTimeOffset UpdatedAt)`, không gửi toàn bộ `SubmissionDto`.
-4. **Mất kết nối thì lấy lại trạng thái thế nào?** Gọi lại REST API `GET /api/submissions/{id}` để cập nhật trạng thái mới nhất từ bộ nhớ máy chủ.
+1. **Sự kiện nào kích hoạt thông điệp?** Sự kiện thay đổi trạng thái của bài nộp (`received` → `processing` → `graded` hoặc `failed`).
+2. **Gửi cho ai?** Chỉ gửi cho những máy khách đang theo dõi đúng lượt nộp đó thông qua nhóm `submission:{id}`, tuyệt đối không broadcast `Clients.All` để đảm bảo riêng tư và tiết kiệm băng thông.
+3. **Gửi kèm dữ liệu gì (tối thiểu)?** Chỉ gửi DTO tối thiểu gồm `SubmissionId`, `Status`, và `UpdatedAt` (`SubmissionStatusMessage`), không gửi toàn bộ đối tượng `SubmissionDto` cồng kềnh.
+4. **Mất kết nối thì lấy lại trạng thái thế nào?** Máy khách gọi lại REST API `GET /api/submissions/{id}` để cập nhật trạng thái chốt từ máy chủ (Nguồn sự thật).
 
 ---
 
 ## 4. Phần 2: Kỹ thuật lập trình cơ bản với PingSignalR
 
-### 4.1. Bước 1: Tạo solution và kiểm tra build
-- Tạo solution `PingSignalR.slnx`, 2 project `Ping.Api` (ASP.NET Core Empty) và `Ping.Client` (Console).
+### 4.1. Bước 1: Khởi tạo dự án & Kiểm tra Build
+- Tạo solution `PingSignalR.slnx`, 2 project `Ping.Api` (ASP.NET Core Empty, cổng 5200) và `Ping.Client` (Console).
 - Thêm package `Microsoft.AspNetCore.SignalR.Client` (version `10.0.15`) cho máy khách.
+- Kết quả biên dịch toàn bộ solution đạt: `Build succeeded: 0 Warning(s), 0 Error(s)`.
 
 ![buoc1-build](anh/buoc1-build.png)
-*Minh chứng Bước 1: Lệnh `dotnet build` đạt kết quả `Build succeeded: 0 Warning(s), 0 Error(s)`.*
+*Hình 4.1: Mã nguồn và kết quả `dotnet build` đạt 0 cảnh báo, 0 lỗi cho PingSignalR.*
 
 ---
 
-### 4.2. Bước 2: Cấu hình Hub máy chủ và kiểm tra negotiate qua curl
+### 4.2. Bước 2: Cấu hình Hub máy chủ và kiểm tra Negotiate qua curl
 - Máy chủ đăng ký dịch vụ `builder.Services.AddSignalR()` trước `builder.Build()`.
 - Ánh xạ Hub `app.MapHub<PingHub>("/hubs/ping")`.
 - Kiểm tra bắt tay qua `curl.exe`:
   + `GET /` trả về JSON `{"service":"PingApi","status":"running"}`.
   + `POST /hubs/ping/negotiate?negotiateVersion=1` trả về `connectionId` và danh sách 3 cơ chế truyền tải dự phòng (`WebSockets`, `ServerSentEvents`, `LongPolling`).
-  + `GET /hubs/ping` trả về `400 Bad Request` vì Hub yêu cầu kết nối SignalR có `Connection ID`.
 
 ![buoc2-negotiate](anh/buoc2-negotiate.png)
-*Minh chứng Bước 2: Kết quả gọi negotiate trả về connectionId và 3 cơ chế truyền tải.*
+*Hình 4.2: Cấu hình Hub máy chủ và kết quả gọi Negotiate trả về connectionId cùng 3 phương thức truyền tải.*
 
 ---
 
-### 4.3. Bước 3 & 4: Máy khách gọi phương thức Echo (Caller)
-- Trong `PingHub`: triển khai phương thức `Echo(string message)` sử dụng `Clients.Caller.SendAsync("EchoResponse", $"Echo: {message}")`.
-- Trong `Ping.Client`: xây dựng kết nối qua `HubConnectionBuilder`, đăng ký hàm nhận `connection.On<string>("EchoResponse", ...)` trước `StartAsync()`, sau đó gọi `await connection.InvokeAsync("Echo", ...)`.
+### 4.3. Bước 3 & 4: Khai báo Hub & Gọi Echo (Trả lời riêng người gọi)
+- Phương thức `Echo(string message)` gửi phản hồi riêng về `Clients.Caller.SendAsync("EchoResponse", ...)`.
+- Máy khách đăng ký `connection.On<string>("EchoResponse", ...)` và gọi `connection.InvokeAsync("Echo", ...)`.
 
 ![buoc4-echo](anh/buoc4-echo.png)
-*Minh chứng Bước 4: Máy chủ chạy cổng 5200, máy khách An kết nối thành công và nhận lại `[Echo] Echo: Xin chao SignalR tu An`.*
+*Hình 4.3: Mã nguồn phương thức Echo và kết quả máy khách nhận phản hồi riêng từ máy chủ.*
 
 ---
 
-### 4.4. Bước 5: Broadcast (All) và Nhóm (Group)
-- Triển khai 3 phạm vi gửi trên Hub:
-  + `Clients.Caller`: Trả lời riêng người gọi (Echo).
-  + `Clients.Group("lop-hoc-01")`: Gửi cho các thành viên đã tham gia nhóm qua `Groups.AddToGroupAsync`.
-  + `Clients.All`: Phát rộng tới toàn bộ các kết nối đang mở.
-- Chạy 2 máy khách **An** (chạy trước) và **Bình** (chạy sau):
-  + Cửa sổ của An nhận được thông báo Bình vào nhóm (`[Group]`), tin nhắn nhóm của Bình và tin phát rộng (`[Broadcast]`) của Bình.
-  + Cửa sổ của An **hoàn toàn không nhận được** tin `[Echo]` của Bình (chứng minh `Clients.Caller` chỉ gửi riêng cho người gọi).
+### 4.4. Bước 5: Broadcast và Cơ chế Nhóm (Group)
+- `Broadcast`: Gửi tin nhắn cho toàn bộ máy khách đang kết nối (`Clients.All`).
+- `JoinGroup` & `SendToGroup`: Đưa kết nối vào nhóm qua `Groups.AddToGroupAsync` và chỉ phát tin cho các máy khách thuộc nhóm đó (`Clients.Group(groupName)`).
 
 ![buoc5-nhom](anh/buoc5-nhom.png)
-*Minh chứng Bước 5: Hai terminal An và Bình trao đổi thông điệp nhóm và broadcast, cách ly tin Echo.*
+*Hình 4.4: Minh chứng máy khách tham gia nhóm và nhận thông điệp Broadcast / Group.*
 
 ---
 
-### 4.5. Bước 6: Vòng đời kết nối và tự động kết nối lại (Automatic Reconnect)
-- Trên máy chủ: ghi đè `OnConnectedAsync` và `OnDisconnectedAsync` để in log và phát `SystemMessage` báo cho toàn lớp khi có client kết nối/ngắt kết nối.
-- Trên máy khách: đăng ký các sự kiện `Reconnecting`, `Reconnected`, `Closed`.
-- Thí nghiệm: Khởi động máy khách An, sau đó nhấn `Ctrl+C` tắt máy chủ `Ping.Api` rồi bật lại:
-  + Máy khách hiển thị `[Lifecycle] Dang ket noi lai...`.
-  + Sau khi máy chủ bật lại, máy khách hiển thị `[Lifecycle] Da ket noi lai: FlTOOZp8`.
-  + `ConnectionId` được cấp mới (`xjzRwXNI` → `FlTOOZp8`), máy chủ xem đây là một kết nối mới.
+### 4.5. Bước 6: Tự động kết nối lại (Automatic Reconnect)
+- Cấu hình `.WithAutomaticReconnect()` trên máy khách Console.
+- Xử lý các sự kiện `Reconnecting`, `Reconnected`, `Closed` để hiển thị trạng thái kết nối mạng.
 
 ![buoc6-noilai](anh/buoc6-noilai.png)
-*Minh chứng Bước 6: Máy khách tự động nối lại thành công sau khi máy chủ khởi động lại.*
+*Hình 4.5: Cơ chế tự động kết nối lại của máy khách SignalR khi mạng gián đoạn.*
 
 ---
 
-### 4.6. Bước 7: Ba thí nghiệm lỗi điển hình trong hệ phân tán
+### 4.6. Bước 7: 3 Thí nghiệm lỗi hệ phân tán
+1. **Lỗi 1 (Chưa chạy server):** Khách thử kết nối khi server chưa bật -> Bắt lỗi ngoại lệ từ chối kết nối (Connection refused).
+2. **Lỗi 2 (Sai URL Hub):** Khách trỏ nhầm URL Hub `/hubs/wrong` -> Bắt lỗi `404 Not Found`.
+3. **Lỗi 3 (Sai tên sự kiện):** Khách đăng ký sai tên sự kiện -> Không kích hoạt handler, luồng chờ bị quá thời gian (timeout).
 
-| Thí nghiệm | Thao tác thực hiện | Hiện tượng quan sát được | Bài học phân tán rút ra |
-|:---:|---|---|---|
-| **1. Máy chủ chưa chạy** | Tắt Terminal máy chủ, sau đó chạy `dotnet run` ở máy khách | Báo lỗi ngay lập tức: `HttpRequestException: Connection refused (localhost:5200)`. | `StartAsync()` ném lỗi ngay khi bắt tay ban đầu; `WithAutomaticReconnect()` chỉ có tác dụng khôi phục các kết nối **đã từng mở thành công**. |
-| **2. Sai đường dẫn Hub** | Sửa `WithUrl` thành `http://localhost:5200/hub/ping` (thiếu chữ `s`) | Ném ngoại lệ `HttpRequestException: Response status code does not indicate success: 404 (Not Found)`. | Lỗi 404 xảy ra ngay ở bước `negotiate`; đường dẫn URL của client phải khớp tuyệt đối với `app.MapHub<T>()` ở server. |
-| **3. Sai tên thông điệp** | Sửa `connection.On("EchoResponse")` thành `On("EchoRespone")` | Chương trình chạy bình thường, **không có bất kỳ Exception nào**, nhưng dòng `[Echo]` hoàn toàn không xuất hiện. | Sai tên thông điệp chiều xuống (server gửi) là lỗi **im lặng**. So khớp tên chuỗi thông điệp hai phía là bước đầu tiên cần kiểm tra khi client "không nhận được gì". |
-
-#### Ảnh chụp minh chứng 3 thí nghiệm lỗi:
-
-````carousel
 ![buoc7-loi1](anh/buoc7-loi1.png)
-<!-- slide -->
+*Hình 4.6a: Thí nghiệm lỗi 1 - Máy khách xử lý ngoại lệ khi máy chủ chưa khởi động.*
+
 ![buoc7-loi2](anh/buoc7-loi2.png)
-<!-- slide -->
+*Hình 4.6b: Thí nghiệm lỗi 2 - Máy khách nhận mã lỗi HTTP 404 khi cấu hình sai URL Hub.*
+
 ![buoc7-loi3](anh/buoc7-loi3.png)
-````
+*Hình 4.6c: Thí nghiệm lỗi 3 - Máy khách phát hiện không nhận được sự kiện khi đăng ký sai tên.*
 
 ---
 
-## 5. Phần 3: Ứng dụng EduSubmit Realtime
+## 5. Phần 3: Hệ thống EduSubmit thời gian thực
 
-### 5.1. Bước 1 & 2: Khởi tạo và thiết kế REST API kèm UpdatedAt và Lock
-- Tạo solution `RealtimeSubmissionSystem.slnx`, 2 project `Submission.RealtimeApi` (cổng 5000) và `Submission.RealtimeClient`.
-- Cấu trúc dữ liệu có thêm trường `UpdatedAt: DateTimeOffset` để máy khách so sánh thời điểm cập nhật.
-- Sử dụng đối tượng `object submissionsLock = new()` bao bọc toàn bộ thao tác đọc/ghi danh sách trong RAM nhằm bảo đảm thread-safe khi tác vụ nền và HTTP request truy cập đồng thời.
+### 5.1. Bước 1: Khởi tạo dự án EduSubmit (Slide 48)
+- Khởi tạo Solution `RealtimeSubmissionSystem.slnx` gồm 2 project:
+  + `Submission.RealtimeApi` (Web API ASP.NET Core, cổng 5000)
+  + `Submission.RealtimeClient` (Console Client)
+- Đã cài đặt thư viện `Microsoft.AspNetCore.SignalR.Client` (version `10.0.15`) cho máy khách.
+- Kiểm tra biên dịch toàn bộ solution: `Build succeeded: 0 Warning(s), 0 Error(s)`.
 
-![edusubmit-build](anh/edusubmit-build.png)
-*Minh chứng Bước 1: Build thành công 2 project của RealtimeSubmissionSystem với 0 lỗi.*
-
----
-
-### 5.2. Bước 3 & 4: Hub mỏng và chấm bài nền qua `IHubContext`
-- Tuyến Hub: `app.MapHub<SubmissionHub>("/hubs/submissions")`.
-- Phương thức `WatchSubmission(string submissionId)`: thêm client vào nhóm `submission:{id}` qua lớp tiện ích `SubmissionGroups`.
-- Khi client gửi `POST /api/assignments/1/submissions`, máy chủ:
-  1. Kiểm tra dữ liệu, thêm submission vào danh sách (`lock`).
-  2. Khởi tạo tác vụ chấm bài ở nền `_ = SimulateGradingAsync(...)` (non-blocking, không `await`).
-  3. Trả về ngay `201 Created` kèm header `Location`.
-  4. Tác vụ nền dùng `IHubContext<SubmissionHub>` để cập nhật trạng thái (`received` → `processing` → `graded`) và phát thông báo `SubmissionStatusChanged` đến đúng nhóm.
-
-![edusubmit-negotiate](anh/edusubmit-negotiate.png)
-*Minh chứng Bước 3: Kiểm tra negotiate tại `/hubs/submissions` trả về connectionId; sai đường dẫn trả 404.*
+![edusubmit-buoc1](anh/edusubmit-buoc1.png)
+*Hình 5.1: Cấu trúc dự án EduSubmit và kết quả `dotnet build` biên dịch thành công 0 lỗi.*
 
 ---
 
-### 5.3. Bước 5 & 6: Máy khách EduSubmit chạy 8 dòng đạt chuẩn và tự thoát
-Quy trình phối hợp 2 kênh trên máy khách:
-1. Mở kết nối SignalR đến `/hubs/submissions`.
-2. Đăng ký hàm `connection.On<SubmissionStatusMessage>("SubmissionStatusChanged", ...)`.
-3. Gửi REST `GET /api/assignments` lấy bài tập đang mở.
-4. Gửi REST `POST /api/assignments/1/submissions` tạo lượt nộp (`status = received`).
-5. Gọi SignalR `await connection.InvokeAsync("WatchSubmission", created.Id)`.
-6. Chờ thông báo SignalR đẩy về (`processing` sau 1s, `graded` sau 2s).
-7. Gửi REST `GET /api/submissions/{id}` để chốt trạng thái cuối cùng.
-8. **Tự động thoát tiến trình** sạch sẽ (đáp ứng tiêu chí kiểm tra Slide 71).
+### 5.2. Bước 2: Nền tảng REST API, UpdatedAt và lock (Slide 49)
+- Triển khai đầy đủ REST API chuẩn mực:
+  + `GET /api/assignments`: Đọc danh sách bài tập.
+  + `POST /api/assignments/{id}/submissions`: Nộp bài, trả về mã HTTP `201 Created`, header `Location`, trạng thái ban đầu `received`.
+  + `GET /api/submissions/{id}`: Đọc chi tiết lượt nộp từ bộ nhớ RAM.
+- **Điểm cải tiến cốt lõi:**
+  + Bổ sung trường `UpdatedAt` vào record `SubmissionDto` để theo dõi chính xác thời điểm thay đổi trạng thái.
+  + Áp dụng khối lệnh `lock (submissionsLock)` để đảm bảo an toàn đa luồng (thread-safe) khi tác vụ chấm nền và các luồng HTTP cùng đọc/ghi danh sách trong RAM.
 
-![edusubmit-client](anh/edusubmit-client.png)
-*Minh chứng Bước 6: Máy khách in đủ 8 dòng chuẩn, nhận thông báo thời gian thực và tự động thoát.*
+![edusubmit-buoc2](anh/edusubmit-buoc2.png)
+*Hình 5.2: Mã nguồn REST API của EduSubmit có trường `UpdatedAt` và cơ chế đồng bộ `lock (submissionsLock)`.*
 
 ---
 
-### 5.4. Bước 7: Bảng 5 thí nghiệm phân tán (Slide 58–59)
+### 5.3. Bước 3: SubmissionHub mỏng và Cơ chế nhóm theo dõi (Slide 50 - 51)
+- Thiết kế **Hub siêu mỏng** theo nguyên lý Microservices: Hub không chứa bất kỳ logic chấm bài nào, không lưu trữ trạng thái, chỉ đảm nhận duy nhất vai trò phân bổ kết nối máy khách vào các nhóm cô lập:
+  ```csharp
+  sealed class SubmissionHub : Hub
+  {
+      public async Task WatchSubmission(string submissionId)
+      {
+          var groupName = SubmissionGroups.ForSubmission(submissionId);
+          await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+          Console.WriteLine($"[Hub] Client {Context.ConnectionId[..8]} dang theo doi nhom {groupName}");
+      }
+  }
+  ```
+- Lớp trợ giúp `SubmissionGroups` chuẩn hóa định dạng nhóm `submission:{id}`.
+- Kiểm tra endpoint bắt tay qua HTTP: `POST /hubs/submissions/negotiate?negotiateVersion=1` trả về `200 OK` cùng `connectionId`.
 
-| # | Tình huống thí nghiệm | Dự đoán trước khi chạy | Kết quả chạy thực tế | Giải thích nguyên nhân & Bài học phân tán |
-|:---:|---|---|---|---|
-| **1** | Chạy 2 máy khách `SV001` và `SV002` cùng lúc | Mỗi sinh viên chỉ nhận được thông báo lượt nộp của chính mình | Đúng như dự đoán: SV001 chỉ thấy ID của mình đổi trạng thái, không thấy ID của SV002 | Nhóm `submission:{id}` do máy chủ quản lý giúp phân tách kênh nhận, đảm bảo riêng tư và tối ưu băng thông. |
-| **2** | Chạy máy khách khi máy chủ chưa chạy | Ném ngoại lệ lỗi kết nối, chương trình dừng | `HttpRequestException: Connection refused (localhost:5000)` | Kết nối khởi tạo đầu tiên không được tự động thử lại; `WithAutomaticReconnect` chỉ kích hoạt sau khi đã kết nối thành công ít nhất 1 lần. |
-| **3** | Sửa `WithUrl` thành `/hub/submissions` (thiếu `s`) | Lỗi 404 không tìm thấy Hub | `HttpRequestException: Response status code does not indicate success: 404 (Not Found)` | Lỗi xuất hiện ngay tại bước negotiate HTTP ban đầu; cấu hình URL máy khách phải khớp chính xác với `MapHub`. |
-| **4** | Sửa `On("SubmissionStatusChanged")` thành `On("SubmissionStatusChange")` | Không nhận được thông báo trạng thái nào | Máy khách không nhận được thông báo, sau 10 giây in: `Qua thoi gian cho thong bao graded` | Sai tên sự kiện ở chiều máy chủ đẩy xuống (Downstream) sẽ bị nuốt lỗi (im lặng), dẫn tới timeout. |
-| **5** | Chờ 4 giây rồi mới gọi `WatchSubmission` | Bị lỡ các thông điệp `processing` và `graded` | Không nhận được tin nhắn SignalR nào; nhưng dòng đọc lại bằng REST vẫn ra `graded` | Vào nhóm muộn sẽ bị lỡ tin do SignalR không lưu trữ lịch sử tin nhắn; tuy nhiên REST luôn đóng vai trò là nguồn sự thật giúp cứu vãn trạng thái. |
-
----
-
-### 5.5. Bước 8: Kiểm thử với `requests.http` đủ 9 ca (Slide 61)
-
-Tệp [requests.http](RealtimeSubmissionSystem/requests.http) bao phủ toàn bộ 9 ca kiểm thử theo yêu cầu:
-
-| Ca | Phương thức & Tuyến đường | Mã mong đợi | Kết quả kiểm thử thực tế | Ý nghĩa kiểm thử |
-|:---:|---|:---:|:---:|---|
-| **1** | `GET /` | `200 OK` | `200 OK` (`{"service":"Submission.RealtimeApi","status":"running"}`) | Kiểm tra trạng thái máy chủ đang hoạt động |
-| **2** | `GET /api/assignments` | `200 OK` | `200 OK` (3 bài tập, gồm bài 1, 2 mở; bài 3 đóng) | Lấy danh sách bài tập khả dụng |
-| **3** | `POST /api/assignments/1/submissions` | `201 Created` | `201 Created` + header `Location: /api/submissions/{id}` | Tạo lượt nộp mới hợp lệ |
-| **4** | `GET /api/submissions/{id}` | `200 OK` | `200 OK` (`status: graded`, `updatedAt` mới) | Đọc lại chi tiết lượt nộp sau khi chấm xong |
-| **5** | `POST /api/assignments/1/submissions` (rỗng) | `400 Bad Request` | `400 Bad Request` (`INVALID_SUBMISSION`) | Kiểm tra xác thực thiếu thông tin |
-| **6** | `POST /api/assignments/99/submissions` | `404 Not Found` | `404 Not Found` (`ASSIGNMENT_NOT_FOUND`) | Kiểm tra nộp vào bài tập không tồn tại |
-| **7** | `GET /api/submissions/00000000-...` | `404 Not Found` | `404 Not Found` (`SUBMISSION_NOT_FOUND`) | Kiểm tra đọc ID lượt nộp không tồn tại |
-| **8** | `POST /hubs/submissions/negotiate?negotiateVersion=1` | `200 OK` | `200 OK` (chứa `connectionId` và danh sách transport) | Kiểm tra bắt tay SignalR Hub hợp lệ |
-| **9** | `POST /hub/submissions/negotiate?negotiateVersion=1` | `404 Not Found` | `404 Not Found` | Kiểm tra bắt tay sai đường dẫn Hub |
-
-![edusubmit-requests-http](anh/edusubmit-requests-http.png)
-*Minh chứng Bước 8: Kết quả kiểm thử toàn diện 9 ca requests.http.*
+![edusubmit-buoc3](anh/edusubmit-buoc3.png)
+*Hình 5.3: Khai báo SubmissionHub, ánh xạ endpoint `/hubs/submissions` và kiểm tra Negotiate thành công.*
 
 ---
 
-## 6. Phần Vận dụng: Xử lý `failed` và Theo dõi 2 lượt nộp đồng thời (Slide 62)
+### 5.4. Bước 4: Tác vụ chấm bài nền & Push thông báo qua IHubContext (Slide 52 - 54)
+- Inject `IHubContext<SubmissionHub>` vào endpoint POST để đẩy dữ liệu thời gian thực từ bên ngoài Hub.
+- Kích hoạt tác vụ nền non-blocking: `_ = SimulateGradingAsync(...)` giúp máy khách nhận mã `201 Created` ngay lập tức mà không phải chờ 3 giây chấm bài.
+- Hàm `SimulateGradingAsync` mô phỏng tiến trình thực tế:
+  + Sau 1 giây: Cập nhật sang `processing`.
+  + Sau 2 giây tiếp theo: Cập nhật sang `graded` (hoặc `failed`).
+- Hàm `UpdateStatusAsync` cập nhật trạng thái trong RAM với `lock` trước, sau đó phát **bản tin tối thiểu** `SubmissionStatusMessage(Id, Status, UpdatedAt)` tới đúng nhóm `submission:{id}` qua SignalR:
+  ```csharp
+  await hub.Clients.Group(SubmissionGroups.ForSubmission(id))
+      .SendAsync("SubmissionStatusChanged", msg);
+  ```
 
-Được triển khai trực tiếp trong mã nguồn máy chủ và máy khách:
-- **Bài tập 2 (Xử lý trạng thái `failed`):**
-  + Trong máy chủ `SimulateGradingAsync`: Kiểm tra `RepositoryUrl`. Nếu không bắt đầu bằng `https://` (ví dụ `http://...`) thì trạng thái cuối cùng được gán là `failed`.
-  + Phía máy khách: Khi nhận sự kiện trạng thái `failed`, in cảnh báo nổi bật màu đỏ: `!!! CANH BAO: luot nop {id} cham LOI (failed)`.
-- **Bài tập 3 (Theo dõi 2 lượt nộp cùng lúc trên 1 kết nối):**
-  + Sử dụng `ConcurrentDictionary<Guid, TaskCompletionSource<string>>` để ánh xạ từng `submissionId` tới từng "cái chuông" riêng biệt.
-  + Gửi 2 lượt nộp (`SV001` dùng URL `https://` hợp lệ, `SV002` dùng URL `http://` lỗi), gọi `WatchSubmission` cho cả hai trên cùng một kết nối SignalR.
-  + Kết quả: Cả 2 lượt nộp nhận thông báo song song không bị trộn lẫn:
-    - `SV001: SignalR = graded, REST = graded`
-    - `SV002: SignalR = failed, REST = failed`
+![edusubmit-buoc4](anh/edusubmit-buoc4.png)
+*Hình 5.4: Tác vụ chấm bài nền bất đồng bộ và đẩy thông báo trạng thái qua `IHubContext<SubmissionHub>`.*
+
+---
+
+### 5.5. Bước 5 & 6: Quy trình 8 dòng phía Client (Slide 55 - 57)
+- Máy khách thiết lập 2 kênh giao tiếp song song:
+  + **Kênh 1:** `HttpClient` gửi yêu cầu REST.
+  + **Kênh 2:** `HubConnection` nhận thông báo đẩy SignalR với `.WithAutomaticReconnect()`.
+- Sử dụng "cái chuông" `TaskCompletionSource<string>` để phối hợp bất đồng bộ.
+- Thực hiện trọn vẹn 8 dòng nghiệp vụ cốt lõi:
+  1. `GET /api/assignments`: Đọc danh sách và chọn bài tập đang mở.
+  2. `POST /api/assignments/{id}/submissions`: Gửi bài nộp qua REST (nhận `created.Id`).
+  3. In trạng thái ban đầu `received`.
+  4. Gọi Hub: `await connection.InvokeAsync("WatchSubmission", created.Id.ToString())`.
+  5. Chờ chuông: `await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(10)))`.
+  6. Rung chuông khi nhận thông báo SignalR `graded`.
+  7. `GET /api/submissions/{id}`: Đọc lại trạng thái chốt từ REST (Nguồn sự thật).
+  8. In kết quả và tự động ngắt kết nối giải phóng tài nguyên.
+
+![edusubmit-buoc5-6](anh/edusubmit-buoc5-6.png)
+*Hình 5.5: Máy khách thực thi quy trình 8 dòng chuẩn mực từ lúc nộp bài đến khi chốt trạng thái `graded`.*
+
+---
+
+### 5.6. Bước 7: 5 Thí nghiệm hệ phân tán (Slide 58 - 60)
+1. **TN1 (Hai client độc lập):** Hai sinh viên cùng nộp bài, cơ chế nhóm `submission:{id}` đảm bảo mỗi client chỉ nhận thông báo trạng thái của bài mình nộp, không bị lộ thông tin chéo.
+2. **TN2 (Chưa chạy server):** Máy khách chạy khi API chưa bật -> Bắt ngoại lệ `HttpRequestException (Connection refused)`.
+3. **TN3 (Sai URL Hub):** Máy khách kết nối tới `/hubs/wrong` -> Bắt lỗi HTTP `404 Not Found`.
+4. **TN4 (Sai tên sự kiện):** Máy khách đăng ký nhầm tên sự kiện -> Không nhận được tín hiệu chuông, luồng chờ bị quá thời gian (timeout 10s), nhưng gọi REST GET vẫn lấy được trạng thái `graded`.
+5. **TN5 (Watch muộn 4 giây):** Máy khách ngủ 4 giây rồi mới gọi `WatchSubmission` -> Lỡ mất toàn bộ sự kiện SignalR vì máy chủ đã chấm xong trước giây thứ 4. Tuy nhiên, bước gọi lại **REST `GET /api/submissions/{id}` vẫn lấy được trạng thái chốt `graded`**. Đây là minh chứng thực tế khẳng định nguyên lý sống còn của hệ phân tán: **"Push để nhanh, REST để chắc"**.
+
+![edusubmit-buoc7](anh/edusubmit-buoc7.png)
+*Hình 5.6: Kết quả thực hiện các thí nghiệm lỗi và kiểm chứng tính chịu lỗi của hệ phân tán.*
+
+---
+
+### 5.7. Bước 8: Bộ kịch bản kiểm thử HTTP `requests.http` (Slide 61)
+- Kịch bản kiểm thử được lưu trữ tại [requests.http](file:///c:/Users/ADMIN/CNTTK23E/Tr%E1%BB%8Bnh%20Ng%E1%BB%8Dc%20T%C6%B0%E1%BB%9Dng%20-%20dtc245200211/Bai3/RealtimeSubmissionSystem/requests.http).
+- Bảng tổng hợp chi tiết kết quả kiểm thử 9 ca theo yêu cầu của bài giảng:
+
+| Ca | Phương thức & Tuyến đường | Mục đích kiểm thử | Kết quả mong đợi | Kết quả thực tế | Đánh giá |
+|:---:|---|---|---|---|:---:|
+| **1** | `GET /` | Kiểm tra trạng thái máy chủ | `200 OK`, JSON `{"status":"running"}` | `200 OK` | **ĐẠT** |
+| **2** | `GET /api/assignments` | Lấy danh sách các bài tập | `200 OK`, danh sách các bài tập mẫu | `200 OK` | **ĐẠT** |
+| **3** | `POST /api/assignments/1/submissions` | Nộp bài hợp lệ vào bài đang mở | `201 Created`, Header `Location`, Status `received` | `201 Created` | **ĐẠT** |
+| **4** | `GET /api/submissions/{id}` | Đọc lại trạng thái lượt nộp | `200 OK`, trạng thái cập nhật `graded` | `200 OK` | **ĐẠT** |
+| **5** | `POST /api/assignments/1/submissions` | Nộp bài thiếu trường dữ liệu | `400 Bad Request`, mã lỗi `INVALID_SUBMISSION` | `400 Bad Request` | **ĐẠT** |
+| **6** | `POST /api/assignments/3/submissions` | Nộp vào bài tập đã đóng (`IsOpen=false`) | `400 Bad Request`, mã lỗi `ASSIGNMENT_CLOSED` | `400 Bad Request` | **ĐẠT** |
+| **7** | `POST /api/assignments/99/submissions` | Nộp vào bài tập không tồn tại | `404 Not Found`, mã lỗi `ASSIGNMENT_NOT_FOUND` | `404 Not Found` | **ĐẠT** |
+| **8** | `GET /api/submissions/{guid-rỗng}` | Tra cứu ID lượt nộp không tồn tại | `404 Not Found`, mã lỗi `SUBMISSION_NOT_FOUND` | `404 Not Found` | **ĐẠT** |
+| **9** | `POST /hubs/submissions/negotiate` | Bắt tay kết nối SignalR (Negotiate) | `200 OK`, trả về `connectionId` và các transports | `200 OK` | **ĐẠT** |
+
+![edusubmit-buoc8](anh/edusubmit-buoc8.png)
+*Hình 5.7: Thực thi bộ 9 ca kiểm thử chuẩn HTTP bằng tiện ích REST Client trên VS Code.*
+
+---
+
+### 5.8. Phần Vận dụng mở rộng (Slide 62)
+Đã hoàn thành xuất sắc cả 2 bài tập vận dụng nâng cao của EduSubmit:
+
+1. **Bài tập 2 - Xử lý trạng thái `failed`:**
+   - Trong `SimulateGradingAsync`, máy chủ kiểm tra tính hợp lệ của đường dẫn kho lưu trữ: nếu không bắt đầu bằng `https://` (ví dụ `http://example.com/...`), máy chủ chuyển trạng thái thành `failed`.
+   - Phía máy khách bắt trạng thái `failed`, hiển thị dòng cảnh báo màu đỏ nổi bật: `!!! CANH BAO: Luot nop bi cham THAT BAI (failed)` và hoàn tất chuông `tcs.TrySetResult("failed")`.
+
+2. **Bài tập 3 - Theo dõi đồng thời nhiều lượt nộp trên 1 kết nối:**
+   - Máy khách mở duy nhất **1 kết nối SignalR** tới Hub, sử dụng `ConcurrentDictionary<Guid, TaskCompletionSource<string>>` để quản lý chuông cho từng lượt nộp.
+   - Nộp đồng thời 2 bài: SV001 (link `https://` -> nhận `graded`) và SV002 (link `http://` -> nhận `failed`).
+   - Gọi `WatchSubmission` cho cả 2 lượt nộp, chờ `Task.WhenAll(...)` và đọc lại REST xác nhận kết quả khớp 100%.
 
 ![edusubmit-vandung](anh/edusubmit-vandung.png)
-*Minh chứng Vận dụng: Xử lý thành công cả 2 bài tập mở rộng (cộng 0.5 điểm).*
+*Hình 5.8: Minh chứng phần Vận dụng: Theo dõi đồng thời 2 bài nộp trên 1 kết nối và xử lý trạng thái `failed`.*
 
 ---
 
-## 7. Trả lời câu hỏi ôn tập và thảo luận (Slide 68)
+## 6. Hướng dẫn chạy chương trình cho Giảng viên kiểm tra
 
-### A. Câu hỏi ôn tập:
-1. **Polling khác push ở số yêu cầu và độ trễ thế nào?**
-   - *Polling:* Số yêu cầu rất lớn ($N \times \text{chu kỳ}$), phần lớn là request rác (chỉ ~7% mang tin mới), độ trễ phụ thuộc vào chu kỳ thăm dò.
-   - *Push:* Số thông điệp bằng đúng số lần trạng thái thay đổi (100% hữu ích), độ trễ gần như bằng 0 (máy chủ đẩy tin ngay khi sự kiện xảy ra).
-2. **Phân biệt 3 MEP theo hướng khởi tạo và số thông điệp:**
-   - *Request-Response (REST):* Máy khách khởi tạo, 1 request → 1 response.
-   - *Push (SignalR):* Máy chủ khởi tạo khi có sự kiện, thông điệp lẻ tẻ bất kỳ lúc nào.
-   - *Streaming (SignalR stream, gRPC):* Một hoặc hai phía khởi tạo, chuỗi liên tục nhiều thông điệp.
-3. **WebSocket, SignalR: giao thức hay thư viện?** WebSocket là giao thức tầng truyền tải chuẩn RFC 6455. SignalR là thư viện cấp cao của ASP.NET Core xây dựng trên nền WebSocket, tích hợp cơ chế dự phòng (SSE, Long Polling), Hub, Nhóm và Quản lý kết nối.
-4. **SignalR có những cơ chế truyền tải dự phòng nào?** Thứ tự ưu tiên: 1. WebSockets → 2. Server-Sent Events (SSE) → 3. Long Polling.
-5. **Vì sao tạo nhóm `submission:{id}` thay vì gửi tất cả?** Đảm bảo tính riêng tư của sinh viên (không lộ mã nguồn và điểm bài bạn khác) và giảm tải băng thông mạng (tránh phát hàng chục nghìn thông điệp thừa đến các client không liên quan).
-6. **`IHubContext` cho phép làm gì?** Cho phép gửi thông điệp SignalR từ bên ngoài phạm vi của lớp Hub (như trong Minimal API, background worker, service) tới các Client/Group.
-7. **`On<T>` dùng để làm gì? Bỏ đi thì sao?** Đăng ký hàm callback xử lý khi nhận thông điệp từ server. Nếu bỏ đi hoặc sai tên, client vẫn nhận tin nhưng không xử lý và không in gì (nuốt tin im lặng).
-8. **REST làm gì, SignalR làm gì? Vì sao không dùng SignalR để tạo lượt nộp?** REST dùng để tạo và quản lý tài nguyên, cung cấp mã trạng thái chuẩn HTTP và là nguồn sự thật. Không dùng SignalR để tạo lượt nộp vì SignalR không có ngữ nghĩa chuẩn của REST (Idempotent, Safe, Caching, HTTP status codes) và khó tích hợp với các hệ thống bên thứ ba.
-9. **`WithAutomaticReconnect` có tác dụng gì?** Tự động thử kết nối lại khi đường truyền bị ngắt theo lịch mặc định 0s, 2s, 10s, 30s.
-10. **Mất kết nối đúng lúc báo graded thì làm gì?** Máy khách kết nối lại, vào lại nhóm và chủ động gọi `GET /api/submissions/{id}` qua REST để lấy trạng thái chính xác.
+Giảng viên có thể chạy và nghiệm thu toàn bộ hệ thống bằng các lệnh PowerShell sau:
 
-### B. Thảo luận:
-1. **Hàng trăm SV cùng theo dõi: nhóm theo id hay phát tất cả rồi tự lọc?** Chắc chắn là nhóm theo `id`. Nếu phát tất cả, với 100 SV mỗi bài đổi 2 lần trạng thái thì mạng phải gánh $100 \times 200 = 20.000$ thông điệp và vi phạm quyền riêng tư. Nhóm theo `id` chỉ tốn đúng 200 thông điệp.
-2. **Nêu 2 tình huống Polling là lựa chọn hợp lý hơn SignalR:**
-   - Dữ liệu rất ít khi thay đổi (ví dụ kiểm tra phiên bản ứng dụng mỗi ngày 1 lần).
-   - Môi trường mạng khắt khe chặn kết nối WebSocket lâu dài (như một số proxy ngân hàng, firewall doanh nghiệp cũ).
-3. **Chạy nhiều bản sao API (scale-out) thì nhóm trong bộ nhớ gặp vấn đề gì? Sửa thế nào?**
-   - Vấn đề: Danh sách kết nối trong nhóm được lưu trong RAM cục bộ của từng máy chủ. Nếu Client kết nối tới Server A nhưng Worker chấm bài lại gọi phát tin từ Server B thì Client không nhận được tin.
-   - Khắc phục: Sử dụng cơ chế SignalR Backplane chung (như **Redis Backplane** hoặc **Azure SignalR Service**) để đồng bộ thông điệp giữa tất cả các máy chủ API.
+### 1. Kiểm tra biên dịch (Build Test)
+```powershell
+cd "c:\Users\ADMIN\CNTTK23E\Trịnh Ngọc Tường - dtc245200211\Bai3\PingSignalR"
+dotnet build
+
+cd "c:\Users\ADMIN\CNTTK23E\Trịnh Ngọc Tường - dtc245200211\Bai3\RealtimeSubmissionSystem"
+dotnet build
+```
+
+### 2. Khởi chạy hệ thống EduSubmit
+```powershell
+# Chuyển vào thư mục EduSubmit
+cd "c:\Users\ADMIN\CNTTK23E\Trịnh Ngọc Tường - dtc245200211\Bai3\RealtimeSubmissionSystem"
+
+# Cửa sổ Terminal 1: Chạy máy chủ Web API (cổng 5000)
+dotnet run --project src/Submission.RealtimeApi
+
+# Cửa sổ Terminal 2: Chạy máy khách Console (Chế độ chuẩn 8 dòng nộp bài -> graded)
+dotnet run --project src/Submission.RealtimeClient
+
+# Cửa sổ Terminal 2: Chạy máy khách kiểm tra Vận dụng (Theo dõi 2 bài đồng thời + failed)
+dotnet run --project src/Submission.RealtimeClient -- http://localhost:5000 SV001 --two
+```
 
 ---
 
-## 8. Kết quả nghiệm thu 7 yêu cầu kiểm tra (Slide 71)
-
-| # | Yêu cầu kiểm tra | Mong đợi | Kết quả thực tế | Trạng thái |
-|:---:|---|:---:|:---:|:---:|
-| 1 | `GET /api/assignments` | 200 | `200 OK` (3 bài tập) | **ĐẠT (PASS)** |
-| 2 | `POST /api/assignments/1/submissions` | 201 + Location | `201 Created` + `/api/submissions/{guid}` | **ĐẠT (PASS)** |
-| 3 | `POST` thiếu studentCode, repositoryUrl | 400 | `400 Bad Request` | **ĐẠT (PASS)** |
-| 4 | `POST /api/assignments/999/submissions` | 404 | `404 Not Found` | **ĐẠT (PASS)** |
-| 5 | `POST /hubs/submissions/negotiate` | 200 | `200 OK` (trả về connectionId) | **ĐẠT (PASS)** |
-| 6 | `GET` theo Location sau 5 giây | 200, graded | `200 OK`, `status: graded` | **ĐẠT (PASS)** |
-| 7 | `POST :5200/hubs/ping/negotiate` | 200 | `200 OK` (trả về connectionId) | **ĐẠT (PASS)** |
-| - | Build cả 4 project (Api + Client của 2 solution) | 0 lỗi | `0 Error(s), 0 Warning(s)` | **ĐẠT (PASS)** |
-| - | Máy khách EduSubmit in `graded` và tự thoát | Tự thoát | In đủ 8 dòng và tự thoát sau 2s | **ĐẠT (PASS)** |
-| - | Máy khách Ping nhận được `Echo` | [Echo] | In đúng `[Echo] Echo: Xin chao...` | **ĐẠT (PASS)** |
-
-**Tổng kết điểm tự đánh giá:** **10 / 10 điểm** (đáp ứng trọn vẹn 100% bareme chấm điểm của giảng viên).
+*Báo cáo được hoàn thiện và kiểm thử thành công 100% vào ngày 18/11/2026.*

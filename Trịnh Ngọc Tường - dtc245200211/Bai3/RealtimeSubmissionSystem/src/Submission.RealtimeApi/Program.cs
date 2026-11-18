@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đăng ký SignalR vào Dependency Injection
+// Đăng ký dịch vụ SignalR vào Dependency Injection
 builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// Danh sách dữ liệu mẫu trong RAM
+// Danh sách dữ liệu mẫu lưu trữ trong RAM
 var assignments = new List<AssignmentDto>
 {
     new(1, "Bai tap SignalR", "Giao tiep thoi gian thuc voi SignalR va ASP.NET Core", true),
@@ -16,16 +16,16 @@ var assignments = new List<AssignmentDto>
 };
 
 var submissions = new List<SubmissionDto>();
-var submissionsLock = new object(); // Khoa bao ve danh sach khi tac vu nen va HTTP cung sua
+var submissionsLock = new object(); // Khoá bảo vệ danh sách khi tác vụ nền và HTTP cùng cập nhật
 
-// 1. GET / - Kiem tra trang thai dich vu
+// 1. GET / - Kiểm tra trạng thái máy chủ
 app.MapGet("/", () => Results.Ok(
     new { service = "Submission.RealtimeApi", status = "running" }));
 
-// 2. GET /api/assignments - Lay danh sach bai tap
+// 2. GET /api/assignments - Lấy danh sách bài tập
 app.MapGet("/api/assignments", () => Results.Ok(assignments));
 
-// GET /api/assignments/{id} - Lay chi tiet bai tap
+// GET /api/assignments/{id} - Lấy chi tiết bài tập theo ID
 app.MapGet("/api/assignments/{id:int}", (int id) =>
 {
     var assignment = assignments.FirstOrDefault(a => a.Id == id);
@@ -34,26 +34,26 @@ app.MapGet("/api/assignments/{id:int}", (int id) =>
         : Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", $"Khong tim thay bai tap co ID {id}."));
 });
 
-// 3. POST /api/assignments/{assignmentId:int}/submissions - Nop bai (REST + kich hoat cham nen)
+// 3. POST /api/assignments/{assignmentId:int}/submissions - Nộp bài (REST 201 + Kích hoạt chấm nền)
 app.MapPost("/api/assignments/{assignmentId:int}/submissions", (
     int assignmentId,
     CreateSubmissionRequest request,
     IHubContext<SubmissionHub> hubContext) =>
 {
-    // Kiem tra bai tap ton tai
+    // Kiểm tra bài tập tồn tại
     var assignment = assignments.FirstOrDefault(a => a.Id == assignmentId);
     if (assignment is null)
     {
         return Results.NotFound(new ApiError("ASSIGNMENT_NOT_FOUND", $"Khong tim thay bai tap co ID {assignmentId}."));
     }
 
-    // Kiem tra bai tap con mo khong
+    // Kiểm tra bài tập còn mở không
     if (!assignment.IsOpen)
     {
         return Results.BadRequest(new ApiError("ASSIGNMENT_CLOSED", "Bai tap da dong, khong nhan bai nop nua."));
     }
 
-    // Kiem tra du lieu hop le
+    // Kiểm tra tính hợp lệ của dữ liệu gửi lên
     if (string.IsNullOrWhiteSpace(request.StudentCode) || string.IsNullOrWhiteSpace(request.RepositoryUrl))
     {
         return Results.BadRequest(new ApiError("INVALID_SUBMISSION", "Thieu ma sinh vien hoac kho ma nguon."));
@@ -74,13 +74,13 @@ app.MapPost("/api/assignments/{assignmentId:int}/submissions", (
         submissions.Add(submission);
     }
 
-    // Khoi dong tac vu cham bai o nen, KHONG cho (non-blocking)
+    // Khởi động tác vụ chấm bài ở nền, KHÔNG chặn luồng HTTP (non-blocking)
     _ = SimulateGradingAsync(submission.Id, submission.RepositoryUrl, submissions, submissionsLock, hubContext);
 
     return Results.Created($"/api/submissions/{submission.Id}", submission);
 });
 
-// 4. GET /api/submissions/{submissionId:guid} - Doc chi tiet luot nop (Nguon su that)
+// 4. GET /api/submissions/{submissionId:guid} - Đọc chi tiết lượt nộp (Nguồn sự thật REST)
 app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
 {
     lock (submissionsLock)
@@ -92,22 +92,23 @@ app.MapGet("/api/submissions/{submissionId:guid}", (Guid submissionId) =>
     }
 });
 
-// Ánh xạ hub SignalR vào tuyến /hubs/submissions
+// 5. Ánh xạ Hub SignalR vào tuyến /hubs/submissions
 app.MapHub<SubmissionHub>("/hubs/submissions");
 
 app.Run();
 
 // =========================================================================
-// SIGNALR HUB & HELPER
+// SIGNALR HUB & NHÓM THEO DÕI
 // =========================================================================
 
 sealed class SubmissionHub : Hub
 {
+    // Khách gọi để đăng ký nhận thông báo về lượt nộp cụ thể
     public async Task WatchSubmission(string submissionId)
     {
         var groupName = SubmissionGroups.ForSubmission(submissionId);
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        Console.WriteLine($"[Hub] {Context.ConnectionId[..8]} theo doi {groupName}");
+        Console.WriteLine($"[Hub] Client {Context.ConnectionId[..8]} dang theo doi nhom {groupName}");
     }
 }
 
@@ -130,11 +131,11 @@ static partial class Program
         object gate,
         IHubContext<SubmissionHub> hub)
     {
-        // Sau 1 giay: chuyen sang processing
+        // Sau 1 giây: chuyển sang processing
         await Task.Delay(TimeSpan.FromSeconds(1));
         await UpdateStatusAsync(id, "processing", list, gate, hub);
 
-        // Sau 2 giay tiep theo: chuyen sang graded (hoac failed theo Bai tap 2 Van dung)
+        // Sau 2 giây tiếp theo: chuyển sang graded (hoặc failed nếu repo không có https://)
         await Task.Delay(TimeSpan.FromSeconds(2));
         var finalStatus = repoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
             ? "graded"
@@ -150,7 +151,7 @@ static partial class Program
         IHubContext<SubmissionHub> hub)
     {
         SubmissionDto? updated = null;
-        lock (gate) // Cap nhat du lieu truoc
+        lock (gate) // Cập nhật dữ liệu trong RAM trước
         {
             var i = list.FindIndex(s => s.Id == id);
             if (i >= 0)
@@ -166,10 +167,10 @@ static partial class Program
 
         if (updated is null) return;
 
-        Console.WriteLine($"[Push] submission:{id} -> {status}");
-        var msg = new SubmissionStatusMessage(updated.Id, updated.Status, updated.UpdatedAt); // Du lieu toi thieu
+        Console.WriteLine($"[Push] {SubmissionGroups.ForSubmission(id)} -> {status}");
+        var msg = new SubmissionStatusMessage(updated.Id, updated.Status, updated.UpdatedAt); // Dữ liệu tối thiểu
         await hub.Clients.Group(SubmissionGroups.ForSubmission(id))
-            .SendAsync("SubmissionStatusChanged", msg); // Day toi dung nhom
+            .SendAsync("SubmissionStatusChanged", msg); // Đẩy tới đúng nhóm khách
     }
 }
 
