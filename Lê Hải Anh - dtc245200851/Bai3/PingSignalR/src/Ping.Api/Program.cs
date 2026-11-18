@@ -1,15 +1,12 @@
+using Microsoft.AspNetCore.SignalR;
+
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services
-    .AddSignalR()
-    .AddJsonProtocol();
-
+builder.Services.AddSignalR();
 var app = builder.Build();
-
-app.MapHub<PingHub>("/ping");
-
+app.MapGet("/", () => Results.Ok(new { service = "PingApi", status = "running" }));
+app.MapHub<PingHub>("/hubs/ping");
 app.Run();
 
-public sealed class PingHub : Microsoft.AspNetCore.SignalR.Hub
+sealed class PingHub : Hub
 {
 }
