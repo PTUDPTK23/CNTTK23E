@@ -257,6 +257,14 @@ Client SaiTen đăng ký `EchoRespone`, vẫn kết nối và nhận Group/Broad
 
 Ảnh terminal lúc khoảng 09:57 ngày 18/11/2026: API chạy cổng 5000; client SV001 tạo lượt nộp `c131e243-af7a-45c4-b3c1-953ce520520c` với trạng thái `received`. Server đẩy `processing` rồi `graded`, client nhận đủ hai thông báo và đọc lại REST được `graded`, sau đó tự thoát. Hai thông báo có thời điểm 02:57:25.686 và 02:57:27.702 UTC, cách nhau khoảng 2 giây.
 
+![GET trang gốc trả 200 running](anh/edusubmit-http01.png)
+
+Ca 1 kiểm tra API tại `/`, nhận `200 OK` với service `Submission.RealtimeApi` và trạng thái `running`.
+
+![GET danh sách bài tập trả 200](anh/edusubmit-http02.png)
+
+Ca 2 đọc `/api/assignments`, nhận `200 OK` và ba bài tập. Bài 1, 2 đang mở; bài 3 đã đóng.
+
 ![POST tạo lượt nộp trả 201 Created](anh/edusubmit-http03.png)
 
 Ca 3 trong `requests.http` gửi mã sinh viên SV001 và đường dẫn repository. Response trả `201 Created`, header `Location` trỏ tới `/api/submissions/5f0faa2a-8002-4ff6-8275-ed70737c9448`, body có trạng thái `received` cùng thời điểm nhận và cập nhật. Ảnh chụp trực tiếp request/response trong VS Code lúc khoảng 10:03 ngày 18/11/2026.
@@ -273,6 +281,10 @@ Ca 5 gửi mã sinh viên và repository rỗng, nhận `400 Bad Request` với 
 
 Ca 6 nộp bài vào assignment 999, nhận `404 Not Found` với mã lỗi `ASSIGNMENT_NOT_FOUND`.
 
+![GET GUID rỗng trả 404 SUBMISSION_NOT_FOUND](anh/edusubmit-http07.png)
+
+Ca 7 tìm lượt nộp có GUID rỗng, nhận `404 Not Found` với mã lỗi `SUBMISSION_NOT_FOUND`. Các ảnh ca 1, 2, 7 chụp trong VS Code lúc khoảng 10:10 ngày 18/11/2026. Như vậy cả 9 ca REST bắt buộc đều có ảnh chụp trực tiếp.
+
 ![Negotiate trả 200 và ba transport](anh/edusubmit-http08.png)
 
 Ca 8 bắt tay tại `/hubs/submissions/negotiate`, nhận `200 OK`, `connectionId` và đủ WebSockets, ServerSentEvents, LongPolling.
@@ -281,9 +293,8 @@ Ca 8 bắt tay tại `/hubs/submissions/negotiate`, nhận `200 OK`, `connection
 
 Ca 9 dùng `/hub/submissions/negotiate`, nhận `404 Not Found`, body rỗng vì không khớp route. Các ảnh ca 4, 5, 6, 8, 9 chụp trực tiếp trong VS Code lúc khoảng 10:05–10:06 ngày 18/11/2026.
 
-Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Ca REST 1, 2, 7, bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
+Các ảnh còn lại dưới đây hiển thị log kiểm thử tự động qua trình duyệt. Bài tập hai lượt nộp và thí nghiệm sai tên/Watch muộn chưa có ảnh chụp trực tiếp. Log gốc nằm trong `evidence/`.
 
-![REST](anh/edusubmit-requests.png)
 ![Hai lượt graded và failed](anh/bai-tap2-3.png)
 ![Sai tên](anh/thi-nghiem4-sai-ten.png)
 ![Watch muộn](anh/thi-nghiem5-watch-muon.png)
