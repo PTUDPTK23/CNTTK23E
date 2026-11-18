@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Clinic.Core/Clinic.Core.csproj" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.57.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,91 @@
+{
+  "runId": "478dcef3",
+  "finishedAt": "2026-11-17T01:17:39.010171+00:00",
+  "failed": false,
+  "results": [
+    {
+      "name": "HTTP retry \u0111\u1ED3ng th\u1EDDi, restart API v\u00E0 n\u1ED9i dung kh\u00E1c",
+      "status": "PASS",
+      "evidence": "8 POST c\u00F9ng kh\u00F3a: 1 l\u1ECBch/1 ch\u1ED7/1 y\u00EAu c\u1EA7u c\u1EA5p s\u1ED1; kh\u00E1c n\u1ED9i dung 409, kh\u00F3a sai 400; restart v\u00E0 h\u1EE7y v\u1EABn tr\u1EA3 l\u1ECBch c\u0169.",
+      "seconds": 6.4772128
+    },
+    {
+      "name": "1. Tranh ch\u1EA5p ch\u1ED7 cu\u1ED1i",
+      "status": "PASS",
+      "evidence": "Hai POST \u0111\u1ED3ng th\u1EDDi: m\u1ED9t 201, m\u1ED9t 409; DB c\u00F3 \u0111\u00FAng 1 l\u1ECBch, reserved=1.",
+      "seconds": 0.0297281
+    },
+    {
+      "name": "2. D\u1EEBng v\u00E0 b\u1EADt l\u1EA1i Queue Worker",
+      "status": "PASS",
+      "evidence": "Worker d\u1EEBng: Pending, number=null; b\u1EADt l\u1EA1i: Waiting, number=1.",
+      "seconds": 3.2239226
+    },
+    {
+      "name": "3. RabbitMQ redelivery v\u00E0 y\u00EAu c\u1EA7u tr\u00F9ng",
+      "status": "PASS",
+      "evidence": "\u0110\u00E3 quan s\u00E1t Redelivered=true sau \u0111\u00F3ng channel ch\u01B0a ACK; ph\u00E1t l\u1EA1i th\u00EAm 2 l\u1EA7n: s\u1ED1 v\u1EABn 1, last_number=1.",
+      "seconds": 9.5406145
+    },
+    {
+      "name": "4. H\u1EE7y tr\u01B0\u1EDBc khi Worker x\u1EED l\u00FD",
+      "status": "PASS",
+      "evidence": "H\u1EE7y 2 l\u1EA7n: reserved=0; Worker ch\u1EA1y l\u1EA1i: Cancelled, number=null; \u0111\u1EB7t l\u1EA1i \u0111\u01B0\u1EE3c ch\u1ED7 v\u00E0 nh\u1EADn s\u1ED1 1.",
+      "seconds": 3.3479589
+    },
+    {
+      "name": "Ph\u00E2n quy\u1EC1n REST v\u00E0 ch\u1ED1ng truy c\u1EADp l\u1ECBch ng\u01B0\u1EDDi kh\u00E1c",
+      "status": "PASS",
+      "evidence": "GET/DELETE c\u00E1 nh\u00E2n kh\u00F4ng c\u00F3 kh\u00F3a tr\u1EA3 403; g\u1ECDi l\u01B0\u1EE3t kh\u00F4ng \u0111\u0103ng nh\u1EADp tr\u1EA3 401.",
+      "seconds": 0.0294766
+    },
+    {
+      "name": "Th\u1EE9 t\u1EF1 g\u1ECDi theo khung gi\u1EDD v\u00E0 ch\u1EB7n l\u01B0\u1EE3t ch\u01B0a \u0111\u1EBFn",
+      "status": "PASS",
+      "evidence": "Khung s\u1EDBm \u0111\u01B0\u1EE3c g\u1ECDi tr\u01B0\u1EDBc d\u00F9 s\u1ED1 l\u1EDBn h\u01A1n; khung t\u01B0\u01A1ng lai kh\u00F4ng \u0111\u01B0\u1EE3c g\u1ECDi (409).",
+      "seconds": 0.59878
+    },
+    {
+      "name": "Outbox b\u1EC1n v\u1EEFng khi RabbitMQ ng\u1EEBng v\u00E0 API restart",
+      "status": "PASS",
+      "evidence": "\u0110\u1EB7t th\u00E0nh c\u00F4ng khi broker d\u1EEBng; quan s\u00E1t outbox ch\u01B0a g\u1EEDi, restart API v\u1EABn c\u00F2n Pending; b\u1EADt broker t\u1EF1 c\u1EA5p s\u1ED1 1.",
+      "seconds": 12.1050684
+    },
+    {
+      "name": "5. Hai c\u1EEDa s\u1ED5 b\u1EC7nh nh\u00E2n/nh\u00E2n vi\u00EAn c\u1EADp nh\u1EADt SignalR",
+      "status": "PASS",
+      "evidence": "Chrome th\u1EADt: \u0111\u1EB7t l\u1ECBch qua form, nh\u00E2n vi\u00EAn g\u1ECDi s\u1ED1 1, b\u1EC7nh nh\u00E2n t\u1EF1 c\u1EADp nh\u1EADt l\u01B0\u1EE3t v\u00E0 tr\u1EA1ng th\u00E1i; ch\u1EC9 1 navigation, kh\u00F4ng l\u1ED7i JS.",
+      "seconds": 2.9238166
+    },
+    {
+      "name": "6. Client ng\u1EAFt m\u1EA1ng, k\u1EBFt n\u1ED1i l\u1EA1i v\u00E0 \u0111\u1ED3ng b\u1ED9 API",
+      "status": "PASS",
+      "evidence": "Ng\u1EAFt m\u1EA1ng context b\u1EC7nh nh\u00E2n, ho\u00E0n th\u00E0nh l\u01B0\u1EE3t khi offline; n\u1ED1i l\u1EA1i t\u1EF1 GET API (1 request) v\u00E0 hi\u1EC3n th\u1ECB \u0111\u00FAng, kh\u00F4ng reload.",
+      "seconds": 31.1942751
+    },
+    {
+      "name": "SignalR t\u1EEB ch\u1ED1i nh\u00F3m l\u1ECBch ri\u00EAng n\u1EBFu kh\u00F3a sai",
+      "status": "PASS",
+      "evidence": "Hub JoinAppointment v\u1EDBi kh\u00F3a sai b\u1ECB t\u1EEB ch\u1ED1i trong tr\u00ECnh duy\u1EC7t th\u1EADt.",
+      "seconds": 0.347826
+    },
+    {
+      "name": "Ch\u1ED7 tr\u1ED1ng c\u1EADp nh\u1EADt khi Worker d\u1EEBng v\u00E0 reconnect",
+      "status": "PASS",
+      "evidence": "Worker d\u1EEBng: tab kh\u00E1c \u0111\u1EB7t/h\u1EE7y c\u1EADp nh\u1EADt ch\u1ED7; gi\u1EEF l\u1EF1a ch\u1ECDn khung gi\u1EDD, reconnect l\u1EA5y l\u1EA1i ch\u1ED7 m\u1EDBi nh\u1EA5t.",
+      "seconds": 37.0623472
+    },
+    {
+      "name": "Kh\u00F4i ph\u1EE5c \u0111\u00FAng b\u00E1c s\u0129 v\u00E0 ng\u00E0y sau reload",
+      "status": "PASS",
+      "evidence": "Reload l\u1ECBch ng\u00E0y mai c\u1EE7a b\u00E1c s\u0129 kh\u00E1c: b\u1ED9 ch\u1ECDn b\u00E1c s\u0129/ng\u00E0y v\u00E0 l\u1ECBch c\u00E1 nh\u00E2n kh\u1EDBp nhau.",
+      "seconds": 2.434652
+    },
+    {
+      "name": "Tr\u00ECnh duy\u1EC7t m\u1EA5t ph\u1EA3n h\u1ED3i \u0111\u1EB7t l\u1ECBch r\u1ED3i reload v\u00E0 th\u1EED l\u1EA1i",
+      "status": "PASS",
+      "evidence": "Server l\u01B0u nh\u01B0ng ph\u1EA3n h\u1ED3i b\u1ECB ch\u1EB7n; reload v\u00E0 th\u1EED l\u1EA1i tr\u1EA3 l\u1ECBch c\u0169, DB ch\u1EC9 c\u00F3 1 l\u1ECBch v\u00E0 reserved=1.",
+      "seconds": 1.2111552
+    }
+  ]
+}
