@@ -70,50 +70,65 @@ Nhật ký thực hành Bài 3. Mỗi bước gồm: ảnh kết quả, điều 
 
 ## Phần 2: EduSubmit realtime (RealtimeSubmissionSystem)
 
+Máy chủ `Submission.RealtimeApi` cổng 5000 (REST của Bài 2 + hub `/hubs/submissions`), máy khách `Submission.RealtimeClient`.
+
 ### Bước 1: tạo solution
 
-- **Thấy:** 
-- **Giải thích:** 
+- **Thấy:** 9 lệnh tạo `RealtimeSubmissionSystem.slnx` với 2 project `Submission.RealtimeApi` (web) và `Submission.RealtimeClient` (console + gói `Microsoft.AspNetCore.SignalR.Client` 10.0.15); `dotnet build` báo Build succeeded, 0 Error(s).
+- **Giải thích:** Cùng khuôn với PingSignalR: một máy chủ, một máy khách, chạy thành 2 tiến trình. Máy khách cần cả HttpClient (REST) lẫn HubConnection (SignalR).
 
 ### Bước 2: REST của Bài 2 + UpdatedAt + lock
 
-- **Thấy:** 
-- **Giải thích:** 
+- **Thấy:** Giữ nguyên hợp đồng Bài 2: `GET /api/assignments`, `POST /api/assignments/{id}/submissions` (404 ASSIGNMENT_NOT_FOUND → 400 ASSIGNMENT_CLOSED → 400 INVALID_SUBMISSION → 201 + Location), `GET /api/submissions/{id}` (404 SUBMISSION_NOT_FOUND). `SubmissionDto` có thêm `UpdatedAt`.
+- **Giải thích:** `UpdatedAt` là thời điểm đổi trạng thái gần nhất để máy khách biết tin nào mới hơn. `lock (submissionsLock)` vì tác vụ chấm nền và các yêu cầu HTTP cùng đọc/ghi một danh sách; khóa đảm bảo mỗi lúc chỉ một luồng sửa.
 
 ### Bước 3: SubmissionHub + nhóm submission:{id}
 
-- **Thấy:** 
-- **Giải thích:** 
+- **Thấy:** `AddSignalR()` + `MapHub<SubmissionHub>("/hubs/submissions")`; negotiate ở `/hubs/submissions` trả 200 + connectionId, còn `/hub/submissions` trả 404 (ca 8 và 9 của requests.http).
+- **Giải thích:** Hub "mỏng" chỉ có `WatchSubmission(id)` để đưa kết nối vào nhóm `submission:{id}`; không tạo, không chấm bài. Tên nhóm sinh ở một chỗ duy nhất (`SubmissionGroups`) để hai phía không lệch tên. Dùng nhóm theo lượt nộp vì riêng tư (sinh viên không thấy bài người khác) và tiết kiệm đường truyền (không gửi cho tất cả).
 
 ### Bước 4: IHubContext + mô phỏng chấm nền
+![rest](anh/edusubmit-buoc4-rest.png)
 
-- **Thấy:** 
-- **Giải thích:** 
+- **Thấy:** POST trả 201 ngay với `status: received`; GET cùng id sau ~1,5 giây là `processing`, sau ~4,5 giây là `graded`; `updatedAt` tăng dần (34.54 → 35.55 → 37.56). Máy chủ in `[Push] submission:... -> processing` rồi `-> graded`.
+- **Giải thích:** POST nhận thêm `IHubContext<SubmissionHub>` (cái "loa" của hub dùng được ngoài hub) và gọi `SimulateGradingAsync` chạy nền không chờ, nên POST không phải đợi chấm. `UpdateStatusAsync` cập nhật dữ liệu TRƯỚC rồi mới đẩy `SubmissionStatusChanged` tới đúng nhóm, nên ai đọc REST ngay khi nhận tin cũng thấy đúng. Tin chỉ gồm 3 trường: SubmissionId, Status, UpdatedAt.
 
 ### Bước 5–6: máy khách hai kênh (REST + SignalR)
+![client](anh/edusubmit-client.png)
 
 Kết quả chạy máy khách (8 dòng):
 
 ```
-(dán kết quả máy khách vào đây)
+Da ket noi SignalR.
+Chon bai tap: 1 - Bai tap SignalR
+Da tao luot nop: be04f459-11a8-4750-850c-707e1895aaae
+Trang thai REST ban dau: received
+Dang cho thong bao trang thai tu may chu...
+Thong bao SignalR: be04f459-11a8-4750-850c-707e1895aaae -> processing luc 10:03:15
+Thong bao SignalR: be04f459-11a8-4750-850c-707e1895aaae -> graded luc 10:03:17
+Trang thai doc lai bang REST: graded
 ```
 
-- **Giải thích:** 
+- **Giải thích:** Thứ tự đúng: nghe (`On`) → nối (`StartAsync`) → tạo (POST) → theo dõi (`WatchSubmission(id)`) → đọc lại (GET). Hai dòng "Thong bao SignalR" do máy chủ tự đẩy, cách nhau 2 giây, máy khách không hề hỏi. `TaskCompletionSource` là "cái chuông" hoàn tất khi nhận graded; `Task.WhenAny` chờ chuông hoặc tối đa 10 giây. Trạng thái cuối luôn lấy lại bằng REST vì REST là nguồn sự thật.
 
 ### Bước 7: năm thí nghiệm phân tán
+![tn1](anh/edusubmit-tn1-hai-may-khach.png)
 
 | # | Thí nghiệm | Dự đoán (ghi TRƯỚC khi chạy) | Kết quả thật | Giải thích |
 |---|------------|------------------------------|--------------|------------|
-| 1 | Chạy 2 máy khách SV001 và SV002 cùng lúc | | | |
-| 2 | Chạy máy khách khi máy chủ chưa chạy | | | |
-| 3 | Sửa `WithUrl` thành `/hub/submissions` | | | |
-| 4 | Sửa `On("SubmissionStatusChanged")` thành `On("SubmissionStatusChange")` | | | |
-| 5 | Chờ 4 giây rồi mới gọi `WatchSubmission` | | | |
+| 1 | Chạy 2 máy khách SV001 và SV002 cùng lúc | Mỗi máy khách chỉ nhận thông báo về lượt nộp của chính mình, không thấy của người kia | Hai lượt nộp có id khác nhau (93f250d4…, 3b2a4f44…); mỗi máy khách chỉ nhận processing/graded của lượt nộp của mình | Nhóm `submission:{id}` tách người nhận: máy chủ chỉ đẩy tin tới kết nối đã Watch đúng id |
+| 2 | Chạy máy khách khi máy chủ chưa chạy | Báo lỗi không kết nối được tới localhost:5000 và chương trình dừng ngay | `HttpRequestException: No connection could be made ... (localhost:5000)`, dừng ngay ở StartAsync | Lỗi ngay ở negotiate; lần nối đầu tiên không được WithAutomaticReconnect tự thử lại |
+| 3 | Sửa `WithUrl` thành `/hub/submissions` | Báo lỗi 404 Not Found vì không có địa chỉ hub này | `HttpRequestException: ... 404 (Not Found)` ở NegotiateAsync | Máy chủ chạy nhưng không có tuyến này; đường dẫn phải khớp `MapHub("/hubs/submissions")` |
+| 4 | Sửa `On("SubmissionStatusChanged")` thành `On("SubmissionStatusChange")` | Không báo lỗi nhưng không nhận được thông báo nào, hết 10 giây thì REST đọc lại vẫn là graded | Không lỗi, không có dòng "Thong bao SignalR"; 10 giây sau in "Qua thoi gian cho thong bao graded."; REST đọc lại: graded | Sai tên ở chiều xuống thì tin bị bỏ qua trong im lặng; nhờ đọc lại bằng REST vẫn biết đúng trạng thái |
+| 5 | Chờ 4 giây rồi mới gọi `WatchSubmission` | Bị lỡ thông báo vì vào nhóm sau khi đã chấm xong, nhưng REST đọc lại vẫn là graded | Không nhận tin SignalR nào; "Qua thoi gian cho thong bao graded."; REST đọc lại: graded | Máy chủ chấm xong ở giây thứ 3, vào nhóm ở giây thứ 4 là lỡ tin; SignalR không lưu tin cũ. REST là nguồn sự thật |
+
+Bài học: thông điệp thời gian thực có thể bị lỡ. Thiết kế đúng = push (SignalR) để nhanh + REST để chắc.
 
 ### Bước 8: requests.http
 ![edusubmit](anh/edusubmit-requests.png)
 
-- **Thấy:** 
+- **Thấy:** `requests.http` có 9 ca (thêm ca 10). Chạy thử: ca 1, 2, 4, 8 → 200; ca 3 → 201; ca 5 → 400; ca 6, 7, 9 → 404; ca 10 (bài tập đã đóng) → 400.
+- **Giải thích:** requests.http là "máy khách thứ hai" dùng chung hợp đồng: bao phủ đủ 200, 201, 400, 404 và cả bước bắt tay negotiate của hub (đúng: 200, sai đường dẫn: 404).
 
 ---
 
@@ -121,7 +136,12 @@ Kết quả chạy máy khách (8 dòng):
 
 **1. Máy chủ có thể chủ động báo cho máy khách không?**
 
+Có, nếu máy khách mở sẵn một kết nối lâu dài (WebSocket qua SignalR). Với REST thuần thì không: máy chủ chỉ trả lời khi được hỏi. Trong EduSubmit, máy chủ chủ động gửi bằng `hubContext.Clients.Group("submission:{id}").SendAsync("SubmissionStatusChanged", ...)` mỗi khi trạng thái đổi.
+
 **2. REST và SignalR chia việc với nhau thế nào?**
+
+REST tạo và đọc tài nguyên với mã trạng thái rõ ràng (POST tạo lượt nộp → 201, GET đọc trạng thái). SignalR chỉ đẩy các thay đổi phát sinh SAU yêu cầu ban đầu (processing, graded) để máy khách biết sớm mà không phải hỏi liên tục. SignalR không thay thế REST; REST là nguồn sự thật.
 
 **3. Nếu đứt mạng đúng lúc máy chủ báo "graded" thì sao?**
 
+Tin đó bị mất vì SignalR không lưu tin để gửi lại. `WithAutomaticReconnect` nối lại với ConnectionId mới (đã thấy ở Phần 1 bước 6), lúc đó kết nối cũ không còn trong nhóm, nên máy khách phải gọi lại `WatchSubmission` và gọi `GET /api/submissions/{id}` để lấy trạng thái cuối (như thí nghiệm 4 và 5).
