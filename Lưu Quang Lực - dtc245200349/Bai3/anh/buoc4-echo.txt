@@ -1,5 +1,6 @@
 PS D:\PTUD\Bai3> dotnet PingSignalR/src/Ping.Client/bin/Debug/net10.0/Ping.Client.dll http://localhost:5200 An
-MAY CHU
+MAY CHU (trich log; ban day du: buoc4-echo-raw.txt)
+
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:5200
 info: Microsoft.Hosting.Lifetime[0]
@@ -8,30 +9,6 @@ info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: D:\PTUD\Bai3
-info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:5200/ - - -
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
-      Executing endpoint 'HTTP: GET /'
-info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
-      Setting HTTP status code 200.
-info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
-      Writing value of type '<>f__AnonymousType0`2' as Json.
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
-      Executed endpoint 'HTTP: GET /'
-info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 GET http://localhost:5200/ - 200 - application/json;+charset=utf-8 68.0387ms
-info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 POST http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1 - - 0
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
-      Executing endpoint '/hubs/ping/negotiate'
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
-      Executed endpoint '/hubs/ping/negotiate'
-info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/1.1 POST http://localhost:5200/hubs/ping/negotiate?negotiateVersion=1 - 200 316 application/json 17.3427ms
-info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/1.1 GET http://localhost:5200/hubs/ping?id=PEZQnGi-v7MvIkskl8GI4A - - -
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
-      Executing endpoint '/hubs/ping'
 
 MAY KHACH AN
 An da ket noi den PingApi. ConnectionId: dEMtDRr7BCYplV_JNJy3nA

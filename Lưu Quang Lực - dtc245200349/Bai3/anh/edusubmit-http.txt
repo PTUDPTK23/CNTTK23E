@@ -10,5 +10,3 @@ PS D:\PTUD\Bai3> curl.exe (cac request tu requests.http; log day du o edusubmit-
 09 wrong hub: POST /hub/submissions/negotiate?negotiateVersion=1 => 404 PASS
 10 closed assignment: POST /api/assignments/3/submissions => 400 PASS
 11 Ping negotiate: POST :5200/hubs/ping/negotiate => 200 PASS
-
-GET sau 5s: FkPMYFz66aFv3UwVTGVB8Q (Ping connectionId)
