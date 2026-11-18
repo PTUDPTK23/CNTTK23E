@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fc">
+  <title>Đăng nhập | InvoiceFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/css/base.css">
+  <link rel="stylesheet" href="shared/css/auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="welcome-panel" aria-label="Giới thiệu hệ thống">
+      <a class="brand" href="index.html" aria-label="InvoiceFlow - Trang chủ">
+        <span class="brand-mark" aria-hidden="true">I</span>
+        <span>Invoice<span class="brand-light">Flow</span></span>
+      </a>
+
+      <div class="welcome-copy">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> QUẢN LÝ HÓA ĐƠN TẬP TRUNG</span>
+        <h1>Đơn giản hóa<br>quy trình hóa đơn.</h1>
+        <p>Một không gian rõ ràng để theo dõi, xử lý và quản lý hóa đơn của bạn.</p>
+      </div>
+
+      <div class="welcome-footer">
+        <div class="avatar-stack" aria-hidden="true"><span>K</span><span>N</span><span>A</span><span>+</span></div>
+        <span>Dành cho khách hàng, nhân viên và quản trị viên</span>
+      </div>
+      <div class="decor decor-one" aria-hidden="true"></div>
+      <div class="decor decor-two" aria-hidden="true"></div>
+    </section>
+
+    <section class="form-panel">
+      <div class="auth-card">
+        <div class="mobile-brand brand">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span>Invoice<span class="brand-light">Flow</span></span>
+        </div>
+        <div id="login-view">
+        <div class="form-heading">
+          <span class="form-kicker">CHÀO MỪNG TRỞ LẠI</span>
+          <h2>Đăng nhập</h2>
+          <p>Nhập thông tin để truy cập tài khoản của bạn.</p>
+        </div>
+        <form id="login-form" class="auth-form" novalidate>
+          <label class="field-label" for="login-username">Tên đăng nhập</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0 1 14 0"></path></svg>
+            <input id="login-username" name="username" type="text" placeholder="Nhập tên đăng nhập" autocomplete="username" required>
+          </div>
+
+          <div class="label-row"><label class="field-label" for="login-password">Mật khẩu</label></div>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+            <input id="login-password" name="password" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password" minlength="8" required>
+            <button class="password-toggle" type="button" data-toggle-password="login-password" aria-label="Hiện mật khẩu">Hiện</button>
+          </div>
+
+          <div class="form-options">
+            <label class="check-label"><input type="checkbox" name="remember"><span>Ghi nhớ đăng nhập</span></label>
+            <a class="muted-note forgot-link" href="index.html#forgot-password" id="forgot-password-open">Quên mật khẩu?</a>
+          </div>
+
+          <button class="primary-button" type="submit">Đăng nhập <span aria-hidden="true">→</span></button>
+          <p id="login-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="form-divider"><span>hoặc</span></div>
+        <p class="switch-form">Chưa có tài khoản? <a href="register.html">Tạo tài khoản</a></p>
+        <p class="staff-note">Tài khoản nhân viên và quản trị viên được cấp bởi quản trị hệ thống.</p>
+        </div>
+        <section id="password-recovery" class="password-recovery" hidden aria-live="polite">
+          <div class="form-heading"><span class="form-kicker">KHÔI PHỤC TÀI KHOẢN</span><h2>Quên mật khẩu?</h2><p>Nhập tên đăng nhập quản trị để lấy mã OTP.</p></div>
+          <form id="recovery-request-form" class="auth-form" novalidate>
+            <label class="field-label" for="recovery-username">Tên đăng nhập</label>
+            <div class="input-wrap"><input id="recovery-username" name="username" type="text" autocomplete="username" placeholder="Nhập tên đăng nhập" required></div>
+            <button class="primary-button" type="submit">Lấy mã OTP <span aria-hidden="true">→</span></button>
+            <p id="recovery-request-message" class="form-message" role="status" aria-live="polite"></p>
+          </form>
+          <p id="recovery-code-hint" class="recovery-code-hint" hidden></p>
+          <form id="recovery-confirm-form" class="auth-form" hidden novalidate>
+            <label class="field-label" for="recovery-code">Mã OTP</label>
+            <div class="input-wrap"><input id="recovery-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Nhập mã 6 chữ số" required></div>
+            <label class="field-label recovery-label" for="recovery-password">Mật khẩu mới</label>
+            <div class="input-wrap"><input id="recovery-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Tối thiểu 8 ký tự" required><button class="password-toggle" type="button" data-toggle-password="recovery-password" aria-label="Hiện mật khẩu">Hiện</button></div>
+            <label class="field-label recovery-label" for="recovery-confirm-password">Nhập lại mật khẩu mới</label>
+            <div class="input-wrap"><input id="recovery-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Nhập lại mật khẩu mới" required></div>
+            <button class="primary-button recovery-submit" type="submit">Đặt lại mật khẩu <span aria-hidden="true">→</span></button>
+            <p id="recovery-confirm-message" class="form-message" role="status" aria-live="polite"></p>
+          </form>
+          <button class="back-to-login" id="back-to-login" type="button">← Quay lại đăng nhập</button>
+        </section>
+      </div>
+      <footer class="page-footer"><span>© 2026 InvoiceFlow</span></footer>
+    </section>
+  </main>
+  <script src="shared/js/config.js" defer></script>
+  <script src="shared/js/auth.js" defer></script>
+</body>
+</html>

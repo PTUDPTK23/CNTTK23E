@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Tổng quan quản trị | InvoiceFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dashboard-page">
+  <p id="admin-loading" class="session-loading" role="status">Đang xác thực phiên quản trị…</p>
+  <div id="admin-content" class="app-shell" hidden>
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="index.html" aria-label="InvoiceFlow, trang tổng quan">
+        <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"/><path d="M14 4v4h4M8.5 12h7M8.5 15.5h7"/></svg></span>
+        <span>invoice<span class="brand-light">flow</span></span>
+      </a>
+      <div class="workspace-label">KHÔNG GIAN LÀM VIỆC</div>
+      <nav class="main-nav" aria-label="Điều hướng quản trị">
+        <a class="nav-item active" href="#overview" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/></svg></span>Tổng quan</a>
+        <a class="nav-item" href="#accounts"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20M17 8h4M19 6v4"/></svg></span>Quản lý tài khoản</a>
+        <a class="nav-item" href="#permissions"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>Phân quyền người dùng</a>
+        <a class="nav-item" href="#invoices"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-3-1.8-3 1.8-3-1.8-3 1.8v-17Z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>Quản lý hóa đơn<span class="nav-count">12</span></a>
+        <a class="nav-item" href="#reports"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/></svg></span>Báo cáo, thống kê</a>
+        <a class="nav-item" href="#inventory"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5M12 13v8"/></svg></span>Xem tồn kho</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a class="nav-item settings-link" href="#settings"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z"/></svg></span>Cài đặt</a>
+        <div class="profile-card"><div class="avatar" id="admin-avatar">V</div><div class="profile-meta"><strong id="admin-username">Quản trị viên</strong><span>Quản trị viên</span></div><button id="admin-logout" class="logout-button" type="button" aria-label="Đăng xuất" title="Đăng xuất"><svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg></button></div>
+      </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Mở điều hướng"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <div class="breadcrumb">Trang quản trị <span>/</span> <strong>Tổng quan</strong></div>
+        <div class="topbar-actions"><span class="today-label" id="today-label"></span><button class="icon-button notification-button" aria-label="Thông báo" type="button"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><i></i></button></div>
+      </header>
+
+      <section class="page-heading">
+        <div><p class="eyebrow"><span></span> BẢNG ĐIỀU KHIỂN</p><h1>Tổng quan</h1><p class="heading-subtitle">Chào mừng trở lại, <strong id="welcome-name">quản trị viên</strong>. Đây là tình hình hoạt động hôm nay.</p></div>
+        <button class="date-filter" type="button"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9h17"/></svg> 30 ngày qua <span class="chevron">⌄</span></button>
+      </section>
+      <section class="module-view" id="module-view" hidden aria-live="polite"></section>
+      <div id="overview-content">
+      <div class="demo-notice"><span>i</span><p><strong>Bản xem trước giao diện</strong> — các chỉ số và hóa đơn bên dưới là dữ liệu minh họa, chưa kết nối API nghiệp vụ.</p></div>
+
+      <section class="metrics-grid" aria-label="Chỉ số tổng quan">
+        <article class="metric-card"><div class="metric-top"><span>Tổng doanh thu</span><span class="metric-icon icon-violet"><svg viewBox="0 0 24 24"><path d="M4 18V9M10 18V5M16 18v-6M22 18V3"/></svg></span></div><div class="metric-value">₫248.6<span class="metric-unit">tr</span></div><div class="metric-foot"><span class="trend positive">↗ 12.8%</span><span>so với tháng trước</span></div><div class="sparkline spark-purple" aria-hidden="true"><svg viewBox="0 0 120 28" preserveAspectRatio="none"><path d="M0 23 C12 22 14 14 24 17 S39 23 49 14 64 16 73 11 86 17 96 8 109 12 120 2"/></svg></div></article>
+        <article class="metric-card"><div class="metric-top"><span>Hóa đơn</span><span class="metric-icon icon-blue"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-3-1.8-3 1.8-3-1.8-3 1.8v-17Z"/><path d="M9 8h6M9 12h6"/></svg></span></div><div class="metric-value">1,284</div><div class="metric-foot"><span class="trend positive">↗ 8.2%</span><span>so với tháng trước</span></div><div class="sparkline spark-blue" aria-hidden="true"><svg viewBox="0 0 120 28" preserveAspectRatio="none"><path d="M0 20 C11 18 12 11 23 16 S39 23 48 13 61 17 71 10 85 14 94 7 109 10 120 3"/></svg></div></article>
+        <article class="metric-card"><div class="metric-top"><span>Khách hàng</span><span class="metric-icon icon-green"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20M16 5a3.5 3.5 0 0 1 0 6.8M18 14a5 5 0 0 1 3 4.5V20"/></svg></span></div><div class="metric-value">856</div><div class="metric-foot"><span class="trend positive">↗ 5.4%</span><span>so với tháng trước</span></div><div class="sparkline spark-green" aria-hidden="true"><svg viewBox="0 0 120 28" preserveAspectRatio="none"><path d="M0 21 C11 18 14 23 24 15 S38 19 48 14 61 15 70 10 83 15 94 7 108 8 120 3"/></svg></div></article>
+        <article class="metric-card"><div class="metric-top"><span>Chờ thanh toán</span><span class="metric-icon icon-orange"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span></div><div class="metric-value">₫32.4<span class="metric-unit">tr</span></div><div class="metric-foot"><span class="trend negative">↓ 2.1%</span><span>so với tháng trước</span></div><div class="sparkline spark-orange" aria-hidden="true"><svg viewBox="0 0 120 28" preserveAspectRatio="none"><path d="M0 5 C12 6 15 13 25 10 S39 6 49 14 64 11 73 17 85 13 96 21 108 17 120 25"/></svg></div></article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel revenue-panel"><div class="panel-heading"><div><h2>Doanh thu</h2><p>Doanh thu hóa đơn đã thanh toán theo tháng</p></div><span class="period-select">Năm hiện tại</span></div><div class="chart-legend"><span><i class="legend-dot primary-dot"></i>Đã thanh toán</span></div><div class="chart-wrap"><div class="y-axis"><span>₫80tr</span><span>₫60tr</span><span>₫40tr</span><span>₫20tr</span><span>₫0</span></div><div class="chart-area"><div class="grid-lines"><i></i><i></i><i></i><i></i><i></i></div><svg class="revenue-chart" viewBox="0 0 700 220" preserveAspectRatio="none" role="img" aria-label="Biểu đồ doanh thu theo tháng"><defs><linearGradient id="revenueFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#6758d8" stop-opacity=".19"/><stop offset="100%" stop-color="#6758d8" stop-opacity="0"/></linearGradient></defs><path class="previous-line" d=""/><path class="current-fill" d=""/><path class="current-line" d=""/><circle cx="0" cy="0" r="4" class="chart-point"/></svg><div class="x-axis"><span>T1</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>T8</span><span>T9</span><span>T10</span><span>T11</span><span>T12</span></div></div></div></article>
+        <article class="panel status-panel"><div class="panel-heading"><div><h2>Trạng thái hóa đơn</h2><p>Tổng quan các hóa đơn hiện tại</p></div><button class="more-button" type="button" aria-label="Tùy chọn">···</button></div><div class="donut-area"><div class="donut"><div class="donut-center"><strong>1,284</strong><span>Tổng hóa đơn</span></div></div></div><div class="status-legend"><div><i class="status-dot paid-dot"></i><span>Đã thanh toán</span><strong>842 <small>65.6%</small></strong></div><div><i class="status-dot pending-dot"></i><span>Chờ thanh toán</span><strong>286 <small>22.3%</small></strong></div><div><i class="status-dot overdue-dot"></i><span>Quá hạn</span><strong>156 <small>12.1%</small></strong></div></div></article>
+      </section>
+
+      <section class="panel invoices-panel" id="invoices"><div class="panel-heading invoices-heading"><div><h2>Hóa đơn gần đây</h2><p>Theo dõi các giao dịch mới nhất</p></div><a class="view-all" href="#invoices">Xem tất cả <span>→</span></a></div><div class="table-scroll"><table><thead><tr><th>MÃ HÓA ĐƠN</th><th>KHÁCH HÀNG</th><th>NGÀY TẠO</th><th>SỐ TIỀN</th><th>TRẠNG THÁI</th><th></th></tr></thead><tbody>
+        <tr><td><span class="invoice-id">#INV-2025-0842</span></td><td><span class="customer-cell"><span class="customer-avatar avatar-lilac">NA</span>Nguyễn An</span></td><td>17 Thg 11, 2026</td><td class="amount">₫12,500,000</td><td><span class="status-badge status-paid"><i></i>Đã thanh toán</span></td><td><button class="row-more" type="button" aria-label="Tùy chọn hóa đơn INV-2025-0842">···</button></td></tr>
+        <tr><td><span class="invoice-id">#INV-2025-0841</span></td><td><span class="customer-cell"><span class="customer-avatar avatar-peach">TL</span>Trần Minh Long</span></td><td>16 Thg 11, 2026</td><td class="amount">₫8,250,000</td><td><span class="status-badge status-pending"><i></i>Chờ thanh toán</span></td><td><button class="row-more" type="button" aria-label="Tùy chọn hóa đơn INV-2025-0841">···</button></td></tr>
+        <tr><td><span class="invoice-id">#INV-2025-0840</span></td><td><span class="customer-cell"><span class="customer-avatar avatar-mint">PH</span>Phạm Thu Hà</span></td><td>15 Thg 11, 2026</td><td class="amount">₫4,800,000</td><td><span class="status-badge status-overdue"><i></i>Quá hạn</span></td><td><button class="row-more" type="button" aria-label="Tùy chọn hóa đơn INV-2025-0840">···</button></td></tr>
+        <tr><td><span class="invoice-id">#INV-2025-0839</span></td><td><span class="customer-cell"><span class="customer-avatar avatar-sky">LV</span>Lê Hoàng Vy</span></td><td>14 Thg 11, 2026</td><td class="amount">₫16,000,000</td><td><span class="status-badge status-paid"><i></i>Đã thanh toán</span></td><td><button class="row-more" type="button" aria-label="Tùy chọn hóa đơn INV-2025-0839">···</button></td></tr>
+      </tbody></table></div><div class="table-footer"><span>Hiển thị <strong>4</strong> trong <strong>1,284</strong> hóa đơn</span><div class="pagination"><button type="button" disabled aria-label="Trang trước">‹</button><button class="page-current" type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><span>…</span><button type="button">12</button><button type="button" aria-label="Trang sau">›</button></div></div></section>
+      </div>
+      <footer class="page-bottom"><span>© 2026 InvoiceFlow</span><span>Bản xem trước • Dữ liệu minh họa</span></footer>
+    </main>
+  </div>
+  <script src="../shared/js/config.js" defer></script>
+  <script src="../shared/js/admin.js" defer></script>
+</body>
+</html>
