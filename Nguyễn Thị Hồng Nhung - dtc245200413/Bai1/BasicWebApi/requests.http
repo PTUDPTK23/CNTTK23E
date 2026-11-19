@@ -1,0 +1,27 @@
+
+@api = http://localhost:5081
+
+### Kiểm tra API đang chạy → 200
+GET {{api}}/
+
+### Chào tiếng Việt → 200
+GET {{api}}/hello/Nguyen%20Thi%20Hong%20Nhung?language=vi
+
+### Chào tiếng Anh → 200
+GET {{api}}/hello/Nguyen%20Thi%20Hong%20Nhung?language=en
+
+### Tạo lời chào hợp lệ → 201 Created
+POST {{api}}/greetings
+Content-Type: application/json
+
+{
+  "name": "Nguyen Thi Hong Nhung"
+}
+
+### Tên rỗng → 400 Bad Request
+POST {{api}}/greetings
+Content-Type: application/json
+
+{
+  "name": ""
+}
