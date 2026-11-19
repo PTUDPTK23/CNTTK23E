@@ -149,7 +149,7 @@ public sealed class AccountController(
             session.AccessToken,
             new UpdateProfileRequest
             {
-                FullName = role is "Patient" or "Doctor" ? model.FullName : null,
+                FullName = role is "Patient" or "Doctor" or "Receptionist" or "Admin" ? model.FullName : null,
                 PhoneNumber = model.PhoneNumber
             },
             cancellationToken);

@@ -41,7 +41,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
 - Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser` và Migration `20261117142359_InitialCreate`. Migration đã áp dụng vào `MediQueue` ngày 18/11/2026; schema có 21 bảng mô hình + bảng lịch sử.
 - `Appointment.Api` và `Queue.Worker` dùng `UserSecretsId` riêng của `Tuan2`; không sao chép giá trị User Secrets từ Tuần 1.
-- Backend Login/Register/JWT có từ Prompt 03.2. MVC Cookie flow, typed Account API client, kho JWT in-memory phía server và UI account đã hoàn thành trong Prompt 03.3.1. Prompt 03.4 đã bổ sung `GET /api/dashboard/me`, typed Dashboard client, workspace dùng chung và bốn Dashboard theo Role. Sáu API nghiệp vụ tối thiểu, CRUD danh mục, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
+- Backend Login/Register/JWT có từ Prompt 03.2; MVC Cookie/UI từ 03.3.1; Dashboard theo Role từ 03.4. Prompt 03.5 đã bổ sung module `Users` Admin-only, typed client/MVC UI và `StaffFullName` nullable. Migration tương ứng đã được sinh viên apply; Prompt 03.5.1 đã xác minh query read-only trên schema thật và sửa lỗi projection/sort EF Core. Sáu API nghiệp vụ tối thiểu, CRUD danh mục, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
 - Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
 - MVC Controller kế thừa `Controller` và chỉ phục vụ View/ViewModel; API Controller kế thừa `ControllerBase`, trả JSON/HTTP status/`ProblemDetails`. Controller không gọi controller khác.
@@ -102,6 +102,8 @@ Không tự thực hiện các hành động sau nếu người dùng chưa yêu
 - Commit, push, tạo branch, Pull Request hoặc làm giả lịch sử phát triển.
 
 Migration `InitialCreate` đã áp dụng thành công cho `MediQueue`; không chạy lại, không sửa `__EFMigrationsHistory` và không xóa/tạo lại database. Không tạo database theo tuần. Mọi write integration test phải dùng database test cô lập được chỉ định rõ, tuyệt đối không ghi dữ liệu test vào `MediQueue`.
+
+Migration `20261119135325_AddStaffFullNameToApplicationUser` đã được sinh viên apply và đã xác minh read-only. Không chạy lại, không sửa migration history và không ghi dữ liệu test vào `MediQueue`; xem `docs/user-management.md`.
 
 ## 8. Quy tắc lịch sử Git và Pull Request
 

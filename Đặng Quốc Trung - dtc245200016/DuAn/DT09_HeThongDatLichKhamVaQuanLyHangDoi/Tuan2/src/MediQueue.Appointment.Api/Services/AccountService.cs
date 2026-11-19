@@ -187,6 +187,11 @@ public sealed class AccountService(
         try
         {
             user.PhoneNumber = NormalizeOptional(request.PhoneNumber);
+            if (role is SystemRoles.Admin or SystemRoles.Receptionist)
+            {
+                user.StaffFullName = request.FullName?.Trim() ?? user.StaffFullName;
+            }
+
             IdentityResult updateUserResult = await userManager.UpdateAsync(user);
             if (!updateUserResult.Succeeded)
             {
@@ -215,20 +220,13 @@ public sealed class AccountService(
                     cancellationToken);
                 if (doctor is null)
                 {
-                    await transaction.RollbackAsync(cancellationToken);
-                    return Failure<AccountProfileResponse>(409, "Hồ sơ không hợp lệ",
-                        "Tài khoản Doctor chưa có hồ sơ bác sĩ.");
+                    user.StaffFullName = request.FullName?.Trim() ?? user.StaffFullName;
                 }
-
-                doctor.UpdateDisplayName(request.FullName ?? doctor.DisplayName);
+                else
+                {
+                    doctor.UpdateDisplayName(request.FullName ?? doctor.DisplayName);
+                }
             }
-            else if (request.FullName is not null)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                return Validation<AccountProfileResponse>(nameof(request.FullName),
-                    "Phiên bản hiện tại chưa lưu họ tên cho Receptionist/Admin.");
-            }
-
             await dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return AccountServiceResult<AccountProfileResponse>.Success(
@@ -298,7 +296,7 @@ public sealed class AccountService(
         Patient? patient,
         MediQueue.Domain.Doctors.Doctor? doctor) => new(
             user.Id,
-            patient?.FullName ?? doctor?.DisplayName,
+            patient?.FullName ?? doctor?.DisplayName ?? user.StaffFullName,
             user.Email!,
             user.PhoneNumber,
             role,

@@ -42,7 +42,7 @@ QueueNumber tăng riêng theo Doctor/ngày, bắt đầu từ 1 mỗi ngày, kh�
 - Refactor `MediQueue.Web` từ Razor Pages sang ASP.NET Core MVC; trang chủ, trang lỗi, Layout và static assets đã được chuyển sang Controller/View.
 - Chuẩn hóa Controller và Views theo nghiệp vụ; menu/giao diện sẽ hiển thị theo Role sau khi dùng chung một form đăng nhập.
 
-Prompt 03.2 đã triển khai backend Identity/JWT và quản lý tài khoản; Prompt 03.3.1 đã nối Web MVC với API bằng typed `HttpClient`, token store phía server và cookie được Data Protection bảo vệ. Prompt 03.4 bổ sung Dashboard API read-only, shared authenticated workspace và bốn Dashboard theo Role bằng dữ liệu backend thực. JWT không xuất hiện trong HTML/JavaScript/browser storage; `localStorage` chỉ lưu tùy chọn thu gọn sidebar. CRUD danh mục, RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau. Chi tiết xem [xác thực và tài khoản](docs/authentication.md), [Dashboard theo vai trò](docs/dashboard.md) và [UI design system](docs/ui-design-system.md).
+Prompt 03.2 đã triển khai backend Identity/JWT; Prompt 03.3.1 nối Web MVC với API; Prompt 03.4 bổ sung workspace và Dashboard theo Role. Prompt 03.5 triển khai [quản lý người dùng và tài khoản nhân sự](docs/user-management.md) dành riêng cho Admin. Migration `StaffFullName` đã được sinh viên apply; Prompt 03.5.1 đã xác minh read-only và sửa lỗi query runtime của `/Users`. JWT không xuất hiện trong HTML/JavaScript/browser storage. CRUD danh mục, RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau.
 
 ## 3. Công nghệ và ràng buộc
 
@@ -132,6 +132,7 @@ Web gọi API tại `https://localhost:7101/`; vì cookie luôn `Secure`, luồn
 | [docs/authentication.md](docs/authentication.md) | Cấu hình, API, thu hồi token và quy trình bootstrap Role/Admin |
 | [docs/ui-design-system.md](docs/ui-design-system.md) | Design token, component, font, responsive và accessibility |
 | [docs/dashboard.md](docs/dashboard.md) | Kiến trúc, dữ liệu, bảo mật, UI và kiểm thử Dashboard theo Role |
+| [docs/user-management.md](docs/user-management.md) | Quản lý người dùng, tài khoản staff, bảo mật và trạng thái migration |
 | [AGENTS.md](AGENTS.md) | Quy tắc cho các lần phát triển tiếp theo |
 
 ## 7. Trạng thái
@@ -140,6 +141,7 @@ Web gọi API tại `https://localhost:7101/`; vì cookie luôn `Secure`, luồn
 - Solution, Domain và nền tảng EF Core Code First: đã hoàn thành trong Tuần 1 theo Prompt 02.2.
 - Frontend MVC và kiến trúc Controller theo nghiệp vụ: đã chuẩn hóa theo Prompt 02.2.1; Web không tham chiếu DbContext/Infrastructure.
 - Prompt 03.4: Dashboard API/MVC, shared layout/sidebar/header và bốn View theo Role đã triển khai; không thay đổi schema hoặc dữ liệu. Kết quả quality gate hiện hành được ghi tại `docs/progress.md`.
-- Database: `InitialCreate` đã áp dụng thành công ngày 18/11/2026; có 21 bảng mô hình + `__EFMigrationsHistory`, không có dữ liệu mẫu.
+- Prompt 03.5/03.5.1: module quản lý người dùng Admin-only đã triển khai; query EF Core, error state MVC và regression test đã được hoàn thiện.
+- Database thực tế: có `InitialCreate` và `AddStaffFullNameToApplicationUser`; cả hai đã apply, không có pending migration tại lần xác minh read-only ngày 19/11/2026.
 - Không tạo database theo tuần. `MediQueue` là database chính thức; Prompt 03.2 không thay đổi schema và không tạo Migration.
 - Chờ người dùng review và commit thủ công; không tự chuyển sang prompt tiếp theo.

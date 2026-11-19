@@ -539,6 +539,10 @@ namespace MediQueue.Infrastructure.Persistence.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StaffFullName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 

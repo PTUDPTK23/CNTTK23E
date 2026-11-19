@@ -6,6 +6,7 @@
     bool isDashboard = controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase);
     bool isProfile = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("Profile", StringComparison.OrdinalIgnoreCase);
     bool isPassword = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase);
+    bool isUsers = controller.Equals("Users", StringComparison.OrdinalIgnoreCase);
 }
 <aside class="dashboard-sidebar" id="dashboard-sidebar" data-sidebar aria-label="Điều hướng không gian làm việc">
     <div class="sidebar-brand-row">
@@ -28,6 +29,13 @@
         <a class="sidebar-link @(isDashboard ? "active" : null)" asp-controller="Dashboard" asp-action="Index" aria-current="@(isDashboard ? "page" : null)" title="Tổng quan">
             <svg aria-hidden="true"><use href="/images/icons.svg#home"></use></svg><span class="sidebar-label">Tổng quan</span>
         </a>
+        @if (role == "Admin")
+        {
+            <span class="sidebar-section-label sidebar-label">Quản trị</span>
+            <a class="sidebar-link @(isUsers ? "active" : null)" asp-controller="Users" asp-action="Index" aria-current="@(isUsers ? "page" : null)" title="Quản lý người dùng">
+                <svg aria-hidden="true"><use href="/images/icons.svg#users"></use></svg><span class="sidebar-label">Quản lý người dùng</span>
+            </a>
+        }
         <span class="sidebar-section-label sidebar-label">Tài khoản</span>
         <a class="sidebar-link @(isProfile ? "active" : null)" asp-controller="Account" asp-action="Profile" aria-current="@(isProfile ? "page" : null)" title="Hồ sơ cá nhân">
             <svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg><span class="sidebar-label">Hồ sơ cá nhân</span>

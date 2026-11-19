@@ -6,6 +6,7 @@
     int roleTotal = Math.Max(1, data.AccountsByRole.Sum(item => item.Count));
     IReadOnlyList<QuickActionViewModel> actions = new[]
     {
+        new QuickActionViewModel("Quản lý người dùng", "Tạo và quản trị tài khoản nhân sự", "users", "Users", "Index"),
         new QuickActionViewModel("Hồ sơ cá nhân", "Kiểm tra thông tin tài khoản", "user", "Account", "Profile"),
         new QuickActionViewModel("Đổi mật khẩu", "Cập nhật thông tin bảo mật", "lock", "Account", "ChangePassword"),
         new QuickActionViewModel("Trang chủ", "Quay lại trang giới thiệu", "home", "Home", "Index")

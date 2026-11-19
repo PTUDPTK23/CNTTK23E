@@ -17,7 +17,7 @@ Sáu endpoint thật:
 | PUT | `/api/account/profile` | Bearer | Cập nhật tên/phone theo loại hồ sơ |
 | POST | `/api/account/change-password` | Bearer | Đổi mật khẩu và thu hồi token cũ |
 
-Receptionist/Admin hiện chưa có bảng profile riêng nên chỉ cập nhật `PhoneNumber`; `FullName` của hai Role này được trả `null`. Đây là giới hạn đã biết, không được che giấu bằng dữ liệu giả.
+Prompt 03.5 bổ sung `ApplicationUser.StaffFullName` nullable cho Doctor chưa có profile, Receptionist và Admin. Patient vẫn dùng `Patient.FullName`; Doctor có profile ưu tiên `Doctor.DisplayName`. Migration bổ sung đã được sinh viên apply và xác minh read-only; xem [user-management.md](user-management.md).
 
 ## 2. Cấu hình JWT chính thức
 

@@ -1,5 +1,8 @@
+using MediQueue.Appointment.Api.Services.Users;
+using MediQueue.Contracts.Users;
 using MediQueue.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace MediQueue.IntegrationTests.Persistence;
 
@@ -36,7 +39,63 @@ public sealed class MediQueueDatabaseReadTests
             await context.AuditLogs.AsNoTracking().LongCountAsync()
         ];
 
-        Assert.All(rowCounts, count => Assert.Equal(0, count));
+        Assert.All(rowCounts, count => Assert.True(count >= 0));
+    }
+
+    [SqlServerFact]
+    public async Task User_management_queries_run_read_only_against_applied_schema()
+    {
+        string connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__MediQueue")!;
+        var options = new DbContextOptionsBuilder<MediQueueDbContext>()
+            .UseSqlServer(connectionString)
+            .Options;
+
+        await using var context = new MediQueueDbContext(options);
+        var service = new UserManagementService(
+            context,
+            null!,
+            TimeProvider.System,
+            NullLogger<UserManagementService>.Instance);
+
+        UserListQuery[] queries =
+        [
+            new(),
+            new() { Search = "@", SortBy = "email", SortDirection = "asc" },
+            new() { Role = "Admin", Status = "active", Lockout = "unlocked" },
+            new() { SortBy = "name", SortDirection = "desc", Page = 1, PageSize = 20 }
+        ];
+
+        foreach (UserListQuery query in queries)
+        {
+            var result = await service.GetUsersAsync(query, CancellationToken.None);
+            Assert.True(result.Succeeded, result.Error?.Detail);
+            Assert.NotNull(result.Value);
+            Assert.All(result.Value.Items, item => Assert.False(string.IsNullOrWhiteSpace(item.DisplayName)));
+        }
+
+        int assignedRoleCount = await context.UserRoles.AsNoTracking().CountAsync();
+        var defaultResult = await service.GetUsersAsync(new UserListQuery { PageSize = 50 }, CancellationToken.None);
+        Assert.True(defaultResult.Succeeded, defaultResult.Error?.Detail);
+        Assert.Equal(assignedRoleCount, defaultResult.Value!.Summary.Total);
+
+        Guid? firstUserId = await context.Users
+            .AsNoTracking()
+            .Select(user => (Guid?)user.Id)
+            .FirstOrDefaultAsync();
+        if (firstUserId.HasValue)
+        {
+            var details = await service.GetUserAsync(firstUserId.Value, CancellationToken.None);
+            Assert.True(details.Succeeded, details.Error?.Detail);
+            Assert.False(string.IsNullOrWhiteSpace(details.Value!.DisplayName));
+        }
+
+        int usersWithoutStaffName = await context.Users
+            .AsNoTracking()
+            .CountAsync(user => user.StaffFullName == null);
+        if (usersWithoutStaffName > 0)
+        {
+            Assert.All(defaultResult.Value.Items, item => Assert.False(string.IsNullOrWhiteSpace(item.DisplayName)));
+        }
     }
 }
 

@@ -103,7 +103,7 @@ Prompt 03.2 không cần thay đổi schema hay Migration. Mọi Migration mới
 
 ## 8. Chức năng chưa triển khai
 
-Dashboard theo bốn Role đã triển khai tại `/dashboard` và API `/api/dashboard/me`. Chưa triển khai CRUD tài khoản/danh mục, lịch làm việc, lịch hẹn, hàng đợi, RabbitMQ business flow hoặc SignalR nghiệp vụ; giao diện không tạo liên kết giả cho các module này.
+Dashboard theo bốn Role và quản lý người dùng Admin-only đã triển khai. Migration Prompt 03.5 đã được sinh viên apply và xác minh read-only; không chạy lại migration. Cách chạy và nghiệm thu `/Users` xem [user-management.md](user-management.md). Chưa triển khai CRUD danh mục, lịch làm việc, lịch hẹn, hàng đợi, RabbitMQ business flow hoặc SignalR nghiệp vụ.
 
 ### Kiểm tra Dashboard thủ công
 

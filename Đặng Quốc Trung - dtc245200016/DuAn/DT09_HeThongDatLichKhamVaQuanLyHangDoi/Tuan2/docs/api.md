@@ -23,7 +23,7 @@ Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistContro
 
 MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route bắt buộc.
 
-Hiện trạng Prompt 03.4: API có `HealthController`, `AccountController`, `DashboardController`; Web MVC có `HomeController`, `AccountController`, `DashboardController` gọi backend qua typed client. Các controller booking/queue/danh mục khác vẫn chưa được triển khai. Không có endpoint placeholder giả thành công.
+Hiện trạng Prompt 03.5: API có `HealthController`, `AccountController`, `DashboardController`, `UsersController`; Web MVC có `HomeController`, `AccountController`, `DashboardController`, `UsersController` và typed client tương ứng. Các controller booking/queue/danh mục khác vẫn chưa được triển khai. Không có endpoint placeholder giả thành công.
 
 Web không proxy JWT ra browser. `AccountApiClient` và `DashboardApiClient` tạo request riêng, gắn Bearer theo session phía server, đặt timeout 15 giây, hỗ trợ cancellation và ánh xạ lỗi API thành kết quả có kiểu. Không có retry tự động.
 
@@ -285,7 +285,7 @@ Các endpoint sau thuộc phạm vi sản phẩm nhưng không phải API tối 
 
 | Resource | Route dự kiến | Hành động |
 |---|---|---|
-| Users/roles | `/admin/users` | GET, POST staff, PATCH active/role |
+| Users | `/api/users` | GET list/detail, POST staff, PUT staff info, POST activate/deactivate/unlock; đã triển khai Admin-only |
 | Doctors | `/admin/doctors` | GET, POST, PUT/PATCH, deactivate |
 | Departments | `/admin/departments` | CRUD có kiểm soát |
 | Rooms | `/admin/rooms` | CRUD có kiểm soát |

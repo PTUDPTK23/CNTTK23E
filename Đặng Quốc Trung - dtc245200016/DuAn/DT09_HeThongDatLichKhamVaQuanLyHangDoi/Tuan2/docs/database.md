@@ -2,7 +2,7 @@
 
 ## 1. Trạng thái và nguyên tắc
 
-Mô hình Code First được triển khai trong `MediQueue.Infrastructure`. Migration `20261117142359_InitialCreate` đã được áp dụng thành công vào `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` ngày 18/11/2026. Đây là database duy nhất của sản phẩm trong 9 tuần; Tuần 2 không thay đổi model/schema.
+Mô hình Code First được triển khai trong `MediQueue.Infrastructure`. Migration `20261117142359_InitialCreate` đã được áp dụng thành công vào `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` ngày 18/11/2026. Migration cộng dồn `20261119135325_AddStaffFullNameToApplicationUser` đã được sinh viên apply và xác minh read-only ngày 19/11/2026.
 
 Các quyết định kỹ thuật:
 
@@ -273,7 +273,7 @@ Migration tạo 12 check constraint:
 
 ## 8. Identity và bốn Role
 
-`ApplicationUser : IdentityUser<Guid>` bổ sung `IsActive`, `CreatedAtUtc`. `MediQueueDbContext` kế thừa `IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>`. Patient và Doctor liên kết one-to-one bằng `UserId`; Receptionist/Admin chưa có bảng hồ sơ riêng. Bốn Role chính xác được bootstrap tường minh bằng Identity; Login/Register/JWT đã triển khai trong Prompt 03.2 mà không cần Migration mới.
+`ApplicationUser : IdentityUser<Guid>` bổ sung `StaffFullName` nullable 150 ký tự, `IsActive`, `CreatedAtUtc`. Patient và Doctor liên kết one-to-one bằng `UserId`; Receptionist/Admin không có bảng hồ sơ riêng. Nguồn tên và quy trình migration xem [user-management.md](user-management.md).
 
 ## 9. Migration và SQL review
 
@@ -284,6 +284,7 @@ Migration tạo 12 check constraint:
 - `Down` tháo các FK vòng trước rồi drop bảng theo thứ tự phụ thuộc.
 - `dotnet ef migrations has-pending-model-changes` xác nhận snapshot khớp model; `migrations list` xác nhận không còn pending Migration.
 - `InitialCreate.sql` chỉ dùng review/khôi phục có kiểm soát; không thực thi lại sau khi Migration đã áp dụng. Runtime không gọi `EnsureCreated`, `EnsureDeleted` hoặc `Database.Migrate`.
+- Migration `20261119135325_AddStaffFullNameToApplicationUser` cùng designer/snapshot và `docs/sql/AddStaffFullNameToApplicationUser.sql` đã được review; sinh viên đã apply migration. Lần xác minh sau đó cho thấy cột `nvarchar(150) NULL`, đủ hai dòng migration history và không có pending migration.
 
 ## 10. Kết quả database thực tế
 

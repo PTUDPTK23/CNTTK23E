@@ -18,7 +18,8 @@ public sealed class DashboardService(MediQueueDbContext dbContext) : IDashboardS
             .Select(user => new AccountData(
                 user.Email!,
                 user.PhoneNumber,
-                user.IsActive))
+                user.IsActive,
+                user.StaffFullName))
             .SingleOrDefaultAsync(cancellationToken);
         if (account is null)
         {
@@ -67,7 +68,7 @@ public sealed class DashboardService(MediQueueDbContext dbContext) : IDashboardS
 
         return new DashboardResponse(
             SystemRoles.Admin,
-            ToAccountSummary(account, null),
+            ToAccountSummary(account, account.StaffFullName),
             new AdminDashboardResponse(
                 accounts,
                 doctors,
@@ -100,7 +101,7 @@ public sealed class DashboardService(MediQueueDbContext dbContext) : IDashboardS
 
         return new DashboardResponse(
             SystemRoles.Doctor,
-            ToAccountSummary(account, profile.DisplayName),
+            ToAccountSummary(account, profile.DisplayName ?? account.StaffFullName),
             null,
             profile,
             null,
@@ -119,7 +120,7 @@ public sealed class DashboardService(MediQueueDbContext dbContext) : IDashboardS
 
         return new DashboardResponse(
             SystemRoles.Receptionist,
-            ToAccountSummary(account, null),
+            ToAccountSummary(account, account.StaffFullName),
             null,
             null,
             response,
@@ -206,7 +207,7 @@ public sealed class DashboardService(MediQueueDbContext dbContext) : IDashboardS
         return separator > 0 ? email[..separator] : email;
     }
 
-    private sealed record AccountData(string Email, string? PhoneNumber, bool IsActive);
+    private sealed record AccountData(string Email, string? PhoneNumber, bool IsActive, string? StaffFullName);
 
     private sealed record ActiveItem(bool IsActive);
 }

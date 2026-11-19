@@ -8,6 +8,9 @@ public sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Appl
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
+        builder.Property(user => user.StaffFullName)
+            .HasMaxLength(150);
+
         builder.Property(user => user.IsActive)
             .HasDefaultValue(true);
 

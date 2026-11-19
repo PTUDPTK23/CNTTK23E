@@ -6,15 +6,78 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — Shared Layout và Dashboard theo Role, Prompt 03.4 |
+| Tuần | Tuần 2 — Quản lý người dùng và tài khoản nhân sự, Prompt 03.5/03.5.1 |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | Prompt 03.4 đã hoàn thành mã nguồn, kiểm thử và tài liệu; đang chờ sinh viên review/commit |
-| Trạng thái database | Duy nhất `MediQueue`; Prompt 03.4 chỉ đọc, không SQL ghi/Migration/schema change |
-| Trạng thái Git | Thay đổi Prompt 03.4 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
+| Trạng thái mã nguồn | Prompt 03.5/03.5.1 đã hoàn thành mã nguồn, runtime fix, regression test và tài liệu; chờ sinh viên review |
+| Trạng thái database | Duy nhất `MediQueue`; đủ hai migration đã apply, Prompt 03.5.1 chỉ xác minh read-only và không ghi dữ liệu |
+| Trạng thái Git | Baseline `Tuan2` sạch trước Prompt 03.5; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-19 — Prompt 03.5.1: sửa lỗi runtime User Management
+
+| Hạng mục | Trạng thái | Kết quả hiện tại | Bước tiếp theo |
+|---|---|---|---|
+| Git/database precheck | COMPLETED | Đúng nhánh `duan-tuan2-dtc245200016`, HEAD `4536737`; database ONLINE, đủ 2 migration, `StaffFullName nvarchar(150) NULL`, 2 user/4 Role | Hoàn tất |
+| Điều tra lỗi gốc | COMPLETED | EF Core không dịch được `OrderBy` sau projection vào positional record `UserRow`; tái hiện bằng query SQL Server thật | Hoàn tất |
+| Điều tra Error View | COMPLETED | `UsersController` gọi `View("Error")` nhưng không có view phù hợp; lỗi thứ cấp che lỗi API | Hoàn tất |
+| Runtime/error handling fix | COMPLETED | Projection member-init; typed client phân biệt 502/503; shared error state giữ đúng HTTP status và không lộ chi tiết nội bộ | Hoàn tất |
+| Regression/final gate | COMPLETED | Full test 113 pass/0 fail/2 SQL skip; opt-in SQL read-only 2 pass; restore/build/format/diff/smoke đạt | Sinh viên nghiệm thu HTTPS/Admin thật |
+
+- Lỗi gốc đã được tái hiện bằng integration test opt-in trên đúng `MediQueue`, không ghi dữ liệu: LINQ expression `OrderByDescending(new UserRow(...).CreatedAtUtc)` không thể translate.
+- Lỗi `The view 'Error' was not found` là lỗi thứ cấp trong MVC và che mất ProblemDetails/lỗi API ban đầu.
+- SQL read-only xác nhận `20261117142359_InitialCreate` và `20261119135325_AddStaffFullNameToApplicationUser` đã apply; cột mới nullable, max length 150 ký tự; 2 account, 4 Role, 2 user-role; list/aggregate SQL thuần hoạt động.
+- `UserManagementService` đã chuyển cả list/details projection sang member-init class. Test opt-in chạy thật list/search/filter/sort/pagination/aggregate/details và fallback tên khi `StaffFullName` null; không ghi database.
+- `UsersController` dùng `Views/Shared/UserManagementError.cshtml` với model riêng; 401 kết thúc session, 403 chuyển access denied, 400/404/409/500/502/503 giữ đúng ngữ nghĩa. Lỗi 5xx không hiển thị detail nội bộ.
+- Bổ sung regression test cho Admin GET `/Users`, Admin-only, success, API 500, 400/404/409, unavailable, timeout, response không hợp lệ, Error View, token leak và SQL Server thật. Baseline cũ không phát hiện lỗi vì API test thay `IUserManagementService`, Web test thay `IUsersApiClient`, nên không thực thi LINQ provider SQL Server.
+- Restore up-to-date; build 0 warning/0 error; unit 26 pass; integration mặc định 87 pass/2 skip; SQL opt-in 2/2 pass; format verification và `git diff --check` đạt.
+- Kiểm tra strict UTF-8 đạt 252/252 tệp văn bản; kiểm tra liên kết nội bộ Markdown không phát hiện liên kết hỏng.
+- HTTP smoke cô lập đạt: API health 200, `/api/users` anonymous 401, Web health 200, `/Users` anonymous 302, CSS/JS 200. Process do lượt kiểm tra tạo đã dừng.
+- Rà soát giữ nguyên antiforgery trên mọi command, cookie Secure/HttpOnly/SameSite và Data Protection. Development dùng ephemeral provider nên cookie/form token cũ sau khi restart không còn giải mã được; production persist key và bảo vệ DPAPI. Không tắt CSRF, không xóa key và không bypass TLS.
+- HTTPS và luồng Admin thật trên trình duyệt **NOT VERIFIED**: máy hiện không có development certificate hợp lệ và không yêu cầu mật khẩu Admin. Các command ghi Create/Edit/Activate/Deactivate/Unlock trên database thật cũng **NOT VERIFIED** theo chủ đích an toàn.
+
+### 2026-11-19 — Prompt 03.5: Quản lý người dùng và tài khoản nhân sự
+
+| Milestone | Trạng thái | Kết quả hiện tại | Bước tiếp theo |
+|---|---|---|---|
+| A — Phân tích dữ liệu và thiết kế | COMPLETED | Xác nhận baseline `4536737`; khảo sát SQL read-only; chốt `StaffFullName` nullable và nguồn tên hiển thị theo profile ưu tiên | Sinh migration cộng dồn review-only |
+| B — Schema và migration | COMPLETED | Model/configuration, migration cộng dồn, snapshot và SQL idempotent đã review; không apply | Sinh viên review/apply khi sẵn sàng |
+| C — Backend service và API | COMPLETED | DTO, 7 endpoint Admin-only, query phân trang, command, audit, revocation và concurrency | Automated/API gate |
+| D — MVC client và controller | COMPLETED | Typed client, controller Admin-only, POST antiforgery và error mapping | UI và regression test |
+| E — Premium UI/UX | COMPLETED | Danh sách/form/chi tiết/modal/badge/responsive/reduced motion | Visual QA thủ công |
+| F — Dashboard/sidebar/profile | COMPLETED | Sidebar/quick action Admin và nguồn tên staff/profile đồng bộ | Regression test |
+| G — Automated test | COMPLETED | 26 unit + 76 integration pass; 1 database test skip | Final gate |
+| H — Tài liệu và final gate | COMPLETED | Restore/build/test/format/audit/smoke/UTF-8/link/Git review đạt; giới hạn được ghi rõ | Sinh viên review, chưa commit/apply migration |
+
+**Milestone A — COMPLETED:**
+
+- Nhánh đúng `duan-tuan2-dtc245200016`; HEAD/local/origin cùng ở commit `4536737` (`feat(tuan2): implement premium layout and role-based dashboards`). `Tuan2` sạch, không staged; untracked cũ ngoài phạm vi tại `Bai3` và `Tuan1` được giữ nguyên.
+- SQL Server được truy vấn read-only sau khi xác nhận đúng `LAPTOP-AQFGUM9Q\\SQLEXPRESS` / `MediQueue`: database ONLINE, chỉ có migration `20261117142359_InitialCreate`; 2 tài khoản gồm 1 Admin và 1 Patient, Doctor/Receptionist bằng 0; Patient profile bằng 1, Doctor/Department/Room bằng 0.
+- `AspNetUsers` hiện chưa có trường tên nhân sự. Chốt thêm `StaffFullName` nullable, tối đa 150 ký tự; migration chỉ được sinh để review, không apply và không sửa `InitialCreate`.
+- Nguồn tên hiển thị: Patient dùng `Patient.FullName`; Doctor có hồ sơ dùng `Doctor.DisplayName`; Doctor chưa có hồ sơ, Receptionist và Admin dùng `ApplicationUser.StaffFullName`; email alias chỉ là fallback trình bày và không được lưu như tên.
+- Module chỉ cho Admin truy cập; tạo mới giới hạn Doctor/Receptionist; không cho xóa, đổi Role/email hoặc tạo Patient/Admin; phân biệt `IsActive` với Identity lockout.
+- Không có SQL ghi, seed, reset Admin, database mới, package mới hoặc thay đổi ngoài `Tuan2`.
+
+**Milestone B–F — COMPLETED:**
+
+- Thêm `ApplicationUser.StaffFullName` nullable 150 ký tự; migration `20261119135325_AddStaffFullNameToApplicationUser`, designer, snapshot và SQL idempotent đã sinh. `InitialCreate` không bị sửa; EF xác nhận model không còn pending change.
+- Khảo sát read-only sau khi sinh migration xác nhận database thật vẫn chưa có cột mới, Migration history vẫn chỉ có `InitialCreate` và UserCount vẫn bằng 2.
+- API `UsersController` có đủ list/detail/create/update/deactivate/activate/unlock, tất cả Admin-only, `ProblemDetails`, no-store và không có DELETE. Service dùng projection, aggregate, stable sort, phân trang, transaction, Identity concurrency, `AuditLogs` và xoay `SecurityStamp`.
+- Bảo vệ Admin/self, chỉ tạo Doctor/Receptionist, không đổi email/Role/mật khẩu và không tạo profile Doctor giả. `IsActive` tách biệt lockout; command lặp hợp lệ là idempotent.
+- MVC dùng `UsersApiClient` và session JWT phía server; controller Admin-only, command POST + antiforgery. UI gồm stats, filter, table/card responsive, create/edit/details, badge, empty state, modal xác nhận và reduced motion.
+- Sidebar/quick action chỉ hiện cho Admin. Hồ sơ Admin/Receptionist và Doctor chưa có profile dùng `StaffFullName`; Patient/Doctor có profile vẫn ưu tiên nguồn nghiệp vụ.
+
+**Milestone G–H — COMPLETED:**
+
+- Restore đạt; full solution build `0` warning, `0` error; `dotnet format --verify-no-changes` đạt.
+- Test đạt 26 unit + 76 integration = 102 pass, 1 database read test skip opt-in, 0 fail. Test dùng service/client double, không ghi `MediQueue`.
+- NuGet advisory online: 9/9 project không có package vulnerable theo nguồn hiện tại. Không cài package mới.
+- HTTP smoke cô lập: API/Web health 200; `/api/users` anonymous 401; `/Users` anonymous 302 về shared login; CSS/JS module 200. Process do lượt kiểm tra tạo đã dừng.
+- UTF-8 strict kiểm tra 257 file: 0 lỗi; 20 Markdown: 0 liên kết nội bộ hỏng; `git diff --check` không có whitespace error. Browser storage mới không được thêm; `localStorage` kế thừa chỉ lưu trạng thái sidebar.
+- HTTPS **NOT VERIFIED** vì `dotnet dev-certs https --check --trust` báo không có certificate hợp lệ. Visual QA browser **NOT VERIFIED** vì native computer-use pipe không khả dụng; responsive/accessibility đã được code review và integration render test.
+- SQL end-to-end **NOT VERIFIED** theo chủ đích vì migration chưa apply. Hướng dẫn review/apply/xác minh chính xác nằm tại `docs/user-management.md`; không tự chuyển Prompt 03.6.
 
 ### 2026-11-19 — Prompt 03.4: Premium Shared Layout và Role-based Dashboard
 

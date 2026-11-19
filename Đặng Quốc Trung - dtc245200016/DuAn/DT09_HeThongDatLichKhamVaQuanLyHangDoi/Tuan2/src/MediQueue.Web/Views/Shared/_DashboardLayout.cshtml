@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dashboard-layout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user-management.css" asp-append-version="true" />
 </head>
 <body class="dashboard-body role-@RolePresentation.GetAccentClass(User.FindFirstValue(ClaimTypes.Role))" data-dashboard-shell>
     <a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
@@ -40,6 +41,7 @@
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/user-management.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -3,12 +3,18 @@
     string action = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
     string current = controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase)
         ? "Tổng quan"
+        : controller.Equals("Users", StringComparison.OrdinalIgnoreCase)
+            ? action switch { "Create" => "Tạo tài khoản", "Edit" => "Chỉnh sửa nhân sự", "Details" => "Chi tiết tài khoản", _ => "Quản lý người dùng" }
         : action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase) ? "Đổi mật khẩu" : "Hồ sơ cá nhân";
 }
 <nav class="dashboard-breadcrumb" aria-label="Đường dẫn trang">
     <a asp-controller="Dashboard" asp-action="Index"><svg aria-hidden="true"><use href="/images/icons.svg#home"></use></svg><span>Tổng quan</span></a>
     @if (!controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
     {
+        @if (controller.Equals("Users", StringComparison.OrdinalIgnoreCase) && !action.Equals("Index", StringComparison.OrdinalIgnoreCase))
+        {
+            <span aria-hidden="true">/</span><a asp-controller="Users" asp-action="Index">Quản lý người dùng</a>
+        }
         <span aria-hidden="true">/</span><span aria-current="page">@current</span>
     }
 </nav>

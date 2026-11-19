@@ -43,6 +43,14 @@ builder.Services.AddHttpClient<IDashboardApiClient, DashboardApiClient>((service
     client.DefaultRequestHeaders.Accept.ParseAdd("application/problem+json");
     client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
 });
+builder.Services.AddHttpClient<IUsersApiClient, UsersApiClient>((services, client) =>
+{
+    BackendApiOptions options = services.GetRequiredService<IOptions<BackendApiOptions>>().Value;
+    client.BaseAddress = options.BaseAddress;
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+    client.DefaultRequestHeaders.Accept.ParseAdd("application/problem+json");
+    client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+});
 
 builder.Services.AddAuthentication(MediQueueAuthenticationDefaults.Scheme)
     .AddCookie(MediQueueAuthenticationDefaults.Scheme, options =>

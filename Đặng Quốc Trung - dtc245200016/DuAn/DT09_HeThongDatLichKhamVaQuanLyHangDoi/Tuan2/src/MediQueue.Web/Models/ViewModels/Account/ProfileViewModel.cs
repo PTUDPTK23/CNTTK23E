@@ -6,7 +6,7 @@ public sealed class ProfileViewModel
 {
     public Guid UserId { get; set; }
 
-    [StringLength(200, ErrorMessage = "Họ và tên không vượt quá 200 ký tự.")]
+    [StringLength(150, ErrorMessage = "Họ và tên không vượt quá 150 ký tự.")]
     [Display(Name = "Họ và tên")]
     public string? FullName { get; set; }
 
@@ -24,5 +24,5 @@ public sealed class ProfileViewModel
     [Display(Name = "Ngày sinh")]
     public DateOnly? DateOfBirth { get; set; }
 
-    public bool CanEditFullName => Role is "Patient" or "Doctor";
+    public bool CanEditFullName => Role is "Patient" or "Doctor" or "Receptionist" or "Admin";
 }
