@@ -6,15 +6,43 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — Identity/JWT backend theo Prompt 03.2 |
+| Tuần | Tuần 2 — MVC Authentication/Authorization và UI theo Prompt 03.3.1 |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | Đã triển khai Identity/JWT và 6 Account API; MVC Cookie/CRUD chưa triển khai |
-| Trạng thái database | Duy nhất `MediQueue`; không schema/Migration mới; chỉ bootstrap 4 Role được phép |
-| Trạng thái Git | Thay đổi Prompt 03.2 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
+| Trạng thái mã nguồn | MVC Cookie, JWT session phía server, typed API client và account UI đã triển khai; dashboard/CRUD chưa triển khai |
+| Trạng thái database | Duy nhất `MediQueue`; Prompt 03.3.1 không thực hiện SQL, Migration hoặc ghi database |
+| Trạng thái Git | Thay đổi Prompt 03.3.1 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-19 — Prompt 03.3.1: MVC Authentication, Authorization và premium UI/UX
+
+**Đã hoàn thành:**
+
+- Khôi phục đúng baseline `cf0791c`; trước khi làm không có tracked/staged/untracked change trong `Tuan2`. Untracked cũ ở `Bai3`/`Tuan1` được giữ nguyên.
+- Triển khai typed `AccountApiClient` qua `IHttpClientFactory`, HTTPS base URL, timeout/cancellation, Bearer theo từng request và ánh xạ `ProblemDetails`/`ValidationProblemDetails`; không retry command, không bypass certificate.
+- Triển khai `IAuthenticationSessionStore` in-memory singleton với session handle ngẫu nhiên 256 bit, ràng buộc `UserId`, absolute expiry và delete; browser không nhận JWT.
+- Cấu hình cookie `.MediQueue.Auth` HttpOnly/Secure/SameSite=Lax, tối đa 30 phút, không sliding; Data Protection và antiforgery cookie Secure/Strict.
+- Triển khai MVC `AccountController`: login/register Patient/profile/change password/access denied và logout POST-only; return URL local, xóa password trước khi render lỗi, xử lý 401/403/API unavailable.
+- Kiểm tra phiên riêng tư qua `GET /api/account/me`; đổi mật khẩu và logout xóa session/cookie local, logout vẫn an toàn khi API tạm lỗi.
+- Xây dựng giao diện healthcare responsive cho Home/Login/Register/Profile/ChangePassword/AccessDenied/Error; có validation/loading/toast/password toggle/checklist, focus, hover/active, page entrance và reduced motion.
+- Dùng Be Vietnam Pro 400/500/600/700 lưu local từ Google Fonts chính thức, kèm SIL OFL 1.1; logo/icon/minh họa SVG tự xây dựng, không dùng asset bệnh nhân thật hoặc template thương mại.
+- Không tạo dashboard/sidebar/CRUD placeholder; không thêm package; giữ nguyên 9 project và Web không tham chiếu Infrastructure.
+- Bổ sung test session isolation/expiry, ViewModel, typed client/error mapping, cookie flags/no JWT, antiforgery, login success/failure, return URL, profile, password và logout.
+- Build solution đạt `0` warning/`0` error. Automated test hiện đạt 18 unit + 49 integration, 1 database read test skip opt-in, `0` fail.
+
+**Kết quả gate hiện tại:**
+
+- Restore thành công; build đạt `0` warning/`0` error; test đạt 18 unit + 49 integration, 1 database read test skip opt-in, `0` fail; format verification đạt.
+- NuGet audit trực tuyến không phát hiện package vulnerable trong cả 9 project.
+- HTTP smoke đạt: API health 200, Account API không token 401; Web home/health/error/access-denied và toàn bộ CSS/JS/4 font/SVG kiểm tra đều 200; anonymous profile trả 302 về shared login. Các process do lượt kiểm tra tạo đã dừng.
+- UTF-8 strict đạt, 0 liên kết Markdown nội bộ hỏng; Web chỉ tham chiếu Contracts; không có Migration diff hoặc chuỗi JWT/browser storage trong Views/static asset.
+- HTTPS thực tế **NOT VERIFIED**: `dotnet dev-certs https --check --trust` trả `No valid certificate found`; không tự tạo/trust/clean certificate theo ràng buộc.
+- Visual QA bằng browser automation **NOT RUN** vì native computer-use pipe không tồn tại. Responsive/accessibility đã được kiểm tra bằng code review, CSS breakpoint, integration render/static asset và reduced-motion rule; chưa có bằng chứng screenshot trình duyệt thật.
+- Sandbox ghi nhận key ring DPAPI mặc định cũ không giải mã được; không xóa key cũ. Web Development dùng ephemeral Data Protection, non-Development dùng key ring riêng + DPAPI; cần chạy lại HTTPS account flow trong phiên Windows của sinh viên sau khi certificate hợp lệ.
+
+**Không thực hiện:** không SQL/Migration/database write; không reset Admin; không Docker; không sửa `Tuan1`/`Bai3`; không stage/commit/push/PR; không chuyển Prompt 03.4.
 
 ### 2026-11-19 — Prompt 03.2: Identity, JWT và Account Management backend
 
@@ -198,7 +226,7 @@ Các tham số nghiệp vụ dài hạn như capacity mặc định, độ dài 
 ## 6. Bước tiếp theo đề xuất
 
 1. Sinh viên review toàn bộ `Tuan2`, đặc biệt [week02-plan.md](week02-plan.md), bằng chứng test và trạng thái Git.
-2. Sinh viên tự stage/commit/push khi chấp nhận kết quả; commit đề xuất `feat(tuan2): implement identity and JWT authentication`.
+2. Sinh viên tự stage/commit/push khi chấp nhận kết quả; commit đề xuất `feat(tuan2): implement MVC authentication and authorization`.
 3. Mọi Migration/database change tiếp theo vẫn cần phê duyệt riêng.
 
 Không tự động chuyển sang prompt tiếp theo.

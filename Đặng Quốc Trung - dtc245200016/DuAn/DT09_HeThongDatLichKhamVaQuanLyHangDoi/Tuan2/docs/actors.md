@@ -3,7 +3,7 @@
 ## 1. Nguyên tắc chung
 
 - Hệ thống có đúng bốn Role: `Patient`, `Doctor`, `Receptionist`, `Admin`.
-- Một form đăng nhập dùng chung. Backend Identity/JWT đã triển khai trong Prompt 03.2; MVC Cookie Authentication và điều hướng theo Role thuộc Prompt 03.3. JWT không được chuyển xuống JavaScript/browser storage.
+- Một form đăng nhập dùng chung. Backend Identity/JWT và MVC Cookie Authentication đã triển khai; menu tài khoản đọc Role đã xác minh. Dashboard riêng theo Role chưa thuộc Prompt 03.3.1. JWT không được chuyển xuống JavaScript/browser storage.
 - UI chỉ hỗ trợ trải nghiệm; API mới là điểm thực thi authorization.
 - Quyền được đánh giá theo ba lớp: Role, ownership và resource scope.
 
@@ -107,7 +107,7 @@ flowchart TD
 
 Policy handler sẽ truy vấn resource khi cần thay vì tin DoctorId/PatientId do client gửi. Claim chỉ mang UserId/Role tối thiểu; backend Prompt 03.2 kiểm tra Role hiện tại và fingerprint `SecurityStamp` trên mỗi request để thu hồi bền vững.
 
-Sau Prompt 03.2, API chỉ chấp nhận JWT Access Token còn hạn và chưa có Refresh Token. MVC giữ token phía server, cookie bảo vệ và antiforgery sẽ được triển khai trong Prompt 03.3. SignalR là giai đoạn sau và phải kiểm tra Role/ownership/scope trước khi join group.
+API chỉ chấp nhận JWT Access Token còn hạn và chưa có Refresh Token. MVC giữ token trong kho in-memory phía server, dùng cookie HttpOnly/Secure và antiforgery cho POST; luồng này đã có integration test. SignalR là giai đoạn sau và phải kiểm tra Role/ownership/scope trước khi join group.
 
 ## 7. Phạm vi Tuần 2 và lộ trình sau
 

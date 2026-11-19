@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title description">
+  <title id="title">Thẻ hồ sơ y tế điện tử</title>
+  <desc id="description">Thẻ màu trắng bo góc với biểu tượng bệnh nhân màu xanh và hai dòng thông tin tối giản.</desc>
+  <defs>
+    <linearGradient id="card" x1="130" y1="72" x2="520" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fbff" />
+    </linearGradient>
+    <linearGradient id="avatar" x1="178" y1="126" x2="296" y2="244" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60a5fa" />
+      <stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <filter id="shadow" x="70" y="25" width="500" height="320" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#0f2f68" flood-opacity=".2" />
+    </filter>
+  </defs>
+
+  <circle cx="527" cy="74" r="35" fill="#5eead4" opacity=".16" />
+  <circle cx="100" cy="282" r="50" fill="#93c5fd" opacity=".12" />
+  <path d="M94 93h34M111 76v34" fill="none" stroke="#bfdbfe" stroke-linecap="round" stroke-width="3" opacity=".65" />
+  <path d="M535 270h28M549 256v28" fill="none" stroke="#99f6e4" stroke-linecap="round" stroke-width="3" opacity=".65" />
+
+  <g filter="url(#shadow)">
+    <rect x="108" y="66" width="424" height="228" rx="34" fill="url(#card)" />
+    <rect x="108.75" y="66.75" width="422.5" height="226.5" rx="33.25" fill="none" stroke="#dbeafe" stroke-width="1.5" />
+  </g>
+
+  <g transform="translate(150 108)">
+    <rect width="144" height="144" rx="30" fill="#eff6ff" />
+    <rect x="13" y="13" width="118" height="118" rx="25" fill="url(#avatar)" />
+    <circle cx="72" cy="55" r="22" fill="#dbeafe" />
+    <path d="M35 113c3-28 17-43 37-43s34 15 37 43" fill="#dbeafe" />
+    <circle cx="112" cy="112" r="17" fill="#ffffff" />
+    <path d="M112 102v20M102 112h20" fill="none" stroke="#0d9488" stroke-linecap="round" stroke-width="4" />
+  </g>
+
+  <g transform="translate(326 123)">
+    <rect width="162" height="48" rx="18" fill="#eff6ff" />
+    <circle cx="24" cy="24" r="8" fill="#2563eb" />
+    <rect x="44" y="16" width="88" height="7" rx="3.5" fill="#93c5fd" />
+    <rect x="44" y="28" width="62" height="6" rx="3" fill="#dbeafe" />
+
+    <rect y="66" width="162" height="48" rx="18" fill="#f0fdfa" />
+    <circle cx="24" cy="90" r="8" fill="#0d9488" />
+    <rect x="44" y="82" width="98" height="7" rx="3.5" fill="#5eead4" />
+    <rect x="44" y="94" width="72" height="6" rx="3" fill="#ccfbf1" />
+  </g>
+</svg>

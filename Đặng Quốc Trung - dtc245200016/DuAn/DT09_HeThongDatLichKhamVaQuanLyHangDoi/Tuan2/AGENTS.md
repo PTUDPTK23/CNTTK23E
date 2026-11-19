@@ -41,10 +41,13 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
 - Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser` và Migration `20261117142359_InitialCreate`. Migration đã áp dụng vào `MediQueue` ngày 18/11/2026; schema có 21 bảng mô hình + bảng lịch sử.
 - `Appointment.Api` và `Queue.Worker` dùng `UserSecretsId` riêng của `Tuan2`; không sao chép giá trị User Secrets từ Tuần 1.
-- Backend Login/Register/JWT và account management đã có từ Prompt 03.2. Sáu API nghiệp vụ, MVC Cookie flow, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
+- Backend Login/Register/JWT có từ Prompt 03.2. MVC Cookie flow, typed Account API client, kho JWT in-memory phía server và UI account đã hoàn thành trong Prompt 03.3.1. Sáu API nghiệp vụ, dashboard theo Role, CRUD danh mục, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
 - Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
 - MVC Controller kế thừa `Controller` và chỉ phục vụ View/ViewModel; API Controller kế thừa `ControllerBase`, trả JSON/HTTP status/`ProblemDetails`. Controller không gọi controller khác.
+- `MediQueue.Web` tuyệt đối không truy cập database/Infrastructure. JWT chỉ nằm trong `IAuthenticationSessionStore` in-memory, được tra bằng session handle ngẫu nhiên; browser chỉ có cookie `.MediQueue.Auth` HttpOnly/Secure/SameSite=Lax. Restart Web làm mất phiên và người dùng phải đăng nhập lại.
+- Mọi request trang riêng tư phải đối chiếu session với `GET /api/account/me`; API `401` xóa phiên/cookie, `403` chuyển access denied, lỗi kết nối hiển thị lỗi thân thiện nhưng không bỏ qua authorization.
+- Form POST MVC dùng antiforgery; logout chỉ cho phép POST. Không đặt JWT vào cookie, claim, HTML, URL, JavaScript, `localStorage`, `sessionStorage` hoặc log.
 
 ## 4. Quy ước kiến trúc
 

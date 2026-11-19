@@ -1,0 +1,53 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Tạo tài khoản bệnh nhân";
+    Layout = "_AuthLayout";
+}
+<div class="auth-heading">
+    <span class="eyebrow">Dành cho bệnh nhân</span>
+    <h2>Tạo hồ sơ chăm sóc</h2>
+    <p>Điền thông tin cơ bản để bắt đầu. Tài khoản Bác sĩ, Lễ tân và Quản trị viên do hệ thống cấp.</p>
+</div>
+<form asp-action="Register" method="post" class="app-form" data-secure-form novalidate>
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+    <div class="field-grid">
+        <div class="field-group field-grid__full">
+            <label asp-for="FullName"></label>
+            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg><input asp-for="FullName" autocomplete="name" placeholder="Nguyễn Văn An" autofocus /></div>
+            <span asp-validation-for="FullName" class="field-validation"></span>
+        </div>
+        <div class="field-group field-grid__full">
+            <label asp-for="Email"></label>
+            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#mail"></use></svg><input asp-for="Email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></div>
+            <span asp-validation-for="Email" class="field-validation"></span>
+        </div>
+        <div class="field-group">
+            <label asp-for="PhoneNumber"></label>
+            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#phone"></use></svg><input asp-for="PhoneNumber" autocomplete="tel" inputmode="tel" placeholder="09xx xxx xxx" /></div>
+            <span asp-validation-for="PhoneNumber" class="field-validation"></span>
+        </div>
+        <div class="field-group">
+            <label asp-for="DateOfBirth"></label>
+            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#calendar"></use></svg><input asp-for="DateOfBirth" autocomplete="bday" /></div>
+            <span asp-validation-for="DateOfBirth" class="field-validation"></span>
+        </div>
+        <div class="field-group field-grid__full">
+            <label asp-for="Password"></label>
+            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg><input asp-for="Password" autocomplete="new-password" placeholder="Ít nhất 12 ký tự" data-password-input data-password-strength /><button type="button" class="password-toggle" data-password-toggle aria-label="Hiện mật khẩu" aria-pressed="false"><svg aria-hidden="true"><use href="/images/icons.svg#eye"></use></svg></button></div>
+            <span asp-validation-for="Password" class="field-validation"></span>
+            <div class="password-checklist" data-password-checklist aria-live="polite">
+                <span data-check="length"><svg aria-hidden="true"><use href="/images/icons.svg#check"></use></svg>Ít nhất 12 ký tự</span>
+                <span data-check="unique"><svg aria-hidden="true"><use href="/images/icons.svg#check"></use></svg>Ít nhất 3 ký tự khác nhau</span>
+            </div>
+        </div>
+        <div class="field-group field-grid__full">
+            <label asp-for="ConfirmPassword"></label>
+            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg><input asp-for="ConfirmPassword" autocomplete="new-password" placeholder="Nhập lại mật khẩu" data-password-input /><button type="button" class="password-toggle" data-password-toggle aria-label="Hiện mật khẩu" aria-pressed="false"><svg aria-hidden="true"><use href="/images/icons.svg#eye"></use></svg></button></div>
+            <span asp-validation-for="ConfirmPassword" class="field-validation"></span>
+        </div>
+    </div>
+    <button class="btn btn-primary btn-lg w-100" type="submit" data-submit-button><span data-button-label>Tạo tài khoản bệnh nhân</span><span class="button-spinner" aria-hidden="true"></span></button>
+    <partial name="_FormStatus" />
+</form>
+<div class="auth-alternate"><span>Đã có tài khoản?</span><a asp-action="Login">Đăng nhập</a></div>

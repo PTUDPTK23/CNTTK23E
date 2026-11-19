@@ -1,49 +1,94 @@
+@{
+    string? identityName = User.Identity?.Name;
+    string rawDisplayName = string.IsNullOrWhiteSpace(identityName) ? "MediQueue" : identityName;
+    string compactDisplayName = rawDisplayName.Contains('@') ? rawDisplayName.Split('@')[0] : rawDisplayName;
+    string role = User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+    string roleLabel = role switch
+    {
+        "Admin" => "Quản trị viên",
+        "Patient" => "Bệnh nhân",
+        "Doctor" => "Bác sĩ",
+        "Receptionist" => "Lễ tân",
+        _ => role
+    };
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MediQueue</title>
-    <script type="importmap"></script>
+    <meta name="theme-color" content="#2563eb" />
+    <title>@ViewData["Title"] · MediQueue</title>
+    <link rel="icon" type="image/svg+xml" href="~/images/favicon.svg" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MediQueue.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MediQueue</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg" aria-label="Điều hướng chính">
+            <div class="container app-container">
+                <partial name="_Brand" />
+                <button class="navbar-toggler app-nav-toggle" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#main-navigation" aria-controls="main-navigation"
+                        aria-expanded="false" aria-label="Mở điều hướng">
+                    <span></span><span></span><span></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                        </li>
+                <div class="collapse navbar-collapse" id="main-navigation">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown user-menu">
+                                <button class="user-menu__button" type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false" aria-label="Mở menu tài khoản">
+                                    <span class="user-avatar" aria-hidden="true">@compactDisplayName[0]</span>
+                                    <span class="user-menu__text">
+                                        <strong>@compactDisplayName</strong>
+                                        <small>@roleLabel</small>
+                                    </span>
+                                    <svg width="16" height="16" aria-hidden="true"><use href="/images/icons.svg#chevron-down"></use></svg>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-soft account-dropdown">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Hồ sơ cá nhân</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">Đổi mật khẩu</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button class="dropdown-item text-danger" type="submit">Đăng xuất</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a></li>
+                            <li class="nav-item"><a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">Tạo tài khoản</a></li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - MediQueue
+    <partial name="_ToastMessages" />
+    <main id="main-content" class="site-main page-enter" tabindex="-1">@RenderBody()</main>
+    <footer class="site-footer">
+        <div class="container app-container site-footer__inner">
+            <partial name="_Brand" />
+            <p>Trải nghiệm đặt lịch và theo dõi lượt khám an toàn, rõ ràng.</p>
+            <span>© 2026 MediQueue</span>
         </div>
     </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

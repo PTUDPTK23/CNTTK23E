@@ -190,7 +190,7 @@ flowchart TD
 
 ### UC-10 — Đăng ký/đăng nhập/phân luồng Role
 
-Patient có thể đăng ký; Doctor/Receptionist do Admin cấp. Prompt 03.2 đã triển khai API Identity/JWT, register/login/logout/me/profile/change-password, lockout và thu hồi bằng `SecurityStamp`. Prompt 03.3 sẽ triển khai form MVC có antiforgery, token store phía server, cookie `HttpOnly` và điều hướng dashboard. JWT không đến JavaScript/browser storage. Role không hợp lệ, tài khoản lock/inactive hoặc phiên đã thu hồi đều bị từ chối.
+Patient có thể đăng ký; Doctor/Receptionist do Admin cấp. API Identity/JWT, register/login/logout/me/profile/change-password, lockout và thu hồi bằng `SecurityStamp` đã có. Prompt 03.3.1 đã triển khai form MVC có antiforgery, token store in-memory phía server, cookie `HttpOnly`/`Secure`, profile và đổi mật khẩu. JWT không đến JavaScript/browser storage. Dashboard theo Role là bước sau; Role không hợp lệ, tài khoản lock/inactive hoặc phiên đã thu hồi đều bị từ chối.
 
 ### UC-11 — Quản trị dữ liệu nền/tài khoản
 

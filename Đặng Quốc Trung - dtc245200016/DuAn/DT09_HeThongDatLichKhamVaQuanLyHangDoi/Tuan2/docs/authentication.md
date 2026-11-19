@@ -1,8 +1,10 @@
-# Identity, JWT và quản lý tài khoản
+# Identity, JWT và xác thực MVC
 
 ## 1. Phạm vi đã triển khai
 
 Prompt 03.2 triển khai backend ASP.NET Core Identity và JWT cho bốn Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`. Chỉ `Patient` tự đăng ký; request công khai không có trường Role. Staff/Admin chỉ được tạo qua quy trình quản trị.
+
+Prompt 03.3.1 triển khai Web MVC thật: browser gửi form + antiforgery đến MVC; MVC gọi Account API qua HTTPS, giữ JWT trong kho phiên in-memory phía server và phát cookie bảo vệ. Web không tham chiếu Infrastructure/DbContext và không truy cập SQL Server.
 
 Sáu endpoint thật:
 
@@ -157,12 +159,39 @@ Kết quả sau Prompt 03.2: bốn Role chính xác; `UserCount = 0` do không t
 - Email vừa là `UserName`, dùng unique normalized username và `RequireUniqueEmail` để chống trùng/cạnh tranh.
 - Login response đặt `Cache-Control: no-store` và `Pragma: no-cache`.
 - API trả DTO/`ProblemDetails`, không trả Identity/EF entity và không lộ password hash, stamp hay token trong log.
-- Browser không được lưu JWT trong `localStorage`/`sessionStorage`; Prompt 03.3 sẽ giữ JWT phía server MVC và chỉ phát cookie an toàn cho browser.
+- Browser không lưu JWT trong cookie, HTML, JavaScript, URL, `localStorage` hay `sessionStorage`. JWT chỉ nằm trong `IAuthenticationSessionStore` in-memory của Web và được gắn Bearer theo từng request server-to-server.
 
 ## 8. Kiểm thử và giới hạn đã biết
 
 - Test in-process bao phủ DTO validation, claim/expiry/HS256, issuer/audience/key/tampering và 401 khi thiếu token.
 - Bootstrap Role đã chạy hai lần trên `MediQueue` để xác nhận idempotent; đây là ghi dữ liệu nghiệp vụ được cho phép, không phải test seed.
 - Lifecycle register/login/profile/change-password/logout có ghi SQL chưa chạy end-to-end vì chưa có database test cô lập; không dùng `MediQueue` để tạo dữ liệu test.
-- Chưa có Admin đầu tiên, email verification, forgot/reset password, Refresh Token, logout từng thiết bị, MVC Cookie flow hay UI.
-- HTTPS smoke test chưa chạy khi development certificate không hợp lệ. Sinh viên có thể chủ động chạy `dotnet dev-certs https --trust`; không dùng `--clean`.
+- Admin đầu tiên đã được người dùng bootstrap thủ công trước Prompt 03.3.1; tài liệu không lưu email hoặc thông tin xác thực. Chưa có email verification, forgot/reset password, Refresh Token hoặc logout từng thiết bị ở API.
+- MVC Cookie/UI đã có; dashboard theo Role và CRUD quản trị chưa thuộc Prompt 03.3.1. Development certificate được kiểm tra ở chế độ trusted trước HTTPS smoke; không dùng `--clean` và ứng dụng không tắt certificate validation.
+
+## 9. MVC Cookie và kho token phía server
+
+| Thành phần | Cấu hình |
+|---|---|
+| Scheme / cookie | `MediQueueCookie` / `.MediQueue.Auth` |
+| Cookie flags | `HttpOnly`, `Secure=Always`, `SameSite=Lax`, essential |
+| Thời hạn | Tối đa 30 phút, không sliding, không vượt `exp` JWT |
+| Antiforgery | `.MediQueue.Antiforgery`, HttpOnly, Secure, SameSite=Strict |
+| Token store | Singleton in-memory, khóa bằng session ID ngẫu nhiên 256 bit, absolute expiration |
+| API base URL | `https://localhost:7101/`, timeout 15 giây |
+| Data Protection | Development dùng ephemeral provider; non-Development dùng key ring riêng `.data-protection` và Windows DPAPI |
+
+Kho token in-memory và Data Protection ephemeral ở Development phù hợp một instance Windows ở v1. Restart/redeploy Web làm mất toàn bộ session; non-Development dùng key ring local bị Git loại trừ và DPAPI bảo vệ. Scale-out cần chuyển sang distributed cache/key ring dùng chung ở giai đoạn được phê duyệt. Không có retry tự động cho login/register/profile/password/logout để tránh lặp command không an toàn.
+
+Mỗi lần truy cập nội dung riêng tư, cookie event tra session theo đúng `UserId` rồi gọi `GET /api/account/me`. Token hết hạn/bị thu hồi hoặc API trả `401/403` làm cookie/session bị loại bỏ. Controller tiếp tục ánh xạ `401` về login, `403` về access denied và lỗi mạng về trang lỗi thân thiện.
+
+## 10. Route MVC đã triển khai
+
+| Method | Route | Ghi chú |
+|---|---|---|
+| GET/POST | `/account/login` | Một form cho bốn Role; return URL chỉ chấp nhận local |
+| GET/POST | `/account/register` | Chỉ tạo Patient; xóa password khỏi ModelState khi trả lỗi |
+| GET/POST | `/account/profile` | Dữ liệu thật từ API; tên của Admin/Receptionist fallback email |
+| GET/POST | `/account/change-password` | Thành công xóa phiên/cookie và yêu cầu đăng nhập lại |
+| POST | `/account/logout` | Gọi API thu hồi rồi luôn xóa phiên local; không có GET logout |
+| GET | `/account/access-denied` | Trang 403 thân thiện |

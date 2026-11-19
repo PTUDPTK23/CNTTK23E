@@ -23,7 +23,9 @@ Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistContro
 
 MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route bắt buộc.
 
-Hiện trạng Prompt 03.2: API có `HealthController` và `AccountController` thật; các controller booking/queue/danh mục khác vẫn chưa được triển khai. Không có endpoint placeholder giả thành công.
+Hiện trạng Prompt 03.3.1: API có `HealthController` và `AccountController` thật; Web MVC có `HomeController` và `AccountController` gọi sáu Account API qua typed client. Các controller booking/queue/danh mục khác vẫn chưa được triển khai. Không có endpoint placeholder giả thành công.
+
+Web không proxy JWT ra browser. `AccountApiClient` tạo request riêng, gắn Bearer theo session phía server, đặt timeout 15 giây, hỗ trợ cancellation và ánh xạ lỗi API thành kết quả có kiểu. Không có retry tự động cho request thay đổi trạng thái.
 
 | Method | Route dự kiến | Quyền | Mức | Mục đích |
 |---|---|---|---|---|

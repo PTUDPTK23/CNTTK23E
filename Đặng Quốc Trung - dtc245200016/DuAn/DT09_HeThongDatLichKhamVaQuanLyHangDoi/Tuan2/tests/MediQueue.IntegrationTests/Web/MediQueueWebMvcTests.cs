@@ -23,18 +23,21 @@ public sealed class MediQueueWebMvcTests : IClassFixture<MediQueueWebFactory>
         string html = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("<h1 class=\"display-4\">MediQueue</h1>", html, StringComparison.Ordinal);
+        Assert.Contains("Chăm sóc sức khỏe", html, StringComparison.Ordinal);
         Assert.Contains("href=\"/lib/bootstrap/dist/css/bootstrap.min.css\"", html, StringComparison.Ordinal);
         Assert.Contains("src=\"/lib/bootstrap/dist/js/bootstrap.bundle.min.js\"", html, StringComparison.Ordinal);
-        Assert.Contains("href=\"/\"", html, StringComparison.Ordinal);
+        Assert.Contains("MediQueue - Trang chủ", html, StringComparison.Ordinal);
     }
 
     [Theory]
     [InlineData("/lib/bootstrap/dist/css/bootstrap.min.css")]
     [InlineData("/lib/bootstrap/dist/js/bootstrap.bundle.min.js")]
     [InlineData("/css/site.css")]
+    [InlineData("/css/tokens.css")]
+    [InlineData("/css/components.css")]
+    [InlineData("/fonts/BeVietnamPro-Regular.ttf")]
+    [InlineData("/images/logo-mark.svg")]
     [InlineData("/js/site.js")]
-    [InlineData("/MediQueue.Web.styles.css")]
     public async Task Static_asset_is_available(string path)
     {
         using HttpClient client = CreateClient();
@@ -53,8 +56,8 @@ public sealed class MediQueueWebMvcTests : IClassFixture<MediQueueWebFactory>
         string html = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("An error occurred while processing your request.", html, StringComparison.Ordinal);
-        Assert.Contains("Request ID:", html, StringComparison.Ordinal);
+        Assert.Contains("Chúng tôi chưa thể hoàn tất yêu cầu", html, StringComparison.Ordinal);
+        Assert.Contains("Mã hỗ trợ:", html, StringComparison.Ordinal);
     }
 
     [Fact]

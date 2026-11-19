@@ -6,7 +6,8 @@
 - SQL Server Express `LAPTOP-AQFGUM9Q\SQLEXPRESS` với Windows Authentication.
 - `MediQueue` đã áp dụng `InitialCreate` và là database duy nhất của dự án trong 9 tuần.
 - Không tạo database theo tuần; không xóa/tạo lại `MediQueue`.
-- Không Docker; Prompt 03.2 không cần RabbitMQ/Erlang hoặc SignalR nghiệp vụ.
+- Development HTTPS certificate hợp lệ/trusted cho `localhost`.
+- Không Docker; Prompt 03.3.1 không cần RabbitMQ/Erlang hoặc SignalR nghiệp vụ.
 
 Kiểm tra môi trường từ `Tuan2`:
 
@@ -53,20 +54,21 @@ Quy tắc bắt buộc:
 Chỉ chạy khi đã cấu hình User Secrets an toàn. Mỗi lệnh dùng một terminal:
 
 ```powershell
-dotnet run --project .\src\MediQueue.Appointment.Api --launch-profile http
-dotnet run --project .\src\MediQueue.Web --launch-profile http
+dotnet dev-certs https --check --trust
+dotnet run --project .\src\MediQueue.Appointment.Api --launch-profile https
+dotnet run --project .\src\MediQueue.Web --launch-profile https
 dotnet run --project .\src\MediQueue.Notification.Service --launch-profile http
 dotnet run --project .\src\MediQueue.Queue.Worker
 ```
 
-| Dịch vụ | HTTP | Kiểm tra nền tảng |
+| Dịch vụ | HTTPS | Kiểm tra nền tảng |
 |---|---:|---|
-| Appointment API | 5101 | `GET /health` |
-| Web MVC | 5102 | `GET /health`, `/`, `/Home/Error`, CSS/JS |
-| Notification Service | 5103 | `GET /health` |
+| Appointment API | 7101 | `GET /health`, `/api/account/me` |
+| Web MVC | 7102 | `GET /health`, `/`, `/account/login`, CSS/JS/font/SVG |
+| Notification Service | 7103 | `GET /health` |
 | Queue Worker | Không mở port | Host duy trì running |
 
-Prompt 03.2 không yêu cầu RabbitMQ hoạt động. Sau smoke test phải chỉ dừng những process do chính lượt kiểm tra khởi động.
+`BackendApi:BaseAddress` mặc định là `https://localhost:7101/`; không thay bằng HTTP và không bypass certificate validation. Prompt 03.3.1 không yêu cầu RabbitMQ hoạt động. Sau smoke test phải chỉ dừng những process do chính lượt kiểm tra khởi động.
 
 ## 5. Baseline database Tuần 1 được kế thừa
 
@@ -101,5 +103,12 @@ Prompt 03.2 không cần thay đổi schema hay Migration. Mọi Migration mới
 
 ## 8. Chức năng chưa triển khai
 
-Nền tảng hiện có MVC/API host, Domain/EF, Identity và backend Login/Register/JWT/account management. Chưa có MVC Cookie flow, dashboard Role, CRUD danh mục, sáu API nghiệp vụ bắt buộc, booking/queue transaction, RabbitMQ business flow hoặc SignalR Hub.
+Nền tảng hiện có MVC/API host, Domain/EF, Identity, backend JWT/account management và MVC Cookie/token store/UI account. Chưa có dashboard Role, CRUD danh mục, sáu API nghiệp vụ bắt buộc, booking/queue transaction, RabbitMQ business flow hoặc SignalR Hub.
+
+## 9. Giới hạn vận hành phiên MVC
+
+- Token store là bộ nhớ của một Web process; restart Web yêu cầu đăng nhập lại.
+- Cookie `.MediQueue.Auth` luôn Secure nên trình duyệt phải dùng `https://localhost:7102`.
+- Development dùng Data Protection ephemeral và token store in-memory nên restart làm mất phiên. Non-Development dùng `.data-protection` (đã ignore) + Windows DPAPI; không xóa/regenerate key tùy tiện. Môi trường nhiều instance cần key ring/cache dùng chung trước khi scale-out.
+- Không đặt `Jwt:SigningKey`, connection string hoặc token trong `appsettings*.json`.
 

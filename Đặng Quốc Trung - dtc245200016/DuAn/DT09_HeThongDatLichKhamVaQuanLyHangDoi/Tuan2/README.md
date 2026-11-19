@@ -42,7 +42,7 @@ QueueNumber tăng riêng theo Doctor/ngày, bắt đầu từ 1 mỗi ngày, kh�
 - Refactor `MediQueue.Web` từ Razor Pages sang ASP.NET Core MVC; trang chủ, trang lỗi, Layout và static assets đã được chuyển sang Controller/View.
 - Chuẩn hóa Controller và Views theo nghiệp vụ; menu/giao diện sẽ hiển thị theo Role sau khi dùng chung một form đăng nhập.
 
-Prompt 03.2 đã triển khai backend Identity/JWT và quản lý tài khoản: đăng ký Patient, đăng nhập chung, logout thu hồi bền vững, xem/cập nhật hồ sơ và đổi mật khẩu. MVC Cookie flow, CRUD danh mục, RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau. Chi tiết xem [xác thực và tài khoản](docs/authentication.md).
+Prompt 03.2 đã triển khai backend Identity/JWT và quản lý tài khoản. Prompt 03.3.1 đã nối Web MVC với API bằng typed `HttpClient`, kho JWT trong bộ nhớ phía server và cookie được Data Protection bảo vệ; có đăng nhập chung, đăng ký Patient, hồ sơ, đổi mật khẩu, đăng xuất, access denied và giao diện healthcare responsive. JWT không xuất hiện trong HTML/JavaScript/browser storage. CRUD danh mục, dashboard theo Role, RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau. Chi tiết xem [xác thực và tài khoản](docs/authentication.md) và [UI design system](docs/ui-design-system.md).
 
 ## 3. Công nghệ và ràng buộc
 
@@ -96,8 +96,8 @@ Yêu cầu: .NET SDK `10.0.102` hoặc patch tương thích theo `global.json`, 
 dotnet restore .\MediQueue.slnx
 dotnet build .\MediQueue.slnx --no-restore
 dotnet test .\MediQueue.slnx --no-build
-dotnet run --project .\src\MediQueue.Appointment.Api --launch-profile http
-dotnet run --project .\src\MediQueue.Web --launch-profile http
+dotnet run --project .\src\MediQueue.Appointment.Api --launch-profile https
+dotnet run --project .\src\MediQueue.Web --launch-profile https
 dotnet run --project .\src\MediQueue.Notification.Service --launch-profile http
 dotnet run --project .\src\MediQueue.Queue.Worker
 ```
@@ -110,7 +110,7 @@ Appointment API và Queue Worker cần `ConnectionStrings:MediQueue` từ User S
 | Web | 5102 | 7102 | `http://localhost:5102/health` |
 | Notification Service | 5103 | 7103 | `http://localhost:5103/health` |
 
-Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp lệ; các port HTTPS đã cấu hình nhưng cần người dùng chủ động tạo/trust certificate trước khi chạy. Chi tiết cấu hình SQL Server/User Secrets và kiểm tra môi trường xem [docs/setup.md](docs/setup.md).
+Web gọi API tại `https://localhost:7101/`; vì cookie luôn `Secure`, luồng đăng nhập MVC phải chạy bằng profile HTTPS tại `https://localhost:7102/`. Development certificate cần hợp lệ và trusted; chỉ kiểm tra bằng `dotnet dev-certs https --check --trust`, không dùng `--clean`. Chi tiết cấu hình SQL Server/User Secrets và kiểm tra môi trường xem [docs/setup.md](docs/setup.md).
 
 ## 6. Tài liệu
 
@@ -130,6 +130,7 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 | [docs/setup.md](docs/setup.md) | Hướng dẫn restore/build/test/run và cấu hình local |
 | [docs/week02-plan.md](docs/week02-plan.md) | Kiến trúc Authentication, phân quyền, database, UI/UX và kế hoạch Prompt Tuần 2 |
 | [docs/authentication.md](docs/authentication.md) | Cấu hình, API, thu hồi token và quy trình bootstrap Role/Admin |
+| [docs/ui-design-system.md](docs/ui-design-system.md) | Design token, component, font, responsive và accessibility |
 | [AGENTS.md](AGENTS.md) | Quy tắc cho các lần phát triển tiếp theo |
 
 ## 7. Trạng thái
@@ -137,7 +138,7 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 - Nhánh: `duan-tuan2-dtc245200016`; commit nguồn kế thừa: `dcee864`.
 - Solution, Domain và nền tảng EF Core Code First: đã hoàn thành trong Tuần 1 theo Prompt 02.2.
 - Frontend MVC và kiến trúc Controller theo nghiệp vụ: đã chuẩn hóa theo Prompt 02.2.1; Web không tham chiếu DbContext/Infrastructure.
-- Prompt 03.2: build `0` warning/`0` error; 18 unit pass; 31 integration pass và 1 database test skip an toàn. Chi tiết tại `docs/progress.md`.
+- Prompt 03.3.1: MVC Cookie + JWT phía server và UI tài khoản đã triển khai; build `0` warning/`0` error, 18 unit pass, 49 integration pass và 1 database test skip an toàn trước smoke/visual gate. Chi tiết cuối cùng tại `docs/progress.md`.
 - Database: `InitialCreate` đã áp dụng thành công ngày 18/11/2026; có 21 bảng mô hình + `__EFMigrationsHistory`, không có dữ liệu mẫu.
 - Không tạo database theo tuần. `MediQueue` là database chính thức; Prompt 03.2 không thay đổi schema và không tạo Migration.
 - Chờ người dùng review và commit thủ công; không tự chuyển sang prompt tiếp theo.

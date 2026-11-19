@@ -31,6 +31,7 @@ appsettings.*.Local.json
 .env
 .env.*
 secrets.json
+.data-protection/
 
 # NuGet and local tooling caches
 .packages/

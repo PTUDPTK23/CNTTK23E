@@ -16,7 +16,7 @@ Tuần 1 nằm tại `Tuan1`, đã hoàn tất nền tảng đến commit nguồ
 | Tuần / thư mục | Mục tiêu | Sản phẩm dự kiến | Gate chất lượng |
 |---|---|---|---|
 | Tuần 1 / `Tuan1` | Phân tích, thiết kế và nền tảng | 9 project .NET 10; MVC/API host; Domain/EF/Identity persistence; InitialCreate | Đã hoàn thành: build/test/smoke và schema được xác minh |
-| Tuần 2 / `Tuan2` | Identity, Authentication, Authorization, dashboard và danh mục | JWT API; MVC Cookie + token server-side; 4 dashboard; tài khoản/Department/Room/Doctor/Patient | Role + ownership, CSRF/session và không lộ token được kiểm thử |
+| Tuần 2 / `Tuan2` | Identity, Authentication, Authorization, dashboard và danh mục | JWT API và MVC Cookie + token server-side đã có; tiếp tục 4 dashboard và tài khoản/Department/Room/Doctor/Patient | Role + ownership, CSRF/session và không lộ token được kiểm thử |
 | Tuần 3 / `Tuan3` | Lịch làm việc, khung giờ và đặt lịch | DoctorSchedule, TimeSlot, slot query và booking nền tảng | Capacity, overlap, thời gian và concurrency có test |
 | Tuần 4 / `Tuan4` | Hoàn thiện đặt/hủy lịch | Sáu REST API tối thiểu; hủy, check-in metadata, idempotency/outbox | Hạn hủy, ownership, tranh chỗ và gọi lặp được kiểm thử |
 | Tuần 5 / `Tuan5` | RabbitMQ, Queue Worker và cấp số | Message contracts; publisher/consumer; inbox/outbox; QueueTicket | Redelivery không cấp trùng; QueueNumber Doctor/ngày đúng |

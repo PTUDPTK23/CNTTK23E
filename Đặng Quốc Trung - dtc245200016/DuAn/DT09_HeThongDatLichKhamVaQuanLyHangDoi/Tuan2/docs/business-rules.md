@@ -78,6 +78,10 @@ Mỗi `DailyQueue` giữ `LastIssuedNumber`, khởi tạo 0 cho từng `(DoctorI
 | BR-AUTH-08 | SignalR xác thực JWT và server kiểm tra quyền trước khi join group |
 | BR-AUTH-09 | V1 chỉ có JWT Access Token thời hạn hữu hạn, không Refresh Token và không lưu bền vững trong local/session storage |
 | BR-AUTH-10 | MVC dùng Cookie Authentication; JWT chỉ lưu phía server và không lộ cho JavaScript/browser storage |
+| BR-AUTH-11 | Cookie sống tối đa 30 phút, không sliding và không vượt thời hạn JWT; restart Web làm mất session in-memory |
+| BR-AUTH-12 | Mọi POST MVC có antiforgery; logout chỉ nhận POST và luôn xóa phiên local kể cả API tạm lỗi |
+| BR-AUTH-13 | Return URL sau login chỉ chấp nhận URL local; URL ngoài site bị bỏ qua |
+| BR-AUTH-14 | Trước nội dung riêng tư, Web đối chiếu session với Account API; 401 kết thúc phiên, 403 không được nâng quyền |
 | BR-AUTH-11 | Mọi MVC form thay đổi trạng thái phải kiểm tra antiforgery; cookie dùng HttpOnly/Secure/SameSite phù hợp |
 | BR-AUTH-12 | Thời hạn cookie không vượt JWT; logout, khóa tài khoản hoặc thay đổi quyền phải xử lý phiên cũ theo chiến lược thu hồi đã duyệt |
 | BR-AUTH-13 | Chỉ Patient tự đăng ký; tài khoản Doctor/Receptionist do Admin cấp; backend không tin Role từ client |

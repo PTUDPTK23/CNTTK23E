@@ -2,7 +2,7 @@
 
 ## 1. Tổng quan
 
-Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864` và tập trung vào Identity, Authentication, Authorization, dashboard theo vai trò và các danh mục quản trị. Prompt 03.2 đã hoàn thành backend Login/Register/JWT và account management, không thay đổi schema; các mục MVC/CRUD/RabbitMQ/SignalR tiếp tục theo lộ trình.
+Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864` và tập trung vào Identity, Authentication, Authorization, dashboard theo vai trò và các danh mục quản trị. Prompt 03.2 đã hoàn thành backend Login/Register/JWT; Prompt 03.3.1 đã hoàn thành MVC Cookie, session JWT phía server và UI account, không thay đổi schema. CRUD/dashboard/RabbitMQ/SignalR tiếp tục theo lộ trình.
 
 - Sản phẩm: MediQueue — Medical Appointment and Queue Management System.
 - Sinh viên: Đặng Quốc Trung — `dtc245200016`.
@@ -32,12 +32,12 @@ Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864`
 - DoctorSchedule, TimeSlot và `GET /doctors/{id}/slots`.
 - Không đưa đặt/hủy lịch, RabbitMQ, cấp QueueNumber hoặc SignalR queue vào Tuần 2.
 
-### 2.3 Hiện trạng sau Prompt 03.2
+### 2.3 Hiện trạng sau Prompt 03.3.1
 
 - Đã có `AccountController`, service, DTO, JWT validation và lệnh bootstrap tường minh; không có placeholder.
 - Không thêm package, Migration hoặc schema; không hard-code tài khoản/mật khẩu.
 - Dùng duy nhất database `MediQueue` trong 9 tuần; không tạo database theo tuần.
-- Chưa triển khai MVC Cookie flow, dashboard, CRUD danh mục, RabbitMQ hoặc SignalR nghiệp vụ.
+- Đã triển khai MVC Cookie flow, typed API client, token store in-memory, account pages và design system; chưa triển khai dashboard, CRUD danh mục, RabbitMQ hoặc SignalR nghiệp vụ.
 
 ## 3. Kiến trúc Authentication
 
@@ -68,7 +68,7 @@ sequenceDiagram
 Quy tắc thiết kế:
 
 - Browser không nhận JWT và JavaScript không đọc JWT; cấm `localStorage`, `sessionStorage`, URL và log.
-- MVC dùng Cookie Authentication. Cookie chỉ chứa ticket/handle được bảo vệ; JWT được giữ trong `ITicketStore` hoặc token store/cache phía server.
+- MVC dùng Cookie Authentication. Cookie chứa authentication ticket/handle được Data Protection bảo vệ; JWT được giữ trong `IAuthenticationSessionStore` in-memory phía server.
 - Cookie dùng `HttpOnly`, `Secure`, `SameSite=Lax` hoặc chặt hơn theo luồng thực tế; state-changing form bắt buộc antiforgery.
 - MVC gọi API bằng `HttpClient` phía server và gắn Bearer token ở delegating handler/service; Web không tham chiếu DbContext.
 - Thời hạn cookie không vượt quá JWT. Không sliding expiration vượt hạn token; hết hạn hoặc thiếu phiên thì xóa cookie và yêu cầu đăng nhập lại.
@@ -139,7 +139,7 @@ Giai đoạn sau mới bổ sung `DoctorSchedulesController`, `TimeSlotsControll
 | Warning | `#F59E0B` |
 | Error | `#DC2626` |
 
-Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng chung layout, header, sidebar, breadcrumb và component. Mỗi Role có navigation/dashboard phù hợp nhưng không nhân bản layout. Các trạng thái bắt buộc: validation, loading, empty, denied, error, alert/toast. Không dùng template thương mại trái phép và không dùng ẩn nút thay cho authorization.
+Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng chung layout/header/component. Prompt 03.3.1 không tạo sidebar/dashboard placeholder. Các trạng thái validation, loading, denied, error và toast đã có; empty/dashboard sẽ được bổ sung cùng chức năng thật. Không dùng template thương mại trái phép và không dùng ẩn nút thay cho authorization.
 
 ## 8. Kế hoạch Prompt và commit
 
@@ -147,7 +147,7 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 |---|---|---|
 | 03.1.1 | Khởi tạo/rà soát nền tảng Tuần 2 | `chore(tuan2): initialize week two foundation` |
 | 03.2 | Identity và JWT backend | `feat(tuan2): implement identity and JWT authentication` |
-| 03.3 | MVC Authentication/Authorization | `feat(tuan2): implement MVC authentication and authorization` |
+| 03.3.1 | MVC Authentication/Authorization + premium UI | `feat(tuan2): implement MVC authentication and authorization` |
 | 03.4 | Shared layout và dashboard Role | `feat(tuan2): implement role-based dashboards` |
 | 03.5 | User management | `feat(tuan2): implement user management` |
 | 03.6 | Department và Room | `feat(tuan2): implement department and room management` |
@@ -195,7 +195,7 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 2. JWT issuer `MediQueue.Appointment.Api`, audience `MediQueue.Web`, lifetime 30 phút, HS256 với key ngẫu nhiên tối thiểu 256 bit và clock skew tối đa 30 giây.
 3. Bootstrap Role/Admin chỉ qua lệnh tường minh; password Admin nhập ẩn, không qua argument/log/source.
 4. Thu hồi bền vững bằng fingerprint của Identity `SecurityStamp`; logout/đổi mật khẩu/khóa/đổi Role làm token không còn hợp lệ khi server kiểm tra.
-5. V1 không Refresh Token; MVC Cookie/token store phía server sẽ triển khai ở Prompt 03.3.
+5. V1 không Refresh Token; MVC Cookie/token store phía server đã triển khai ở Prompt 03.3.1.
 
 ## 12. Checklist phát triển
 
@@ -205,7 +205,7 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 - [x] Thiết kế auth, phân quyền, database, UI/UX và test.
 - [x] Sinh viên xác nhận các quyết định mục 11.
 - [x] Prompt 03.2: Identity/JWT backend.
-- [ ] Prompt 03.3: MVC Cookie và server-side JWT session.
+- [x] Prompt 03.3.1: MVC Cookie, server-side JWT session và UI account.
 - [ ] Prompt 03.4–03.7: dashboard và danh mục.
 - [ ] Prompt 03.8: security/test/documentation gate.
 - [ ] Prompt 03.9 chỉ khi phạm vi chính đã hoàn thành.
