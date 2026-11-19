@@ -1,0 +1,59 @@
+@model AdminDashboardViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Tổng quan quản trị";
+    AdminDashboardResponse data = Model.Dashboard.Admin!;
+    int roleTotal = Math.Max(1, data.AccountsByRole.Sum(item => item.Count));
+    IReadOnlyList<QuickActionViewModel> actions = new[]
+    {
+        new QuickActionViewModel("Hồ sơ cá nhân", "Kiểm tra thông tin tài khoản", "user", "Account", "Profile"),
+        new QuickActionViewModel("Đổi mật khẩu", "Cập nhật thông tin bảo mật", "lock", "Account", "ChangePassword"),
+        new QuickActionViewModel("Trang chủ", "Quay lại trang giới thiệu", "home", "Home", "Index")
+    };
+}
+<div class="dashboard-page">
+    <header class="dashboard-page-heading">
+        <div><span class="eyebrow">Quản trị hệ thống</span><h1>Chào @Model.Dashboard.Account.DisplayName</h1><p>Theo dõi các danh mục nền tảng bằng dữ liệu hiện có của MediQueue.</p></div>
+        <span class="dashboard-status-chip">Tài khoản đang hoạt động</span>
+    </header>
+    <section class="welcome-banner" aria-labelledby="welcome-title">
+        <div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue Workspace</span><h2 id="welcome-title">Một góc nhìn rõ ràng cho hệ thống chăm sóc sức khỏe.</h2><p>Các số liệu dưới đây được tổng hợp trực tiếp từ dữ liệu hiện có, không sử dụng dữ liệu minh họa.</p></div>
+        <span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#shield"></use></svg></span>
+    </section>
+    <section class="stats-grid stats-grid--four" aria-label="Thống kê hệ thống">
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Tổng tài khoản", data.Accounts.Total.ToString("N0"), $"{data.Accounts.Active:N0} đang hoạt động", "users")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Tài khoản hoạt động", data.Accounts.Active.ToString("N0"), $"{data.Accounts.Inactive:N0} chưa hoạt động", "user-check", "success")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Bác sĩ", data.Doctors.Total.ToString("N0"), $"{data.Doctors.Active:N0} đang hoạt động", "stethoscope", "primary")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Bệnh nhân", data.Patients.Total.ToString("N0"), $"{data.Patients.Active:N0} đang hoạt động", "heart", "secondary")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Chuyên khoa", data.Departments.Total.ToString("N0"), $"{data.Departments.Active:N0} đang hoạt động", "building", "purple")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Phòng khám", data.Rooms.Total.ToString("N0"), $"{data.Rooms.Active:N0} đang hoạt động", "hospital", "warning")' />
+    </section>
+    <div class="dashboard-two-column">
+        <section class="dashboard-section" aria-labelledby="account-overview-title">
+            <div class="section-heading"><div><span class="eyebrow">Tài khoản</span><h2 id="account-overview-title">Phân bố theo vai trò</h2></div></div>
+            @if (data.AccountsByRole.Count == 0)
+            {
+                <partial name="_DashboardState" model='new DashboardStateViewModel("Chưa có dữ liệu tài khoản", "Hệ thống chưa có dữ liệu để tổng hợp theo vai trò.", "users")' />
+            }
+            else
+            {
+                <div class="distribution-list">
+                    @foreach (RoleAccountCount item in data.AccountsByRole)
+                    {
+                        int percent = (int)Math.Round(item.Count * 100d / roleTotal);
+                        <div class="distribution-item"><strong>@RolePresentation.GetLabel(item.Role)</strong><div class="distribution-track" role="img" aria-label="@RolePresentation.GetLabel(item.Role): @item.Count tài khoản"><span style="--distribution-width: @percent%;"></span></div><span>@item.Count</span></div>
+                    }
+                </div>
+            }
+        </section>
+        <section class="dashboard-section" aria-labelledby="system-overview-title">
+            <div class="section-heading"><div><span class="eyebrow">Hệ thống</span><h2 id="system-overview-title">Tình trạng danh mục</h2></div></div>
+            <dl class="summary-list">
+                <div class="summary-row"><dt>Chuyên khoa hoạt động</dt><dd>@data.Departments.Active / @data.Departments.Total</dd></div>
+                <div class="summary-row"><dt>Phòng khám hoạt động</dt><dd>@data.Rooms.Active / @data.Rooms.Total</dd></div>
+                <div class="summary-row"><dt>Trạng thái tài khoản</dt><dd><span>Đang hoạt động</span></dd></div>
+            </dl>
+        </section>
+    </div>
+    <partial name="_QuickActions" model="actions" />
+</div>

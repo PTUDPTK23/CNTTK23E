@@ -4,7 +4,7 @@
 
 Prompt 03.2 triển khai backend ASP.NET Core Identity và JWT cho bốn Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`. Chỉ `Patient` tự đăng ký; request công khai không có trường Role. Staff/Admin chỉ được tạo qua quy trình quản trị.
 
-Prompt 03.3.1 triển khai Web MVC thật: browser gửi form + antiforgery đến MVC; MVC gọi Account API qua HTTPS, giữ JWT trong kho phiên in-memory phía server và phát cookie bảo vệ. Web không tham chiếu Infrastructure/DbContext và không truy cập SQL Server.
+Prompt 03.3.1 triển khai Web MVC thật: browser gửi form + antiforgery đến MVC; MVC gọi Account API qua HTTPS, giữ JWT trong kho phiên in-memory phía server và phát cookie bảo vệ. Prompt 03.4 dùng cùng phiên để gọi Dashboard API read-only và điều hướng bốn Role đến `/dashboard`. Web không tham chiếu Infrastructure/DbContext và không truy cập SQL Server.
 
 Sáu endpoint thật:
 
@@ -167,7 +167,7 @@ Kết quả sau Prompt 03.2: bốn Role chính xác; `UserCount = 0` do không t
 - Bootstrap Role đã chạy hai lần trên `MediQueue` để xác nhận idempotent; đây là ghi dữ liệu nghiệp vụ được cho phép, không phải test seed.
 - Lifecycle register/login/profile/change-password/logout có ghi SQL chưa chạy end-to-end vì chưa có database test cô lập; không dùng `MediQueue` để tạo dữ liệu test.
 - Admin đầu tiên đã được người dùng bootstrap thủ công trước Prompt 03.3.1; tài liệu không lưu email hoặc thông tin xác thực. Chưa có email verification, forgot/reset password, Refresh Token hoặc logout từng thiết bị ở API.
-- MVC Cookie/UI đã có; dashboard theo Role và CRUD quản trị chưa thuộc Prompt 03.3.1. Development certificate được kiểm tra ở chế độ trusted trước HTTPS smoke; không dùng `--clean` và ứng dụng không tắt certificate validation.
+- MVC Cookie/UI và Dashboard theo Role đã có; CRUD quản trị chưa triển khai. Môi trường Codex hiện không nhìn thấy development certificate hợp lệ nên HTTPS smoke phải xác minh lại trong phiên Windows của sinh viên; không dùng `--clean` và ứng dụng không tắt certificate validation.
 
 ## 9. MVC Cookie và kho token phía server
 
@@ -186,6 +186,8 @@ Kho token in-memory và Data Protection ephemeral ở Development phù hợp m�
 Mỗi lần truy cập nội dung riêng tư, cookie event tra session theo đúng `UserId` rồi gọi `GET /api/account/me`. Token hết hạn/bị thu hồi hoặc API trả `401/403` làm cookie/session bị loại bỏ. Controller tiếp tục ánh xạ `401` về login, `403` về access denied và lỗi mạng về trang lỗi thân thiện.
 
 ## 10. Route MVC đã triển khai
+
+Ngoài route Account, `GET /dashboard` yêu cầu một trong bốn Role chính thức. Login thành công, hoặc người dùng đã xác thực truy cập Login/Register, đều chuyển đến Dashboard; local ReturnUrl hợp lệ vẫn được ưu tiên. Dashboard API 401 xóa phiên, 403 chuyển AccessDenied và lỗi dịch vụ hiển thị trạng thái thân thiện.
 
 | Method | Route | Ghi chú |
 |---|---|---|

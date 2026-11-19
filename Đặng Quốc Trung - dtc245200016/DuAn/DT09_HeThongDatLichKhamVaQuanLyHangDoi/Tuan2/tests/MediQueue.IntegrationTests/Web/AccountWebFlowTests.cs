@@ -37,7 +37,7 @@ public sealed partial class AccountWebFlowTests : IClassFixture<MediQueueWebFact
         string headers = response.Headers.ToString();
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Equal("/account/profile", response.Headers.Location!.OriginalString);
+        Assert.Equal("/dashboard", response.Headers.Location!.OriginalString);
         Assert.Contains(".MediQueue.Auth=", headers, StringComparison.Ordinal);
         Assert.Contains("httponly", headers, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("secure", headers, StringComparison.OrdinalIgnoreCase);
@@ -78,7 +78,7 @@ public sealed partial class AccountWebFlowTests : IClassFixture<MediQueueWebFact
         });
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Equal("/account/profile", response.Headers.Location!.OriginalString);
+        Assert.Equal("/dashboard", response.Headers.Location!.OriginalString);
     }
 
     [Fact]

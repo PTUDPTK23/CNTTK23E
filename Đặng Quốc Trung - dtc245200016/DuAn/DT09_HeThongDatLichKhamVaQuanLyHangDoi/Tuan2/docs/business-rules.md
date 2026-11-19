@@ -82,6 +82,9 @@ Mỗi `DailyQueue` giữ `LastIssuedNumber`, khởi tạo 0 cho từng `(DoctorI
 | BR-AUTH-12 | Mọi POST MVC có antiforgery; logout chỉ nhận POST và luôn xóa phiên local kể cả API tạm lỗi |
 | BR-AUTH-13 | Return URL sau login chỉ chấp nhận URL local; URL ngoài site bị bỏ qua |
 | BR-AUTH-14 | Trước nội dung riêng tư, Web đối chiếu session với Account API; 401 kết thúc phiên, 403 không được nâng quyền |
+| BR-AUTH-15 | Dashboard API chỉ lấy UserId/Role từ JWT đã xác minh; không cho query/form ghi đè danh tính hoặc ownership |
+| BR-AUTH-16 | Doctor/Patient Dashboard chỉ trả profile gắn với UserId hiện tại; Receptionist/Admin chỉ nhận aggregate đúng phạm vi |
+| BR-AUTH-17 | Response Dashboard không cache và không chứa password hash, security stamp, JWT hoặc entity persistence |
 | BR-AUTH-11 | Mọi MVC form thay đổi trạng thái phải kiểm tra antiforgery; cookie dùng HttpOnly/Secure/SameSite phù hợp |
 | BR-AUTH-12 | Thời hạn cookie không vượt JWT; logout, khóa tài khoản hoặc thay đổi quyền phải xử lý phiên cũ theo chiến lược thu hồi đã duyệt |
 | BR-AUTH-13 | Chỉ Patient tự đăng ký; tài khoản Doctor/Receptionist do Admin cấp; backend không tin Role từ client |

@@ -1,0 +1,14 @@
+@model IReadOnlyList<QuickActionViewModel>
+<section class="dashboard-section" aria-labelledby="quick-actions-title">
+    <div class="section-heading"><div><span class="eyebrow">Truy cập nhanh</span><h2 id="quick-actions-title">Tiếp tục công việc</h2></div></div>
+    <div class="quick-actions">
+        @foreach (QuickActionViewModel item in Model)
+        {
+            <a class="quick-action" asp-controller="@item.Controller" asp-action="@item.Action">
+                <span><svg aria-hidden="true"><use href="/images/icons.svg#@item.Icon"></use></svg></span>
+                <div><strong>@item.Label</strong><small>@item.Description</small></div>
+                <svg class="quick-action__arrow" aria-hidden="true"><use href="/images/icons.svg#chevron-left"></use></svg>
+            </a>
+        }
+    </div>
+</section>

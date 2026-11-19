@@ -1,0 +1,29 @@
+@model PatientDashboardViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Tổng quan bệnh nhân";
+    PatientDashboardResponse data = Model.Dashboard.Patient!;
+    string displayName = string.IsNullOrWhiteSpace(data.FullName) ? Model.Dashboard.Account.DisplayName : data.FullName;
+    IReadOnlyList<QuickActionViewModel> actions = new[]
+    {
+        new QuickActionViewModel("Hồ sơ cá nhân", "Cập nhật thông tin liên hệ", "user", "Account", "Profile"),
+        new QuickActionViewModel("Đổi mật khẩu", "Bảo vệ tài khoản của bạn", "lock", "Account", "ChangePassword"),
+        new QuickActionViewModel("Trang chủ", "Khám phá MediQueue", "home", "Home", "Index")
+    };
+}
+<div class="dashboard-page">
+    <header class="dashboard-page-heading"><div><span class="eyebrow">Không gian bệnh nhân</span><h1>Xin chào, @displayName</h1><p>Quản lý thông tin cá nhân trong một không gian riêng tư và an toàn.</p></div>@if (Model.Dashboard.Account.IsActive) { <span class="dashboard-status-chip">Tài khoản đang hoạt động</span> }</header>
+    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue đồng hành cùng bạn</span><h2 id="welcome-title">Chăm sóc sức khỏe bắt đầu từ sự chủ động.</h2><p>Thông tin của bạn được bảo vệ. Chức năng tìm bác sĩ, đặt lịch và theo dõi số thứ tự sẽ được mở ở các giai đoạn tiếp theo.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#heart-pulse"></use></svg></span></section>
+    @if (!data.HasProfile)
+    {
+        <partial name="_DashboardState" model='new DashboardStateViewModel("Chưa có hồ sơ bệnh nhân liên kết", "Tài khoản đã đăng nhập nhưng chưa có hồ sơ bệnh nhân tương ứng. Vui lòng liên hệ bộ phận hỗ trợ.", "user")' />
+    }
+    else
+    {
+        <div class="dashboard-two-column">
+            <section class="dashboard-section" aria-labelledby="patient-profile-title"><div class="section-heading"><div><span class="eyebrow">Hồ sơ sức khỏe</span><h2 id="patient-profile-title">Thông tin bệnh nhân</h2></div></div><div class="profile-summary"><span class="profile-summary__avatar" aria-hidden="true">@displayName[..1].ToUpperInvariant()</span><div><h3>@displayName</h3><p>Hồ sơ cá nhân của bạn trên MediQueue</p></div></div><dl class="summary-list mt-3"><div class="summary-row"><dt>Ngày sinh</dt><dd>@(data.DateOfBirth?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</dd></div><div class="summary-row"><dt>Trạng thái hồ sơ</dt><dd>@(data.IsActive == true ? "Đang hoạt động" : "Chưa hoạt động")</dd></div></dl></section>
+            <section class="dashboard-section" aria-labelledby="patient-account-title"><div class="section-heading"><div><span class="eyebrow">Tài khoản</span><h2 id="patient-account-title">Thông tin liên hệ</h2></div></div><dl class="summary-list"><div class="summary-row"><dt>Email</dt><dd>@Model.Dashboard.Account.Email</dd></div><div class="summary-row"><dt>Số điện thoại</dt><dd>@(Model.Dashboard.Account.PhoneNumber ?? "Chưa cập nhật")</dd></div><div class="summary-row"><dt>Vai trò</dt><dd><span>Bệnh nhân</span></dd></div></dl></section>
+        </div>
+    }
+    <partial name="_QuickActions" model="actions" />
+</div>

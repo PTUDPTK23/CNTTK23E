@@ -103,7 +103,16 @@ Prompt 03.2 không cần thay đổi schema hay Migration. Mọi Migration mới
 
 ## 8. Chức năng chưa triển khai
 
-Nền tảng hiện có MVC/API host, Domain/EF, Identity, backend JWT/account management và MVC Cookie/token store/UI account. Chưa có dashboard Role, CRUD danh mục, sáu API nghiệp vụ bắt buộc, booking/queue transaction, RabbitMQ business flow hoặc SignalR Hub.
+Dashboard theo bốn Role đã triển khai tại `/dashboard` và API `/api/dashboard/me`. Chưa triển khai CRUD tài khoản/danh mục, lịch làm việc, lịch hẹn, hàng đợi, RabbitMQ business flow hoặc SignalR nghiệp vụ; giao diện không tạo liên kết giả cho các module này.
+
+### Kiểm tra Dashboard thủ công
+
+1. Chạy API và Web bằng profile `https`; không bypass chứng chỉ.
+2. Đăng nhập tại `https://localhost:7102/account/login` bằng tài khoản hợp lệ; không đưa mật khẩu vào script/log.
+3. Xác minh redirect `/dashboard`, nội dung/nhãn Role, sidebar responsive, Profile/ChangePassword và Logout.
+4. SQL Server vẫn là `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue`; không chạy Migration hoặc seed cho Dashboard.
+
+Nền tảng hiện có MVC/API host, Domain/EF, Identity, backend JWT/account management, MVC Cookie/token store/UI account và Dashboard theo bốn Role. Chưa có CRUD danh mục, sáu API nghiệp vụ bắt buộc, booking/queue transaction, RabbitMQ business flow hoặc SignalR Hub.
 
 ## 9. Giới hạn vận hành phiên MVC
 

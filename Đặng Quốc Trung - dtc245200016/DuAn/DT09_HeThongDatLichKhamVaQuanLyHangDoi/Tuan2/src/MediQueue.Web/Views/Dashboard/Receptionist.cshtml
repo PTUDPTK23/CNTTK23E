@@ -1,0 +1,24 @@
+@model ReceptionistDashboardViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Tổng quan lễ tân";
+    ReceptionistDashboardResponse data = Model.Dashboard.Receptionist!;
+    IReadOnlyList<QuickActionViewModel> actions = new[]
+    {
+        new QuickActionViewModel("Hồ sơ cá nhân", "Kiểm tra thông tin tài khoản", "user", "Account", "Profile"),
+        new QuickActionViewModel("Đổi mật khẩu", "Cập nhật thông tin bảo mật", "lock", "Account", "ChangePassword"),
+        new QuickActionViewModel("Trang chủ", "Quay lại trang giới thiệu", "home", "Home", "Index")
+    };
+}
+<div class="dashboard-page">
+    <header class="dashboard-page-heading"><div><span class="eyebrow">Không gian lễ tân</span><h1>Chào @Model.Dashboard.Account.DisplayName</h1><p>Tổng quan các danh mục cần thiết cho công tác tiếp nhận.</p></div><span class="dashboard-status-chip">Tài khoản đang hoạt động</span></header>
+    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue Workspace</span><h2 id="welcome-title">Sẵn sàng cho một quy trình tiếp nhận nhẹ nhàng hơn.</h2><p>Dữ liệu tổng hợp giúp bạn nắm quy mô danh mục. Chức năng lịch hẹn và hàng đợi sẽ được triển khai ở giai đoạn kế tiếp.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#users"></use></svg></span></section>
+    <section class="stats-grid stats-grid--four" aria-label="Tổng quan danh mục">
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Bác sĩ", data.Doctors.Total.ToString("N0"), $"{data.Doctors.Active:N0} đang hoạt động", "stethoscope")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Bệnh nhân", data.Patients.Total.ToString("N0"), $"{data.Patients.Active:N0} đang hoạt động", "heart", "secondary")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Chuyên khoa", data.Departments.Total.ToString("N0"), $"{data.Departments.Active:N0} đang hoạt động", "building", "purple")' />
+        <partial name="_StatisticCard" model='new StatisticCardViewModel("Phòng khám", data.Rooms.Total.ToString("N0"), $"{data.Rooms.Active:N0} đang hoạt động", "hospital", "warning")' />
+    </section>
+    <section class="dashboard-section" aria-labelledby="reception-account-title"><div class="section-heading"><div><span class="eyebrow">Tài khoản</span><h2 id="reception-account-title">Thông tin không gian làm việc</h2></div></div><dl class="summary-list"><div class="summary-row"><dt>Email</dt><dd>@Model.Dashboard.Account.Email</dd></div><div class="summary-row"><dt>Số điện thoại</dt><dd>@(Model.Dashboard.Account.PhoneNumber ?? "Chưa cập nhật")</dd></div><div class="summary-row"><dt>Vai trò</dt><dd><span>Lễ tân</span></dd></div></dl></section>
+    <partial name="_QuickActions" model="actions" />
+</div>

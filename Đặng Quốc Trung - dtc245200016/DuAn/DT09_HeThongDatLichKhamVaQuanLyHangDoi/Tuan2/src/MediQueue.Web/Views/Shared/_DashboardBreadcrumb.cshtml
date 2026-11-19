@@ -1,0 +1,14 @@
+@{
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string action = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+    string current = controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase)
+        ? "Tổng quan"
+        : action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase) ? "Đổi mật khẩu" : "Hồ sơ cá nhân";
+}
+<nav class="dashboard-breadcrumb" aria-label="Đường dẫn trang">
+    <a asp-controller="Dashboard" asp-action="Index"><svg aria-hidden="true"><use href="/images/icons.svg#home"></use></svg><span>Tổng quan</span></a>
+    @if (!controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
+    {
+        <span aria-hidden="true">/</span><span aria-current="page">@current</span>
+    }
+</nav>

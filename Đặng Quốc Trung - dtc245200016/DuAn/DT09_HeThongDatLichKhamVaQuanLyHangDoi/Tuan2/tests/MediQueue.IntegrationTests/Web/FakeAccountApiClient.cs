@@ -42,14 +42,15 @@ public sealed class FakeAccountApiClient : IAccountApiClient
                 new Dictionary<string, string[]>())));
         }
 
+        string role = ResolveRole(request.Email);
         return Task.FromResult(ApiClientResult<LoginResponse>.Success(new LoginResponse(
-            SecretToken,
+            $"{SecretToken}|{request.Email.Split('@')[0].ToLowerInvariant()}|{role}",
             "Bearer",
             DateTimeOffset.UtcNow.AddMinutes(30),
             UserId,
             "Nguyễn An",
             request.Email,
-            "Patient")));
+            role)));
     }
 
     public Task<ApiClientResult<AccountProfileResponse>> RegisterAsync(
@@ -60,7 +61,7 @@ public sealed class FakeAccountApiClient : IAccountApiClient
     public Task<ApiClientResult<AccountProfileResponse>> GetProfileAsync(
         string accessToken,
         CancellationToken cancellationToken) => Task.FromResult(
-            accessToken == SecretToken
+            accessToken.StartsWith(SecretToken, StringComparison.Ordinal)
                 ? ApiClientResult<AccountProfileResponse>.Success(Profile())
                 : ApiClientResult<AccountProfileResponse>.Failure(Unauthorized()));
 
@@ -109,4 +110,16 @@ public sealed class FakeAccountApiClient : IAccountApiClient
         "Phiên không hợp lệ",
         "Vui lòng đăng nhập lại.",
         new Dictionary<string, string[]>());
+
+    private static string ResolveRole(string email)
+    {
+        string alias = email.Split('@')[0];
+        return alias.ToLowerInvariant() switch
+        {
+            "admin" => "Admin",
+            "doctor" => "Doctor",
+            "receptionist" => "Receptionist",
+            _ => "Patient"
+        };
+    }
 }

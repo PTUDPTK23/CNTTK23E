@@ -16,7 +16,7 @@ Giao diện Prompt 03.3.1 theo phong cách Modern Healthcare SaaS: tin cậy, s�
 | Khoảng cách | Thang 4/8/12/16/20/24/32/40/48/64/80px |
 | Motion | 160ms nhanh, 260ms chuẩn, easing `cubic-bezier(.2,.8,.2,1)` |
 
-Token nằm ở `wwwroot/css/tokens.css`; component chung ở `components.css`, trang công khai ở `site.css`, auth ở `auth.css`, account ở `account.css`.
+Token nằm ở `wwwroot/css/tokens.css`; component chung ở `components.css`, trang công khai ở `site.css`, auth ở `auth.css`, account ở `account.css`, workspace ở `dashboard-layout.css` và nội dung Dashboard ở `dashboard.css`.
 
 ## 3. Typography và giấy phép
 
@@ -36,11 +36,14 @@ Không gọi Google Fonts CDN khi runtime. Phiên bản nguồn chính thức cu
 - Toast success/warning/error có live region và nút đóng; tự ẩn sau 6,5 giây.
 - Status page cho access denied và lỗi dịch vụ; không lộ exception/secret.
 - Icon dùng SVG sprite local với stroke nhất quán; minh họa SVG là asset tự xây dựng.
+- Workspace xác thực dùng sidebar/header/breadcrumb/account dropdown chung. Màu accent theo Role: Admin tím, Doctor xanh dương, Receptionist hổ phách, Patient xanh ngọc; luôn kèm nhãn chữ.
+- Statistic card, welcome banner, quick action, distribution bar, empty/error state chỉ render dữ liệu API hoặc thông báo trung thực; không dùng thống kê giả.
 
 ## 5. Responsive và accessibility
 
 - Thiết kế kiểm tra từ 320px đến 1920px; auth split layout chuyển thành single panel dưới 820px.
 - Account layout chuyển từ sidebar card sang stacked navigation dưới 900px; form hai cột chuyển một cột dưới 600px.
+- Dashboard sidebar rộng 260px, thu gọn 80px ở desktop; dưới 992px chuyển thành drawer có overlay, Escape, focus trap và trả focus. Lưới card co từ bốn/hai cột về một cột trên mobile.
 - Có skip link, semantic heading/landmark, label thật, `aria-live`, keyboard focus và mục tiêu tương tác tối thiểu khoảng 44px.
 - Màu chữ/nền ưu tiên WCAG AA; không dùng màu là tín hiệu duy nhất.
 - `prefers-reduced-motion: reduce` vô hiệu hóa animation/transition không thiết yếu.
@@ -49,4 +52,4 @@ Không gọi Google Fonts CDN khi runtime. Phiên bản nguồn chính thức cu
 
 - Asset/font/icon đều local; không thêm UI/icon package hoặc CDN.
 - SVG có kích thước nội tại để hạn chế layout shift; CSS chia theo phạm vi và JavaScript thuần, không xử lý token.
-- Prompt 03.3.1 không tạo dashboard/sidebar/empty CRUD giả. Các component đó chỉ được bổ sung cùng dữ liệu và authorization thật ở prompt sau.
+- Prompt 03.4 bổ sung Dashboard/sidebar cùng dữ liệu và authorization thật. Browser storage chỉ lưu trạng thái thu gọn sidebar, không chứa token hoặc dữ liệu tài khoản.

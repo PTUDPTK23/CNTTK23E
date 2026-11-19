@@ -3,7 +3,7 @@
 ## 1. Nguyên tắc chung
 
 - Hệ thống có đúng bốn Role: `Patient`, `Doctor`, `Receptionist`, `Admin`.
-- Một form đăng nhập dùng chung. Backend Identity/JWT và MVC Cookie Authentication đã triển khai; menu tài khoản đọc Role đã xác minh. Dashboard riêng theo Role chưa thuộc Prompt 03.3.1. JWT không được chuyển xuống JavaScript/browser storage.
+- Một form đăng nhập dùng chung. Backend Identity/JWT và MVC Cookie Authentication đã triển khai; Prompt 03.4 dùng một route `/dashboard` để render View/menu/dữ liệu đúng Role đã xác minh. JWT không được chuyển xuống JavaScript/browser storage.
 - UI chỉ hỗ trợ trải nghiệm; API mới là điểm thực thi authorization.
 - Quyền được đánh giá theo ba lớp: Role, ownership và resource scope.
 
@@ -110,6 +110,8 @@ Policy handler sẽ truy vấn resource khi cần thay vì tin DoctorId/PatientI
 API chỉ chấp nhận JWT Access Token còn hạn và chưa có Refresh Token. MVC giữ token trong kho in-memory phía server, dùng cookie HttpOnly/Secure và antiforgery cho POST; luồng này đã có integration test. SignalR là giai đoạn sau và phải kiểm tra Role/ownership/scope trước khi join group.
 
 ## 7. Phạm vi Tuần 2 và lộ trình sau
+
+Dashboard hiện chỉ có các liên kết đang hoạt động: Tổng quan, Hồ sơ, Đổi mật khẩu và Logout. Menu lịch hẹn/hàng đợi/danh mục chỉ được bổ sung khi controller, authorization và chức năng thật tồn tại; ẩn menu không thay thế kiểm tra quyền tại API.
 
 - Tuần 2: Identity, một login chung, Patient registration, profile/password, bốn dashboard, quản lý tài khoản/Role và danh mục Department/Room/Doctor/Patient theo Least Privilege.
 - Tuần 3–4: schedule, slot, đặt/hủy lịch và check-in.

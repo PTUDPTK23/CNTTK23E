@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MediQueue.Domain\MediQueue.Domain.csproj" />
     <ProjectReference Include="..\..\src\MediQueue.Contracts\MediQueue.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\MediQueue.Web\MediQueue.Web.csproj" />
   </ItemGroup>
 
 </Project>

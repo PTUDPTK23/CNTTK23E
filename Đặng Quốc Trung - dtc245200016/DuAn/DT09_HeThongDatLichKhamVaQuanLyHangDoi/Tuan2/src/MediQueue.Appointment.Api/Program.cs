@@ -1,5 +1,6 @@
 using MediQueue.Appointment.Api.Bootstrap;
 using MediQueue.Appointment.Api.Security;
+using MediQueue.Appointment.Api.Services.Dashboard;
 using MediQueue.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ if (BootstrapCommandRunner.IsBootstrapCommand(args))
 }
 
 builder.Services.AddMediQueueAuthentication(builder.Configuration);
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();

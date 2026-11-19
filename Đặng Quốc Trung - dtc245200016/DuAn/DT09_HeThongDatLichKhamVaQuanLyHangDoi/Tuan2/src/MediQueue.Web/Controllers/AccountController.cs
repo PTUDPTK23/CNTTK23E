@@ -20,7 +20,7 @@ public sealed class AccountController(
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction(nameof(Profile));
+            return RedirectToAction("Index", "Dashboard");
         }
 
         return View(new LoginViewModel
@@ -55,7 +55,7 @@ public sealed class AccountController(
         await authenticationService.SignInAsync(HttpContext, result.Value!, cancellationToken);
         return model.ReturnUrl is not null
             ? LocalRedirect(model.ReturnUrl)
-            : RedirectToAction(nameof(Profile));
+            : RedirectToAction("Index", "Dashboard");
     }
 
     [AllowAnonymous]
@@ -64,7 +64,7 @@ public sealed class AccountController(
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction(nameof(Profile));
+            return RedirectToAction("Index", "Dashboard");
         }
 
         return View(new RegisterViewModel());

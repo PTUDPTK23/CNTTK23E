@@ -6,15 +6,83 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — MVC Authentication/Authorization và UI theo Prompt 03.3.1 |
+| Tuần | Tuần 2 — Shared Layout và Dashboard theo Role, Prompt 03.4 |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | MVC Cookie, JWT session phía server, typed API client và account UI đã triển khai; dashboard/CRUD chưa triển khai |
-| Trạng thái database | Duy nhất `MediQueue`; Prompt 03.3.1 không thực hiện SQL, Migration hoặc ghi database |
-| Trạng thái Git | Thay đổi Prompt 03.3.1 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
+| Trạng thái mã nguồn | Prompt 03.4 đã hoàn thành mã nguồn, kiểm thử và tài liệu; đang chờ sinh viên review/commit |
+| Trạng thái database | Duy nhất `MediQueue`; Prompt 03.4 chỉ đọc, không SQL ghi/Migration/schema change |
+| Trạng thái Git | Thay đổi Prompt 03.4 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-19 — Prompt 03.4: Premium Shared Layout và Role-based Dashboard
+
+| Milestone | Trạng thái | Kết quả hiện tại | Bước tiếp theo |
+|---|---|---|---|
+| A — Dữ liệu và Dashboard API | COMPLETED | DTO theo Role, `DashboardService` EF Core read-only, `GET /api/dashboard/me`, `no-store`; build API cô lập đạt 0 warning/0 error | Tích hợp typed client và MVC |
+| B — Shared Layout, Sidebar, Header | COMPLETED | Workspace dùng chung, sidebar responsive, header, breadcrumb, account dropdown; Web build 0 warning/0 error | Kiểm thử tương tác trình duyệt |
+| C — Admin Dashboard | COMPLETED | Hiển thị aggregate thật, active/inactive, phân bố bốn Role và quick actions hợp lệ | Bổ sung automated test |
+| D — Doctor Dashboard | COMPLETED | Chỉ hiện hồ sơ bác sĩ hiện tại; có empty state khi chưa liên kết | Bổ sung automated test |
+| E — Receptionist Dashboard | COMPLETED | Chỉ số danh mục đúng phạm vi lễ tân, không có dữ liệu giả | Bổ sung automated test |
+| F — Patient Dashboard | COMPLETED | Chỉ hiện hồ sơ bệnh nhân hiện tại; có empty state khi chưa liên kết | Bổ sung automated test |
+| G — Responsive, UI/UX, Security | COMPLETED | Collapse/drawer/focus trap/Escape/reduced motion, role accent, no-store và ownership đã review/test | Visual QA trình duyệt tại Milestone H |
+| H — Test, tài liệu, final review | COMPLETED | Build 0/0; 23 unit + 71 integration pass, 1 database test skip; format/audit/docs/Git review đạt | Sinh viên review; không tự chuyển Prompt 03.5 |
+
+**Milestone A — COMPLETED:**
+
+- Baseline sạch trên commit `c9dacb6` (`feat(tuan2): implement MVC authentication and polish UI/UX`).
+- SQL Server được khảo sát read-only: `MediQueue` ONLINE; 2/2 tài khoản active, gồm 1 Admin và 1 Patient; 1 Patient profile; Doctor/Department/Room đều 0. Không xuất PII và không ghi dữ liệu.
+- Tạo hợp đồng Dashboard trong Contracts; response chỉ điền payload của Role hiện tại, không trả password hash, security stamp, JWT hoặc entity persistence.
+- API lấy `sub` và `role` từ JWT đã xác minh, không nhận UserId/Role từ query; Role không hợp lệ bị từ chối.
+- `DashboardService` dùng `AsNoTracking`, projection, `CountAsync` qua aggregate và truy vấn tuần tự trên một scoped DbContext; không N+1, không `Task.WhenAll`, không ghi database.
+- Admin có total/active/inactive và phân bố bốn Role; Doctor/Patient chỉ đọc profile gắn với `UserId`; Receptionist chỉ nhận aggregate danh mục cần thiết.
+- File đang xử lý tiếp theo: `DashboardApiClient`, MVC `DashboardController`, `_DashboardLayout` và shared partials.
+- Không có lỗi tồn tại ở Milestone A. Build API cô lập đạt `0` warning, `0` error.
+
+**Milestone B — COMPLETED:**
+
+- Tạo `_DashboardLayout`, sidebar, header, breadcrumb và các partial statistic/quick action/state dùng chung; không tạo liên kết tới controller hoặc chức năng chưa tồn tại.
+- Sidebar desktop hỗ trợ expanded/collapsed; chỉ lưu khóa giao diện `mediqueue.ui.sidebar-collapsed`, tuyệt đối không lưu JWT hoặc dữ liệu xác thực trong browser storage.
+- Mobile drawer có overlay, đóng bằng Escape, focus trap và trả focus về nút mở; header/account dropdown có role label tiếng Việt, logout POST kèm antiforgery.
+- `Profile` và `ChangePassword` chuyển sang workspace mới nhưng giữ nguyên controller, ViewModel, validation và luồng xác thực hiện có.
+- Web build cô lập sau Milestone B đạt `0` warning, `0` error.
+
+**Milestone C–F — COMPLETED:**
+
+- Admin Dashboard dùng toàn bộ aggregate từ API: tài khoản, bác sĩ, bệnh nhân, chuyên khoa, phòng khám và phân bố Role; không có magic number hoặc biểu đồ giả.
+- Doctor/Patient Dashboard chỉ hiển thị profile gắn với tài khoản hiện tại và có empty state rõ ràng nếu profile chưa tồn tại.
+- Receptionist Dashboard chỉ hiển thị các aggregate danh mục phù hợp quyền hạn; không truy cập dữ liệu cá nhân ngoài phạm vi.
+- Cả bốn Role dùng welcome banner, thông tin tài khoản và quick actions chung; module lịch hẹn/hàng đợi chưa triển khai được mô tả trung thực, không tạo menu giả.
+- File đang xử lý tiếp theo: automated test Dashboard API/MVC/client, security/responsive review và tài liệu.
+
+**Milestone G — COMPLETED:**
+
+- Layout đáp ứng desktop/tablet/mobile; sidebar desktop có hai trạng thái, mobile drawer có overlay/Escape/focus trap/body lock và không gây cuộn ngang theo thiết kế CSS.
+- Toàn bộ animation dùng motion token và được rút về gần 0 khi `prefers-reduced-motion: reduce`; control có focus-visible và kích thước tương tác phù hợp.
+- API `[Authorize]`, chỉ chấp nhận bốn Role, lấy `sub`/`role` từ principal đã xác minh, giới hạn Doctor/Patient theo ownership và trả `no-store`; MVC yêu cầu đúng bốn Role và đối chiếu Role response.
+- JWT chỉ nằm trong token store phía server và Bearer header theo từng request. Browser storage chỉ dùng khóa UI `mediqueue.ui.sidebar-collapsed`; không có token trong View/JavaScript/URL.
+- Không tạo menu/link/controller placeholder; các module chưa triển khai chỉ có thông báo trung thực, không dùng số liệu giả.
+
+**Milestone H — CHECKPOINT TRƯỚC FINAL GATE:**
+
+- Bổ sung unit test Role presentation: `23/23` pass.
+- Bổ sung API integration test bằng authentication/service test double cô lập và MVC/typed client integration test: `66` pass, `1` database read test skip opt-in, `0` fail.
+- Regression Account flow tiếp tục pass; Dashboard test bao phủ bốn Role, 401/403/unavailable, chống query ghi đè identity, no-store và không lộ trường nhạy cảm/JWT.
+- Đã tạo `docs/dashboard.md` và đồng bộ README, AGENTS, architecture, API, authentication, actors, business rules, use cases, UI design system, setup, roadmap và week plan.
+- Lần chạy integration mặc định đầu tiên bị file lock bởi process API có sẵn của người dùng; không dừng process đó. Chạy lại trong artifacts tạm cô lập đạt đầy đủ kết quả trên và đã xóa artifacts tạm.
+- Bước tiếp theo: restore/build/full test/format/NuGet audit, HTTPS/smoke/visual QA, link/UTF-8/Git diff review.
+
+**Milestone H — COMPLETED (final gate):**
+
+- `dotnet restore MediQueue.slnx` thành công; full solution build trong artifacts cô lập đạt `0` warning, `0` error. Việc cô lập tránh can thiệp process API có sẵn đang khóa output mặc định.
+- Unit test `23/23` pass; integration test `71` pass, `1` database read test skip opt-in, `0` fail. Tổng tự động: `94` pass, `1` skip, `0` fail.
+- `dotnet format --verify-no-changes --no-restore` đạt; UTF-8 strict `0` lỗi; liên kết Markdown nội bộ `0` hỏng; `git diff --check` không phát hiện whitespace error.
+- NuGet advisory online xác nhận cả 9 project không có package vulnerable theo nguồn hiện tại; không cài package/công cụ mới.
+- HTTP smoke cô lập: API/Web health và Home `200`, Dashboard API anonymous `401`, Dashboard/Profile/ChangePassword anonymous `302` về Login; Dashboard CSS/JS/SVG/font `200`. Login/Register không chạy qua HTTP vì antiforgery cookie bắt buộc Secure — đúng thiết kế bảo mật.
+- HTTPS **NOT VERIFIED** trong môi trường Codex: `dotnet dev-certs https --check --trust` báo `No valid certificate found`; không tạo/xóa/trust certificate và không bypass TLS. Cần kiểm tra lại `https://localhost:7101/7102` trong phiên Windows của sinh viên.
+- Visual QA browser **NOT VERIFIED**: native computer-use pipe không khả dụng. Automated render test xác minh bốn View/layout/menu/assets; code review xác minh breakpoint, focus, Escape và reduced motion. Checklist thủ công có tại `docs/dashboard.md`.
+- Không có Migration/schema/package change; database chỉ được truy vấn read-only. Không stage/commit/push/PR và không chuyển Prompt 03.5.
 
 ### 2026-11-19 — Prompt 03.3.1: MVC Authentication, Authorization và premium UI/UX
 

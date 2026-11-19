@@ -1,19 +1,13 @@
 @model ProfileViewModel
 @{
+    Layout = "_DashboardLayout";
     ViewData["Title"] = "Hồ sơ cá nhân";
     string emailAlias = Model.Email.Contains('@') ? Model.Email.Split('@')[0] : Model.Email;
     string displayName = string.IsNullOrWhiteSpace(Model.FullName) ? emailAlias : Model.FullName;
     displayName = string.IsNullOrWhiteSpace(displayName) ? "MediQueue" : displayName;
-    string roleLabel = Model.Role switch
-    {
-        "Admin" => "Quản trị viên",
-        "Patient" => "Bệnh nhân",
-        "Doctor" => "Bác sĩ",
-        "Receptionist" => "Lễ tân",
-        _ => Model.Role
-    };
+    string roleLabel = RolePresentation.GetLabel(Model.Role);
 }
-<section class="account-page">
+<section class="account-page account-page--dashboard">
     <div class="container app-container account-grid">
         <aside class="account-summary">
             <div class="profile-avatar-wrap">

@@ -1,0 +1,50 @@
+@{
+    string role = User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+    string accent = RolePresentation.GetAccentClass(role);
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string action = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+    bool isDashboard = controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase);
+    bool isProfile = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("Profile", StringComparison.OrdinalIgnoreCase);
+    bool isPassword = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase);
+}
+<aside class="dashboard-sidebar" id="dashboard-sidebar" data-sidebar aria-label="Điều hướng không gian làm việc">
+    <div class="sidebar-brand-row">
+        <a class="sidebar-brand" asp-controller="Dashboard" asp-action="Index" aria-label="MediQueue - Tổng quan">
+            <img src="~/images/logo-mark.svg" alt="" width="38" height="38" />
+            <span class="sidebar-label">Medi<span>Queue</span></span>
+        </a>
+        <button class="sidebar-close" type="button" data-sidebar-close aria-label="Đóng menu">
+            <svg aria-hidden="true"><use href="/images/icons.svg#close"></use></svg>
+        </button>
+    </div>
+    <div class="sidebar-workspace role-panel--@accent">
+        <span class="sidebar-workspace__icon" aria-hidden="true">
+            <svg><use href="/images/icons.svg#heart-pulse"></use></svg>
+        </span>
+        <span class="sidebar-label"><small>Không gian làm việc</small><strong>@RolePresentation.GetLabel(role)</strong></span>
+    </div>
+    <nav class="sidebar-nav" aria-label="Chức năng chính">
+        <span class="sidebar-section-label sidebar-label">Tổng quan</span>
+        <a class="sidebar-link @(isDashboard ? "active" : null)" asp-controller="Dashboard" asp-action="Index" aria-current="@(isDashboard ? "page" : null)" title="Tổng quan">
+            <svg aria-hidden="true"><use href="/images/icons.svg#home"></use></svg><span class="sidebar-label">Tổng quan</span>
+        </a>
+        <span class="sidebar-section-label sidebar-label">Tài khoản</span>
+        <a class="sidebar-link @(isProfile ? "active" : null)" asp-controller="Account" asp-action="Profile" aria-current="@(isProfile ? "page" : null)" title="Hồ sơ cá nhân">
+            <svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg><span class="sidebar-label">Hồ sơ cá nhân</span>
+        </a>
+        <a class="sidebar-link @(isPassword ? "active" : null)" asp-controller="Account" asp-action="ChangePassword" aria-current="@(isPassword ? "page" : null)" title="Đổi mật khẩu">
+            <svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg><span class="sidebar-label">Đổi mật khẩu</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button class="sidebar-link sidebar-logout" type="submit" title="Đăng xuất">
+                <svg aria-hidden="true"><use href="/images/icons.svg#logout"></use></svg><span class="sidebar-label">Đăng xuất</span>
+            </button>
+        </form>
+        <button class="sidebar-collapse" type="button" data-sidebar-collapse aria-label="Thu gọn menu" aria-pressed="false" title="Thu gọn menu">
+            <svg aria-hidden="true"><use href="/images/icons.svg#panel-left"></use></svg><span class="sidebar-label">Thu gọn menu</span>
+        </button>
+    </div>
+</aside>

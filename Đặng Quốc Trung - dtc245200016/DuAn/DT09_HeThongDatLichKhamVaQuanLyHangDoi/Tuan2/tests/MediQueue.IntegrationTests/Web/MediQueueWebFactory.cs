@@ -13,6 +13,7 @@ namespace MediQueue.IntegrationTests.Web;
 public sealed class MediQueueWebFactory : WebApplicationFactory<WebApplicationMarker>
 {
     public FakeAccountApiClient AccountApi { get; } = new();
+    public FakeDashboardApiClient DashboardApi { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -23,6 +24,8 @@ public sealed class MediQueueWebFactory : WebApplicationFactory<WebApplicationMa
         {
             services.RemoveAll<IAccountApiClient>();
             services.AddSingleton<IAccountApiClient>(AccountApi);
+            services.RemoveAll<IDashboardApiClient>();
+            services.AddSingleton<IDashboardApiClient>(DashboardApi);
             services.RemoveAll<IDataProtectionProvider>();
             services.AddSingleton<IDataProtectionProvider>(new EphemeralDataProtectionProvider());
         });

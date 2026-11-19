@@ -1,0 +1,39 @@
+@{
+    string role = User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+    string email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name ?? "Tài khoản MediQueue";
+    string claimName = User.FindFirstValue(ClaimTypes.Name) ?? User.Identity?.Name ?? string.Empty;
+    string emailAlias = email.Contains('@') ? email.Split('@')[0] : email;
+    string displayName = string.IsNullOrWhiteSpace(claimName) || claimName.Contains('@') ? emailAlias : claimName;
+    displayName = string.IsNullOrWhiteSpace(displayName) ? "MediQueue" : displayName;
+    string initial = displayName[..1].ToUpperInvariant();
+}
+<header class="dashboard-header">
+    <button class="header-menu-button" type="button" data-sidebar-open aria-controls="dashboard-sidebar" aria-expanded="false" aria-label="Mở menu">
+        <svg aria-hidden="true"><use href="/images/icons.svg#menu"></use></svg>
+    </button>
+    <div class="header-title">
+        <small>@RolePresentation.GetWorkspaceLabel(role)</small>
+        <strong>@(ViewData["Title"] ?? "Tổng quan")</strong>
+    </div>
+    <div class="dropdown account-menu ms-auto">
+        <button class="account-menu__trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mở menu tài khoản">
+            <span class="account-avatar" aria-hidden="true">@initial</span>
+            <span class="account-menu__identity"><strong>@displayName</strong><small>@RolePresentation.GetLabel(role)</small></span>
+            <svg class="account-menu__chevron" aria-hidden="true"><use href="/images/icons.svg#chevron-down"></use></svg>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end account-menu__dropdown">
+            <div class="account-menu__summary">
+                <span class="account-avatar account-avatar--large" aria-hidden="true">@initial</span>
+                <div><strong>@displayName</strong><span>@email</span><small class="role-chip role-chip--@RolePresentation.GetAccentClass(role)">@RolePresentation.GetLabel(role)</small></div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" asp-controller="Account" asp-action="Profile"><svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg>Hồ sơ cá nhân</a>
+            <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg>Đổi mật khẩu</a>
+            <div class="dropdown-divider"></div>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button class="dropdown-item text-danger" type="submit"><svg aria-hidden="true"><use href="/images/icons.svg#logout"></use></svg>Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</header>

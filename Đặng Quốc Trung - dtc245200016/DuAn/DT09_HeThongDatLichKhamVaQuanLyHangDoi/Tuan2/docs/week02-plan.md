@@ -2,7 +2,7 @@
 
 ## 1. Tổng quan
 
-Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864` và tập trung vào Identity, Authentication, Authorization, dashboard theo vai trò và các danh mục quản trị. Prompt 03.2 đã hoàn thành backend Login/Register/JWT; Prompt 03.3.1 đã hoàn thành MVC Cookie, session JWT phía server và UI account, không thay đổi schema. CRUD/dashboard/RabbitMQ/SignalR tiếp tục theo lộ trình.
+Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864` và tập trung vào Identity, Authentication, Authorization, dashboard theo vai trò và các danh mục quản trị. Prompt 03.2 đã hoàn thành backend Login/Register/JWT; Prompt 03.3.1 đã hoàn thành MVC Cookie, session JWT phía server và UI account; Prompt 03.4 đã hoàn thành shared workspace và bốn Dashboard theo Role mà không thay đổi schema. CRUD/RabbitMQ/SignalR tiếp tục theo lộ trình.
 
 - Sản phẩm: MediQueue — Medical Appointment and Queue Management System.
 - Sinh viên: Đặng Quốc Trung — `dtc245200016`.
@@ -32,12 +32,12 @@ Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864`
 - DoctorSchedule, TimeSlot và `GET /doctors/{id}/slots`.
 - Không đưa đặt/hủy lịch, RabbitMQ, cấp QueueNumber hoặc SignalR queue vào Tuần 2.
 
-### 2.3 Hiện trạng sau Prompt 03.3.1
+### 2.3 Hiện trạng sau Prompt 03.4
 
 - Đã có `AccountController`, service, DTO, JWT validation và lệnh bootstrap tường minh; không có placeholder.
 - Không thêm package, Migration hoặc schema; không hard-code tài khoản/mật khẩu.
 - Dùng duy nhất database `MediQueue` trong 9 tuần; không tạo database theo tuần.
-- Đã triển khai MVC Cookie flow, typed API client, token store in-memory, account pages và design system; chưa triển khai dashboard, CRUD danh mục, RabbitMQ hoặc SignalR nghiệp vụ.
+- Đã triển khai MVC Cookie flow, typed Account/Dashboard API client, token store in-memory, account pages, shared dashboard layout và bốn View theo Role; chưa triển khai CRUD danh mục, RabbitMQ hoặc SignalR nghiệp vụ.
 
 ## 3. Kiến trúc Authentication
 
@@ -139,7 +139,7 @@ Giai đoạn sau mới bổ sung `DoctorSchedulesController`, `TimeSlotsControll
 | Warning | `#F59E0B` |
 | Error | `#DC2626` |
 
-Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng chung layout/header/component. Prompt 03.3.1 không tạo sidebar/dashboard placeholder. Các trạng thái validation, loading, denied, error và toast đã có; empty/dashboard sẽ được bổ sung cùng chức năng thật. Không dùng template thương mại trái phép và không dùng ẩn nút thay cho authorization.
+Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng chung layout/sidebar/header/breadcrumb/component. Prompt 03.4 chỉ hiển thị liên kết hoạt động và dữ liệu Dashboard thật; có loading/denied/error/empty state, keyboard focus và reduced motion. Không dùng template thương mại trái phép và không dùng ẩn nút thay cho authorization.
 
 ## 8. Kế hoạch Prompt và commit
 
@@ -148,7 +148,7 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 | 03.1.1 | Khởi tạo/rà soát nền tảng Tuần 2 | `chore(tuan2): initialize week two foundation` |
 | 03.2 | Identity và JWT backend | `feat(tuan2): implement identity and JWT authentication` |
 | 03.3.1 | MVC Authentication/Authorization + premium UI | `feat(tuan2): implement MVC authentication and authorization` |
-| 03.4 | Shared layout và dashboard Role | `feat(tuan2): implement role-based dashboards` |
+| 03.4 | Shared layout và dashboard Role | `feat(tuan2): implement premium layout and role-based dashboards` |
 | 03.5 | User management | `feat(tuan2): implement user management` |
 | 03.6 | Department và Room | `feat(tuan2): implement department and room management` |
 | 03.7 | Doctor và Patient | `feat(tuan2): implement doctor and patient management` |
@@ -206,7 +206,8 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 - [x] Sinh viên xác nhận các quyết định mục 11.
 - [x] Prompt 03.2: Identity/JWT backend.
 - [x] Prompt 03.3.1: MVC Cookie, server-side JWT session và UI account.
-- [ ] Prompt 03.4–03.7: dashboard và danh mục.
+- [x] Prompt 03.4: premium shared layout và Dashboard theo bốn Role.
+- [ ] Prompt 03.5–03.7: tài khoản và danh mục.
 - [ ] Prompt 03.8: security/test/documentation gate.
 - [ ] Prompt 03.9 chỉ khi phạm vi chính đã hoàn thành.
 
