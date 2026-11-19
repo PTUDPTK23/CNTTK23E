@@ -1,0 +1,70 @@
+### Biến môi trường dùng chung
+@baseUrl = http://localhost:5000
+@hubUrl = http://localhost:5000/hubs/submissions
+
+### 1. Kiểm tra trạng thái máy chủ API (200 OK)
+GET {{baseUrl}}/
+Accept: application/json
+
+### 2. Lấy danh sách tất cả bài tập (200 OK)
+GET {{baseUrl}}/api/assignments
+Accept: application/json
+
+### 3. Nộp bài tập hợp lệ cho Bài 3 (201 Created)
+# @name createSubmission
+POST {{baseUrl}}/api/assignments/3/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "dtc245200476",
+  "studentName": "Nguyễn Xuân Hợp",
+  "repoUrl": "https://github.com/nguyenxuanhoppt478-cmyk/CNTTK23E.git"
+}
+
+### 4. Đọc chi tiết bài nộp vừa tạo (200 OK)
+# Sử dụng Id trả về từ request 3 hoặc thay thế bằng GUID thực tế
+@submissionId = {{createSubmission.response.body.id}}
+GET {{baseUrl}}/api/submissions/{{submissionId}}
+Accept: application/json
+
+### 5. Lỗi 404: Nộp bài vào bài tập không tồn tại
+POST {{baseUrl}}/api/assignments/999/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "dtc245200476",
+  "studentName": "Nguyễn Xuân Hợp",
+  "repoUrl": "https://github.com/nguyenxuanhoppt478-cmyk/CNTTK23E.git"
+}
+
+### 6. Lỗi 400: Dữ liệu không hợp lệ (Mã sinh viên hoặc RepoUrl rỗng)
+POST {{baseUrl}}/api/assignments/3/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "",
+  "studentName": "Nguyễn Xuân Hợp",
+  "repoUrl": ""
+}
+
+### 7. Lỗi 400: Nộp vào bài tập đã đóng hạn nộp (Assignment 99 IsOpen = false)
+POST {{baseUrl}}/api/assignments/99/submissions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "studentCode": "dtc245200476",
+  "studentName": "Nguyễn Xuân Hợp",
+  "repoUrl": "https://github.com/nguyenxuanhoppt478-cmyk/CNTTK23E.git"
+}
+
+### 8. Lỗi 404: Tra cứu bài nộp không tồn tại (Guid ngẫu nhiên)
+GET {{baseUrl}}/api/submissions/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+### 9. Bắt tay SignalR Negotiate Endpoint (200 OK)
+POST {{hubUrl}}/negotiate?negotiateVersion=1
+Accept: application/json
