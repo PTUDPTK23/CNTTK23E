@@ -7,7 +7,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Sản phẩm: `MediQueue`, mã đề tài `09`.
 - Nhánh làm việc: `duan-tuan2-dtc245200016`; nền tảng được kế thừa từ commit Tuần 1 `dcee864`.
 - Stack: C# / .NET 10 / ASP.NET Core MVC / ASP.NET Core Web API / EF Core.
-- SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; `MediQueue` là database Tuần 1 phải bảo toàn. Database Tuần 2 **đề xuất** là `MediQueue_Tuan2`, chưa được tạo.
+- SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; duy nhất database `MediQueue` được dùng xuyên suốt 9 tuần. Không tạo database theo tuần.
 - Hạ tầng phân tán: RabbitMQ, .NET Worker Service, SignalR.
 - Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`.
 - Một website và một form đăng nhập dùng chung; điều hướng theo Role sau xác thực.
@@ -41,7 +41,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
 - Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser` và Migration `20261117142359_InitialCreate`. Migration đã áp dụng vào `MediQueue` ngày 18/11/2026; schema có 21 bảng mô hình + bảng lịch sử.
 - `Appointment.Api` và `Queue.Worker` dùng `UserSecretsId` riêng của `Tuan2`; không sao chép giá trị User Secrets từ Tuần 1.
-- Chưa có Login/Register/JWT hoàn chỉnh, sáu API nghiệp vụ, RabbitMQ business flow hoặc SignalR Hub. Không ghi nhận các phần này là đã hoàn thành.
+- Backend Login/Register/JWT và account management đã có từ Prompt 03.2. Sáu API nghiệp vụ, MVC Cookie flow, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
 - Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
 - MVC Controller kế thừa `Controller` và chỉ phục vụ View/ViewModel; API Controller kế thừa `ControllerBase`, trả JSON/HTTP status/`ProblemDetails`. Controller không gọi controller khác.
@@ -92,12 +92,12 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 Không tự thực hiện các hành động sau nếu người dùng chưa yêu cầu trong lượt hiện tại:
 
 - Khởi tạo solution/project hoặc cài package.
-- Thực thi SQL, Migration, seed hoặc thay đổi database `MediQueue`.
+- Thực thi SQL, Migration, seed hoặc thay đổi database `MediQueue`, ngoại trừ lệnh bootstrap chính xác bốn Role khi prompt/người dùng cho phép rõ ràng.
 - Cài/chỉnh RabbitMQ, Erlang hay dịch vụ Windows.
 - Thay đổi công nghệ, kiến trúc hoặc bổ sung chức năng ngoài phạm vi đề tài.
 - Commit, push, tạo branch, Pull Request hoặc làm giả lịch sử phát triển.
 
-Migration `InitialCreate` đã áp dụng thành công cho `MediQueue`; không chạy lại, không sửa `__EFMigrationsHistory` và không xóa/tạo lại database. Không tạo `MediQueue_Tuan2`, không chạy Migration/seed cho tới khi người dùng xác nhận phương án. Mọi test database tương lai phải có guard đích và không được ghi vào `MediQueue` của Tuần 1.
+Migration `InitialCreate` đã áp dụng thành công cho `MediQueue`; không chạy lại, không sửa `__EFMigrationsHistory` và không xóa/tạo lại database. Không tạo database theo tuần. Mọi write integration test phải dùng database test cô lập được chỉ định rõ, tuyệt đối không ghi dữ liệu test vào `MediQueue`.
 
 ## 8. Quy tắc lịch sử Git và Pull Request
 

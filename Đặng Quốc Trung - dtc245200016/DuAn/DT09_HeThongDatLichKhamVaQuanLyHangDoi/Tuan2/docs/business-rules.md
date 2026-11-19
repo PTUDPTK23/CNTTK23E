@@ -81,6 +81,10 @@ Mỗi `DailyQueue` giữ `LastIssuedNumber`, khởi tạo 0 cho từng `(DoctorI
 | BR-AUTH-11 | Mọi MVC form thay đổi trạng thái phải kiểm tra antiforgery; cookie dùng HttpOnly/Secure/SameSite phù hợp |
 | BR-AUTH-12 | Thời hạn cookie không vượt JWT; logout, khóa tài khoản hoặc thay đổi quyền phải xử lý phiên cũ theo chiến lược thu hồi đã duyệt |
 | BR-AUTH-13 | Chỉ Patient tự đăng ký; tài khoản Doctor/Receptionist do Admin cấp; backend không tin Role từ client |
+| BR-AUTH-14 | Password tối thiểu 12 ký tự; khóa 15 phút sau 5 lần sai; login/register có rate limit |
+| BR-AUTH-15 | JWT HS256 có issuer/audience cố định, hạn 30 phút, clock skew tối đa 30 giây và key ngẫu nhiên tối thiểu 256 bit |
+| BR-AUTH-16 | Mỗi request xác thực phải kiểm tra user còn active, không lock, đúng duy nhất một Role và fingerprint SecurityStamp còn khớp |
+| BR-AUTH-17 | Logout/đổi mật khẩu/khóa/đổi Role làm Access Token cũ mất hiệu lực; v1 thu hồi toàn bộ phiên của user |
 
 ## 6. State machine Appointment
 

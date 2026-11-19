@@ -43,4 +43,30 @@ public sealed class Patient
     public byte[] RowVersion { get; private set; } = [];
 
     public ICollection<Appointment> Appointments { get; } = new List<Appointment>();
+
+    public void UpdateProfile(string fullName, string? phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            throw new DomainRuleException("Patient full name is required.");
+        }
+
+        string normalizedFullName = fullName.Trim();
+        if (normalizedFullName.Length > 200)
+        {
+            throw new DomainRuleException("Patient full name cannot exceed 200 characters.");
+        }
+
+        string? normalizedPhoneNumber = string.IsNullOrWhiteSpace(phoneNumber)
+            ? null
+            : phoneNumber.Trim();
+
+        if (normalizedPhoneNumber?.Length > 32)
+        {
+            throw new DomainRuleException("Patient phone number cannot exceed 32 characters.");
+        }
+
+        FullName = normalizedFullName;
+        PhoneNumber = normalizedPhoneNumber;
+    }
 }

@@ -52,4 +52,20 @@ public sealed class Doctor
     public ICollection<DailyQueue> DailyQueues { get; } = new List<DailyQueue>();
 
     public ICollection<QueueTicket> QueueTickets { get; } = new List<QueueTicket>();
+
+    public void UpdateDisplayName(string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            throw new DomainRuleException("Doctor display name is required.");
+        }
+
+        string normalizedDisplayName = displayName.Trim();
+        if (normalizedDisplayName.Length > 200)
+        {
+            throw new DomainRuleException("Doctor display name cannot exceed 200 characters.");
+        }
+
+        DisplayName = normalizedDisplayName;
+    }
 }

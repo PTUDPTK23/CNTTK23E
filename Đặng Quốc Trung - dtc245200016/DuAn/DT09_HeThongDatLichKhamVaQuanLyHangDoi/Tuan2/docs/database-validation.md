@@ -1,8 +1,10 @@
 # Xác minh Initial Migration trên SQL Server
 
-> Tài liệu này bảo toàn bằng chứng Tuần 1 từ commit `dcee864`. Trong Prompt 03.1.1, `MediQueue` chỉ được phép kiểm tra metadata read-only; không chạy lại Migration/script và không ghi dữ liệu. Database đề xuất `MediQueue_Tuan2` chưa được tạo.
+> Tài liệu này bảo toàn bằng chứng Tuần 1 từ commit `dcee864`. `MediQueue` là database duy nhất xuyên suốt 9 tuần. Prompt 03.2 không chạy lại Migration, không đổi schema; chỉ lệnh bootstrap Role tường minh được phép ghi bốn Role Identity.
 
-Kiểm tra lại read-only ngày 19/11/2026 xác nhận `MediQueue` vẫn `ONLINE`, có 22 user table/21 model table, đúng một dòng `20261117142359_InitialCreate`, không có FK/check bị disabled hoặc untrusted. `DB_ID('MediQueue_Tuan2')` trả `NULL` cả trước và sau smoke test; không database mới nào được tạo.
+Kiểm tra lại read-only ngày 19/11/2026 xác nhận `MediQueue` `ONLINE`, có 22 user table/21 model table, đúng một dòng `20261117142359_InitialCreate`, không có FK/check bị disabled hoặc untrusted. Không database mới hoặc Migration mới nào được tạo.
+
+Sau lệnh bootstrap Role được phép của Prompt 03.2: `AspNetRoles` có đúng `Admin`, `Doctor`, `Patient`, `Receptionist`; `AspNetUsers = 0`, `AspNetUserRoles = 0`. Chạy lại bootstrap không tạo trùng. Schema vẫn giữ 22 PK, 27 FK, 36 index ngoài PK, 11 unique, 4 filtered, 12 check, 1 default và 6 rowversion.
 
 ## 1. Phạm vi và môi trường
 
@@ -107,4 +109,4 @@ Unique/filtered index chính:
 
 ## 8. Giới hạn hiện tại
 
-Schema và khả năng kết nối EF đã được xác minh, nhưng chưa triển khai Login/Register/JWT flow, API CRUD/booking, transaction tranh chỗ, RabbitMQ publisher/consumer nghiệp vụ hoặc SignalR Hub. Rowversion/index không tự chứng minh các luồng concurrency đã hoàn chỉnh.
+Schema, khả năng kết nối EF và backend Login/Register/JWT đã được xác minh. API CRUD/booking, transaction tranh chỗ, RabbitMQ publisher/consumer nghiệp vụ và SignalR Hub chưa triển khai. Rowversion/index không tự chứng minh các luồng concurrency đã hoàn chỉnh.

@@ -42,7 +42,7 @@ QueueNumber tăng riêng theo Doctor/ngày, bắt đầu từ 1 mỗi ngày, kh�
 - Refactor `MediQueue.Web` từ Razor Pages sang ASP.NET Core MVC; trang chủ, trang lỗi, Layout và static assets đã được chuyển sang Controller/View.
 - Chuẩn hóa Controller và Views theo nghiệp vụ; menu/giao diện sẽ hiển thị theo Role sau khi dùng chung một form đăng nhập.
 
-Prompt 03.1.1 chỉ khởi tạo nền tảng Tuần 2, tách `UserSecretsId`, rà soát kiến trúc/bảo mật và thiết kế kế hoạch. Chưa triển khai đăng ký/đăng nhập, JWT/Cookie flow, CRUD, RabbitMQ hoặc SignalR nghiệp vụ. Chi tiết xem [kế hoạch Tuần 2](docs/week02-plan.md).
+Prompt 03.2 đã triển khai backend Identity/JWT và quản lý tài khoản: đăng ký Patient, đăng nhập chung, logout thu hồi bền vững, xem/cập nhật hồ sơ và đổi mật khẩu. MVC Cookie flow, CRUD danh mục, RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau. Chi tiết xem [xác thực và tài khoản](docs/authentication.md).
 
 ## 3. Công nghệ và ràng buộc
 
@@ -51,7 +51,7 @@ Prompt 03.1.1 chỉ khởi tạo nền tảng Tuần 2, tách `UserSecretsId`, r
 | Nền tảng | C#, .NET 10 (`net10.0`) |
 | Backend | ASP.NET Core Web API dùng Controller |
 | Frontend | ASP.NET Core MVC, Bootstrap 5, HTML5/CSS3/JavaScript |
-| Dữ liệu | SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`; `MediQueue` Tuần 1 được bảo toàn; `MediQueue_Tuan2` mới là đề xuất |
+| Dữ liệu | SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`; duy nhất database `MediQueue` xuyên suốt 9 tuần |
 | ORM / tài khoản | EF Core 10, ASP.NET Core Identity |
 | Bảo mật | API JWT Access Token; MVC Cookie + token server-side; Role/ownership Authorization |
 | Phân tán | RabbitMQ, .NET Worker Service, SignalR |
@@ -102,7 +102,7 @@ dotnet run --project .\src\MediQueue.Notification.Service --launch-profile http
 dotnet run --project .\src\MediQueue.Queue.Worker
 ```
 
-Appointment API và Queue Worker cần `ConnectionStrings:MediQueue` từ User Secrets hoặc `ConnectionStrings__MediQueue` từ biến môi trường. Ứng dụng không tự chạy Migration khi khởi động.
+Appointment API và Queue Worker cần `ConnectionStrings:MediQueue` từ User Secrets hoặc `ConnectionStrings__MediQueue` từ biến môi trường. API còn yêu cầu `Jwt:SigningKey` ngẫu nhiên tối thiểu 256 bit; xem [hướng dẫn Authentication](docs/authentication.md). Ứng dụng không tự chạy Migration khi khởi động.
 
 | Tiến trình | HTTP | HTTPS | Health |
 |---|---:|---:|---|
@@ -129,6 +129,7 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 | [docs/progress.md](docs/progress.md) | Nhật ký tiến độ thực tế |
 | [docs/setup.md](docs/setup.md) | Hướng dẫn restore/build/test/run và cấu hình local |
 | [docs/week02-plan.md](docs/week02-plan.md) | Kiến trúc Authentication, phân quyền, database, UI/UX và kế hoạch Prompt Tuần 2 |
+| [docs/authentication.md](docs/authentication.md) | Cấu hình, API, thu hồi token và quy trình bootstrap Role/Admin |
 | [AGENTS.md](AGENTS.md) | Quy tắc cho các lần phát triển tiếp theo |
 
 ## 7. Trạng thái
@@ -136,7 +137,7 @@ Smoke test hiện dùng HTTP. Máy chưa có development HTTPS certificate hợp
 - Nhánh: `duan-tuan2-dtc245200016`; commit nguồn kế thừa: `dcee864`.
 - Solution, Domain và nền tảng EF Core Code First: đã hoàn thành trong Tuần 1 theo Prompt 02.2.
 - Frontend MVC và kiến trúc Controller theo nghiệp vụ: đã chuẩn hóa theo Prompt 02.2.1; Web không tham chiếu DbContext/Infrastructure.
-- Baseline Tuần 1: 34/34 test đạt. Xác minh nền tảng Tuần 2: build `0` warning/`0` error; 15 unit pass; 18 integration pass và 1 database test skip an toàn; smoke test bốn host đạt. Chi tiết tại `docs/progress.md`.
+- Prompt 03.2: build `0` warning/`0` error; 18 unit pass; 31 integration pass và 1 database test skip an toàn. Chi tiết tại `docs/progress.md`.
 - Database: `InitialCreate` đã áp dụng thành công ngày 18/11/2026; có 21 bảng mô hình + `__EFMigrationsHistory`, không có dữ liệu mẫu.
-- Database Tuần 2 chưa được tạo; không có Migration/seed/SQL ghi trong Prompt 03.1.1.
-- Chờ người dùng review và commit thủ công; không tự chuyển sang Prompt 03.2.
+- Không tạo database theo tuần. `MediQueue` là database chính thức; Prompt 03.2 không thay đổi schema và không tạo Migration.
+- Chờ người dùng review và commit thủ công; không tự chuyển sang prompt tiếp theo.

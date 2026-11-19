@@ -3,7 +3,7 @@
 ## 1. Nguyên tắc chung
 
 - Hệ thống có đúng bốn Role: `Patient`, `Doctor`, `Receptionist`, `Admin`.
-- Một form đăng nhập dùng chung. API xác thực bằng Identity và phát JWT cho MVC server; MVC tạo Cookie Authentication rồi điều hướng về khu vực tương ứng. JWT không được chuyển xuống JavaScript/browser storage.
+- Một form đăng nhập dùng chung. Backend Identity/JWT đã triển khai trong Prompt 03.2; MVC Cookie Authentication và điều hướng theo Role thuộc Prompt 03.3. JWT không được chuyển xuống JavaScript/browser storage.
 - UI chỉ hỗ trợ trải nghiệm; API mới là điểm thực thi authorization.
 - Quyền được đánh giá theo ba lớp: Role, ownership và resource scope.
 
@@ -105,9 +105,9 @@ flowchart TD
 | `AppointmentOwnerOrStaff` | Patient sở hữu Appointment hoặc staff có scope phù hợp |
 | `DoctorQueueOwner` | DoctorId trong route trùng DoctorId liên kết với user |
 
-**Đề xuất:** policy handler truy vấn resource khi cần thay vì tin DoctorId/PatientId do client gửi. Claim chỉ mang định danh ổn định; thay đổi quyền quan trọng phải có thời hạn token ngắn hoặc cơ chế thu hồi.
+Policy handler sẽ truy vấn resource khi cần thay vì tin DoctorId/PatientId do client gửi. Claim chỉ mang UserId/Role tối thiểu; backend Prompt 03.2 kiểm tra Role hiện tại và fingerprint `SecurityStamp` trên mỗi request để thu hồi bền vững.
 
-Trong Tuần 2, API chỉ chấp nhận JWT Access Token còn hạn; MVC giữ token phía server, dùng cookie bảo vệ và antiforgery cho thao tác thay đổi trạng thái. SignalR là giai đoạn sau: server phải kiểm tra Role/ownership/scope trước khi thêm connection vào group, đồng thời không làm lộ JWT cho JavaScript. Phiên bản đầu không có Refresh Token và yêu cầu đăng nhập lại khi Access Token/phiên hết hạn.
+Sau Prompt 03.2, API chỉ chấp nhận JWT Access Token còn hạn và chưa có Refresh Token. MVC giữ token phía server, cookie bảo vệ và antiforgery sẽ được triển khai trong Prompt 03.3. SignalR là giai đoạn sau và phải kiểm tra Role/ownership/scope trước khi join group.
 
 ## 7. Phạm vi Tuần 2 và lộ trình sau
 

@@ -126,7 +126,7 @@ Phụ thuộc source code dự kiến đi một chiều: `Domain` không phụ t
 - MVC gọi Appointment API qua `HttpClient` phía server. JWT Access Token được giữ trong `ITicketStore`/token store phía server và chỉ được gắn vào request server-to-server.
 - API dùng Identity, JWT Bearer, policy và resource authorization. Role do client gửi không có giá trị tin cậy.
 - Cookie hết hạn không muộn hơn JWT; logout/khóa tài khoản/đổi quyền cần xóa hoặc thu hồi phiên. V1 không có Refresh Token.
-- Đây là thiết kế cho Prompt 03.2–03.3, chưa được triển khai trong Prompt 03.1.1.
+- Backend Identity/JWT đã triển khai trong Prompt 03.2; MVC Cookie và token store phía server thuộc Prompt 03.3.
 
 ### 4.1 Persistence đã triển khai trong Prompt 02.2
 

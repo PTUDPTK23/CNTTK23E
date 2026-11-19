@@ -1,6 +1,6 @@
 # SQL script để review
 
-Các script được kế thừa nguyên trạng từ Tuần 1. Prompt 03.1.1 không thực thi script, không tạo `MediQueue_Tuan2` và không thay đổi `MediQueue`.
+Các script được kế thừa nguyên trạng từ Tuần 1. `MediQueue` là database duy nhất xuyên suốt 9 tuần. Prompt 03.2 không thực thi script và không thay đổi schema.
 
 Thư mục này chứa SQL do EF Core sinh và truy vấn xác minh read-only.
 

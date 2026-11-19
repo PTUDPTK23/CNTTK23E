@@ -14,6 +14,8 @@ Ký hiệu:
 
 ### 2.1 Xác thực và hồ sơ
 
+Trạng thái Prompt 03.2: backend đã đáp ứng FR-AUTH-01–04 qua sáu `/api/account` endpoint; phần form/redirect MVC của FR-AUTH-02 và quản trị staff của FR-AUTH-05 thuộc các prompt sau. Receptionist/Admin chưa có profile FullName riêng.
+
 | Mã | Mức | Yêu cầu | Tiêu chí chấp nhận chính |
 |---|---|---|---|
 | FR-AUTH-01 | Mở rộng | Patient tự đăng ký tài khoản | Tài khoản mới chỉ nhận Role `Patient`; dữ liệu trùng/không hợp lệ bị từ chối |

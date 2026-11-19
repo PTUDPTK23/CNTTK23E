@@ -1,8 +1,21 @@
+using MediQueue.Appointment.Api.Bootstrap;
+using MediQueue.Appointment.Api.Security;
 using MediQueue.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMediQueueInfrastructure(builder.Configuration);
+
+if (BootstrapCommandRunner.IsBootstrapCommand(args))
+{
+    using WebApplication bootstrapApplication = builder.Build();
+    Environment.ExitCode = await BootstrapCommandRunner.RunAsync(
+        bootstrapApplication.Services,
+        args);
+    return;
+}
+
+builder.Services.AddMediQueueAuthentication(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
@@ -19,6 +32,9 @@ else
 }
 
 app.UseExceptionHandler();
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

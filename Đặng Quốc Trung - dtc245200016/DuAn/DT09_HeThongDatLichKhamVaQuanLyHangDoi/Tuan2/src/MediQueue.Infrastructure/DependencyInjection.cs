@@ -22,9 +22,27 @@ public static class DependencyInjection
                 sql.MigrationsAssembly(typeof(MediQueueDbContext).Assembly.FullName)));
 
         services
-            .AddIdentityCore<ApplicationUser>()
+            .AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.Password.RequiredLength = 12;
+                options.Password.RequiredUniqueChars = 3;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+            })
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<MediQueueDbContext>();
+
+        services.AddScoped<IIdentityBootstrapper, IdentityBootstrapper>();
 
         return services;
     }

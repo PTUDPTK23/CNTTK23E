@@ -56,7 +56,7 @@ Sáu REST API tối thiểu được thiết kế trong `api.md` và phải hoà
 
 | Rủi ro | Kiểm soát |
 |---|---|
-| Ghi nhầm database tuần trước | Database theo tuần, UserSecretsId riêng và guard đích |
+| Ghi nhầm database test vào database chính | Duy nhất `MediQueue` cho runtime; write test dùng DB test cô lập và exact-target guard |
 | JWT/session lộ hoặc quyền cũ kéo dài | Token server-side, cookie bảo vệ, token ngắn hạn và revocation |
 | Overbooking đồng thời | Transaction, conditional update/rowversion và integration test |
 | RabbitMQ gửi lặp | Inbox unique, idempotent handler và unique constraint |

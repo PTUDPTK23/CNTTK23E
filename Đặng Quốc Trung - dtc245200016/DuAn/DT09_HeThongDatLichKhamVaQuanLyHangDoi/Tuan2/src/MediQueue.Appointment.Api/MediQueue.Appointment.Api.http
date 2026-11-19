@@ -4,3 +4,32 @@ GET {{MediQueue.Appointment.Api_HostAddress}}/health
 Accept: application/json
 
 ###
+
+POST {{MediQueue.Appointment.Api_HostAddress}}/api/account/register
+Content-Type: application/json
+
+{
+  "fullName": "Bệnh nhân minh họa",
+  "email": "patient.example@example.test",
+  "password": "<mat-khau-toi-thieu-12-ky-tu>",
+  "confirmPassword": "<mat-khau-toi-thieu-12-ky-tu>",
+  "phoneNumber": "0900000000"
+}
+
+###
+
+POST {{MediQueue.Appointment.Api_HostAddress}}/api/account/login
+Content-Type: application/json
+
+{
+  "email": "patient.example@example.test",
+  "password": "<mat-khau-khong-luu-vao-git>"
+}
+
+###
+
+GET {{MediQueue.Appointment.Api_HostAddress}}/api/account/me
+Authorization: Bearer <access-token-khong-luu-vao-git>
+Accept: application/json
+
+###

@@ -6,15 +6,30 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — khởi tạo nền tảng theo Prompt 03.1.1 |
+| Tuần | Tuần 2 — Identity/JWT backend theo Prompt 03.2 |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | Đã kế thừa MVC/API/Domain/EF; chỉ rà soát và thiết kế, chưa triển khai Auth/CRUD |
-| Trạng thái database | `MediQueue` Tuần 1 được bảo toàn; `MediQueue_Tuan2` mới là đề xuất, chưa tạo |
-| Trạng thái Git | Thay đổi Prompt 03.1.1 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
+| Trạng thái mã nguồn | Đã triển khai Identity/JWT và 6 Account API; MVC Cookie/CRUD chưa triển khai |
+| Trạng thái database | Duy nhất `MediQueue`; không schema/Migration mới; chỉ bootstrap 4 Role được phép |
+| Trạng thái Git | Thay đổi Prompt 03.2 chưa stage/commit; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-19 — Prompt 03.2: Identity, JWT và Account Management backend
+
+- Tiền kiểm đúng nhánh `duan-tuan2-dtc245200016`; commit nền tảng `24d4e42` có subject `chore(tuan2): initialize week two foundation`.
+- Khảo sát SQL read-only: `MediQueue` ONLINE, 22 user table, đúng `InitialCreate`; ban đầu Users/Roles/UserRoles đều 0.
+- Triển khai password policy, lockout, unique email, Patient registration transaction, login chung, logout, me, profile và change-password.
+- JWT HS256 30 phút, issuer/audience chính thức, key tối thiểu 256 bit, clock skew tối đa 30 giây; mỗi request kiểm tra active/lock/Role/fingerprint SecurityStamp.
+- Thêm rate limit cho register/login, `ProblemDetails`, `no-store` cho login và cơ chế bootstrap Role/Admin tường minh không hard-code password.
+- Không thay đổi entity shape, DbContext, Fluent API, `InitialCreate` hay snapshot; không tạo Migration/database mới.
+- Bootstrap tạo đúng 4 Role `Admin`, `Doctor`, `Patient`, `Receptionist`; lần chạy thứ hai không thay đổi. Sau bootstrap: Users 0, Roles 4, UserRoles 0; không tự tạo Admin.
+- Build đạt `0` warning/`0` error. Test an toàn đạt 18 unit + 31 integration; 1 database read test skip theo cơ chế opt-in.
+- `dotnet format --verify-no-changes` đạt; NuGet audit không phát hiện package vulnerable trong 9 project; EF xác nhận không có pending model changes.
+- Smoke test HTTP: API health/OpenAPI 200 (7 path, có Account API), `/api/account/me` không token 401, register sai validation 400; Web home/health/error/CSS/JS 200; Notification health 200; Queue Worker duy trì running. Toàn bộ process thử nghiệm đã dừng; không ghi user test. HTTPS chưa smoke vì `dotnet dev-certs https --check` báo chưa có certificate hợp lệ.
+- Write lifecycle test trên SQL thật không chạy vì chưa có database test cô lập; không tạo user test trong `MediQueue`.
+- Không tự tạo Admin; chỉ cung cấp lệnh nhập mật khẩu ẩn cho người dùng chủ động thực hiện.
 
 ### 2026-11-19 — Prompt 03.1.1: khởi tạo nền tảng Tuần 2
 
@@ -30,7 +45,7 @@
 - `dotnet ef migrations has-pending-model-changes` xác nhận model khớp snapshot; không tạo Migration và không kết nối database để ghi.
 - Smoke test HTTP đạt 200 cho API health, MVC home/health/error/CSS/JavaScript và Notification health; Queue Worker duy trì running. Bốn process do lượt kiểm tra tạo đã được dừng.
 - `dotnet format --verify-no-changes --no-restore` trả exit code `0`; workspace loader chỉ từng báo cảnh báo audit mạng trước khi NuGet restore được làm mới.
-- Metadata SQL read-only: `MediQueue` ONLINE, 22 user table/21 model table, đúng một `InitialCreate`, không FK/check invalid; `MediQueue_Tuan2` vẫn chưa tồn tại sau smoke test.
+- Metadata SQL read-only: `MediQueue` ONLINE, 22 user table/21 model table, đúng một `InitialCreate`, không FK/check invalid; không database mới nào được tạo.
 - Git cuối: vẫn ở `duan-tuan2-dtc245200016`, HEAD `d7ada98`, không tracked/staged diff; `Tuan2` có 178 file dự kiến nộp và không có `bin/obj` trong status. 1.344 untracked file cũ ngoài `Tuan2` giữ nguyên danh sách/hash ban đầu.
 
 ### 2026-11-17 — Phân tích và thiết kế nền tảng
@@ -167,24 +182,23 @@ Chỉ nền tảng Domain/persistence/Migration đã triển khai và schema SQL
 6. Queue yêu cầu đăng nhập; không công khai dữ liệu Patient khác.
 7. Một cơ sở y tế; mỗi Doctor thuộc đúng một Department (chuyên khoa).
 8. API dùng Identity + JWT Access Token có thời hạn; MVC dùng Cookie và token store phía server; v1 không Refresh Token; SignalR kiểm tra quyền group.
-9. SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`; `MediQueue` Tuần 1 phải bảo toàn, `MediQueue_Tuan2` mới là đề xuất và chưa được tạo.
+9. SQL Server `LAPTOP-AQFGUM9Q\SQLEXPRESS`; duy nhất database `MediQueue` được dùng xuyên suốt 9 tuần, không tạo database theo tuần.
 10. Giữ transactional outbox/inbox, idempotency, concurrency control; SQL là source of truth và event có `QueueVersion`.
 11. Timestamp lưu UTC; mọi quyết định nghiệp vụ dùng `Asia/Ho_Chi_Minh`.
 
-## 5. Quyết định cần xác nhận trước Prompt 03.2
+## 5. Quyết định Prompt 03.2 đã chốt
 
-- Có giữ tên và cho phép tạo `MediQueue_Tuan2` ở giai đoạn database kế tiếp hay không.
-- JWT issuer, audience, thời hạn, nguồn signing key và chính sách cookie/HTTPS local.
-- Cách bootstrap Role/Admin đầu tiên mà không commit hoặc công khai mật khẩu.
-- Token/session store phía server và cơ chế thu hồi khi khóa tài khoản, đổi Role hoặc đổi mật khẩu.
-- Hạn nộp Tuần 2 và việc có đưa Schedule/TimeSlot tùy chọn vào cuối Tuần 2 hay giữ cho Tuần 3.
+- Duy nhất database `MediQueue` trong 9 tuần; không database theo tuần.
+- JWT HS256, issuer `MediQueue.Appointment.Api`, audience `MediQueue.Web`, 30 phút, key ngẫu nhiên tối thiểu 256 bit và không Refresh Token.
+- Bootstrap Role/Admin tường minh; password Admin chỉ nhập ẩn từ terminal.
+- Thu hồi bền vững bằng `SecurityStamp`; mỗi request đều kiểm tra active, lock và Role hiện tại.
 
-Các tham số nghiệp vụ dài hạn như capacity mặc định, độ dài slot, retry/DLQ và retention vẫn được chốt ở prompt triển khai tương ứng, không mở rộng Prompt 03.1.1.
+Các tham số nghiệp vụ dài hạn như capacity mặc định, độ dài slot, retry/DLQ và retention vẫn được chốt ở prompt triển khai tương ứng.
 
 ## 6. Bước tiếp theo đề xuất
 
 1. Sinh viên review toàn bộ `Tuan2`, đặc biệt [week02-plan.md](week02-plan.md), bằng chứng test và trạng thái Git.
-2. Sinh viên tự stage/commit/push khi chấp nhận kết quả; commit đề xuất `chore(tuan2): initialize week two foundation`.
-3. Xác nhận các quyết định ở mục 5 trước Prompt 03.2. Mọi Migration/database change vẫn cần phê duyệt riêng.
+2. Sinh viên tự stage/commit/push khi chấp nhận kết quả; commit đề xuất `feat(tuan2): implement identity and JWT authentication`.
+3. Mọi Migration/database change tiếp theo vẫn cần phê duyệt riêng.
 
-Không tự động chuyển sang Prompt 03.2.
+Không tự động chuyển sang prompt tiếp theo.

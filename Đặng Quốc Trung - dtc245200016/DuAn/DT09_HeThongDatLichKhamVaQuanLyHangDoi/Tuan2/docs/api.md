@@ -23,19 +23,21 @@ Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistContro
 
 MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route bắt buộc.
 
-Hiện trạng Prompt 03.1.1 kế thừa từ Tuần 1: Web có `HomeController` phục vụ trang chủ/trang lỗi MVC; API chỉ có `HealthController` với `GET /health` để kiểm tra host. Các controller và endpoint nghiệp vụ ở trên **chưa được triển khai**; không có endpoint giả trả thành công.
+Hiện trạng Prompt 03.2: API có `HealthController` và `AccountController` thật; các controller booking/queue/danh mục khác vẫn chưa được triển khai. Không có endpoint placeholder giả thành công.
 
 | Method | Route dự kiến | Quyền | Mức | Mục đích |
 |---|---|---|---|---|
-| POST | `/auth/register` | Anonymous | Mở rộng | Chỉ đăng ký Patient; server tự gán Role |
-| POST | `/auth/login` | Anonymous | Mở rộng | Form chung cho 4 Role, phát token và Role |
-| POST | `/auth/logout` | Authenticated | Mở rộng | Kết thúc phiên, xóa token server-side và cookie MVC |
-| GET | `/auth/me` | Authenticated | Mở rộng | Trả user, Role và thông tin điều hướng |
+| POST | `/api/account/register` | Anonymous, rate limit | Đã triển khai | Chỉ đăng ký Patient; server tự gán Role |
+| POST | `/api/account/login` | Anonymous, rate limit | Đã triển khai | Form chung cho 4 Role, phát JWT và Role |
+| POST | `/api/account/logout` | Authenticated | Đã triển khai | Đổi SecurityStamp, thu hồi tất cả Access Token hiện tại |
+| GET | `/api/account/me` | Authenticated | Đã triển khai | Trả user, Role và hồ sơ tối thiểu |
+| PUT | `/api/account/profile` | Authenticated | Đã triển khai | Cập nhật hồ sơ được phép theo Role |
+| POST | `/api/account/change-password` | Authenticated | Đã triển khai | Đổi mật khẩu và làm token cũ mất hiệu lực |
 
 Ví dụ login:
 
 ```http
-POST /auth/login
+POST /api/account/login
 Content-Type: application/json
 
 {
@@ -47,13 +49,12 @@ Content-Type: application/json
 ```json
 {
   "accessToken": "<jwt>",
-  "expiresAtUtc": "2026-11-17T09:00:00Z",
-  "user": {
-    "id": "d59a0d4c-fcbe-4dc6-9aee-b55c86be3ffd",
-    "displayName": "Bệnh nhân minh họa",
-    "role": "Patient"
-  },
-  "redirectPath": "/patient"
+  "tokenType": "Bearer",
+  "expiresAtUtc": "2026-11-19T09:00:00Z",
+  "userId": "d59a0d4c-fcbe-4dc6-9aee-b55c86be3ffd",
+  "fullName": "Bệnh nhân minh họa",
+  "email": "patient.demo@example.test",
+  "role": "Patient"
 }
 ```
 

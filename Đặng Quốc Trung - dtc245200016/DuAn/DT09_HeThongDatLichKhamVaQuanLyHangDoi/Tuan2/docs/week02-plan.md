@@ -2,7 +2,7 @@
 
 ## 1. Tổng quan
 
-Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864` và tập trung vào Identity, Authentication, Authorization, dashboard theo vai trò và các danh mục quản trị. Prompt 03.1.1 chỉ khởi tạo nền tảng, rà soát và thiết kế; chưa triển khai Login/Register/JWT, CRUD, RabbitMQ, SignalR nghiệp vụ hoặc thay đổi database.
+Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864` và tập trung vào Identity, Authentication, Authorization, dashboard theo vai trò và các danh mục quản trị. Prompt 03.2 đã hoàn thành backend Login/Register/JWT và account management, không thay đổi schema; các mục MVC/CRUD/RabbitMQ/SignalR tiếp tục theo lộ trình.
 
 - Sản phẩm: MediQueue — Medical Appointment and Queue Management System.
 - Sinh viên: Đặng Quốc Trung — `dtc245200016`.
@@ -32,12 +32,12 @@ Tuần 2 kế thừa nguyên trạng nền tảng Tuần 1 từ commit `dcee864`
 - DoctorSchedule, TimeSlot và `GET /doctors/{id}/slots`.
 - Không đưa đặt/hủy lịch, RabbitMQ, cấp QueueNumber hoặc SignalR queue vào Tuần 2.
 
-### 2.3 Chưa triển khai trong Prompt 03.1.1
+### 2.3 Hiện trạng sau Prompt 03.2
 
-- Không tạo controller, service, DTO, View hoặc policy placeholder.
-- Không thêm package, Migration, schema, seed hoặc tài khoản mặc định.
-- Không tạo `MediQueue_Tuan2`; không ghi vào `MediQueue`.
-- Không chuyển sang Prompt 03.2 khi chưa được sinh viên xác nhận.
+- Đã có `AccountController`, service, DTO, JWT validation và lệnh bootstrap tường minh; không có placeholder.
+- Không thêm package, Migration hoặc schema; không hard-code tài khoản/mật khẩu.
+- Dùng duy nhất database `MediQueue` trong 9 tuần; không tạo database theo tuần.
+- Chưa triển khai MVC Cookie flow, dashboard, CRUD danh mục, RabbitMQ hoặc SignalR nghiệp vụ.
 
 ## 3. Kiến trúc Authentication
 
@@ -117,13 +117,12 @@ Giai đoạn sau mới bổ sung `DoctorSchedulesController`, `TimeSlotsControll
 
 ## 6. Chiến lược database Tuần 2
 
-- `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` là database Tuần 1 đã nộp và phải bảo toàn.
-- Đề xuất database phát triển độc lập: `MediQueue_Tuan2`; hiện **chưa được tạo**.
-- Chờ sinh viên xác nhận tên/việc tạo database ở prompt triển khai database thích hợp.
+- `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` là database duy nhất của dự án trong 9 tuần.
+- Không tạo database theo tuần; không xóa/tạo lại database.
 - `Appointment.Api` và `Queue.Worker` có `UserSecretsId` riêng cho `Tuan2`; không sao chép giá trị secret Tuần 1.
 - Không commit connection string, JWT signing key hoặc credential. Chỉ cấu hình qua User Secrets/biến môi trường sau khi đích được duyệt.
 - Runtime không tự migrate. Mọi Migration mới phải được review; không sửa `InitialCreate` đã áp dụng.
-- Test có ghi dữ liệu trong tương lai phải có guard xác nhận chính xác `MediQueue_Tuan2`, dữ liệu cô lập và cleanup an toàn. Không bao giờ dùng `MediQueue` cho write test.
+- Write integration test phải dùng database test cô lập có exact-target guard và cleanup an toàn. Không bao giờ dùng `MediQueue` cho dữ liệu test.
 - Test đọc database hiện tại chỉ chạy khi có `ConnectionStrings__MediQueue`; nếu không có thì skip rõ ràng, không fallback sang database khác.
 
 ## 7. UI/UX Design System
@@ -163,7 +162,7 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 - Unit: policy/invariant, token expiry mapping, pagination/filter validation, ViewModel mapping.
 - Integration API: login/register, tài khoản khóa, Role/ownership, `401/403/404`, ProblemDetails, không nhận Role từ client.
 - Integration MVC: cookie attributes, antiforgery, redirect dashboard, expired session, logout và access denied.
-- Persistence: chỉ đọc `MediQueue`; write test chỉ trên database Tuần 2 đã được xác nhận và có guard.
+- Persistence: chỉ đọc `MediQueue`; write test chỉ trên database test cô lập được cấu hình tường minh và có guard.
 - Security: không lộ JWT/secret/PII qua HTML, JavaScript, URL hoặc log; CSRF và session fixation.
 - UI: responsive, keyboard/focus, validation, loading/empty/error, static assets.
 - Regression: restore/build/test/format, health/smoke test cho bốn process.
@@ -186,20 +185,17 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 | Role/lock thay đổi khi token còn hạn | Quyền cũ tạm còn hiệu lực | Token ngắn hạn + security stamp/session revocation |
 | JWT lộ cho browser/log | Chiếm phiên | Token store server-side, redaction, HTTPS, HttpOnly cookie |
 | CSRF trên MVC form | Thao tác trái phép | Antiforgery + SameSite + kiểm tra Origin khi phù hợp |
-| Ghi nhầm database Tuần 1 | Mất tính toàn vẹn bài nộp | DB Tuần 2 riêng, secret riêng, exact-target guard |
+| Ghi dữ liệu test vào database chính | Làm bẩn dữ liệu thật | DB test cô lập, secret riêng, exact-target guard |
 | Phình phạm vi CRUD/UI | Trễ phần bảo mật cốt lõi | Làm prompt theo thứ tự, ưu tiên auth/test |
 | Authorization chỉ ở UI | Truy cập trái phép qua API | Policy/resource handler tại API và integration test |
 
-## 11. Quyết định cần xác nhận trước Prompt 03.2
+## 11. Quyết định đã chốt trong Prompt 03.2
 
-1. Cho phép tạo `MediQueue_Tuan2` ở giai đoạn nào và giữ đúng tên đề xuất hay không.
-2. JWT issuer, audience, thời hạn Access Token và nguồn signing key cho môi trường phát triển.
-3. Cơ chế bootstrap Role/Admin đầu tiên mà không công khai mật khẩu hoặc seed bí mật vào source.
-4. Chọn server-side session/token store ban đầu: in-memory `ITicketStore` cho một instance hay distributed cache cho hướng mở rộng.
-5. Cơ chế thu hồi khi khóa tài khoản/đổi Role/đổi mật khẩu: security stamp, session registry và giới hạn độ trễ chấp nhận.
-6. Chính sách cookie cụ thể, HTTPS certificate do người dùng quản lý và CORS giữa các process.
-7. Hạn nộp chính thức của Tuần 2; tiêu đề PR dự kiến đã nêu ở trên.
-8. Có thực hiện mục tiêu tùy chọn Schedule/TimeSlot trong Tuần 2 hay chuyển chắc chắn sang Tuần 3.
+1. Dùng duy nhất database `MediQueue` trong 9 tuần; không database theo tuần.
+2. JWT issuer `MediQueue.Appointment.Api`, audience `MediQueue.Web`, lifetime 30 phút, HS256 với key ngẫu nhiên tối thiểu 256 bit và clock skew tối đa 30 giây.
+3. Bootstrap Role/Admin chỉ qua lệnh tường minh; password Admin nhập ẩn, không qua argument/log/source.
+4. Thu hồi bền vững bằng fingerprint của Identity `SecurityStamp`; logout/đổi mật khẩu/khóa/đổi Role làm token không còn hợp lệ khi server kiểm tra.
+5. V1 không Refresh Token; MVC Cookie/token store phía server sẽ triển khai ở Prompt 03.3.
 
 ## 12. Checklist phát triển
 
@@ -207,8 +203,8 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 - [x] Giữ nguyên 9 project, Domain, EF model và Migration.
 - [x] Tách `UserSecretsId` của API/Worker cho Tuần 2.
 - [x] Thiết kế auth, phân quyền, database, UI/UX và test.
-- [ ] Sinh viên xác nhận các quyết định mục 11.
-- [ ] Prompt 03.2: Identity/JWT backend.
+- [x] Sinh viên xác nhận các quyết định mục 11.
+- [x] Prompt 03.2: Identity/JWT backend.
 - [ ] Prompt 03.3: MVC Cookie và server-side JWT session.
 - [ ] Prompt 03.4–03.7: dashboard và danh mục.
 - [ ] Prompt 03.8: security/test/documentation gate.

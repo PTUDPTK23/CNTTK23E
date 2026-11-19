@@ -2,7 +2,7 @@
 
 ## 1. Trạng thái và nguyên tắc
 
-Mô hình Code First được triển khai trong `MediQueue.Infrastructure`. Migration `20261117142359_InitialCreate` đã được áp dụng thành công vào database Tuần 1 `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` ngày 18/11/2026. Tuần 2 chỉ kế thừa model/Migration; `MediQueue_Tuan2` là đề xuất và chưa được tạo.
+Mô hình Code First được triển khai trong `MediQueue.Infrastructure`. Migration `20261117142359_InitialCreate` đã được áp dụng thành công vào `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` ngày 18/11/2026. Đây là database duy nhất của sản phẩm trong 9 tuần; Tuần 2 không thay đổi model/schema.
 
 Các quyết định kỹ thuật:
 
@@ -273,7 +273,7 @@ Migration tạo 12 check constraint:
 
 ## 8. Identity và bốn Role
 
-`ApplicationUser : IdentityUser<Guid>` bổ sung `IsActive`, `CreatedAtUtc`. `MediQueueDbContext` kế thừa `IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>`. Patient và Doctor liên kết one-to-one bằng `UserId`; Receptionist/Admin không cần bảng hồ sơ riêng ở phạm vi hiện tại. Bốn Role sẽ được quản lý bằng bảng Identity chuẩn, chưa seed và chưa triển khai Login/Register/JWT trong Prompt 02.2.
+`ApplicationUser : IdentityUser<Guid>` bổ sung `IsActive`, `CreatedAtUtc`. `MediQueueDbContext` kế thừa `IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>`. Patient và Doctor liên kết one-to-one bằng `UserId`; Receptionist/Admin chưa có bảng hồ sơ riêng. Bốn Role chính xác được bootstrap tường minh bằng Identity; Login/Register/JWT đã triển khai trong Prompt 03.2 mà không cần Migration mới.
 
 ## 9. Migration và SQL review
 
