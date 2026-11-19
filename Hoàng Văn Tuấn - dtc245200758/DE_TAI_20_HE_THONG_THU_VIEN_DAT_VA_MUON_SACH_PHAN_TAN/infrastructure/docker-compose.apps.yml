@@ -1,0 +1,27 @@
+# TÙY CHỌN: chạy API + Worker trong Docker, ghép với compose hạ tầng hiện có (KHÔNG thay thế nó):
+#   docker compose --env-file ../.env.local -f docker-compose.yml -f docker-compose.apps.yml up -d --build library-api reservation-worker
+# Giả định service hạ tầng tên "postgres" và "rabbitmq". Kiểm tra: docker compose config --services
+# Trong Docker network dùng hostname service + cổng nội bộ (5432/5672), KHÔNG dùng localhost:5433.
+services:
+  library-api:
+    build: ../backend/library-api
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/library_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      RABBIT_HOST: rabbitmq
+      RABBIT_PORT: 5672
+      RABBIT_USER: ${RABBIT_USER}
+      RABBIT_PASSWORD: ${RABBIT_PASSWORD}
+    ports: ["8081:8081"]
+  reservation-worker:
+    build: ../backend/reservation-worker
+    depends_on: [library-api]
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/library_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      RABBIT_HOST: rabbitmq
+      RABBIT_PORT: 5672
+      RABBIT_USER: ${RABBIT_USER}
+      RABBIT_PASSWORD: ${RABBIT_PASSWORD}
