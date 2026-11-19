@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: reservation-worker
+  main:
+    web-application-type: none
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/library_db}
+    username: ${DB_USER:library_user}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none                  # schema do Library API (Flyway) quản lý; Worker chỉ dùng
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:library_admin}
+    password: ${RABBIT_PASSWORD}
+    listener:
+      simple:
+        acknowledge-mode: auto         # ACK chỉ khi listener chạy xong (transaction đã commit)
+        default-requeue-rejected: false # hết retry -> reject không requeue -> sang DLQ
+        concurrency: 4                 # nhiều consumer song song để chứng minh chống đặt trùng
+        max-concurrency: 8
+        prefetch: 10
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1s
+          multiplier: 2
+          max-interval: 10s
+
+logging:
+  level:
+    com.library.worker: INFO

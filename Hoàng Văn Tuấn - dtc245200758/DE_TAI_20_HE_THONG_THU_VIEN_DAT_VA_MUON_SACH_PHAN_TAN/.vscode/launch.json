@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug Library API",
+      "request": "launch",
+      "mainClass": "com.library.api.LibraryApiApplication",
+      "projectName": "library-api",
+      "envFile": "${workspaceFolder}/.env.local"
+    },
+    {
+      "type": "java",
+      "name": "Debug Reservation Worker",
+      "request": "launch",
+      "mainClass": "com.library.worker.ReservationWorkerApplication",
+      "projectName": "reservation-worker",
+      "envFile": "${workspaceFolder}/.env.local"
+    }
+  ],
+  "compounds": [
+    { "name": "Debug API + Worker", "configurations": ["Debug Library API", "Debug Reservation Worker"] }
+  ]
+}
