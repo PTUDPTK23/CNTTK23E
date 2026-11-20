@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support Desk | Hệ thống hỗ trợ khách hàng</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">S</span><div><strong>Support Desk</strong><small>HỆ THỐNG HỖ TRỢ KHÁCH HÀNG</small></div></div>
+    <div class="top-actions"><span class="live-dot"></span><span id="sessionLabel">Chưa đăng nhập</span><a href="/swagger/index.html" target="_blank" rel="noreferrer">API Swagger ↗</a><button id="logoutBtn" class="ghost-btn" hidden>Đăng xuất</button></div>
+  </header>
+  <main class="layout">
+    <section class="hero">
+      <div><p class="eyebrow">CUSTOMER SUPPORT CENTER</p><h1>Xin chào! Bạn cần<br><em>chúng tôi hỗ trợ?</em></h1><p class="sub">Gửi yêu cầu mới hoặc theo dõi tiến độ xử lý các yêu cầu hỗ trợ của bạn.</p></div>
+      <div class="hero-icon">✦</div>
+    </section>
+    <section class="stats">
+      <article><span>Tổng yêu cầu</span><strong id="totalCount">—</strong><small>Tất cả yêu cầu đã tiếp nhận</small></article>
+      <article><span>Mới tiếp nhận</span><strong id="newCount">—</strong><small>Đang chờ phân công</small></article>
+      <article><span>Đang xử lý</span><strong id="workingCount">—</strong><small>Đã được tiếp nhận</small></article>
+      <article><span>Đã hoàn thành</span><strong id="doneCount">—</strong><small>Đã giải quyết</small></article>
+    </section>
+    <section class="panel form-panel" id="loginPanel">
+        <div class="panel-heading"><div><p class="eyebrow">TÀI KHOẢN</p><h2>Đăng nhập</h2></div></div>
+        <form id="loginForm">
+          <label for="username">Tên đăng nhập</label><input id="username" required autocomplete="username" placeholder="customer, agent hoặc admin">
+          <label for="password">Mật khẩu</label><input id="password" type="password" required autocomplete="current-password">
+          <button class="primary-btn" type="submit">Đăng nhập <span>→</span></button><p id="loginMessage" class="message" role="status"></p>
+        </form>
+        <small>Tài khoản demo được cấu hình trong tệp .env.</small>
+    </section>
+    <div class="content-grid" id="mainContent" hidden>
+      <section class="panel form-panel">
+        <div class="panel-heading"><div><p class="eyebrow">GỬI YÊU CẦU</p><h2>Tạo yêu cầu hỗ trợ</h2></div><span class="heading-icon">＋</span></div>
+        <form id="ticketForm">
+          <label for="requesterId">Mã người yêu cầu</label><input id="requesterId" required placeholder="Ví dụ: user-001">
+          <label for="content">Nội dung cần hỗ trợ</label><textarea id="content" required rows="5" placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..."></textarea>
+          <label for="priority">Mức độ ưu tiên</label><select id="priority"><option value="Normal">Bình thường</option><option value="High">Cao – cần hỗ trợ gấp</option></select>
+          <button class="primary-btn" type="submit">Gửi yêu cầu <span>→</span></button>
+          <p id="formMessage" class="message" role="status"></p>
+        </form>
+      </section>
+      <section class="panel tickets-panel">
+        <div class="panel-heading"><div><p class="eyebrow">QUẢN LÝ YÊU CẦU</p><h2>Danh sách yêu cầu</h2></div><button id="refreshBtn" class="ghost-btn">↻ Làm mới</button></div>
+        <div class="toolbar"><input id="searchInput" placeholder="Tìm theo mã hoặc nội dung..."><select id="statusFilter"><option value="">Tất cả trạng thái</option><option>New</option><option>Assigned</option><option>InProgress</option><option>Resolved</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Mã yêu cầu</th><th>Người gửi</th><th>Nội dung</th><th>Ưu tiên</th><th>Trạng thái</th><th></th></tr></thead><tbody id="ticketRows"><tr><td colspan="6" class="empty">Đang tải dữ liệu...</td></tr></tbody></table></div>
+        <p id="listMessage" class="muted"></p>
+      </section>
+    </div>
+    <footer>Support Desk · Đề tài 07 – Phát triển ứng dụng phân tán</footer>
+  </main>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

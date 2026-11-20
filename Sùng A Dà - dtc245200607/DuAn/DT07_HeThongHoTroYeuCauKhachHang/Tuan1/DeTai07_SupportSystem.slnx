@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="backend/src/Support.Api/Support.Api.csproj" />
+  <Project Path="backend/src/Support.AssignmentWorker/Support.AssignmentWorker.csproj" />
+  <Project Path="backend/src/Support.NotificationService/Support.NotificationService.csproj" />
+  <Project Path="frontend/Support.Client/Support.Client.csproj" />
+</Solution>
