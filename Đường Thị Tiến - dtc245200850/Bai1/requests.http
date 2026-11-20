@@ -1,0 +1,34 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra API đang chạy -> 200 OK
+GET {{api}}/
+
+### 2. Lấy danh sách bài tập -> 200 OK
+GET {{api}}/api/assignments
+
+### 3. Nộp bài hợp lệ -> 201 Created + header Location
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "dtc245200850",
+  "repositoryUrl": "https://github.com/dtc245200850-spec/EduSubmit-dtc245200850"
+}
+
+### 4. Nộp bài thiếu dữ liệu (rỗng / id <= 0) -> 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 0,
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 5. Bài mở rộng: Đọc lại lượt nộp tồn tại -> 200 OK
+# Ghi chú: Thay mã GUID bên dưới bằng mã thực tế nhận được từ request POST ở trên
+GET {{api}}/api/submissions/82eadd36-872a-4102-81ec-954832d24717
+
+### 6. Bài mở rộng: Đọc lượt nộp không tồn tại -> 404 Not Found
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
