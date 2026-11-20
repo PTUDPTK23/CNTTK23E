@@ -1,0 +1,112 @@
+@baseUrl = http://localhost:5227
+
+### 1. Kiểm tra trạng thái máy chủ (GET /)
+# Kỳ vọng: HTTP 200 OK
+GET {{baseUrl}}/
+Accept: application/json
+
+### 2. Xem danh sách thực đơn (GET /api/menu-items)
+# Kỳ vọng: HTTP 200 OK, trả về 4 món ăn mẫu
+GET {{baseUrl}}/api/menu-items
+Accept: application/json
+
+### 3. Xem chi tiết món ăn tồn tại (GET /api/menu-items/1)
+# Kỳ vọng: HTTP 200 OK, chi tiết Phở Bò Tái Lăn
+GET {{baseUrl}}/api/menu-items/1
+Accept: application/json
+
+### 4. Xem chi tiết món ăn KHÔNG tồn tại (GET /api/menu-items/999)
+# Kỳ vọng: HTTP 404 Not Found, ApiError ITEM_NOT_FOUND
+GET {{baseUrl}}/api/menu-items/999
+Accept: application/json
+
+### 5. Tạo đơn đặt món hợp lệ (POST /api/orders)
+# Kỳ vọng: HTTP 201 Created, header Location trỏ đến /api/orders/{id}
+# @name createOrder
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "Tran Van B",
+  "tableNumber": "Ban 08",
+  "items": [
+    {
+      "menuItemId": 1,
+      "quantity": 2
+    },
+    {
+      "menuItemId": 3,
+      "quantity": 1
+    }
+  ]
+}
+
+### 6. Xem chi tiết đơn hàng vừa tạo bằng Response Chaining (GET /api/orders/{id})
+# Kỳ vọng: HTTP 200 OK, thông tin đơn hàng vừa tạo ở request #5
+GET {{baseUrl}}/api/orders/{{createOrder.response.body.$.id}}
+Accept: application/json
+
+### 7. Tạo đơn đặt món KHÔNG hợp lệ - Món ăn đã hết hàng (POST /api/orders)
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_ORDER (Món 4: Bánh Mì Chảo isAvailable = false)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "Le Thi C",
+  "tableNumber": "Ban 02",
+  "items": [
+    {
+      "menuItemId": 4,
+      "quantity": 1
+    }
+  ]
+}
+
+### 8. Tạo đơn đặt món KHÔNG hợp lệ - Số lượng món <= 0 (POST /api/orders)
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_ORDER
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "Pham Van D",
+  "tableNumber": "Ban 03",
+  "items": [
+    {
+      "menuItemId": 2,
+      "quantity": 0
+    }
+  ]
+}
+
+### 9. Bếp xem danh sách tất cả các đơn hàng (GET /api/kitchen/orders)
+# Kỳ vọng: HTTP 200 OK, danh sách đơn hàng với trạng thái tương ứng
+GET {{baseUrl}}/api/kitchen/orders
+Accept: application/json
+
+### 10. Bếp bắt đầu chế biến đơn hàng (POST /api/kitchen/orders/1/start)
+# Kỳ vọng: HTTP 200 OK, trạng thái đơn chuyển sang "Preparing"
+POST {{baseUrl}}/api/kitchen/orders/1/start
+Accept: application/json
+
+### 11. Bếp hoàn thành chế biến đơn hàng (POST /api/kitchen/orders/1/complete)
+# Kỳ vọng: HTTP 200 OK, trạng thái đơn chuyển sang "Ready"
+POST {{baseUrl}}/api/kitchen/orders/1/complete
+Accept: application/json
+
+### 12. Bếp cố tình hoàn thành lại đơn đã "Ready" (POST /api/kitchen/orders/1/complete)
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_ORDER_STATE
+POST {{baseUrl}}/api/kitchen/orders/1/complete
+Accept: application/json
+
+### 13. Gửi request tạo đơn hàng thiếu Content-Type header (POST /api/orders)
+# Kỳ vọng: HTTP 415 Unsupported Media Type
+POST {{baseUrl}}/api/orders
+
+{
+  "customerName": "Test Missing Header",
+  "tableNumber": "Ban 99",
+  "items": [{ "menuItemId": 1, "quantity": 1 }]
+}
