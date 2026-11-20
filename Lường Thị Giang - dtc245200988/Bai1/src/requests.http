@@ -1,0 +1,30 @@
+
+@api = http://localhost:5200
+
+### GET danh sach bai tap - 200 OK
+GET {{api}}/api/assignments
+
+### POST nop bai - 201 Created
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "DTC245200988",
+  "repositoryUrl": "https://github.com/dtc245200988-byte/EduSubmit-DTC245200988"
+}
+
+### POST ma sinh vien rong - 400 Bad Request
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/dtc245200988-byte/EduSubmit-DTC245200988"
+}
+
+### GET bai nop ton tai - 200 OK
+GET {{api}}/api/submissions/f0fe009c-ebd3-49cf-afbb-5c7e982d030f
+
+### GET bai nop khong ton tai - 404 Not Found
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
