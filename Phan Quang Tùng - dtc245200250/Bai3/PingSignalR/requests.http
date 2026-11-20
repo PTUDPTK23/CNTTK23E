@@ -1,0 +1,10 @@
+@host = http://localhost:5200
+
+### 1. GET / -> 200 OK
+GET {{host}}/
+
+### 2. Bat tay negotiate -> 200 OK + connectionId
+POST {{host}}/hubs/ping/negotiate?negotiateVersion=1
+
+### 3. GET truc tiep hub khong qua WebSocket/negotiate -> 400 Bad Request
+GET {{host}}/hubs/ping
