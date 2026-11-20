@@ -1,0 +1,47 @@
+@host = http://localhost:5000
+
+### 1. GET /
+GET {{host}}/
+
+### 2. GET danh sách bài tập
+GET {{host}}/api/assignments
+
+### 3. POST hợp lệ (Tạo lượt nộp mới)
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/sv001/signalr-demo"
+}
+
+### 4. GET đọc lại lượt nộp (Bấm Send liên tục để thấy received -> processing -> graded)
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. POST thiếu dữ liệu (Kiểm tra BadRequest 400)
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. POST bài 99 không tồn tại (Kiểm tra NotFound 404 hoặc lỗi route)
+POST {{host}}/api/assignments/99/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://github.com/sv001/test"
+}
+
+### 7. GET ID không hợp lệ hoặc rỗng
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Bắt tay SignalR Hub (Negotiate đúng đường dẫn /hubs/submissions) -> 200
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Sai đường dẫn hub (Thiếu chữ s ở /hub/submissions) -> 404
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
