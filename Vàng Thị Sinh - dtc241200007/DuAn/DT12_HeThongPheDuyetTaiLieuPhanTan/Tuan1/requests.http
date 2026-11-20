@@ -1,0 +1,73 @@
+@api = http://localhost:5000
+
+### 1. Kiểm tra dịch vụ chạy (200 OK)
+GET {{api}}/
+
+### 2. Lấy danh sách tất cả tài liệu (200 OK)
+GET {{api}}/api/documents
+
+### 3. Tra cứu tài liệu theo trạng thái và người xử lý (200 OK)
+GET {{api}}/api/documents?status=Submitted&assignee=GV01
+
+### 4. Tạo tài liệu mới hợp lệ (201 Created + Location)
+# @name createDoc
+POST {{api}}/api/documents
+Content-Type: application/json
+
+{
+  "title": "To trinh mua ban quyen phan mem",
+  "content": "De xuat mua license Visual Studio Enterprise",
+  "createdBy": "SV005",
+  "assignedTo": "GV01"
+}
+
+### 5. Tạo tài liệu thiếu tiêu đề (400 Bad Request - INVALID_DOCUMENT)
+POST {{api}}/api/documents
+Content-Type: application/json
+
+{
+  "title": "",
+  "content": "Noi dung",
+  "createdBy": "SV005"
+}
+
+### 6. Xem chi tiết tài liệu vừa tạo (200 OK)
+GET {{api}}/api/documents/{{createDoc.response.body.$.id}}
+
+### 7. Xem chi tiết tài liệu không tồn tại (404 Not Found - DOCUMENT_NOT_FOUND)
+GET {{api}}/api/documents/999
+
+### 8. Gửi tài liệu vào quy trình phê duyệt (200 OK: Draft -> Submitted)
+POST {{api}}/api/documents/{{createDoc.response.body.$.id}}/submit
+Content-Type: application/json
+
+{
+  "actor": "SV005",
+  "note": "Trinh phe duyet"
+}
+
+### 9. Gửi lại lần nữa khi đã Submitted (409 Conflict - INVALID_STATE_TRANSITION)
+POST {{api}}/api/documents/{{createDoc.response.body.$.id}}/submit
+Content-Type: application/json
+
+{
+  "actor": "SV005"
+}
+
+### 10. Từ chối tài liệu nhưng thiếu lý do (400 Bad Request - INVALID_ACTION)
+POST {{api}}/api/documents/{{createDoc.response.body.$.id}}/reject
+Content-Type: application/json
+
+{
+  "reviewer": "GV01",
+  "note": ""
+}
+
+### 11. Từ chối tài liệu hợp lệ (200 OK: Submitted -> Rejected)
+POST {{api}}/api/documents/{{createDoc.response.body.$.id}}/reject
+Content-Type: application/json
+
+{
+  "reviewer": "GV01",
+  "note": "Thieu bao gia chi tiet tu nha cung cap"
+}
