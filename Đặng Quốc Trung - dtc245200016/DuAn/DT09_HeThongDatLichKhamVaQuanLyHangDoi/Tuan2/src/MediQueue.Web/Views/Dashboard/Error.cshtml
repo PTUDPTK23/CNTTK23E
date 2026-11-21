@@ -1,0 +1,9 @@
+@model DashboardStateViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Dashboard tạm gián đoạn";
+}
+<div class="dashboard-page">
+    <header class="dashboard-page-heading"><div><span class="eyebrow">MediQueue</span><h1>Không gian làm việc</h1><p>Chúng tôi chưa thể tải đầy đủ dữ liệu ở thời điểm này.</p></div></header>
+    <partial name="_DashboardState" model="Model" />
+</div>

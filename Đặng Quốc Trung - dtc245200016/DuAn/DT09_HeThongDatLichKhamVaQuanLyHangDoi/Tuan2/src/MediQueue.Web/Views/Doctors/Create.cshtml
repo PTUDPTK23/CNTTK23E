@@ -1,0 +1,8 @@
+@model CreateDoctorProfileViewModel
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Tạo hồ sơ bác sĩ"; }
+<div class="dashboard-page catalog-page catalog-form-page"><header class="dashboard-page-heading"><div><span class="eyebrow">Hồ sơ bác sĩ</span><h1>Tạo hồ sơ bác sĩ</h1><p>Liên kết một tài khoản Bác sĩ hiện có với chuyên khoa đang hoạt động.</p></div></header>
+<section class="catalog-form-card"><form method="post" data-loading-form>@Html.AntiForgeryToken()<div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+<div class="form-field"><label asp-for="UserId"></label><select asp-for="UserId"><option value="">Chọn tài khoản Bác sĩ</option>@foreach(var account in Model.Accounts){<option value="@account.UserId">@account.DisplayName · @account.Email</option>}</select><span asp-validation-for="UserId"></span><small>Chỉ hiển thị tài khoản vai trò Bác sĩ chưa có hồ sơ.</small></div>
+<div class="form-field"><label asp-for="DisplayName"></label><input asp-for="DisplayName" autocomplete="name" placeholder="VD: BS. Nguyễn Minh An" /><span asp-validation-for="DisplayName"></span></div>
+<div class="form-field"><label asp-for="DepartmentId"></label><select asp-for="DepartmentId"><option value="">Chọn chuyên khoa</option>@foreach(var department in Model.Departments){<option value="@department.Id">@department.Name (@department.Code)</option>}</select><span asp-validation-for="DepartmentId"></span></div>
+<div class="catalog-form-actions"><a class="btn btn-ghost" asp-action="Index">Hủy</a><button class="btn btn-primary" type="submit" data-loading-text="Đang lưu...">Tạo hồ sơ</button></div></form></section></div>

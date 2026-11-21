@@ -1,0 +1,46 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "_AuthLayout";
+}
+<div class="auth-heading">
+    <span class="eyebrow">Không gian chăm sóc của bạn</span>
+    <h2>Chào mừng bạn trở lại</h2>
+    <p>Đăng nhập để tiếp tục với hồ sơ và các tiện ích phù hợp với vai trò của bạn.</p>
+</div>
+<form asp-action="Login" method="post" class="app-form" data-secure-form novalidate>
+    @Html.AntiForgeryToken()
+    <input asp-for="ReturnUrl" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+    <div class="field-group">
+        <label asp-for="Email"></label>
+        <div class="input-shell">
+            <svg aria-hidden="true"><use href="/images/icons.svg#mail"></use></svg>
+            <input asp-for="Email" autocomplete="username" inputmode="email" placeholder="ban@example.com" autofocus />
+        </div>
+        <span asp-validation-for="Email" class="field-validation"></span>
+    </div>
+    <div class="field-group">
+        <div class="label-row"><label asp-for="Password"></label><span class="security-note">Kết nối bảo mật</span></div>
+        <div class="input-shell">
+            <svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg>
+            <input asp-for="Password" autocomplete="current-password" placeholder="Nhập mật khẩu" data-password-input />
+            <button type="button" class="password-toggle" data-password-toggle aria-label="Hiện mật khẩu" aria-pressed="false">
+                <svg aria-hidden="true"><use href="/images/icons.svg#eye"></use></svg>
+            </button>
+        </div>
+        <span asp-validation-for="Password" class="field-validation"></span>
+    </div>
+    <button class="btn btn-primary btn-lg w-100" type="submit" data-submit-button>
+        <span data-button-label>Đăng nhập</span><span class="button-spinner" aria-hidden="true"></span>
+    </button>
+    <partial name="_FormStatus" />
+</form>
+<div class="auth-alternate">
+    <span>Chưa có tài khoản bệnh nhân?</span>
+    <a asp-action="Register">Tạo tài khoản mới</a>
+</div>
+<div class="privacy-callout">
+    <svg aria-hidden="true"><use href="/images/icons.svg#shield"></use></svg>
+    <p><strong>Thông tin đăng nhập được bảo vệ an toàn.</strong><br />Phiên làm việc của bạn được quản lý và bảo vệ trên máy chủ.</p>
+</div>

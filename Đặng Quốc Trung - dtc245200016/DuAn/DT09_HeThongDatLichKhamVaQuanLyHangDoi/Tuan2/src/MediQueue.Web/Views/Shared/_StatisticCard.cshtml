@@ -1,0 +1,5 @@
+@model StatisticCardViewModel
+<article class="stat-card stat-card--@Model.Tone">
+    <span class="stat-card__icon" aria-hidden="true"><svg><use href="/images/icons.svg#@Model.Icon"></use></svg></span>
+    <div><span class="stat-card__label">@Model.Label</span><strong>@Model.Value</strong><small>@Model.Description</small></div>
+</article>

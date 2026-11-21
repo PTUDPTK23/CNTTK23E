@@ -1,0 +1,48 @@
+# Build output
+**/bin/
+**/obj/
+artifacts/
+
+# IDE and user-specific files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test and coverage output
+TestResults/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+# Runtime logs and temporary files
+logs/
+*.log
+*.tmp
+*.temp
+~$*
+
+# Local configuration and secrets
+appsettings.Local.json
+appsettings.*.Local.json
+.env
+.env.*
+secrets.json
+.data-protection/
+
+# NuGet and local tooling caches
+.packages/
+packages/
+
+# Database backups and local data artifacts
+*.bak
+*.bacpac
+*.mdf
+*.ldf
+
+# OS-generated files
+.DS_Store
+Thumbs.db

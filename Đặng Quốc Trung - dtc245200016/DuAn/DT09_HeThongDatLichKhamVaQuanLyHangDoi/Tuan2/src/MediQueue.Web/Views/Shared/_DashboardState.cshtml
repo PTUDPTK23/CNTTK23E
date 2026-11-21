@@ -1,0 +1,10 @@
+@model DashboardStateViewModel
+<div class="dashboard-state dashboard-state--@Model.Tone" role="status">
+    <span class="dashboard-state__icon" aria-hidden="true"><svg><use href="/images/icons.svg#@Model.Icon"></use></svg></span>
+    <h2>@Model.Title</h2>
+    <p>@Model.Description</p>
+    @if (Model.CanRetry)
+    {
+        <a class="btn btn-primary" asp-controller="Dashboard" asp-action="Index">Thử tải lại</a>
+    }
+</div>

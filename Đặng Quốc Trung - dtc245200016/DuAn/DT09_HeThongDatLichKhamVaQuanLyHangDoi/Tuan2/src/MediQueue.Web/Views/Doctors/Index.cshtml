@@ -1,0 +1,31 @@
+@model DoctorsIndexViewModel
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Quản lý bác sĩ"; var data = Model.Results; }
+<div class="dashboard-page catalog-page profile-management-page">
+    <header class="dashboard-page-heading">
+        <div><span class="eyebrow">Hồ sơ chuyên môn</span><h1>Quản lý bác sĩ</h1><p>Liên kết tài khoản Bác sĩ với chuyên khoa và theo dõi trạng thái hồ sơ.</p></div>
+        <a class="btn btn-primary" asp-action="Create">Tạo hồ sơ bác sĩ</a>
+    </header>
+    <section class="catalog-stats" aria-label="Thống kê hồ sơ bác sĩ">
+        <article><span>Tổng hồ sơ</span><strong>@data.Summary.Total</strong></article>
+        <article class="is-success"><span>Đang hoạt động</span><strong>@data.Summary.Active</strong></article>
+        <article class="is-muted"><span>Tài khoản chưa liên kết</span><strong>@data.Summary.UnlinkedDoctorAccounts</strong></article>
+    </section>
+    <section class="catalog-panel">
+        <form method="get" class="catalog-filter profile-filter" role="search">
+            <label><span class="visually-hidden">Tìm bác sĩ</span><input name="search" value="@Model.Query.Search" placeholder="Tìm theo tên, email hoặc chuyên khoa" /></label>
+            <select name="departmentId" aria-label="Lọc chuyên khoa"><option value="">Mọi chuyên khoa</option>@foreach (var department in data.Departments) { <option value="@department.Id" selected="@(Model.Query.DepartmentId == department.Id)">@department.Name</option> }</select>
+            <select name="status" aria-label="Lọc trạng thái"><option value="">Mọi trạng thái</option><option value="active" selected="@(Model.Query.Status == "active")">Đang hoạt động</option><option value="inactive" selected="@(Model.Query.Status == "inactive")">Không hoạt động</option></select>
+            <select name="sortBy" aria-label="Sắp xếp"><option value="name" selected="@(Model.Query.SortBy == "name")">Theo tên</option><option value="department" selected="@(Model.Query.SortBy == "department")">Theo chuyên khoa</option><option value="email" selected="@(Model.Query.SortBy == "email")">Theo email</option><option value="createdAt" selected="@(Model.Query.SortBy == "createdAt")">Theo ngày tạo</option></select>
+            <input type="hidden" name="sortDirection" value="@Model.Query.SortDirection" />
+            <select name="pageSize" aria-label="Số dòng"><option value="10" selected="@(Model.Query.PageSize == 10)">10 / trang</option><option value="20" selected="@(Model.Query.PageSize == 20)">20 / trang</option><option value="50" selected="@(Model.Query.PageSize == 50)">50 / trang</option></select>
+            <button class="btn btn-secondary" type="submit">Áp dụng</button><a class="btn btn-ghost" asp-action="Index">Đặt lại</a>
+        </form>
+        @if (data.Items.Count == 0) { <div class="catalog-empty"><span aria-hidden="true">＋</span><h2>Chưa có hồ sơ bác sĩ phù hợp</h2><p>Điều chỉnh bộ lọc hoặc liên kết một tài khoản Bác sĩ.</p><a class="btn btn-primary" asp-action="Create">Tạo hồ sơ bác sĩ</a></div> }
+        else {
+            <div class="catalog-table-wrap"><table class="catalog-table"><thead><tr><th>Bác sĩ</th><th>Chuyên khoa</th><th>Email</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            @foreach (var item in data.Items) { <tr><td data-label="Bác sĩ"><strong>@item.DisplayName</strong></td><td data-label="Chuyên khoa"><span class="profile-specialty">@item.DepartmentName</span></td><td data-label="Email">@item.Email</td><td data-label="Trạng thái"><span class="status-badge @((item.ProfileIsActive && item.AccountIsActive) ? "is-active" : "is-inactive")">@((item.ProfileIsActive && item.AccountIsActive) ? "Đang hoạt động" : "Không hoạt động")</span></td><td class="catalog-actions"><a class="btn btn-ghost btn-sm" asp-action="Details" asp-route-id="@item.Id">Chi tiết</a></td></tr> }
+            </tbody></table></div>
+            <nav class="catalog-pagination" aria-label="Phân trang"><span>Hiển thị @data.Items.Count / @data.TotalCount hồ sơ</span><div>@if(data.Page > 1){<a asp-action="Index" asp-route-search="@Model.Query.Search" asp-route-departmentId="@Model.Query.DepartmentId" asp-route-status="@Model.Query.Status" asp-route-sortBy="@Model.Query.SortBy" asp-route-sortDirection="@Model.Query.SortDirection" asp-route-pageSize="@Model.Query.PageSize" asp-route-page="@(data.Page-1)">Trước</a>}<strong>Trang @data.Page / @Math.Max(data.TotalPages,1)</strong>@if(data.Page < data.TotalPages){<a asp-action="Index" asp-route-search="@Model.Query.Search" asp-route-departmentId="@Model.Query.DepartmentId" asp-route-status="@Model.Query.Status" asp-route-sortBy="@Model.Query.SortBy" asp-route-sortDirection="@Model.Query.SortDirection" asp-route-pageSize="@Model.Query.PageSize" asp-route-page="@(data.Page+1)">Sau</a>}</div></nav>
+        }
+    </section>
+</div>

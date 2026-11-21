@@ -1,0 +1,29 @@
+@model UserManagementErrorViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = Model.Title;
+}
+<div class="dashboard-page">
+    <header class="dashboard-page-heading">
+        <div>
+            <span class="eyebrow">Quản lý người dùng</span>
+            <h1>Chưa thể hoàn tất yêu cầu</h1>
+            <p>MediQueue vẫn bảo toàn phiên làm việc và quyền truy cập của bạn.</p>
+        </div>
+    </header>
+    <section class="dashboard-state dashboard-state--error" role="alert" aria-labelledby="user-error-title">
+        <span class="dashboard-state__icon" aria-hidden="true">
+            <svg><use href="/images/icons.svg#alert"></use></svg>
+        </span>
+        <span class="eyebrow">Mã trạng thái @Model.StatusCode</span>
+        <h2 id="user-error-title">@Model.Title</h2>
+        <p>@Model.Description</p>
+        <div class="status-actions">
+            @if (Model.CanRetry)
+            {
+                <a class="btn btn-primary" asp-controller="Users" asp-action="Index">Thử tải lại</a>
+            }
+            <a class="btn btn-secondary" asp-controller="Dashboard" asp-action="Index">Về Dashboard</a>
+        </div>
+    </section>
+</div>

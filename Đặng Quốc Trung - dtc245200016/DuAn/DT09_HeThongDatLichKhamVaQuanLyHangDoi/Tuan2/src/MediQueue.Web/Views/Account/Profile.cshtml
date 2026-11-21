@@ -1,0 +1,53 @@
+@model ProfileViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    string emailAlias = Model.Email.Contains('@') ? Model.Email.Split('@')[0] : Model.Email;
+    string displayName = string.IsNullOrWhiteSpace(Model.FullName) ? emailAlias : Model.FullName;
+    displayName = string.IsNullOrWhiteSpace(displayName) ? "MediQueue" : displayName;
+    string roleLabel = RolePresentation.GetLabel(Model.Role);
+}
+<section class="account-page account-page--dashboard">
+    <div class="container app-container account-grid">
+        <aside class="account-summary">
+            <div class="profile-avatar-wrap">
+                <div class="profile-avatar" aria-hidden="true">@displayName[0]</div>
+                <span class="profile-verified" title="Tài khoản MediQueue" aria-label="Tài khoản MediQueue">
+                    <svg aria-hidden="true"><use href="/images/icons.svg#check"></use></svg>
+                </span>
+            </div>
+            <span class="role-badge role-badge--@(Model.Role.ToLowerInvariant())">@roleLabel</span>
+            <h1>@displayName</h1>
+            <p>@Model.Email</p>
+            <nav class="account-nav" aria-label="Tài khoản">
+                <a class="active" asp-action="Profile" aria-current="page"><svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg>Hồ sơ cá nhân</a>
+                <a asp-action="ChangePassword"><svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg>Đổi mật khẩu</a>
+            </nav>
+        </aside>
+        <div class="account-content">
+                <div class="page-heading"><span class="eyebrow">Tài khoản của bạn</span><h2>Thông tin cá nhân</h2><p>Kiểm tra và cập nhật thông tin liên hệ để MediQueue luôn đồng hành cùng bạn.</p></div>
+            <form asp-action="Profile" method="post" class="surface-card app-form" data-secure-form>
+                @Html.AntiForgeryToken()
+                <input asp-for="UserId" type="hidden" /><input asp-for="Role" type="hidden" /><input asp-for="Email" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+                <div class="profile-form-grid">
+                    <div class="field-group">
+                        <label asp-for="FullName"></label>
+                        @if (Model.CanEditFullName)
+                        {
+                            <div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg><input asp-for="FullName" autocomplete="name" /></div><span asp-validation-for="FullName" class="field-validation"></span>
+                        }
+                        else
+                        {
+                            <div class="read-only-field"><span>@displayName</span><small>Tên hiển thị được tạo từ tài khoản của bạn</small></div>
+                        }
+                    </div>
+                    <div class="field-group"><label asp-for="Email"></label><div class="read-only-field"><span>@Model.Email</span><small>Email đăng nhập được bảo vệ và không chỉnh sửa tại đây</small></div></div>
+                    <div class="field-group"><label asp-for="PhoneNumber"></label><div class="input-shell"><svg aria-hidden="true"><use href="/images/icons.svg#phone"></use></svg><input asp-for="PhoneNumber" autocomplete="tel" placeholder="Chưa cập nhật" /></div><span asp-validation-for="PhoneNumber" class="field-validation"></span></div>
+                    <div class="field-group"><label asp-for="DateOfBirth"></label><div class="read-only-field"><span>@(Model.DateOfBirth?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</span><small>Thông tin xác minh, hiện chưa thể chỉnh sửa</small></div></div>
+                </div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit" data-submit-button><span data-button-label>Lưu thay đổi</span><span class="button-spinner" aria-hidden="true"></span></button><partial name="_FormStatus" /></div>
+            </form>
+        </div>
+    </div>
+</section>

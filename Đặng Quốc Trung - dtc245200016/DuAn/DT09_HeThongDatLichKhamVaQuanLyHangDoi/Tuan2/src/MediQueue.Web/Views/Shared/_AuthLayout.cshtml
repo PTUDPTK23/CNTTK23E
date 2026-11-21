@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2563eb" />
+    <title>@ViewData["Title"] · MediQueue</title>
+    <link rel="icon" type="image/svg+xml" href="~/images/favicon.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body class="auth-body">
+    <a class="skip-link" href="#main-content">Bỏ qua đến biểu mẫu</a>
+    <partial name="_ToastMessages" />
+    <main id="main-content" class="auth-shell page-enter" tabindex="-1">
+        <section class="auth-showcase" aria-labelledby="auth-showcase-title">
+            <div class="auth-showcase__top"><partial name="_Brand" /></div>
+            <div class="auth-showcase__content">
+                <span class="eyebrow eyebrow--light">Chăm sóc bắt đầu từ sự an tâm</span>
+                <h1 id="auth-showcase-title">Mỗi lượt khám,<br />nhẹ nhàng và chủ động hơn.</h1>
+                <p>MediQueue giúp bạn quản lý hồ sơ và theo dõi hành trình khám trong một không gian rõ ràng, an toàn.</p>
+                <div class="auth-illustration-wrap">
+                    <img src="~/images/auth-illustration.svg" alt="Thẻ hồ sơ y tế điện tử tối giản" width="640" height="360" />
+                </div>
+            </div>
+            <div class="trust-row" aria-label="Cam kết của MediQueue">
+                <span><svg aria-hidden="true"><use href="/images/icons.svg#shield"></use></svg>Thông tin được bảo vệ</span>
+                <span><svg aria-hidden="true"><use href="/images/icons.svg#heart"></use></svg>Trải nghiệm tận tâm</span>
+            </div>
+        </section>
+        <section class="auth-panel">
+            <div class="auth-panel__mobile-brand"><partial name="_Brand" /></div>
+            <div class="auth-card">@RenderBody()</div>
+            <p class="auth-legal">Khi tiếp tục, bạn đồng ý sử dụng MediQueue cho mục đích chăm sóc sức khỏe hợp pháp.</p>
+        </section>
+    </main>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

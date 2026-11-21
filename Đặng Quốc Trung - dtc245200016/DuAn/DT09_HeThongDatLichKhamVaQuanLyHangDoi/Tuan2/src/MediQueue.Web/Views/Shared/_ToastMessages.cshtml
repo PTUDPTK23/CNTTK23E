@@ -1,0 +1,21 @@
+@{
+    string? success = TempData["SuccessMessage"] as string;
+    string? warning = TempData["WarningMessage"] as string;
+    string? error = TempData["ErrorMessage"] as string;
+}
+@if (success is not null || warning is not null || error is not null)
+{
+    string tone = success is not null ? "success" : warning is not null ? "warning" : "error";
+    string message = success ?? warning ?? error!;
+    <div class="toast-region" aria-live="polite" aria-atomic="true">
+        <div class="app-toast app-toast--@tone" role="status" data-auto-dismiss="true">
+            <span class="app-toast__icon" aria-hidden="true">
+                <svg><use href="/images/icons.svg#@(tone == "success" ? "check" : tone == "warning" ? "alert" : "close")"></use></svg>
+            </span>
+            <p>@message</p>
+            <button type="button" class="icon-button" data-toast-close aria-label="Đóng thông báo">
+                <svg aria-hidden="true"><use href="/images/icons.svg#close"></use></svg>
+            </button>
+        </div>
+    </div>
+}

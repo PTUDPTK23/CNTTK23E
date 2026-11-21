@@ -1,0 +1,81 @@
+@font-face {
+    font-family: "Be Vietnam Pro";
+    src: url("/fonts/BeVietnamPro-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Be Vietnam Pro";
+    src: url("/fonts/BeVietnamPro-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Be Vietnam Pro";
+    src: url("/fonts/BeVietnamPro-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Be Vietnam Pro";
+    src: url("/fonts/BeVietnamPro-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-soft: #eff6ff;
+    --primary-subtle: #dbeafe;
+    --secondary: #0d9488;
+    --secondary-dark: #0f766e;
+    --secondary-soft: #f0fdfa;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --surface-alt: #f1f5f9;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --success: #16a34a;
+    --success-soft: #f0fdf4;
+    --warning: #f59e0b;
+    --warning-soft: #fffbeb;
+    --error: #dc2626;
+    --error-soft: #fef2f2;
+    --font: "Be Vietnam Pro", Inter, "Segoe UI", sans-serif;
+    --radius-sm: 0.625rem;
+    --radius-control: 0.8rem;
+    --radius-md: 1rem;
+    --radius-lg: 1.5rem;
+    --radius-xl: 2rem;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-card: 0 12px 36px rgba(30, 64, 175, 0.08);
+    --shadow-md: 0 18px 46px rgba(15, 23, 42, 0.1);
+    --shadow-lg: 0 28px 70px rgba(15, 23, 42, 0.14);
+    --focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --motion-fast: 160ms;
+    --motion-normal: 260ms;
+    --motion-slow: 520ms;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}

@@ -1,0 +1,41 @@
+@{ ViewData["Title"] = "Chăm sóc đúng nhịp"; }
+<section class="hero">
+    <div class="container app-container hero__grid">
+        <div class="hero__content">
+            <span class="eyebrow">Nền tảng y tế số an toàn</span>
+            <h1>Chăm sóc sức khỏe,<br /><span>đúng lúc bạn cần.</span></h1>
+            <p>MediQueue mang đến một điểm truy cập thống nhất để quản lý tài khoản và sẵn sàng kết nối hành trình đặt lịch, tiếp nhận và theo dõi hàng đợi.</p>
+            <div class="hero__actions">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Profile">Mở hồ sơ của tôi</a>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">Đăng nhập an toàn</a>
+                    <a class="btn btn-secondary btn-lg" asp-controller="Account" asp-action="Register">Tạo tài khoản bệnh nhân</a>
+                }
+            </div>
+            <div class="hero__proof">
+                <div><svg aria-hidden="true"><use href="/images/icons.svg#shield"></use></svg><span><strong>Đăng nhập an toàn</strong><small>Phiên làm việc được bảo vệ</small></span></div>
+                <div><svg aria-hidden="true"><use href="/images/icons.svg#users"></use></svg><span><strong>4 vai trò</strong><small>Một cổng đăng nhập thống nhất</small></span></div>
+            </div>
+        </div>
+        <div class="hero__visual" aria-hidden="true">
+            <div class="health-orbit health-orbit--one"></div><div class="health-orbit health-orbit--two"></div>
+            <div class="hero-card hero-card--main"><span class="hero-card__icon"><svg><use href="/images/icons.svg#heart-pulse"></use></svg></span><small>Trạng thái hệ thống</small><strong>Sẵn sàng đồng hành</strong><div class="vital-line"><span></span></div></div>
+            <div class="hero-card hero-card--floating"><span class="status-dot"></span><div><strong>Hồ sơ được bảo vệ</strong><small>An tâm trong mỗi lần sử dụng</small></div></div>
+            <img src="~/images/healthcare-hero.svg" alt="" width="560" height="470" />
+        </div>
+    </div>
+</section>
+<section class="feature-section" aria-labelledby="feature-title">
+    <div class="container app-container">
+        <div class="section-heading"><span class="eyebrow">Nền tảng tin cậy</span><h2 id="feature-title">Đơn giản ở bên ngoài.<br />Chặt chẽ ở bên trong.</h2></div>
+        <div class="feature-grid">
+            <article><span class="feature-icon"><svg aria-hidden="true"><use href="/images/icons.svg#user-check"></use></svg></span><h3>Một danh tính thống nhất</h3><p>Bệnh nhân, Bác sĩ, Lễ tân và Quản trị viên dùng chung một điểm đăng nhập, giao diện thích ứng theo quyền.</p></article>
+            <article><span class="feature-icon feature-icon--teal"><svg aria-hidden="true"><use href="/images/icons.svg#shield"></use></svg></span><h3>Bảo vệ nhiều lớp</h3><p>Thông tin tài khoản và các thao tác quan trọng được kiểm tra cẩn thận ở mọi bước.</p></article>
+            <article><span class="feature-icon feature-icon--amber"><svg aria-hidden="true"><use href="/images/icons.svg#sparkle"></use></svg></span><h3>Trải nghiệm rõ ràng</h3><p>Tương tác có phản hồi, thông báo dễ hiểu và thiết kế đáp ứng từ điện thoại nhỏ đến màn hình lớn.</p></article>
+        </div>
+    </div>
+</section>

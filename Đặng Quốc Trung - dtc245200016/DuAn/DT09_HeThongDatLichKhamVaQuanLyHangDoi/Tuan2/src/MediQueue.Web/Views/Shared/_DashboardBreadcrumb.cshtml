@@ -1,0 +1,17 @@
+@{
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string action = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+    string current = controller switch
+    {
+        "Dashboard" => "Tổng quan",
+        "Users" => action switch { "Create" => "Tạo tài khoản", "Edit" => "Chỉnh sửa nhân sự", "Details" => "Chi tiết tài khoản", _ => "Quản lý người dùng" },
+        "Departments" => action switch { "Create" => "Thêm chuyên khoa", "Edit" => "Chỉnh sửa chuyên khoa", "Details" => "Chi tiết chuyên khoa", _ => "Quản lý chuyên khoa" },
+        "Rooms" => action switch { "Create" => "Thêm phòng khám", "Edit" => "Chỉnh sửa phòng khám", "Details" => "Chi tiết phòng khám", _ => "Quản lý phòng khám" },
+        "Doctors" => action switch { "Create" => "Tạo hồ sơ bác sĩ", "Edit" => "Chỉnh sửa bác sĩ", "Details" => "Chi tiết bác sĩ", "Profile" => "Hồ sơ chuyên môn", _ => "Quản lý bác sĩ" },
+        "Patients" => action switch { "Edit" => "Chỉnh sửa bệnh nhân", "Details" => "Chi tiết bệnh nhân", _ => "Quản lý bệnh nhân" },
+        _ => action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase) ? "Đổi mật khẩu" : "Hồ sơ cá nhân"
+    };
+    bool isManagedArea = controller is "Users" or "Departments" or "Rooms" or "Doctors" or "Patients";
+    string parent = controller switch { "Users" => "Quản lý người dùng", "Departments" => "Quản lý chuyên khoa", "Rooms" => "Quản lý phòng khám", "Doctors" => "Quản lý bác sĩ", "Patients" => "Quản lý bệnh nhân", _ => string.Empty };
+}
+<nav class="dashboard-breadcrumb" aria-label="Đường dẫn trang"><a asp-controller="Dashboard" asp-action="Index"><svg aria-hidden="true"><use href="/images/icons.svg#home"></use></svg><span>Tổng quan</span></a>@if (!controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase)){if (isManagedArea && action is not "Index" and not "Profile"){<span aria-hidden="true">/</span><a asp-controller="@controller" asp-action="Index">@parent</a>}<span aria-hidden="true">/</span><span aria-current="page">@current</span>}</nav>

@@ -1,0 +1,30 @@
+@model DoctorDashboardViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Tổng quan bác sĩ";
+    DoctorDashboardResponse data = Model.Dashboard.Doctor!;
+    string displayName = string.IsNullOrWhiteSpace(data.DisplayName) ? Model.Dashboard.Account.DisplayName : data.DisplayName;
+    IReadOnlyList<QuickActionViewModel> actions = new[]
+    {
+        new QuickActionViewModel("Hồ sơ chuyên môn", "Xem chuyên khoa được phân công", "stethoscope", "Doctors", "Profile"),
+        new QuickActionViewModel("Hồ sơ cá nhân", "Kiểm tra thông tin liên hệ", "user", "Account", "Profile"),
+        new QuickActionViewModel("Đổi mật khẩu", "Bảo vệ tài khoản của bạn", "lock", "Account", "ChangePassword"),
+        new QuickActionViewModel("Trang chủ", "Quay lại trang giới thiệu", "home", "Home", "Index")
+    };
+}
+<div class="dashboard-page">
+    <header class="dashboard-page-heading"><div><span class="eyebrow">Không gian bác sĩ</span><h1>Xin chào, @displayName</h1><p>Thông tin chuyên môn và tài khoản của bạn trong MediQueue.</p></div>@if (Model.Dashboard.Account.IsActive) { <span class="dashboard-status-chip">Tài khoản đang hoạt động</span> }</header>
+    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">Không gian MediQueue</span><h2 id="welcome-title">Đồng hành cùng quy trình khám rõ ràng và tập trung.</h2><p>Hồ sơ chuyên môn và thông tin tài khoản được tập trung trong một không gian làm việc riêng tư.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#stethoscope"></use></svg></span></section>
+    @if (!data.HasProfile)
+    {
+        <partial name="_DashboardState" model='new DashboardStateViewModel("Chưa có hồ sơ bác sĩ liên kết", "Tài khoản đã đăng nhập an toàn nhưng chưa được liên kết với hồ sơ bác sĩ. Vui lòng liên hệ quản trị viên.", "stethoscope", "neutral")' />
+    }
+    else
+    {
+        <div class="dashboard-two-column">
+            <section class="dashboard-section" aria-labelledby="doctor-profile-title"><div class="section-heading"><div><span class="eyebrow">Hồ sơ chuyên môn</span><h2 id="doctor-profile-title">Thông tin bác sĩ</h2></div></div><div class="profile-summary"><span class="profile-summary__avatar" aria-hidden="true">@displayName[..1].ToUpperInvariant()</span><div><h3>@displayName</h3><p>@(string.IsNullOrWhiteSpace(data.DepartmentName) ? "Chưa cập nhật chuyên khoa" : data.DepartmentName)</p></div></div><dl class="summary-list mt-3"><div class="summary-row"><dt>Mã chuyên khoa</dt><dd>@(data.DepartmentCode ?? "Chưa cập nhật")</dd></div><div class="summary-row"><dt>Trạng thái hồ sơ</dt><dd>@(data.IsActive == true ? "Đang hoạt động" : "Chưa hoạt động")</dd></div></dl></section>
+            <section class="dashboard-section" aria-labelledby="doctor-account-title"><div class="section-heading"><div><span class="eyebrow">Tài khoản</span><h2 id="doctor-account-title">Thông tin đăng nhập</h2></div></div><dl class="summary-list"><div class="summary-row"><dt>Email</dt><dd>@Model.Dashboard.Account.Email</dd></div><div class="summary-row"><dt>Số điện thoại</dt><dd>@(Model.Dashboard.Account.PhoneNumber ?? "Chưa cập nhật")</dd></div><div class="summary-row"><dt>Vai trò</dt><dd><span>Bác sĩ</span></dd></div></dl></section>
+        </div>
+    }
+    <partial name="_QuickActions" model="actions" />
+</div>

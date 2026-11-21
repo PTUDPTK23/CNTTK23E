@@ -1,0 +1,40 @@
+@{
+    string role = User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+    string accent = RolePresentation.GetAccentClass(role);
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string action = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+    bool isDashboard = controller.Equals("Dashboard", StringComparison.OrdinalIgnoreCase);
+    bool isProfile = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("Profile", StringComparison.OrdinalIgnoreCase);
+    bool isPassword = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase);
+    bool isUsers = controller.Equals("Users", StringComparison.OrdinalIgnoreCase);
+    bool isDepartments = controller.Equals("Departments", StringComparison.OrdinalIgnoreCase);
+    bool isRooms = controller.Equals("Rooms", StringComparison.OrdinalIgnoreCase);
+    bool isDoctors = controller.Equals("Doctors", StringComparison.OrdinalIgnoreCase);
+    bool isPatients = controller.Equals("Patients", StringComparison.OrdinalIgnoreCase);
+}
+<aside class="dashboard-sidebar" id="dashboard-sidebar" data-sidebar aria-label="Điều hướng không gian làm việc">
+    <div class="sidebar-brand-row"><a class="sidebar-brand" asp-controller="Dashboard" asp-action="Index" aria-label="MediQueue - Tổng quan"><img src="~/images/logo-mark.svg" alt="" width="38" height="38" /><span class="sidebar-label">Medi<span>Queue</span></span></a><button class="sidebar-close" type="button" data-sidebar-close aria-label="Đóng menu"><svg aria-hidden="true"><use href="/images/icons.svg#close"></use></svg></button></div>
+    <div class="sidebar-workspace role-panel--@accent"><span class="sidebar-workspace__icon" aria-hidden="true"><svg><use href="/images/icons.svg#heart-pulse"></use></svg></span><span class="sidebar-label"><small>Không gian làm việc</small><strong>@RolePresentation.GetLabel(role)</strong></span></div>
+    <nav class="sidebar-nav" aria-label="Chức năng chính">
+        <span class="sidebar-section-label sidebar-label">Tổng quan</span>
+        <a class="sidebar-link @(isDashboard ? "active" : null)" asp-controller="Dashboard" asp-action="Index" aria-current="@(isDashboard ? "page" : null)" title="Tổng quan"><svg aria-hidden="true"><use href="/images/icons.svg#home"></use></svg><span class="sidebar-label">Tổng quan</span></a>
+        @if (role == "Admin")
+        {
+            <span class="sidebar-section-label sidebar-label">Quản trị</span>
+            <a class="sidebar-link @(isUsers ? "active" : null)" asp-controller="Users" asp-action="Index" aria-current="@(isUsers ? "page" : null)" title="Quản lý người dùng"><svg aria-hidden="true"><use href="/images/icons.svg#users"></use></svg><span class="sidebar-label">Quản lý người dùng</span></a>
+            <a class="sidebar-link @(isDoctors ? "active" : null)" asp-controller="Doctors" asp-action="Index" aria-current="@(isDoctors ? "page" : null)" title="Quản lý bác sĩ"><svg aria-hidden="true"><use href="/images/icons.svg#stethoscope"></use></svg><span class="sidebar-label">Quản lý bác sĩ</span></a>
+            <a class="sidebar-link @(isPatients ? "active" : null)" asp-controller="Patients" asp-action="Index" aria-current="@(isPatients ? "page" : null)" title="Quản lý bệnh nhân"><svg aria-hidden="true"><use href="/images/icons.svg#heart"></use></svg><span class="sidebar-label">Quản lý bệnh nhân</span></a>
+            <a class="sidebar-link @(isDepartments ? "active" : null)" asp-controller="Departments" asp-action="Index" aria-current="@(isDepartments ? "page" : null)" title="Quản lý chuyên khoa"><svg aria-hidden="true"><use href="/images/icons.svg#building"></use></svg><span class="sidebar-label">Quản lý chuyên khoa</span></a>
+            <a class="sidebar-link @(isRooms ? "active" : null)" asp-controller="Rooms" asp-action="Index" aria-current="@(isRooms ? "page" : null)" title="Quản lý phòng khám"><svg aria-hidden="true"><use href="/images/icons.svg#hospital"></use></svg><span class="sidebar-label">Quản lý phòng khám</span></a>
+        }
+        @if (role == "Doctor")
+        {
+            <span class="sidebar-section-label sidebar-label">Chuyên môn</span>
+            <a class="sidebar-link @(isDoctors ? "active" : null)" asp-controller="Doctors" asp-action="Profile" aria-current="@(isDoctors ? "page" : null)" title="Hồ sơ chuyên môn"><svg aria-hidden="true"><use href="/images/icons.svg#stethoscope"></use></svg><span class="sidebar-label">Hồ sơ chuyên môn</span></a>
+        }
+        <span class="sidebar-section-label sidebar-label">Tài khoản</span>
+        <a class="sidebar-link @(isProfile ? "active" : null)" asp-controller="Account" asp-action="Profile" aria-current="@(isProfile ? "page" : null)" title="Hồ sơ cá nhân"><svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg><span class="sidebar-label">Hồ sơ cá nhân</span></a>
+        <a class="sidebar-link @(isPassword ? "active" : null)" asp-controller="Account" asp-action="ChangePassword" aria-current="@(isPassword ? "page" : null)" title="Đổi mật khẩu"><svg aria-hidden="true"><use href="/images/icons.svg#lock"></use></svg><span class="sidebar-label">Đổi mật khẩu</span></a>
+    </nav>
+    <div class="sidebar-footer"><form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="sidebar-link sidebar-logout" type="submit" title="Đăng xuất"><svg aria-hidden="true"><use href="/images/icons.svg#logout"></use></svg><span class="sidebar-label">Đăng xuất</span></button></form><button class="sidebar-collapse" type="button" data-sidebar-collapse aria-label="Thu gọn menu" aria-pressed="false" title="Thu gọn menu"><svg aria-hidden="true"><use href="/images/icons.svg#panel-left"></use></svg><span class="sidebar-label">Thu gọn menu</span></button></div>
+</aside>
