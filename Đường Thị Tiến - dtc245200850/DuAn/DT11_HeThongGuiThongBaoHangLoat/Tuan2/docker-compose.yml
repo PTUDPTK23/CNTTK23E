@@ -15,5 +15,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init_database.sql:/docker-entrypoint-initdb.d/init.sql
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: bulk_notification_rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 volumes:
   postgres_data:
+  rabbitmq_data:

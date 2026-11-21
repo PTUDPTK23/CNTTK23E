@@ -92,6 +92,8 @@ public class NotificationDbContext : DbContext
             entity.Property(d => d.CreatedAt)
                 .IsRequired();
 
+            entity.Property(d => d.PublishedAt);
+
             // Foreign Key: Campaign
             entity.HasOne(d => d.Campaign)
                 .WithMany(c => c.Deliveries)

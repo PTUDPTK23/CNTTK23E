@@ -14,4 +14,5 @@ public class NotificationDeliveryDto
     public string? ErrorMessage { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ProcessedAt { get; set; }
+    public DateTime? PublishedAt { get; set; }
 }

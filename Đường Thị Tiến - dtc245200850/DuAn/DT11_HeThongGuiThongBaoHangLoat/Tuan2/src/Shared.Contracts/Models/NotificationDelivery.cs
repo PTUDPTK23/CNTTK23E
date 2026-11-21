@@ -20,6 +20,8 @@ public class NotificationDelivery
 
     public DateTime? ProcessedAt { get; set; }
 
+    public DateTime? PublishedAt { get; set; }
+
     // Navigation properties
     public Campaign? Campaign { get; set; }
 

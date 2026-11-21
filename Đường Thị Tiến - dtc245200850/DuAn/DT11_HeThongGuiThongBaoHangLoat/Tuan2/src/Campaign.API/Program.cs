@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using CampaignApi.Services;
 using Shared.Contracts.Data;
 using Shared.Contracts.DTOs;
 using Shared.Contracts.Enums;
@@ -23,6 +24,9 @@ builder.Services.AddDbContext<NotificationDbContext>(options =>
             errorCodesToAdd: null);
     });
 });
+
+// Đăng ký dịch vụ RabbitMQ Publisher (Tuần 2)
+builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
 
 // 3. Đăng ký Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -94,26 +98,30 @@ using (var scope = app.Services.CreateScope())
 // Minimal API Endpoints
 // ==========================================
 
-// 1. Health check & DB status
-app.MapGet("/health", async (NotificationDbContext db) =>
+// 1. Health check & DB/RabbitMQ status
+app.MapGet("/health", async (NotificationDbContext db, IRabbitMqPublisher rabbitPublisher) =>
 {
-    bool canConnect = false;
-    string? error = null;
+    bool canConnectDb = false;
+    string? errorDb = null;
     try
     {
-        canConnect = await db.Database.CanConnectAsync();
+        canConnectDb = await db.Database.CanConnectAsync();
     }
     catch (Exception ex)
     {
-        error = ex.Message;
+        errorDb = ex.Message;
     }
+
+    bool canConnectRabbit = await rabbitPublisher.CanConnectAsync();
 
     return Results.Ok(new
     {
-        status = canConnect ? "Healthy" : "Degraded",
+        status = (canConnectDb && canConnectRabbit) ? "Healthy" : (canConnectDb ? "Degraded" : "Unhealthy"),
         database = "PostgreSQL",
-        connected = canConnect,
-        error,
+        databaseConnected = canConnectDb,
+        databaseError = errorDb,
+        rabbitMq = "RabbitMQ",
+        rabbitMqConnected = canConnectRabbit,
         timestamp = DateTime.UtcNow
     });
 })
@@ -147,7 +155,7 @@ app.MapGet("/api/stats", async (NotificationDbContext db) =>
 .WithTags("System");
 
 // 3. Lấy danh sách chiến dịch
-app.MapGet("/api/campaigns", async (NotificationDbContext db) =>
+var getCampaignsHandler = async (NotificationDbContext db) =>
 {
     var campaigns = await db.Campaigns
         .AsNoTracking()
@@ -168,12 +176,18 @@ app.MapGet("/api/campaigns", async (NotificationDbContext db) =>
         .ToListAsync();
 
     return Results.Ok(campaigns);
-})
-.WithName("GetCampaigns")
-.WithTags("Campaigns");
+};
+
+app.MapGet("/api/campaigns", getCampaignsHandler)
+    .WithName("GetCampaigns")
+    .WithTags("Campaigns");
+
+app.MapGet("/campaigns", getCampaignsHandler)
+    .WithName("GetCampaignsWithoutPrefix")
+    .WithTags("Campaigns");
 
 // 4. Lấy chi tiết chiến dịch
-app.MapGet("/api/campaigns/{id:guid}", async (Guid id, NotificationDbContext db) =>
+var getCampaignByIdHandler = async (Guid id, NotificationDbContext db) =>
 {
     var campaign = await db.Campaigns
         .AsNoTracking()
@@ -208,17 +222,24 @@ app.MapGet("/api/campaigns/{id:guid}", async (Guid id, NotificationDbContext db)
             RetryCount = d.RetryCount,
             ErrorMessage = d.ErrorMessage,
             CreatedAt = d.CreatedAt,
-            ProcessedAt = d.ProcessedAt
+            ProcessedAt = d.ProcessedAt,
+            PublishedAt = d.PublishedAt
         }).ToList()
     };
 
     return Results.Ok(detail);
-})
-.WithName("GetCampaignById")
-.WithTags("Campaigns");
+};
+
+app.MapGet("/api/campaigns/{id:guid}", getCampaignByIdHandler)
+    .WithName("GetCampaignById")
+    .WithTags("Campaigns");
+
+app.MapGet("/campaigns/{id:guid}", getCampaignByIdHandler)
+    .WithName("GetCampaignByIdWithoutPrefix")
+    .WithTags("Campaigns");
 
 // 5. Tạo mới chiến dịch thông báo
-app.MapPost("/api/campaigns", async ([FromBody] CreateCampaignRequest request, NotificationDbContext db) =>
+var createCampaignHandler = async ([FromBody] CreateCampaignRequest request, NotificationDbContext db) =>
 {
     if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Content))
     {
@@ -282,27 +303,137 @@ app.MapPost("/api/campaigns", async ([FromBody] CreateCampaignRequest request, N
         TotalJobs = campaign.Deliveries.Count,
         message = "Chiến dịch đã được tạo thành công và các lượt gửi đang ở trạng thái Pending."
     });
-})
-.WithName("CreateCampaign")
-.WithTags("Campaigns");
+};
 
-// 6. Kích hoạt phát chiến dịch
-app.MapPost("/api/campaigns/{id:guid}/send", async (Guid id, NotificationDbContext db) =>
+app.MapPost("/api/campaigns", createCampaignHandler)
+    .WithName("CreateCampaign")
+    .WithTags("Campaigns");
+
+app.MapPost("/campaigns", createCampaignHandler)
+    .WithName("CreateCampaignWithoutPrefix")
+    .WithTags("Campaigns");
+
+// 6. Kích hoạt phát chiến dịch và đưa vào RabbitMQ (Hỗ trợ cả /start và /send, cả có và không có tiền tố /api)
+var startCampaignHandler = async (
+    Guid id,
+    NotificationDbContext db,
+    IRabbitMqPublisher rabbitPublisher,
+    ILogger<Program> logger,
+    CancellationToken cancellationToken) =>
 {
-    var campaign = await db.Campaigns.FindAsync(id);
+    var campaign = await db.Campaigns
+        .Include(c => c.Deliveries)
+            .ThenInclude(d => d.Recipient)
+        .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
     if (campaign is null)
         return Results.NotFound(new { message = $"Không tìm thấy chiến dịch: {id}" });
 
-    campaign.Status = CampaignStatus.Processing;
-    await db.SaveChangesAsync();
+    if (campaign.Deliveries.Count == 0)
+        return Results.BadRequest(new { message = "Chiến dịch không có lượt gửi nào." });
 
-    return Results.Ok(new { message = "Chiến dịch đã chuyển sang trạng thái Processing. Worker sẽ tiếp nhận và gửi.", campaign.Id, campaign.Status });
-})
-.WithName("SendCampaign")
-.WithTags("Campaigns");
+    // Lọc các lượt gửi chưa được đẩy vào RabbitMQ và còn ở trạng thái Pending
+    var unPublishedDeliveries = campaign.Deliveries
+        .Where(d => d.PublishedAt == null && d.Status == DeliveryStatus.Pending)
+        .ToList();
+
+    if (unPublishedDeliveries.Count == 0)
+    {
+        return Results.Ok(new
+        {
+            message = "Tất cả lượt gửi của chiến dịch này đã được đưa vào hàng đợi trước đó (tránh trùng lặp job).",
+            campaign.Id,
+            campaign.Status,
+            totalDeliveries = campaign.Deliveries.Count,
+            newlyPublishedCount = 0
+        });
+    }
+
+    // Kiểm tra kết nối tới RabbitMQ trước khi tiến hành xuất bản
+    var isRabbitConnected = await rabbitPublisher.CanConnectAsync(cancellationToken);
+    if (!isRabbitConnected)
+    {
+        logger.LogError("Không thể kết nối tới RabbitMQ message broker khi khởi chạy chiến dịch [{CampaignId}].", campaign.Id);
+        return Results.Problem(
+            statusCode: StatusCodes.Status503ServiceUnavailable,
+            title: "RabbitMQ Broker Không Khả Dụng",
+            detail: "Không thể kết nối đến RabbitMQ message broker tại cổng 5672. Vui lòng đảm bảo container RabbitMQ đã khởi chạy.");
+    }
+
+    // Chuẩn bị danh sách thông điệp (NotificationJobMessage)
+    var messages = unPublishedDeliveries.Select(d => new NotificationJobMessage
+    {
+        JobId = d.JobId,
+        CampaignId = d.CampaignId,
+        RecipientId = d.RecipientId,
+        RecipientName = d.Recipient?.FullName ?? "N/A",
+        Destination = d.Recipient?.Email ?? d.Recipient?.PhoneNumber ?? "N/A",
+        Title = campaign.Title,
+        Content = campaign.Content,
+        RetryCount = d.RetryCount,
+        QueuedAt = DateTime.UtcNow
+    }).ToList();
+
+    int publishedCount = 0;
+    try
+    {
+        // Xuất bản hàng loạt với cơ chế ghi nhận trạng thái từng message
+        publishedCount = await rabbitPublisher.PublishBatchAsync(messages, async (jobId) =>
+        {
+            var delivery = unPublishedDeliveries.FirstOrDefault(d => d.JobId == jobId);
+            if (delivery != null)
+            {
+                delivery.PublishedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync(cancellationToken);
+            }
+        }, cancellationToken);
+
+        // Chuyển trạng thái chiến dịch sang Processing
+        campaign.Status = CampaignStatus.Processing;
+        await db.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("🚀 Đã xuất bản thành công {Count} lượt gửi của chiến dịch [{CampaignId}] vào RabbitMQ queue [notification_queue].",
+            publishedCount, campaign.Id);
+
+        return Results.Ok(new
+        {
+            message = $"Đã kích hoạt chiến dịch và đưa thành công {publishedCount} lượt gửi vào RabbitMQ queue [notification_queue].",
+            campaign.Id,
+            campaign.Status,
+            totalDeliveries = campaign.Deliveries.Count,
+            newlyPublishedCount = publishedCount
+        });
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Lỗi xảy ra trong quá trình xuất bản message vào RabbitMQ cho chiến dịch [{CampaignId}]. Đã xuất bản {PublishedCount}/{Total}",
+            campaign.Id, publishedCount, unPublishedDeliveries.Count);
+
+        return Results.Problem(
+            statusCode: StatusCodes.Status500InternalServerError,
+            title: "Lỗi xuất bản thông điệp vào RabbitMQ",
+            detail: $"Đã phát sinh sự cố khi gửi vào hàng đợi: {ex.Message}. Đã ghi nhận thành công {publishedCount}/{unPublishedDeliveries.Count} lượt gửi.");
+    }
+};
+
+app.MapPost("/api/campaigns/{id:guid}/send", startCampaignHandler)
+    .WithName("SendCampaign")
+    .WithTags("Campaigns");
+
+app.MapPost("/api/campaigns/{id:guid}/start", startCampaignHandler)
+    .WithName("StartCampaign")
+    .WithTags("Campaigns");
+
+app.MapPost("/campaigns/{id:guid}/start", startCampaignHandler)
+    .WithName("StartCampaignWithoutPrefix")
+    .WithTags("Campaigns");
+
+app.MapPost("/campaigns/{id:guid}/send", startCampaignHandler)
+    .WithName("SendCampaignWithoutPrefix")
+    .WithTags("Campaigns");
 
 // 7. Lấy danh sách người nhận
-app.MapGet("/api/recipients", async (NotificationDbContext db) =>
+var getRecipientsHandler = async (NotificationDbContext db) =>
 {
     var recipients = await db.Recipients
         .AsNoTracking()
@@ -318,12 +449,18 @@ app.MapGet("/api/recipients", async (NotificationDbContext db) =>
         .ToListAsync();
 
     return Results.Ok(recipients);
-})
-.WithName("GetRecipients")
-.WithTags("Recipients");
+};
+
+app.MapGet("/api/recipients", getRecipientsHandler)
+    .WithName("GetRecipients")
+    .WithTags("Recipients");
+
+app.MapGet("/recipients", getRecipientsHandler)
+    .WithName("GetRecipientsWithoutPrefix")
+    .WithTags("Recipients");
 
 // 8. Thêm người nhận mới
-app.MapPost("/api/recipients", async ([FromBody] CreateRecipientRequest request, NotificationDbContext db) =>
+var createRecipientHandler = async ([FromBody] CreateRecipientRequest request, NotificationDbContext db) =>
 {
     if (string.IsNullOrWhiteSpace(request.FullName))
         return Results.BadRequest(new { message = "Họ tên người nhận không được để trống." });
@@ -344,12 +481,18 @@ app.MapPost("/api/recipients", async ([FromBody] CreateRecipientRequest request,
     await db.SaveChangesAsync();
 
     return Results.Created($"/api/recipients/{recipient.Id}", recipient);
-})
-.WithName("CreateRecipient")
-.WithTags("Recipients");
+};
+
+app.MapPost("/api/recipients", createRecipientHandler)
+    .WithName("CreateRecipient")
+    .WithTags("Recipients");
+
+app.MapPost("/recipients", createRecipientHandler)
+    .WithName("CreateRecipientWithoutPrefix")
+    .WithTags("Recipients");
 
 // 9. Lấy danh sách lượt gửi (Deliveries)
-app.MapGet("/api/deliveries", async (
+var getDeliveriesHandler = async (
     [FromQuery] Guid? campaignId,
     [FromQuery] DeliveryStatus? status,
     [FromQuery] int page = 1,
@@ -394,8 +537,14 @@ app.MapGet("/api/deliveries", async (
         pageSize,
         items
     });
-})
-.WithName("GetDeliveries")
-.WithTags("Deliveries");
+};
+
+app.MapGet("/api/deliveries", getDeliveriesHandler)
+    .WithName("GetDeliveries")
+    .WithTags("Deliveries");
+
+app.MapGet("/deliveries", getDeliveriesHandler)
+    .WithName("GetDeliveriesWithoutPrefix")
+    .WithTags("Deliveries");
 
 app.Run();

@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS "NotificationDeliveries" (
     "RetryCount" INT NOT NULL DEFAULT 0,
     "ErrorMessage" TEXT NULL,
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "ProcessedAt" TIMESTAMPTZ NULL
+    "ProcessedAt" TIMESTAMPTZ NULL,
+    "PublishedAt" TIMESTAMPTZ NULL
 );
 
 CREATE INDEX IF NOT EXISTS "IX_NotificationDeliveries_Status" ON "NotificationDeliveries" ("Status");

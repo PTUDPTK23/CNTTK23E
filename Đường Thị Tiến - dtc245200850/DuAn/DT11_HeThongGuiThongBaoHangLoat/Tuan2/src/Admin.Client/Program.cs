@@ -15,9 +15,11 @@ var config = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
-var apiBaseUrl = config["ApiSettings:BaseUrl"] 
-    ?? Environment.GetEnvironmentVariable("ApiSettings__BaseUrl") 
-    ?? "http://localhost:5000";
+var apiBaseUrl = (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
+    ? args[0].Trim()
+    : (config["ApiSettings:BaseUrl"] 
+       ?? Environment.GetEnvironmentVariable("ApiSettings__BaseUrl") 
+       ?? "http://localhost:5000");
 
 using var httpClient = new HttpClient
 {
@@ -32,7 +34,7 @@ var jsonOptions = new JsonSerializerOptions
 
 while (true)
 {
-    Console.Clear();
+    SafeClear();
     PrintBanner(apiBaseUrl);
 
     Console.WriteLine(" 1. 📋 Xem danh sách tất cả chiến dịch");
@@ -47,7 +49,9 @@ while (true)
     Console.WriteLine();
     Console.Write("👉 Chọn chức năng [0-8]: ");
 
-    var choice = Console.ReadLine()?.Trim();
+    var rawInput = Console.ReadLine();
+    if (rawInput == null) break; // Thoát nếu luồng nhập kết thúc (EOF)
+    var choice = rawInput.Trim();
     Console.WriteLine();
 
     try
@@ -102,8 +106,11 @@ while (true)
         Console.ResetColor();
     }
 
-    Console.WriteLine("\nNhấn phím bất kỳ để tiếp tục...");
-    Console.ReadKey(true);
+    if (!Console.IsInputRedirected)
+    {
+        Console.WriteLine("\nNhấn phím bất kỳ để tiếp tục...");
+        try { Console.ReadKey(true); } catch { }
+    }
 }
 
 static void PrintBanner(string apiUrl)
@@ -386,8 +393,32 @@ static async Task SendCampaignAsync(HttpClient client, JsonSerializerOptions jso
 static async Task LiveMonitorAsync(HttpClient client, JsonSerializerOptions jsonOptions)
 {
     Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine("── GIÁM SÁT TIẾN ĐỘ THEO THỜI GIAN THỰC (Nhấn phím bất kỳ để dừng) ──");
+    Console.WriteLine("── GIÁM SÁT TIẾN ĐỘ THEO THỜI GIAN THỰC ──");
     Console.ResetColor();
+
+    if (Console.IsInputRedirected)
+    {
+        try
+        {
+            var response = await client.GetAsync("api/campaigns");
+            if (response.IsSuccessStatusCode)
+            {
+                var campaigns = await response.Content.ReadFromJsonAsync<List<CampaignSummaryDto>>(jsonOptions);
+                if (campaigns is not null && campaigns.Count > 0)
+                {
+                    foreach (var c in campaigns.Take(10))
+                    {
+                        var pct = c.TotalRecipients > 0 ? (c.SentCount + c.FailedCount) * 100 / c.TotalRecipients : 0;
+                        Console.WriteLine($"Chiến dịch: \"{c.Name}\" | Trạng thái: {c.Status} | Tiến độ: {pct}% ({c.SentCount} Sent, {c.FailedCount} Failed, {c.PendingCount} Pending / {c.TotalRecipients} Tổng)");
+                    }
+                }
+            }
+        }
+        catch { }
+        return;
+    }
+
+    Console.WriteLine("(Nhấn phím bất kỳ để dừng)");
 
     while (!Console.KeyAvailable)
     {
@@ -397,7 +428,7 @@ static async Task LiveMonitorAsync(HttpClient client, JsonSerializerOptions json
             if (response.IsSuccessStatusCode)
             {
                 var campaigns = await response.Content.ReadFromJsonAsync<List<CampaignSummaryDto>>(jsonOptions);
-                Console.Clear();
+                SafeClear();
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($"⏱ Cập nhật lúc {DateTime.Now:HH:mm:ss} - Nhấn phím bất kỳ để quay lại menu chính");
                 Console.ResetColor();
@@ -425,7 +456,7 @@ static async Task LiveMonitorAsync(HttpClient client, JsonSerializerOptions json
         await Task.Delay(2000);
     }
 
-    Console.ReadKey(true);
+    try { Console.ReadKey(true); } catch { }
 }
 
 static async Task CheckHealthAsync(HttpClient client, JsonSerializerOptions jsonOptions)
@@ -457,6 +488,16 @@ static async Task CheckHealthAsync(HttpClient client, JsonSerializerOptions json
             Console.ResetColor();
         }
     }
+}
+
+static void SafeClear()
+{
+    try
+    {
+        if (!Console.IsOutputRedirected)
+            Console.Clear();
+    }
+    catch { }
 }
 
 static string Truncate(string value, int maxLength)
