@@ -7,6 +7,8 @@
     bool isProfile = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("Profile", StringComparison.OrdinalIgnoreCase);
     bool isPassword = controller.Equals("Account", StringComparison.OrdinalIgnoreCase) && action.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase);
     bool isUsers = controller.Equals("Users", StringComparison.OrdinalIgnoreCase);
+    bool isDepartments = controller.Equals("Departments", StringComparison.OrdinalIgnoreCase);
+    bool isRooms = controller.Equals("Rooms", StringComparison.OrdinalIgnoreCase);
 }
 <aside class="dashboard-sidebar" id="dashboard-sidebar" data-sidebar aria-label="Điều hướng không gian làm việc">
     <div class="sidebar-brand-row">
@@ -37,6 +39,15 @@
             </a>
         }
         <span class="sidebar-section-label sidebar-label">Tài khoản</span>
+        @if (role == "Admin")
+        {
+            <a class="sidebar-link @(isDepartments ? "active" : null)" asp-controller="Departments" asp-action="Index" aria-current="@(isDepartments ? "page" : null)" title="Quản lý chuyên khoa">
+                <svg aria-hidden="true"><use href="/images/icons.svg#building"></use></svg><span class="sidebar-label">Quản lý chuyên khoa</span>
+            </a>
+            <a class="sidebar-link @(isRooms ? "active" : null)" asp-controller="Rooms" asp-action="Index" aria-current="@(isRooms ? "page" : null)" title="Quản lý phòng khám">
+                <svg aria-hidden="true"><use href="/images/icons.svg#hospital"></use></svg><span class="sidebar-label">Quản lý phòng khám</span>
+            </a>
+        }
         <a class="sidebar-link @(isProfile ? "active" : null)" asp-controller="Account" asp-action="Profile" aria-current="@(isProfile ? "page" : null)" title="Hồ sơ cá nhân">
             <svg aria-hidden="true"><use href="/images/icons.svg#user"></use></svg><span class="sidebar-label">Hồ sơ cá nhân</span>
         </a>

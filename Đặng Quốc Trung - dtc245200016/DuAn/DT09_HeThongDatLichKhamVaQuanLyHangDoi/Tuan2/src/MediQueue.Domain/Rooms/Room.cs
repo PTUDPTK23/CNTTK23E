@@ -16,15 +16,8 @@ public sealed class Room
             throw new DomainRuleException("Room id is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(name))
-        {
-            throw new DomainRuleException("Room code and name are required.");
-        }
-
         Id = id;
-        Code = code.Trim();
-        Name = name.Trim();
-        Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
+        Update(code, name, location);
         IsActive = true;
     }
 
@@ -41,4 +34,31 @@ public sealed class Room
     public ICollection<DoctorSchedule> DoctorSchedules { get; } = new List<DoctorSchedule>();
 
     public ICollection<TimeSlot> TimeSlots { get; } = new List<TimeSlot>();
+
+    public void Update(string code, string name, string? location)
+    {
+        Code = RequireText(code, "Room code", 32).ToUpperInvariant();
+        Name = RequireText(name, "Room name", 200);
+        Location = NormalizeOptional(location, 300, "Room location");
+    }
+
+    public void Activate() => IsActive = true;
+
+    public void Deactivate() => IsActive = false;
+
+    private static string RequireText(string value, string fieldName, int maximumLength)
+    {
+        if (string.IsNullOrWhiteSpace(value)) throw new DomainRuleException($"{fieldName} is required.");
+        string normalized = value.Trim();
+        if (normalized.Length > maximumLength) throw new DomainRuleException($"{fieldName} must not exceed {maximumLength} characters.");
+        return normalized;
+    }
+
+    private static string? NormalizeOptional(string? value, int maximumLength, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        string normalized = value.Trim();
+        if (normalized.Length > maximumLength) throw new DomainRuleException($"{fieldName} must not exceed {maximumLength} characters.");
+        return normalized;
+    }
 }

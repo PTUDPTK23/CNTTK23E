@@ -123,7 +123,7 @@ Phụ thuộc source code dự kiến đi một chiều: `Domain` không phụ t
 ### 4.2 Ranh giới xác thực dự kiến cho Tuần 2
 
 - Browser chỉ giao tiếp với MVC bằng cookie phiên `HttpOnly`, `Secure`, `SameSite` và antiforgery; không nhận JWT.
-- MVC gọi Appointment API qua typed `IAccountApiClient` và `IDashboardApiClient` từ `IHttpClientFactory`. JWT Access Token được giữ trong singleton `IAuthenticationSessionStore` in-memory và chỉ được gắn vào từng `HttpRequestMessage` server-to-server.
+- MVC gọi Appointment API qua typed `IAccountApiClient`, `IDashboardApiClient`, `IUsersApiClient` và `ICatalogApiClient` từ `IHttpClientFactory`. JWT Access Token được giữ trong singleton `IAuthenticationSessionStore` in-memory và chỉ được gắn vào từng `HttpRequestMessage` server-to-server.
 - API dùng Identity, JWT Bearer, policy và resource authorization. Role do client gửi không có giá trị tin cậy.
 - Cookie hết hạn không muộn hơn JWT; logout/khóa tài khoản/đổi quyền cần xóa hoặc thu hồi phiên. V1 không có Refresh Token.
 - Backend Identity/JWT đã triển khai trong Prompt 03.2; MVC Cookie, token store phía server và Account UI đã triển khai trong Prompt 03.3.1; Dashboard API/MVC read-only và workspace theo Role đã triển khai trong Prompt 03.4.

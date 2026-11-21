@@ -6,15 +6,64 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — Quản lý người dùng và tài khoản nhân sự, Prompt 03.5/03.5.1 |
+| Tuần | Tuần 2 — Quản lý chuyên khoa và phòng khám, Prompt 03.6 |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | Prompt 03.5/03.5.1 đã hoàn thành mã nguồn, runtime fix, regression test và tài liệu; chờ sinh viên review |
+| Trạng thái mã nguồn | Prompt 03.6 đã hoàn thành backend, MVC/UI, kiểm thử và tài liệu; chờ sinh viên review |
 | Trạng thái database | Duy nhất `MediQueue`; đủ hai migration đã apply, Prompt 03.5.1 chỉ xác minh read-only và không ghi dữ liệu |
 | Trạng thái Git | Baseline `Tuan2` sạch trước Prompt 03.5; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-21 — Prompt 03.6: Department & Room Management
+
+| Milestone | Trạng thái | Kết quả hiện tại | Bước tiếp theo |
+|---|---|---|---|
+| A — Entity, schema, quan hệ, nghiệp vụ | COMPLETED | Baseline `e831bd5` sạch trong Tuan2; SQL read-only xác nhận schema hiện có đủ, không cần migration | Department backend |
+| B — Department API/service/DTO/test | COMPLETED | Admin-only list/detail/create/update/activate/deactivate; audit và dependency guard | Hoàn tất |
+| C — Room API/service/DTO/test | COMPLETED | Admin-only list/detail/create/update/activate/deactivate; audit và dependency guard | Hoàn tất |
+| D — MVC controller/client/ViewModel | COMPLETED | Typed client, session JWT server-side, MVC authorization và antiforgery | Hoàn tất |
+| E — Department UI | COMPLETED | Index/Create/Edit/Details, filter, pagination, empty/error/confirm state | Hoàn tất |
+| F — Room UI | COMPLETED | Index/Create/Edit/Details, filter, pagination, empty/error/confirm state | Hoàn tất |
+| G — Authorization/integration/responsive/security | COMPLETED | Unit/API/MVC coverage; responsive, focus, reduced motion; không lộ token | Hoàn tất |
+| H — SQL/regression/docs/final review | COMPLETED | Restore/build/format đạt; 128 test pass, 3 opt-in SQL skip; tài liệu và diff đã review | Sinh viên review thủ công |
+
+**Checkpoint Milestone A:**
+
+- Git đúng nhánh `duan-tuan2-dtc245200016`; HEAD/local/origin `e831bd5`; không có thay đổi trong Tuan2 trước Prompt 03.6. Untracked cũ `Bai3/` và `Tuan1/` được giữ nguyên.
+- `Department`: `Id`, `Code varchar(32)` unique, `Name nvarchar(200)`, `IsActive`; quan hệ 1-n với Doctor, delete restrict.
+- `Room`: `Id`, `Code varchar(32)` unique, `Name nvarchar(200)`, `Location nvarchar(300) NULL`, `IsActive`; quan hệ 1-n với DoctorSchedule và TimeSlot, delete restrict. Không có quan hệ Department–Room.
+- Database `MediQueue` ONLINE, đủ hai migration đã apply; Department/Room/Doctor/DoctorSchedule/TimeSlot hiện đều 0 bản ghi. Chỉ truy vấn metadata/count read-only, không ghi dữ liệu.
+- Chốt không tạo migration: schema đã có Code/Name/Location/IsActive, unique Code và các FK cần thiết. Deactivate Department sẽ chặn khi có Doctor active; deactivate Room sẽ chặn khi có DoctorSchedule hoặc TimeSlot active; không cascade/chuyển dữ liệu liên quan.
+- File đã sửa: `docs/progress.md`. Kiểm thử code chưa chạy ở Milestone A; bước tiếp theo là Department Contracts/Service/API và test.
+
+**Checkpoint Milestone B–C:**
+
+- Bổ sung contract có DataAnnotations, whitelist sort/page size, DTO list/detail/summary cho Department và Room.
+- Service dùng `AsNoTracking` cho query; command dùng transaction `Serializable`, kiểm tra duplicate/dependency và ghi AuditLog cùng transaction.
+- API Controller yêu cầu role Admin, trả ProblemDetails, không cache và không cung cấp DELETE.
+
+**Checkpoint Milestone D–F:**
+
+- `ICatalogApiClient` giữ JWT hoàn toàn phía server; MVC Controller Admin-only, command POST + antiforgery, không retry command.
+- Hai module có đủ Index/Create/Edit/Details, sidebar/breadcrumb/quick action, empty/error/confirm/loading state và nội dung tiếng Việt.
+- CSS dùng design token hiện hành, responsive table-to-card, focus-visible và reduced-motion; không thêm package hoặc thư viện frontend.
+
+**Checkpoint Milestone G:**
+
+- Thêm unit test entity/contract, API integration test xác thực/phân quyền/validation/command và MVC flow test cho Admin/Patient/anonymous/static asset/token leak.
+- Phát hiện và sửa DataAnnotations target trên positional record gây HTTP 500 khi model validation; regression API catalog sau sửa đạt 4/4.
+
+**Checkpoint Milestone H — final gate:**
+
+- `dotnet restore`: tất cả project up-to-date; `dotnet build --no-restore`: 0 warning, 0 error.
+- `dotnet test --no-build`: Unit 30/30 pass; Integration 98 pass, 3 test SQL opt-in skip; tổng cộng 128 pass, 0 fail, 3 skip.
+- `dotnet format --verify-no-changes`: pass. `git diff --check`: không có whitespace error (chỉ cảnh báo Git chuyển LF/CRLF cho bốn Razor file đã theo cấu hình repository).
+- Smoke/authorization/UI render được bao phủ bằng TestServer; Admin mở được cả hai danh mục và static CSS, Patient bị từ chối, anonymous bị chuyển đăng nhập, JWT không xuất hiện trong HTML.
+- Test catalog opt-in với SQL Server thật đã được gọi riêng ở chế độ chỉ đọc nhưng SqlClient của môi trường sandbox không thiết lập được kênh mã hóa (`server requires encryption but this machine does not support it`); không phải lỗi dịch LINQ và không có câu lệnh ghi nào được gửi. Khảo sát schema/count bằng `sqlcmd` ở Milestone A đã thành công.
+- Thử khởi động Kestrel HTTPS thật không thành công do máy hiện không có development certificate hợp lệ và sandbox không đọc được DPAPI key ring/Event Log. Không tự tạo/trust certificate hoặc sửa cấu hình bảo mật; cần nghiệm thu HTTPS/visual bằng môi trường người dùng đã cấu hình certificate.
+- Không tạo/apply migration, không chạy command test trên `MediQueue`, không thêm package, không có DELETE, không stage/commit/push/PR.
 
 ### 2026-11-19 — Prompt 03.5.1: sửa lỗi runtime User Management
 

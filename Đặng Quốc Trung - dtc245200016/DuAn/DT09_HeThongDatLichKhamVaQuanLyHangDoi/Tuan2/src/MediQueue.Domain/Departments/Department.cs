@@ -17,8 +17,7 @@ public sealed class Department
         }
 
         Id = id;
-        Code = RequireText(code, "Department code");
-        Name = RequireText(name, "Department name");
+        Update(code, name);
         IsActive = true;
     }
 
@@ -32,15 +31,29 @@ public sealed class Department
 
     public ICollection<Doctor> Doctors { get; } = new List<Doctor>();
 
+    public void Update(string code, string name)
+    {
+        Code = RequireText(code, "Department code", 32).ToUpperInvariant();
+        Name = RequireText(name, "Department name", 200);
+    }
+
+    public void Activate() => IsActive = true;
+
     public void Deactivate() => IsActive = false;
 
-    private static string RequireText(string value, string fieldName)
+    private static string RequireText(string value, string fieldName, int maximumLength)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
             throw new DomainRuleException($"{fieldName} is required.");
         }
 
-        return value.Trim();
+        string normalized = value.Trim();
+        if (normalized.Length > maximumLength)
+        {
+            throw new DomainRuleException($"{fieldName} must not exceed {maximumLength} characters.");
+        }
+
+        return normalized;
     }
 }

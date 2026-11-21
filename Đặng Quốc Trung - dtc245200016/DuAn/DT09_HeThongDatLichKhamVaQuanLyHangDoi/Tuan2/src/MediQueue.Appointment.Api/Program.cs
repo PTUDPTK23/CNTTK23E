@@ -1,6 +1,7 @@
 using MediQueue.Appointment.Api.Bootstrap;
 using MediQueue.Appointment.Api.Security;
 using MediQueue.Appointment.Api.Services.Dashboard;
+using MediQueue.Appointment.Api.Services.Catalogs;
 using MediQueue.Appointment.Api.Services.Users;
 using MediQueue.Infrastructure;
 
@@ -20,6 +21,8 @@ if (BootstrapCommandRunner.IsBootstrapCommand(args))
 builder.Services.AddMediQueueAuthentication(builder.Configuration);
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();

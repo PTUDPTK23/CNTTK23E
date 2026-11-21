@@ -1,4 +1,6 @@
 using MediQueue.Appointment.Api.Services.Users;
+using MediQueue.Appointment.Api.Services.Catalogs;
+using MediQueue.Contracts.Catalogs;
 using MediQueue.Contracts.Users;
 using MediQueue.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +42,32 @@ public sealed class MediQueueDatabaseReadTests
         ];
 
         Assert.All(rowCounts, count => Assert.True(count >= 0));
+    }
+
+    [SqlServerFact]
+    public async Task Catalog_queries_run_read_only_against_applied_schema()
+    {
+        string connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__MediQueue")!;
+        var options = new DbContextOptionsBuilder<MediQueueDbContext>().UseSqlServer(connectionString).Options;
+        await using var context = new MediQueueDbContext(options);
+        var departments = new DepartmentService(context, TimeProvider.System);
+        var rooms = new RoomService(context, TimeProvider.System);
+
+        foreach (DepartmentListQuery query in new DepartmentListQuery[] { new(), new(Search: "a", SortBy: "name"), new(Status: "active", SortBy: "status", SortDirection: "desc", PageSize: 20) })
+        {
+            var result = await departments.GetAsync(query, CancellationToken.None);
+            Assert.True(result.Succeeded, result.Error?.Detail);
+        }
+        foreach (RoomListQuery query in new RoomListQuery[] { new(), new(Search: "p", SortBy: "location"), new(Status: "inactive", SortBy: "status", PageSize: 50) })
+        {
+            var result = await rooms.GetAsync(query, CancellationToken.None);
+            Assert.True(result.Succeeded, result.Error?.Detail);
+        }
+
+        Guid? departmentId = await context.Departments.AsNoTracking().Select(x => (Guid?)x.Id).FirstOrDefaultAsync();
+        if (departmentId.HasValue) Assert.True((await departments.GetAsync(departmentId.Value, CancellationToken.None)).Succeeded);
+        Guid? roomId = await context.Rooms.AsNoTracking().Select(x => (Guid?)x.Id).FirstOrDefaultAsync();
+        if (roomId.HasValue) Assert.True((await rooms.GetAsync(roomId.Value, CancellationToken.None)).Succeeded);
     }
 
     [SqlServerFact]

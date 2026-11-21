@@ -1,5 +1,9 @@
 # Thiết kế RESTful API dự kiến
 
+## Bổ sung Prompt 03.6 — Department và Room
+
+Hai controller `/api/departments` và `/api/rooms` yêu cầu JWT role `Admin`, `NoStore`, trả DTO chọn lọc và `ProblemDetails`. Mỗi tài nguyên có GET list/detail, POST create, PUT update, POST activate/deactivate; không có DELETE. List hỗ trợ `search`, `status`, `sortBy`, `sortDirection`, `page`, `pageSize` với whitelist và page size `10/20/50`. Chi tiết contract và quy tắc phụ thuộc xem [department-room-management.md](department-room-management.md).
+
 ## 1. Quy ước chung
 
 - Base URL Development của Appointment API: `http://localhost:5101` hoặc `https://localhost:7101`.

@@ -7,6 +7,8 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Sản phẩm: `MediQueue`, mã đề tài `09`.
 - Nhánh làm việc: `duan-tuan2-dtc245200016`; nền tảng được kế thừa từ commit Tuần 1 `dcee864`.
 - Stack: C# / .NET 10 / ASP.NET Core MVC / ASP.NET Core Web API / EF Core.
+- Module Department/Room của Prompt 03.6 là Admin-only, không xóa vật lý; vô hiệu hóa phải kiểm tra Doctor/DoctorSchedule/TimeSlot đang hoạt động. Web chỉ gọi API qua `ICatalogApiClient`, command MVC dùng POST + antiforgery.
+- Không tự thêm migration/rowversion cho Department hoặc Room. Schema hiện tại dùng unique Code; command ghi audit cùng transaction `Serializable`. Mọi thay đổi schema tương lai phải được review riêng.
 - SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; duy nhất database `MediQueue` được dùng xuyên suốt 9 tuần. Không tạo database theo tuần.
 - Hạ tầng phân tán: RabbitMQ, .NET Worker Service, SignalR.
 - Role chính xác: `Patient`, `Doctor`, `Receptionist`, `Admin`.
