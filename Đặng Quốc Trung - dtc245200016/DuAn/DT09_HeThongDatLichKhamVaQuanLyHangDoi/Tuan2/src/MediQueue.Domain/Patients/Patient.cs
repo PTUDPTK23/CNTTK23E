@@ -45,6 +45,12 @@ public sealed class Patient
     public ICollection<Appointment> Appointments { get; } = new List<Appointment>();
 
     public void UpdateProfile(string fullName, string? phoneNumber)
+        => UpdateAdministrativeProfile(fullName, phoneNumber, DateOfBirth);
+
+    public void UpdateAdministrativeProfile(
+        string fullName,
+        string? phoneNumber,
+        DateOnly? dateOfBirth)
     {
         if (string.IsNullOrWhiteSpace(fullName))
         {
@@ -68,5 +74,6 @@ public sealed class Patient
 
         FullName = normalizedFullName;
         PhoneNumber = normalizedPhoneNumber;
+        DateOfBirth = dateOfBirth;
     }
 }

@@ -36,7 +36,7 @@ flowchart LR
 
 Ba tiến trình web chạy độc lập trên Windows: API `5101/7101`, Web `5102/7102`, Notification `5103/7103` (HTTP/HTTPS). Queue Worker không mở cổng. Health endpoint chỉ chứng minh host khởi động, không đại diện cho chức năng nghiệp vụ.
 
-Controller tổ chức theo nghiệp vụ, không theo từng Actor: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController` và `DashboardController`. MVC Controller kế thừa `Controller`, phục vụ View/ViewModel và gọi backend qua HTTP; API Controller kế thừa `ControllerBase`, kiểm tra authorization/scope và trả JSON/HTTP status/`ProblemDetails`. Cả hai đều là thin controller, không gọi controller khác. Hiện Web có `HomeController`, `AccountController`, `DashboardController`; API có `HealthController`, `AccountController`, `DashboardController`. Không tạo controller rỗng cho chức năng tương lai.
+Controller tổ chức theo nghiệp vụ, không theo từng Actor: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController` và `DashboardController`. MVC Controller kế thừa `Controller`, phục vụ View/ViewModel và gọi backend qua HTTP; API Controller kế thừa `ControllerBase`, kiểm tra authorization/scope và trả JSON/HTTP status/`ProblemDetails`. Cả hai đều là thin controller, không gọi controller khác. Sau Prompt 03.7, Web/API đã có controller thật cho Account, Dashboard, Users, Departments, Rooms, Doctors và Patients; các controller lịch/queue tương lai chưa được tạo rỗng.
 
 ## 2. Context diagram
 
@@ -123,7 +123,7 @@ Phụ thuộc source code dự kiến đi một chiều: `Domain` không phụ t
 ### 4.2 Ranh giới xác thực dự kiến cho Tuần 2
 
 - Browser chỉ giao tiếp với MVC bằng cookie phiên `HttpOnly`, `Secure`, `SameSite` và antiforgery; không nhận JWT.
-- MVC gọi Appointment API qua typed `IAccountApiClient`, `IDashboardApiClient`, `IUsersApiClient` và `ICatalogApiClient` từ `IHttpClientFactory`. JWT Access Token được giữ trong singleton `IAuthenticationSessionStore` in-memory và chỉ được gắn vào từng `HttpRequestMessage` server-to-server.
+- MVC gọi Appointment API qua typed `IAccountApiClient`, `IDashboardApiClient`, `IUsersApiClient`, `ICatalogApiClient` và `IProfilesApiClient` từ `IHttpClientFactory`. JWT Access Token được giữ trong singleton `IAuthenticationSessionStore` in-memory và chỉ được gắn vào từng `HttpRequestMessage` server-to-server.
 - API dùng Identity, JWT Bearer, policy và resource authorization. Role do client gửi không có giá trị tin cậy.
 - Cookie hết hạn không muộn hơn JWT; logout/khóa tài khoản/đổi quyền cần xóa hoặc thu hồi phiên. V1 không có Refresh Token.
 - Backend Identity/JWT đã triển khai trong Prompt 03.2; MVC Cookie, token store phía server và Account UI đã triển khai trong Prompt 03.3.1; Dashboard API/MVC read-only và workspace theo Role đã triển khai trong Prompt 03.4.

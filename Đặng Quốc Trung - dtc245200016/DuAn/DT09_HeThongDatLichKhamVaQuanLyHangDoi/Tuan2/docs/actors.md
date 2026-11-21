@@ -46,6 +46,9 @@ Ký hiệu: `✓` được phép; `Own` chỉ dữ liệu của mình; `Scoped` 
 | Tự đăng ký | ✓ | — | — | — |
 | Đăng nhập/đăng xuất chung | ✓ | ✓ | ✓ | ✓ |
 | Sửa hồ sơ cá nhân | Own | Own | Own | Own |
+| Xem hồ sơ nghiệp vụ Doctor/Patient | Own | Own | — | ✓ |
+| Tạo/sửa liên kết Doctor–Department | — | — | — | ✓ |
+| Tra cứu/sửa hành chính Patient | Own | — | — | ✓ |
 | Tra cứu Doctor/Department/slot | ✓ | ✓ | ✓ | ✓ |
 | Đặt Appointment | Own | — | Support | — |
 | Hủy Appointment | Own | — | Support | — |
@@ -76,6 +79,9 @@ Ký hiệu: `✓` được phép; `Own` chỉ dữ liệu của mình; `Scoped` 
 | Queue patient detail — Read | — | Own | Scoped | Support | ✓ |
 | Queue commands | — | — | Scoped | — | — |
 | Administration CRUD | — | — | — | — | ✓ |
+| `/api/doctors/me` | — | — | Own | — | — |
+| `/api/patients/me` | — | Own | — | — | — |
+| Doctor/Patient management API | — | — | — | — | ✓ |
 
 ## 5. Luồng đăng nhập và điều hướng
 
@@ -111,7 +117,7 @@ API chỉ chấp nhận JWT Access Token còn hạn và chưa có Refresh Token.
 
 ## 7. Phạm vi Tuần 2 và lộ trình sau
 
-Dashboard hiện chỉ có các liên kết đang hoạt động: Tổng quan, Hồ sơ, Đổi mật khẩu và Logout. Menu lịch hẹn/hàng đợi/danh mục chỉ được bổ sung khi controller, authorization và chức năng thật tồn tại; ẩn menu không thay thế kiểm tra quyền tại API.
+Dashboard chỉ có liên kết chức năng đã triển khai. Admin hiện thấy Users, Departments, Rooms, Doctors và Patients; Doctor thấy thêm hồ sơ chuyên môn của chính mình; các Role còn lại không thấy menu quản trị. Ẩn menu không thay thế kiểm tra quyền tại API.
 
 - Tuần 2: Identity, một login chung, Patient registration, profile/password, bốn dashboard, quản lý tài khoản/Role và danh mục Department/Room/Doctor/Patient theo Least Privilege.
 - Tuần 3–4: schedule, slot, đặt/hủy lịch và check-in.

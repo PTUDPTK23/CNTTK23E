@@ -4,6 +4,8 @@
 
 Mô hình Code First được triển khai trong `MediQueue.Infrastructure`. Migration `20261117142359_InitialCreate` đã được áp dụng thành công vào `MediQueue` trên `LAPTOP-AQFGUM9Q\SQLEXPRESS` ngày 18/11/2026. Migration cộng dồn `20261119135325_AddStaffFullNameToApplicationUser` đã được sinh viên apply và xác minh read-only ngày 19/11/2026.
 
+Prompt 03.7 đã review lại `Doctor`, `Patient`, các FK/unique index và `rowversion`; schema hiện tại đã đủ cho quản lý hồ sơ nên không tạo Migration mới. Kết nối metadata read-only trong lượt này không xác minh được do client không thiết lập được mã hóa; không hạ TLS và không thực hiện lệnh ghi. Chi tiết tại [doctor-patient-management.md](doctor-patient-management.md).
+
 Các quyết định kỹ thuật:
 
 - Khóa Identity và các entity dùng `uniqueidentifier`/`Guid`; khóa message/idempotency dùng khóa đơn hoặc composite theo định danh nghiệp vụ.

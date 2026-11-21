@@ -6,6 +6,7 @@
     string displayName = string.IsNullOrWhiteSpace(data.DisplayName) ? Model.Dashboard.Account.DisplayName : data.DisplayName;
     IReadOnlyList<QuickActionViewModel> actions = new[]
     {
+        new QuickActionViewModel("Hồ sơ chuyên môn", "Xem chuyên khoa được phân công", "stethoscope", "Doctors", "Profile"),
         new QuickActionViewModel("Hồ sơ cá nhân", "Kiểm tra thông tin liên hệ", "user", "Account", "Profile"),
         new QuickActionViewModel("Đổi mật khẩu", "Bảo vệ tài khoản của bạn", "lock", "Account", "ChangePassword"),
         new QuickActionViewModel("Trang chủ", "Quay lại trang giới thiệu", "home", "Home", "Index")

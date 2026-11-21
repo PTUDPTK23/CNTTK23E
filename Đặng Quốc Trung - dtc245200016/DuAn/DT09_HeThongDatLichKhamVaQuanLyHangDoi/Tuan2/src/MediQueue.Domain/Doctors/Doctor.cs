@@ -68,4 +68,15 @@ public sealed class Doctor
 
         DisplayName = normalizedDisplayName;
     }
+
+    public void UpdateProfile(string displayName, Guid departmentId)
+    {
+        if (departmentId == Guid.Empty)
+        {
+            throw new DomainRuleException("Doctor department id is required.");
+        }
+
+        UpdateDisplayName(displayName);
+        DepartmentId = departmentId;
+    }
 }

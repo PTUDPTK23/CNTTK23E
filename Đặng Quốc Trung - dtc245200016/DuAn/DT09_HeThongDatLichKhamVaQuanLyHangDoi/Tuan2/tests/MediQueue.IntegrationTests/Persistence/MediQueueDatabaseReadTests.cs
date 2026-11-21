@@ -1,6 +1,8 @@
 using MediQueue.Appointment.Api.Services.Users;
 using MediQueue.Appointment.Api.Services.Catalogs;
+using MediQueue.Appointment.Api.Services.Profiles;
 using MediQueue.Contracts.Catalogs;
+using MediQueue.Contracts.Profiles;
 using MediQueue.Contracts.Users;
 using MediQueue.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -124,6 +126,41 @@ public sealed class MediQueueDatabaseReadTests
         {
             Assert.All(defaultResult.Value.Items, item => Assert.False(string.IsNullOrWhiteSpace(item.DisplayName)));
         }
+    }
+
+    [SqlServerFact]
+    public async Task Doctor_and_patient_management_queries_run_read_only_against_applied_schema()
+    {
+        string connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__MediQueue")!;
+        var options = new DbContextOptionsBuilder<MediQueueDbContext>().UseSqlServer(connectionString).Options;
+        await using var context = new MediQueueDbContext(options);
+        var doctors = new DoctorManagementService(context, TimeProvider.System);
+        var patients = new PatientManagementService(context, TimeProvider.System);
+
+        foreach (DoctorListQuery query in new DoctorListQuery[]
+        {
+            new(), new() { Search = "a", SortBy = "department" },
+            new() { Status = "active", SortBy = "createdAt", SortDirection = "desc", PageSize = 20 }
+        })
+        {
+            var result = await doctors.GetAsync(query, CancellationToken.None);
+            Assert.True(result.Succeeded, result.Error?.Detail);
+        }
+
+        foreach (PatientListQuery query in new PatientListQuery[]
+        {
+            new(), new() { Search = "@", SortBy = "email" },
+            new() { Status = "inactive", SortBy = "createdAt", PageSize = 50 }
+        })
+        {
+            var result = await patients.GetAsync(query, CancellationToken.None);
+            Assert.True(result.Succeeded, result.Error?.Detail);
+        }
+
+        Guid? doctorId = await context.Doctors.AsNoTracking().Select(x => (Guid?)x.Id).FirstOrDefaultAsync();
+        if (doctorId.HasValue) Assert.True((await doctors.GetAsync(doctorId.Value, CancellationToken.None)).Succeeded);
+        Guid? patientId = await context.Patients.AsNoTracking().Select(x => (Guid?)x.Id).FirstOrDefaultAsync();
+        if (patientId.HasValue) Assert.True((await patients.GetAsync(patientId.Value, CancellationToken.None)).Succeeded);
     }
 }
 

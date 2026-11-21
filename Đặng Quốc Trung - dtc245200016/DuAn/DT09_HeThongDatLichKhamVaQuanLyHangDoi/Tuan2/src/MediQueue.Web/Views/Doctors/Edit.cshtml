@@ -1,0 +1,8 @@
+@model EditDoctorProfileViewModel
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Chỉnh sửa hồ sơ bác sĩ"; }
+<div class="dashboard-page catalog-page catalog-form-page"><header class="dashboard-page-heading"><div><span class="eyebrow">Hồ sơ bác sĩ</span><h1>Chỉnh sửa hồ sơ</h1><p>Cập nhật tên hiển thị và chuyên khoa; tài khoản, vai trò và mật khẩu không bị thay đổi.</p></div></header>
+<section class="catalog-form-card"><form method="post" data-loading-form>@Html.AntiForgeryToken()<input asp-for="Id" type="hidden" /><input asp-for="UserId" type="hidden" /><input asp-for="RowVersion" type="hidden" /><div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+<div class="form-field"><label>Email tài khoản</label><input value="@Model.Email" readonly aria-readonly="true" /></div>
+<div class="form-field"><label asp-for="DisplayName"></label><input asp-for="DisplayName" autocomplete="name" /><span asp-validation-for="DisplayName"></span></div>
+<div class="form-field"><label asp-for="DepartmentId"></label><select asp-for="DepartmentId">@foreach(var department in Model.Departments){<option value="@department.Id">@department.Name (@department.Code)</option>}</select><span asp-validation-for="DepartmentId"></span></div>
+<div class="catalog-form-actions"><a class="btn btn-ghost" asp-action="Details" asp-route-id="@Model.Id">Hủy</a><button class="btn btn-primary" type="submit" data-loading-text="Đang lưu...">Lưu thay đổi</button></div></form></section></div>

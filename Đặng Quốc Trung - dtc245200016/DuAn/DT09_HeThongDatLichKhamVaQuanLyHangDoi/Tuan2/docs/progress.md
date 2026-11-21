@@ -6,15 +6,60 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — Quản lý chuyên khoa và phòng khám, Prompt 03.6 |
+| Tuần | Tuần 2 — Quản lý bác sĩ và bệnh nhân, Prompt 03.7 |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | Prompt 03.6 đã hoàn thành backend, MVC/UI, kiểm thử và tài liệu; chờ sinh viên review |
+| Trạng thái mã nguồn | Prompt 03.6 đã commit tại `9c515e7`; Prompt 03.7 đã hoàn thành, chờ sinh viên review/commit |
 | Trạng thái database | Duy nhất `MediQueue`; đủ hai migration đã apply, Prompt 03.5.1 chỉ xác minh read-only và không ghi dữ liệu |
 | Trạng thái Git | Baseline `Tuan2` sạch trước Prompt 03.5; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-21 — Prompt 03.7: Doctor & Patient Management
+
+| Milestone | Trạng thái | Kết quả hiện tại | Bước tiếp theo |
+|---|---|---|---|
+| A — Discovery & Data Model Review | COMPLETED | Baseline `9c515e7`; entity/schema snapshot đáp ứng, không cần migration | Doctor backend |
+| B — Doctor Backend | COMPLETED | Contract/service/API Admin + self, transaction, audit, idempotent unique link và rowversion | Hoàn tất |
+| C — Patient Backend | COMPLETED | Admin list/detail/update + self, registration giữ nguyên, ngày Việt Nam và rowversion | Hoàn tất |
+| D — MVC Integration | COMPLETED | Typed client, MVC controllers, session JWT server-side, antiforgery và typed ViewModel | Hoàn tất |
+| E — Doctor Management UI | COMPLETED | Index/Create/Edit/Details/Self, filter/paging/responsive/empty state | Hoàn tất |
+| F — Patient Management UI | COMPLETED | Index/Edit/Details; dùng lại Account/Profile cho Patient self | Hoàn tất |
+| G — Dashboard, Profile & Security | COMPLETED | Sidebar/breadcrumb/quick action theo role; API authorization và token-leak tests | Hoàn tất |
+| H — SQL, Regression & Documentation | COMPLETED | Build 0/0; 144 test pass, 4 SQL opt-in skip; tài liệu đồng bộ | Sinh viên review thủ công |
+
+**Checkpoint Milestone A:**
+
+- Git đúng nhánh `duan-tuan2-dtc245200016`; HEAD/local/origin `9c515e7` (`feat(tuan2): implement department and room management`); không có tracked/staged change. Untracked cũ ngoài Tuan2 `Bai3/`, `Tuan1/` được giữ nguyên.
+- Baseline chạy lại: restore up-to-date, build 0 warning/0 error; Unit 30 pass, Integration 98 pass/3 SQL opt-in skip.
+- `Doctor`: `Id`, unique `UserId`, `DepartmentId` FK restrict, `DisplayName nvarchar(200)`, `IsActive`, `rowversion`; quan hệ 1–1 với `ApplicationUser`, n–1 với Department.
+- `Patient`: `Id`, unique `UserId`, `FullName nvarchar(200)`, `DateOfBirth date NULL`, `PhoneNumber varchar(32) NULL`, `IsActive`, `rowversion`; quan hệ 1–1 với `ApplicationUser` restrict.
+- Registration hiện tạo Identity Patient + Patient profile trong cùng transaction; account profile ưu tiên `Patient.FullName`, `Doctor.DisplayName`, `StaffFullName`, rồi email alias.
+- Chốt `Migration: NOT REQUIRED`: unique UserId, FK, rowversion và các cột cần thiết đã có trong migration snapshot. Không thêm Doctor–Room vì phòng được phân qua schedule/time slot ở giai đoạn sau.
+- SQL metadata read-only lần này **NOT VERIFIED** do ODBC/SqlClient không thiết lập được kênh mã hóa (`Encryption not supported on the client`); không thay đổi TLS/SQL certificate và không có lệnh ghi dữ liệu.
+
+**Checkpoint Milestone B–C:**
+
+- Thêm contract, query whitelist, DTO không chứa trường Identity nhạy cảm, `DoctorManagementService`, `PatientManagementService` và hai API controller theo nghiệp vụ.
+- Doctor create chỉ nhận tài khoản role Doctor active chưa liên kết và Department active; transaction `Serializable`, unique index và audit bảo vệ liên kết một-một. Update Doctor/Patient dùng rowversion và trả `409` khi xung đột.
+- Patient registration cũ không thay đổi. Admin chỉ sửa dữ liệu hành chính tối thiểu; ngày sinh tương lai bị từ chối theo múi giờ Việt Nam. `/me` suy ra owner từ claim `sub`.
+
+**Checkpoint Milestone D–G:**
+
+- Thêm `IProfilesApiClient`, MVC controller Admin/Doctor, ViewModel typed và 8 View Doctor/Patient. JWT tiếp tục ở session store phía server; command MVC có antiforgery và không tự retry.
+- Sidebar, breadcrumb và quick action được nối theo role. Admin quản lý Doctor/Patient; Doctor chỉ mở hồ sơ chuyên môn của mình; Receptionist không có quyền; Patient tiếp tục dùng trang hồ sơ hiện hành.
+- UI dùng design token sẵn có, bảng responsive, focus, empty state và reduced motion; không thêm package/thư viện.
+- Thêm 4 unit test và 12 integration test cho invariant, contract, typed client, API role/self/no-delete/no-sensitive-data và MVC role/token leak/static asset.
+
+**Checkpoint Milestone H — final gate:**
+
+- Restore up-to-date; build `MediQueue.slnx` đạt 0 warning/0 error.
+- Unit 34/34 pass; Integration 110 pass, 4 SQL opt-in skip; tổng cộng 144 pass, 0 fail, 4 skip.
+- `dotnet format --verify-no-changes`, `git diff --check`, NuGet vulnerability audit và scan secret đạt; 306 tệp source/docs UTF-8 hợp lệ, 0 `bin/obj` được track, 0 file staged.
+- Không tạo/apply Migration, không seed/chạy command ghi trên `MediQueue`, không thêm package, không Docker, không stage/commit/push/PR.
+- SQL metadata/service query thật vẫn **NOT VERIFIED** do lỗi mã hóa client đã ghi ở Milestone A. TestServer đã smoke render MVC/API và authorization; nghiệm thu browser HTTPS/visual với tài khoản thật còn dành cho sinh viên vì không sử dụng credential/database chính thức.
+- Tài liệu chi tiết: `docs/doctor-patient-management.md`. Không tự chuyển Prompt 03.8.
 
 ### 2026-11-21 — Prompt 03.6: Department & Room Management
 

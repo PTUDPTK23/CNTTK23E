@@ -3,6 +3,7 @@ using MediQueue.Appointment.Api.Security;
 using MediQueue.Appointment.Api.Services.Dashboard;
 using MediQueue.Appointment.Api.Services.Catalogs;
 using MediQueue.Appointment.Api.Services.Users;
+using MediQueue.Appointment.Api.Services.Profiles;
 using MediQueue.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,8 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IDoctorManagementService, DoctorManagementService>();
+builder.Services.AddScoped<IPatientManagementService, PatientManagementService>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();

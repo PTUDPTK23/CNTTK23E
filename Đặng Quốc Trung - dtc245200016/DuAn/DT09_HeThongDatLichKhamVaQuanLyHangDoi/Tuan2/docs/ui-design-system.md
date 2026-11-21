@@ -38,6 +38,7 @@ Không gọi Google Fonts CDN khi runtime. Phiên bản nguồn chính thức cu
 - Icon dùng SVG sprite local với stroke nhất quán; minh họa SVG là asset tự xây dựng.
 - Workspace xác thực dùng sidebar/header/breadcrumb/account dropdown chung. Màu accent theo Role: Admin tím, Doctor xanh dương, Receptionist hổ phách, Patient xanh ngọc; luôn kèm nhãn chữ.
 - Statistic card, welcome banner, quick action, distribution bar, empty/error state chỉ render dữ liệu API hoặc thông báo trung thực; không dùng thống kê giả.
+- Trang Doctor/Patient tái sử dụng catalog card/table/form, bổ sung badge chuyên khoa, avatar chữ, readonly state và `profile-management.css`; search/filter/pagination đều lấy dữ liệu thật từ API.
 
 ## 5. Responsive và accessibility
 

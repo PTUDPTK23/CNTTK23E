@@ -16,6 +16,7 @@ public sealed class MediQueueWebFactory : WebApplicationFactory<WebApplicationMa
     public FakeDashboardApiClient DashboardApi { get; } = new();
     public FakeUsersApiClient UsersApi { get; } = new();
     public FakeCatalogApiClient CatalogApi { get; } = new();
+    public FakeProfilesApiClient ProfilesApi { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -32,6 +33,8 @@ public sealed class MediQueueWebFactory : WebApplicationFactory<WebApplicationMa
             services.AddSingleton<IUsersApiClient>(UsersApi);
             services.RemoveAll<ICatalogApiClient>();
             services.AddSingleton<ICatalogApiClient>(CatalogApi);
+            services.RemoveAll<IProfilesApiClient>();
+            services.AddSingleton<IProfilesApiClient>(ProfilesApi);
             services.RemoveAll<IDataProtectionProvider>();
             services.AddSingleton<IDataProtectionProvider>(new EphemeralDataProtectionProvider());
         });

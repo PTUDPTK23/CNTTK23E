@@ -208,7 +208,7 @@ Giao diện tiếng Việt, responsive, Bootstrap 5 và CSS tùy chỉnh; dùng 
 - [x] Prompt 03.3.1: MVC Cookie, server-side JWT session và UI account.
 - [x] Prompt 03.4: premium shared layout và Dashboard theo bốn Role.
 - [x] Prompt 03.5/03.5.1: quản lý người dùng và tài khoản nhân sự; migration đã apply, query/error handling đã có regression test.
-- [ ] Prompt 03.6–03.7: danh mục.
+- [x] Prompt 03.6–03.7: Department/Room và Doctor/Patient từ API đến MVC, không thay đổi schema.
 - [ ] Prompt 03.8: security/test/documentation gate.
 - [ ] Prompt 03.9 chỉ khi phạm vi chính đã hoàn thành.
 

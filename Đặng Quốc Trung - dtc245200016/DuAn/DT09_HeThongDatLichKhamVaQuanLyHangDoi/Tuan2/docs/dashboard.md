@@ -4,7 +4,7 @@
 
 MediQueue có một route MVC chung `GET /dashboard` và một API read-only `GET /api/dashboard/me`. Sau đăng nhập, cả bốn Role `Admin`, `Doctor`, `Receptionist`, `Patient` đều được chuyển đến route chung; backend và MVC chọn đúng payload/View từ Role đã xác minh. Không nhận `UserId`, `PatientId`, `DoctorId` hoặc Role từ query/form để quyết định dữ liệu.
 
-Prompt 03.4 không triển khai lịch hẹn, lịch làm việc, hàng đợi hoặc CRUD danh mục. Sau Prompt 03.5, sidebar Admin có thêm liên kết thật tới Quản lý người dùng; các Role khác vẫn chỉ thấy chức năng được cấp quyền. Không dùng placeholder, `href="#"` hoặc số liệu minh họa.
+Prompt 03.4 không triển khai lịch hẹn, lịch làm việc hay hàng đợi. Sau Prompt 03.5–03.7, sidebar Admin có liên kết thật tới Users, Departments, Rooms, Doctors và Patients; Doctor có liên kết hồ sơ chuyên môn của chính mình. Các Role khác chỉ thấy chức năng được cấp quyền. Không dùng placeholder, `href="#"` hoặc số liệu minh họa.
 
 ## 2. Luồng dữ liệu và ranh giới tin cậy
 

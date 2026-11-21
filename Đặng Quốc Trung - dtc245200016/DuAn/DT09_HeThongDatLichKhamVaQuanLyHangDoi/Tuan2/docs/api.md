@@ -1,5 +1,9 @@
 # Thiết kế RESTful API dự kiến
 
+## Bổ sung Prompt 03.7 — Doctor và Patient
+
+API đã triển khai Admin-only list/detail/create/update cho Doctor, list/detail/update cho Patient và owner endpoints `GET /api/doctors/me`, `GET /api/patients/me`. Query có search/filter/sort/pagination; update dùng rowversion; tạo/sửa có audit; không có DELETE và không trả password/token/security stamp. Chi tiết endpoint và quyền tại [doctor-patient-management.md](doctor-patient-management.md).
+
 ## Bổ sung Prompt 03.6 — Department và Room
 
 Hai controller `/api/departments` và `/api/rooms` yêu cầu JWT role `Admin`, `NoStore`, trả DTO chọn lọc và `ProblemDetails`. Mỗi tài nguyên có GET list/detail, POST create, PUT update, POST activate/deactivate; không có DELETE. List hỗ trợ `search`, `status`, `sortBy`, `sortDirection`, `page`, `pageSize` với whitelist và page size `10/20/50`. Chi tiết contract và quy tắc phụ thuộc xem [department-room-management.md](department-room-management.md).
@@ -27,7 +31,7 @@ Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistContro
 
 MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route bắt buộc.
 
-Hiện trạng Prompt 03.5: API có `HealthController`, `AccountController`, `DashboardController`, `UsersController`; Web MVC có `HomeController`, `AccountController`, `DashboardController`, `UsersController` và typed client tương ứng. Các controller booking/queue/danh mục khác vẫn chưa được triển khai. Không có endpoint placeholder giả thành công.
+Hiện trạng sau Prompt 03.7: API và Web MVC có controller/client thật cho Account, Dashboard, Users, Departments, Rooms, Doctors và Patients. Các controller booking/queue/schedule/slot chưa được triển khai. Không có endpoint placeholder giả thành công.
 
 Web không proxy JWT ra browser. `AccountApiClient` và `DashboardApiClient` tạo request riêng, gắn Bearer theo session phía server, đặt timeout 15 giây, hỗ trợ cancellation và ánh xạ lỗi API thành kết quả có kiểu. Không có retry tự động.
 

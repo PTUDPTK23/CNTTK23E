@@ -8,6 +8,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Nhánh làm việc: `duan-tuan2-dtc245200016`; nền tảng được kế thừa từ commit Tuần 1 `dcee864`.
 - Stack: C# / .NET 10 / ASP.NET Core MVC / ASP.NET Core Web API / EF Core.
 - Module Department/Room của Prompt 03.6 là Admin-only, không xóa vật lý; vô hiệu hóa phải kiểm tra Doctor/DoctorSchedule/TimeSlot đang hoạt động. Web chỉ gọi API qua `ICatalogApiClient`, command MVC dùng POST + antiforgery.
+- Module Doctor/Patient của Prompt 03.7 là Admin-only cho quản trị; Doctor chỉ đọc `/api/doctors/me`, Patient chỉ đọc `/api/patients/me`. Account/profile tách biệt, `UserId` liên kết duy nhất, Doctor bắt buộc thuộc Department active, update dùng rowversion và audit; không có DELETE. Web chỉ gọi API qua `IProfilesApiClient`.
 - Không tự thêm migration/rowversion cho Department hoặc Room. Schema hiện tại dùng unique Code; command ghi audit cùng transaction `Serializable`. Mọi thay đổi schema tương lai phải được review riêng.
 - SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; duy nhất database `MediQueue` được dùng xuyên suốt 9 tuần. Không tạo database theo tuần.
 - Hạ tầng phân tán: RabbitMQ, .NET Worker Service, SignalR.
@@ -43,7 +44,7 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 - Chạy kiểm tra nền tảng bằng `dotnet restore MediQueue.slnx`, `dotnet build MediQueue.slnx --no-restore` và `dotnet test MediQueue.slnx --no-build`.
 - Đã có Domain entity, `MediQueueDbContext`, Fluent API, `ApplicationUser` và Migration `20261117142359_InitialCreate`. Migration đã áp dụng vào `MediQueue` ngày 18/11/2026; schema có 21 bảng mô hình + bảng lịch sử.
 - `Appointment.Api` và `Queue.Worker` dùng `UserSecretsId` riêng của `Tuan2`; không sao chép giá trị User Secrets từ Tuần 1.
-- Backend Login/Register/JWT có từ Prompt 03.2; MVC Cookie/UI từ 03.3.1; Dashboard theo Role từ 03.4. Prompt 03.5 đã bổ sung module `Users` Admin-only, typed client/MVC UI và `StaffFullName` nullable. Migration tương ứng đã được sinh viên apply; Prompt 03.5.1 đã xác minh query read-only trên schema thật và sửa lỗi projection/sort EF Core. Sáu API nghiệp vụ tối thiểu, CRUD danh mục, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
+- Backend Login/Register/JWT có từ Prompt 03.2; MVC Cookie/UI từ 03.3.1; Dashboard theo Role từ 03.4. Prompt 03.5–03.7 đã bổ sung `Users`, Department/Room và Doctor/Patient từ API đến MVC. Migration `StaffFullName` đã được sinh viên apply; Prompt 03.6–03.7 không thay đổi schema. Sáu API đặt lịch/hàng đợi tối thiểu, RabbitMQ business flow và SignalR Hub chưa hoàn thành.
 - Không tạo endpoint/controller giả trả thành công. Ngoài `HealthController`, chỉ tạo controller khi triển khai chức năng thật và có kiểm thử phù hợp.
 - Backend tổ chức Controller theo nghiệp vụ: `AccountController`, `PatientsController`, `DoctorsController`, `AppointmentsController`, `QueuesController`, `DepartmentsController`, `RoomsController`, `TimeSlotsController`, `UsersController`, `DashboardController`, `HealthController`. Không tạo controller riêng theo từng Role.
 - MVC Controller kế thừa `Controller` và chỉ phục vụ View/ViewModel; API Controller kế thừa `ControllerBase`, trả JSON/HTTP status/`ProblemDetails`. Controller không gọi controller khác.

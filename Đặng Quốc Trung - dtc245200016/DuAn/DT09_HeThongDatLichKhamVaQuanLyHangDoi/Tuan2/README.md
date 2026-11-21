@@ -42,7 +42,7 @@ QueueNumber tăng riêng theo Doctor/ngày, bắt đầu từ 1 mỗi ngày, kh�
 - Refactor `MediQueue.Web` từ Razor Pages sang ASP.NET Core MVC; trang chủ, trang lỗi, Layout và static assets đã được chuyển sang Controller/View.
 - Chuẩn hóa Controller và Views theo nghiệp vụ; menu/giao diện sẽ hiển thị theo Role sau khi dùng chung một form đăng nhập.
 
-Prompt 03.2 đã triển khai backend Identity/JWT; Prompt 03.3.1 nối Web MVC với API; Prompt 03.4 bổ sung workspace và Dashboard theo Role. Prompt 03.5 triển khai [quản lý người dùng và tài khoản nhân sự](docs/user-management.md) dành riêng cho Admin. Migration `StaffFullName` đã được sinh viên apply; Prompt 03.5.1 đã xác minh read-only và sửa lỗi query runtime của `/Users`. Prompt 03.6 triển khai [quản lý chuyên khoa và phòng khám](docs/department-room-management.md) Admin-only mà không thay đổi schema. JWT không xuất hiện trong HTML/JavaScript/browser storage. RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau.
+Prompt 03.2 đã triển khai backend Identity/JWT; Prompt 03.3.1 nối Web MVC với API; Prompt 03.4 bổ sung workspace và Dashboard theo Role. Prompt 03.5 triển khai [quản lý người dùng và tài khoản nhân sự](docs/user-management.md) dành riêng cho Admin. Migration `StaffFullName` đã được sinh viên apply; Prompt 03.5.1 đã xác minh read-only và sửa lỗi query runtime của `/Users`. Prompt 03.6 triển khai [quản lý chuyên khoa và phòng khám](docs/department-room-management.md); Prompt 03.7 triển khai [quản lý bác sĩ và bệnh nhân](docs/doctor-patient-management.md), đều Admin-only và không thay đổi schema. Doctor có trang hồ sơ chuyên môn riêng; Patient tiếp tục dùng hồ sơ cá nhân hiện có. JWT không xuất hiện trong HTML/JavaScript/browser storage. RabbitMQ và SignalR nghiệp vụ vẫn thuộc các prompt sau.
 
 ## 3. Công nghệ và ràng buộc
 
@@ -144,6 +144,7 @@ Web gọi API tại `https://localhost:7101/`; vì cookie luôn `Secure`, luồn
 - Prompt 03.4: Dashboard API/MVC, shared layout/sidebar/header và bốn View theo Role đã triển khai; không thay đổi schema hoặc dữ liệu. Kết quả quality gate hiện hành được ghi tại `docs/progress.md`.
 - Prompt 03.5/03.5.1: module quản lý người dùng Admin-only đã triển khai; query EF Core, error state MVC và regression test đã được hoàn thiện.
 - Prompt 03.6: module Department/Room Admin-only đã triển khai từ Domain/Contract đến API/MVC/UI; không xóa vật lý, không tạo migration và không ghi database trong kiểm thử.
+- Prompt 03.7: module Doctor/Patient đã triển khai với liên kết account–profile duy nhất, Department bắt buộc, self-profile theo ownership, rowversion/audit và UI responsive; không tạo migration hoặc xóa dữ liệu.
 - Database thực tế: có `InitialCreate` và `AddStaffFullNameToApplicationUser`; cả hai đã apply, không có pending migration tại lần xác minh read-only ngày 19/11/2026.
 - Không tạo database theo tuần. `MediQueue` là database chính thức; Prompt 03.2 không thay đổi schema và không tạo Migration.
 - Chờ người dùng review và commit thủ công; không tự chuyển sang prompt tiếp theo.

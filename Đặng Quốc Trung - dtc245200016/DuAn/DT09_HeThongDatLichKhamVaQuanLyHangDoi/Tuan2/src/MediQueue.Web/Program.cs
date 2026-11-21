@@ -59,6 +59,14 @@ builder.Services.AddHttpClient<ICatalogApiClient, CatalogApiClient>((services, c
     client.DefaultRequestHeaders.Accept.ParseAdd("application/problem+json");
     client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
 });
+builder.Services.AddHttpClient<IProfilesApiClient, ProfilesApiClient>((services, client) =>
+{
+    BackendApiOptions options = services.GetRequiredService<IOptions<BackendApiOptions>>().Value;
+    client.BaseAddress = options.BaseAddress;
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+    client.DefaultRequestHeaders.Accept.ParseAdd("application/problem+json");
+    client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+});
 
 builder.Services.AddAuthentication(MediQueueAuthenticationDefaults.Scheme)
     .AddCookie(MediQueueAuthenticationDefaults.Scheme, options =>
