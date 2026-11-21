@@ -1,0 +1,39 @@
+@host = http://localhost:5000
+
+### 1. Kiểm tra dịch vụ hoạt động (200 OK)
+GET {{host}}/
+
+### 2. Lấy danh sách tài liệu (200 OK)
+GET {{host}}/api/documents
+
+### 3. Gửi yêu cầu phê duyệt tài liệu hợp lệ (201 Created - status: submitted)
+# @name createDoc
+POST {{host}}/api/documents
+Content-Type: application/json
+
+{
+  "title": "Ke hoach trien khai Tuan 2",
+  "submittedBy": "Vang Thi Sinh",
+  "fileUrl": "https://ictu.edu.vn/docs/tuan2.pdf"
+}
+
+### 4. Đọc lại trạng thái tài liệu qua REST (Bấm nhiều lần sau 1.5s và 4s để thấy submitted -> reviewing -> approved)
+GET {{host}}/api/documents/{{createDoc.response.body.$.id}}
+
+### 5. Gửi thiếu dữ liệu bắt buộc (400 Bad Request)
+POST {{host}}/api/documents
+Content-Type: application/json
+
+{
+  "title": "",
+  "submittedBy": ""
+}
+
+### 6. Truy vấn tài liệu không tồn tại (404 Not Found)
+GET {{host}}/api/documents/00000000-0000-0000-0000-000000000000
+
+### 7. Bắt tay SignalR Hub negotiate (200 OK + connectionId)
+POST {{host}}/hubs/approvals/negotiate?negotiateVersion=1
+
+### 8. Sai đường dẫn Hub (404 Not Found)
+POST {{host}}/hub/approvals/negotiate?negotiateVersion=1
