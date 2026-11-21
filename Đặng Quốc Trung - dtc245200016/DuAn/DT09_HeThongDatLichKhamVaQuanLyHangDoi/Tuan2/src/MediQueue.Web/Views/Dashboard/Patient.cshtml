@@ -13,7 +13,7 @@
 }
 <div class="dashboard-page">
     <header class="dashboard-page-heading"><div><span class="eyebrow">Không gian bệnh nhân</span><h1>Xin chào, @displayName</h1><p>Quản lý thông tin cá nhân trong một không gian riêng tư và an toàn.</p></div>@if (Model.Dashboard.Account.IsActive) { <span class="dashboard-status-chip">Tài khoản đang hoạt động</span> }</header>
-    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue đồng hành cùng bạn</span><h2 id="welcome-title">Chăm sóc sức khỏe bắt đầu từ sự chủ động.</h2><p>Thông tin của bạn được bảo vệ. Chức năng tìm bác sĩ, đặt lịch và theo dõi số thứ tự sẽ được mở ở các giai đoạn tiếp theo.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#heart-pulse"></use></svg></span></section>
+    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue đồng hành cùng bạn</span><h2 id="welcome-title">Chăm sóc sức khỏe bắt đầu từ sự chủ động.</h2><p>Thông tin cá nhân và liên hệ của bạn được quản lý trong một không gian riêng tư, an toàn.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#heart-pulse"></use></svg></span></section>
     @if (!data.HasProfile)
     {
         <partial name="_DashboardState" model='new DashboardStateViewModel("Chưa có hồ sơ bệnh nhân liên kết", "Tài khoản đã đăng nhập nhưng chưa có hồ sơ bệnh nhân tương ứng. Vui lòng liên hệ bộ phận hỗ trợ.", "user")' />

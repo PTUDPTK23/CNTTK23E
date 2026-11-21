@@ -2,11 +2,11 @@
 
 ## 1. Mục đích và phạm vi
 
-Tài liệu xác định yêu cầu cho một website MediQueue phục vụ bốn Actor: `Patient`, `Doctor`, `Receptionist`, `Admin`. Hệ thống quản lý đặt lịch và hàng đợi khám, trong đó cấp số và phát sự kiện hàng đợi được tách bất đồng bộ bằng RabbitMQ.
+Tài liệu xác định baseline nội bộ cho website MediQueue phục vụ bốn Actor: `Patient`, `Doctor`, `Receptionist`, `Admin`. Hệ thống quản lý đặt lịch và hàng đợi khám, trong đó cấp số và phát sự kiện hàng đợi được thiết kế tách bất đồng bộ bằng RabbitMQ. Nguồn chính thức hiện chỉ xác nhận tên đề tài và quy định nộp; xem [topic09-requirements-traceability.md](topic09-requirements-traceability.md) trước khi coi một yêu cầu chi tiết là yêu cầu của giảng viên.
 
 Ký hiệu:
 
-- **[Bắt buộc]**: yêu cầu trực tiếp của đề tài 09/giảng viên.
+- **[Baseline cốt lõi]**: yêu cầu chi tiết MediQueue đang dùng để lập kế hoạch; chưa xác minh được với đặc tả chính thức của giảng viên.
 - **[Mở rộng]**: hoàn thiện sản phẩm nhưng vẫn trong phạm vi đề tài.
 - **[Đề xuất]**: quyết định thiết kế cần xác nhận trước khi triển khai.
 
@@ -28,11 +28,11 @@ Trạng thái Prompt 03.2: backend đã đáp ứng FR-AUTH-01–04 qua sáu `/a
 
 | Mã | Mức | Yêu cầu | Tiêu chí chấp nhận chính |
 |---|---|---|---|
-| FR-DOC-01 | Bắt buộc | Tra cứu Doctor/phòng khám | Lọc theo tên/Department; mỗi Doctor thuộc đúng một Department; chỉ trả dữ liệu đang hoạt động |
-| FR-SLOT-01 | Bắt buộc | Xem slot còn chỗ của Doctor | Không hiển thị slot quá khứ, bị khóa hoặc đã đủ Capacity |
-| FR-APT-01 | Bắt buộc | Đặt Appointment | Kiểm tra slot, sức chứa, trùng giờ và quyền; tạo trạng thái `PendingNumber` đúng một lần |
-| FR-APT-02 | Bắt buộc | Hủy Appointment | Chỉ hủy trước `Slot.StartAt` khi chưa phục vụ; giải phóng chỗ đúng một lần, không tái sử dụng số |
-| FR-APT-03 | Bắt buộc | Xem chi tiết Appointment | Patient chỉ xem của mình; Role nghiệp vụ xem theo phạm vi được cấp |
+| FR-DOC-01 | Baseline cốt lõi | Tra cứu Doctor/phòng khám | Lọc theo tên/Department; mỗi Doctor thuộc đúng một Department; chỉ trả dữ liệu đang hoạt động |
+| FR-SLOT-01 | Baseline cốt lõi | Xem slot còn chỗ của Doctor | Không hiển thị slot quá khứ, bị khóa hoặc đã đủ Capacity |
+| FR-APT-01 | Baseline cốt lõi | Đặt Appointment | Kiểm tra slot, sức chứa, trùng giờ và quyền; tạo trạng thái `PendingNumber` đúng một lần |
+| FR-APT-02 | Baseline cốt lõi | Hủy Appointment | Chỉ hủy trước `Slot.StartAt` khi chưa phục vụ; giải phóng chỗ đúng một lần, không tái sử dụng số |
+| FR-APT-03 | Baseline cốt lõi | Xem chi tiết Appointment | Patient chỉ xem của mình; Role nghiệp vụ xem theo phạm vi được cấp |
 | FR-APT-04 | Mở rộng | Xem lịch sử Appointment | Có lọc theo thời gian/trạng thái và phân trang |
 | FR-APT-05 | Mở rộng | Receptionist đặt/hủy hộ Patient | Ghi nhận người thực hiện để truy vết; vẫn áp dụng mọi quy tắc đặt/hủy |
 | FR-APT-06 | Mở rộng | Receptionist ghi nhận check-in | Check-in là thông tin tiếp nhận; không phải điều kiện cấp QueueTicket |
@@ -41,14 +41,14 @@ Trạng thái Prompt 03.2: backend đã đáp ứng FR-AUTH-01–04 qua sáu `/a
 
 | Mã | Mức | Yêu cầu | Tiêu chí chấp nhận chính |
 |---|---|---|---|
-| FR-QUE-01 | Bắt buộc | Đưa yêu cầu cấp số vào RabbitMQ | HTTP không tự sinh QueueNumber; message có định danh duy nhất |
-| FR-QUE-02 | Bắt buộc | Queue Worker sinh QueueNumber | Tăng riêng theo Doctor/ngày từ 1; không trùng/tái sử dụng; hiển thị tối thiểu ba chữ số |
-| FR-QUE-03 | Bắt buộc | Worker cập nhật trạng thái hàng đợi | Tạo ticket `Waiting`, chuyển Appointment `PendingNumber → Waiting`, commit trước ack |
-| FR-QUE-04 | Bắt buộc | Doctor gọi Patient tiếp theo | Chỉ chọn slot đã đến giờ, theo slot rồi QueueNumber; chuyển trực tiếp `Waiting → Serving` |
-| FR-QUE-05 | Bắt buộc | Doctor hoàn thành hoặc xác nhận vắng mặt | `Serving → Completed`; hoặc lượt Waiting kế tiếp đủ điều kiện → `NoShow`; một Doctor tối đa một `Serving` |
-| FR-QUE-06 | Bắt buộc | Phát QueueChanged qua RabbitMQ | Phát khi cấp/hủy/gọi/hoàn thành hoặc current serving thay đổi |
-| FR-QUE-07 | Bắt buộc | Notification Service phát SignalR | Client đúng Doctor/Appointment nhận sự kiện liên quan |
-| FR-QUE-08 | Bắt buộc | Tra cứu snapshot hàng đợi | Chỉ người đăng nhập; trả current serving, số lượt chờ được đếm từ bản ghi và thời điểm cập nhật |
+| FR-QUE-01 | Baseline cốt lõi | Đưa yêu cầu cấp số vào RabbitMQ | HTTP không tự sinh QueueNumber; message có định danh duy nhất |
+| FR-QUE-02 | Baseline cốt lõi | Queue Worker sinh QueueNumber | Tăng riêng theo Doctor/ngày từ 1; không trùng/tái sử dụng; hiển thị tối thiểu ba chữ số |
+| FR-QUE-03 | Baseline cốt lõi | Worker cập nhật trạng thái hàng đợi | Tạo ticket `Waiting`, chuyển Appointment `PendingNumber → Waiting`, commit trước ack |
+| FR-QUE-04 | Baseline cốt lõi | Doctor gọi Patient tiếp theo | Chỉ chọn slot đã đến giờ, theo slot rồi QueueNumber; chuyển trực tiếp `Waiting → Serving` |
+| FR-QUE-05 | Baseline cốt lõi | Doctor hoàn thành hoặc xác nhận vắng mặt | `Serving → Completed`; hoặc lượt Waiting kế tiếp đủ điều kiện → `NoShow`; một Doctor tối đa một `Serving` |
+| FR-QUE-06 | Baseline cốt lõi | Phát QueueChanged qua RabbitMQ | Phát khi cấp/hủy/gọi/hoàn thành hoặc current serving thay đổi |
+| FR-QUE-07 | Baseline cốt lõi | Notification Service phát SignalR | Client đúng Doctor/Appointment nhận sự kiện liên quan |
+| FR-QUE-08 | Baseline cốt lõi | Tra cứu snapshot hàng đợi | Chỉ người đăng nhập; trả current serving, số lượt chờ được đếm từ bản ghi và thời điểm cập nhật |
 | FR-QUE-09 | Mở rộng | Receptionist theo dõi nhiều hàng đợi | Chỉ đọc; không có quyền gọi, hoàn thành hoặc xác nhận NoShow thay Doctor |
 
 ### 2.4 Quản trị
@@ -94,9 +94,9 @@ Trạng thái Prompt 03.2: backend đã đáp ứng FR-AUTH-01–04 qua sáu `/a
 - Không dùng dữ liệu bệnh nhân thật.
 - Appointment chỉ dùng sáu trạng thái: `PendingNumber`, `Waiting`, `Serving`, `Completed`, `Cancelled`, `NoShow`.
 
-## 5. Ma trận truy vết yêu cầu bắt buộc
+## 5. Ma trận truy vết baseline cốt lõi
 
-| Yêu cầu đề tài | Requirement | Use Case | API / cơ chế | Thành phần chính |
+| Nhóm baseline | Requirement | Use Case | API / cơ chế | Thành phần chính |
 |---|---|---|---|---|
 | Tra cứu Doctor/slot | FR-DOC-01, FR-SLOT-01 | UC-01, UC-02 | `GET /doctors`, `GET /doctors/{id}/slots` | Web, API, SQL |
 | Đặt/hủy Appointment | FR-APT-01, FR-APT-02 | UC-03, UC-04 | `POST/DELETE /appointments` | Web, API, SQL |

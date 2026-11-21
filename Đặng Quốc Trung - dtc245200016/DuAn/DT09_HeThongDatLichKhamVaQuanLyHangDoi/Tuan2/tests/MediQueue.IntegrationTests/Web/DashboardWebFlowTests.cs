@@ -42,21 +42,59 @@ public sealed partial class DashboardWebFlowTests : IClassFixture<MediQueueWebFa
         Assert.Contains(expectedContent, html, StringComparison.Ordinal);
         Assert.Contains(expectedTitle, html, StringComparison.Ordinal);
         Assert.Contains("data-dashboard-shell", html, StringComparison.Ordinal);
+        Assert.Contains("sidebar-preference-collapsed", html, StringComparison.Ordinal);
+        Assert.Contains("/fonts/BeVietnamPro-Regular", html, StringComparison.Ordinal);
+        Assert.Contains("/fonts/BeVietnamPro-Medium", html, StringComparison.Ordinal);
+        Assert.Contains("/fonts/BeVietnamPro-Bold", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("dashboard-main page-enter", html, StringComparison.Ordinal);
         Assert.Contains("Hồ sơ cá nhân", html, StringComparison.Ordinal);
         Assert.Contains("Đổi mật khẩu", html, StringComparison.Ordinal);
         Assert.DoesNotContain(FakeAccountApiClient.SecretToken, html, StringComparison.Ordinal);
         Assert.DoesNotContain("Quản lý lịch hẹn", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("giai đoạn", html, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("MediQueue Workspace", html, StringComparison.Ordinal);
     }
 
     [Theory]
     [InlineData("/css/dashboard-layout.css")]
     [InlineData("/css/dashboard.css")]
     [InlineData("/js/dashboard.js")]
+    [InlineData("/fonts/BeVietnamPro-Regular.ttf")]
+    [InlineData("/fonts/BeVietnamPro-Medium.ttf")]
+    [InlineData("/fonts/BeVietnamPro-Bold.ttf")]
     public async Task Dashboard_asset_is_available(string path)
     {
         using HttpClient client = CreateClient();
         using HttpResponseMessage response = await client.GetAsync(path);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("admin@mediqueue.test", "/dashboard", "Tổng quan")]
+    [InlineData("admin@mediqueue.test", "/Users", "Quản lý người dùng")]
+    [InlineData("admin@mediqueue.test", "/Departments", "Quản lý chuyên khoa")]
+    [InlineData("admin@mediqueue.test", "/Rooms", "Quản lý phòng khám")]
+    [InlineData("admin@mediqueue.test", "/Doctors", "Quản lý bác sĩ")]
+    [InlineData("admin@mediqueue.test", "/Patients", "Quản lý bệnh nhân")]
+    [InlineData("doctor@mediqueue.test", "/Doctors/Profile", "Hồ sơ chuyên môn")]
+    [InlineData("receptionist@mediqueue.test", "/Account/Profile", "Hồ sơ cá nhân")]
+    [InlineData("patient@mediqueue.test", "/Account/Profile", "Hồ sơ cá nhân")]
+    public async Task Sidebar_marks_exactly_one_current_navigation_item(
+        string email,
+        string path,
+        string expectedLabel)
+    {
+        using HttpClient client = CreateClient();
+        using HttpResponseMessage login = await LoginAsync(client, email);
+        Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
+
+        using HttpResponseMessage response = await client.GetAsync(path);
+        string html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+        MatchCollection activeLinks = ActiveSidebarLinkRegex().Matches(html);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Match activeLink = Assert.Single(activeLinks.Cast<Match>());
+        Assert.Equal(expectedLabel, activeLink.Groups[1].Value);
     }
 
     [Theory]
@@ -124,4 +162,7 @@ public sealed partial class DashboardWebFlowTests : IClassFixture<MediQueueWebFa
 
     [GeneratedRegex("name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"")]
     private static partial Regex AntiforgeryRegex();
+
+    [GeneratedRegex("<a class=\"sidebar-link active\"[^>]*aria-current=\"page\"[^>]*>.*?<span class=\"sidebar-label\">(.*?)</span></a>", RegexOptions.Singleline)]
+    private static partial Regex ActiveSidebarLinkRegex();
 }

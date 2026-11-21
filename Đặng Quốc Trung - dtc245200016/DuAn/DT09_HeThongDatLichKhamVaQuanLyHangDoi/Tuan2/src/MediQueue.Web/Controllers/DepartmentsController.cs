@@ -49,7 +49,7 @@ public sealed class DepartmentsController(ICatalogApiClient api, IMvcAuthenticat
         AuthenticationSession? session = await Session(ct); if (session is null) return Expired();
         ApiClientResult result = await api.SetDepartmentActiveAsync(session.AccessToken, id, active, ct);
         if (!result.Succeeded) return Failure(result.Problem!);
-        TempData["SuccessMessage"] = active ? "Đã kích hoạt chuyên khoa." : "Đã vô hiệu hóa chuyên khoa."; return RedirectToAction(nameof(Details), new { id });
+        TempData["SuccessMessage"] = active ? "Đã kích hoạt lại chuyên khoa." : "Đã ngừng hoạt động chuyên khoa."; return RedirectToAction(nameof(Details), new { id });
     }
     private async Task<(DepartmentDetailsResponse? Value, IActionResult? Result)> Get(Guid id, CancellationToken ct)
     { AuthenticationSession? session = await Session(ct); if (session is null) return (null, Expired()); var result = await api.GetDepartmentAsync(session.AccessToken, id, ct); return result.Succeeded ? (result.Value, null) : (null, Failure(result.Problem!)); }

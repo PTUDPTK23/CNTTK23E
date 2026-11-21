@@ -6,6 +6,16 @@
     <meta name="theme-color" content="#2563eb" />
     <title>@ViewData["Title"] · MediQueue</title>
     <link rel="icon" type="image/svg+xml" href="~/images/favicon.svg" />
+    <link rel="preload" href="~/fonts/BeVietnamPro-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="~/fonts/BeVietnamPro-Medium.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="~/fonts/BeVietnamPro-Bold.ttf" as="font" type="font/ttf" crossorigin />
+    <script>
+        try {
+            if (window.localStorage.getItem("mediqueue.ui.sidebar-collapsed") === "true") {
+                document.documentElement.classList.add("sidebar-preference-collapsed");
+            }
+        } catch { }
+    </script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
@@ -25,7 +35,7 @@
         <div class="dashboard-workspace">
             <partial name="_DashboardHeader" />
             <partial name="_ToastMessages" />
-            <main id="main-content" class="dashboard-main page-enter" tabindex="-1">
+            <main id="main-content" class="dashboard-main" tabindex="-1">
                 <div class="dashboard-container">
                     <partial name="_DashboardBreadcrumb" />
                     @RenderBody()

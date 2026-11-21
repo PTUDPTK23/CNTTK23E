@@ -14,7 +14,7 @@
 }
 <div class="dashboard-page">
     <header class="dashboard-page-heading"><div><span class="eyebrow">Không gian bác sĩ</span><h1>Xin chào, @displayName</h1><p>Thông tin chuyên môn và tài khoản của bạn trong MediQueue.</p></div>@if (Model.Dashboard.Account.IsActive) { <span class="dashboard-status-chip">Tài khoản đang hoạt động</span> }</header>
-    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue Workspace</span><h2 id="welcome-title">Đồng hành cùng quy trình khám rõ ràng và tập trung.</h2><p>Các chức năng lịch làm việc, lịch hẹn và hàng đợi sẽ được kích hoạt ở những giai đoạn nghiệp vụ tiếp theo.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#stethoscope"></use></svg></span></section>
+    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">Không gian MediQueue</span><h2 id="welcome-title">Đồng hành cùng quy trình khám rõ ràng và tập trung.</h2><p>Hồ sơ chuyên môn và thông tin tài khoản được tập trung trong một không gian làm việc riêng tư.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#stethoscope"></use></svg></span></section>
     @if (!data.HasProfile)
     {
         <partial name="_DashboardState" model='new DashboardStateViewModel("Chưa có hồ sơ bác sĩ liên kết", "Tài khoản đã đăng nhập an toàn nhưng chưa được liên kết với hồ sơ bác sĩ. Vui lòng liên hệ quản trị viên.", "stethoscope", "neutral")' />

@@ -12,7 +12,7 @@
 }
 <div class="dashboard-page">
     <header class="dashboard-page-heading"><div><span class="eyebrow">Không gian lễ tân</span><h1>Chào @Model.Dashboard.Account.DisplayName</h1><p>Tổng quan các danh mục cần thiết cho công tác tiếp nhận.</p></div><span class="dashboard-status-chip">Tài khoản đang hoạt động</span></header>
-    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">MediQueue Workspace</span><h2 id="welcome-title">Sẵn sàng cho một quy trình tiếp nhận nhẹ nhàng hơn.</h2><p>Dữ liệu tổng hợp giúp bạn nắm quy mô danh mục. Chức năng lịch hẹn và hàng đợi sẽ được triển khai ở giai đoạn kế tiếp.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#users"></use></svg></span></section>
+    <section class="welcome-banner" aria-labelledby="welcome-title"><div class="welcome-banner__content"><span class="welcome-banner__eyebrow">Không gian MediQueue</span><h2 id="welcome-title">Sẵn sàng cho một quy trình tiếp nhận nhẹ nhàng hơn.</h2><p>Dữ liệu tổng hợp giúp bạn nắm nhanh quy mô đội ngũ, chuyên khoa và phòng khám.</p></div><span class="welcome-banner__mark" aria-hidden="true"><svg><use href="/images/icons.svg#users"></use></svg></span></section>
     <section class="stats-grid stats-grid--four" aria-label="Tổng quan danh mục">
         <partial name="_StatisticCard" model='new StatisticCardViewModel("Bác sĩ", data.Doctors.Total.ToString("N0"), $"{data.Doctors.Active:N0} đang hoạt động", "stethoscope")' />
         <partial name="_StatisticCard" model='new StatisticCardViewModel("Bệnh nhân", data.Patients.Total.ToString("N0"), $"{data.Patients.Active:N0} đang hoạt động", "heart", "secondary")' />

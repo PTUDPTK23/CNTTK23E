@@ -13,12 +13,15 @@
     let returnFocus = null;
 
     try {
-        const collapsed = window.localStorage.getItem(storageKey) === "true";
+        const collapsed = document.documentElement.classList.contains("sidebar-preference-collapsed")
+            || window.localStorage.getItem(storageKey) === "true";
         shell.classList.toggle("sidebar-is-collapsed", collapsed);
         collapseButton?.setAttribute("aria-pressed", String(collapsed));
         collapseButton?.setAttribute("aria-label", collapsed ? "Mở rộng menu" : "Thu gọn menu");
     } catch {
         // Storage is optional: the navigation remains fully functional without it.
+    } finally {
+        document.documentElement.classList.remove("sidebar-preference-collapsed");
     }
 
     const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';

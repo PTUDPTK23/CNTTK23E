@@ -112,7 +112,7 @@ Dashboard theo bốn Role và quản lý người dùng Admin-only đã triển 
 3. Xác minh redirect `/dashboard`, nội dung/nhãn Role, sidebar responsive, Profile/ChangePassword và Logout.
 4. SQL Server vẫn là `LAPTOP-AQFGUM9Q\SQLEXPRESS`, database `MediQueue`; không chạy Migration hoặc seed cho Dashboard.
 
-Nền tảng hiện có MVC/API host, Domain/EF, Identity, backend JWT/account management, MVC Cookie/token store/UI account và Dashboard theo bốn Role. Chưa có CRUD danh mục, sáu API nghiệp vụ bắt buộc, booking/queue transaction, RabbitMQ business flow hoặc SignalR Hub.
+Nền tảng hiện có MVC/API host, Domain/EF, Identity, backend JWT/account management, MVC Cookie/token store/UI account, Dashboard theo bốn Role và quản lý User/Department/Room/Doctor/Patient. Chưa có sáu API đặt lịch/hàng đợi trong baseline nội bộ, booking/queue transaction, RabbitMQ business flow hoặc SignalR Hub.
 
 ## 9. Giới hạn vận hành phiên MVC
 

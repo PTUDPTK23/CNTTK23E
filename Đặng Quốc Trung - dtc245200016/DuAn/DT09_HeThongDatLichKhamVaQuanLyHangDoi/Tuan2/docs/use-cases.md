@@ -4,15 +4,15 @@
 
 | Mã | Use Case | Actor chính | Mức |
 |---|---|---|---|
-| UC-01 | Tra cứu Doctor/phòng khám | Patient, Receptionist | Bắt buộc |
-| UC-02 | Xem slot còn chỗ | Patient, Receptionist | Bắt buộc |
-| UC-03 | Đặt Appointment | Patient, Receptionist | Bắt buộc |
-| UC-04 | Hủy Appointment | Patient, Receptionist | Bắt buộc |
-| UC-05 | Cấp QueueTicket bất đồng bộ | Queue Worker | Bắt buộc |
-| UC-06 | Theo dõi queue thời gian thực | Patient, Doctor, Receptionist | Bắt buộc |
-| UC-07 | Gọi lượt tiếp theo | Doctor | Bắt buộc |
-| UC-08 | Hoàn thành lượt khám hoặc xác nhận NoShow | Doctor | Bắt buộc |
-| UC-09 | Tra cứu Appointment/queue | Patient, Doctor, Receptionist | Bắt buộc |
+| UC-01 | Tra cứu Doctor/phòng khám | Patient, Receptionist | Baseline cốt lõi |
+| UC-02 | Xem slot còn chỗ | Patient, Receptionist | Baseline cốt lõi |
+| UC-03 | Đặt Appointment | Patient, Receptionist | Baseline cốt lõi |
+| UC-04 | Hủy Appointment | Patient, Receptionist | Baseline cốt lõi |
+| UC-05 | Cấp QueueTicket bất đồng bộ | Queue Worker | Baseline cốt lõi |
+| UC-06 | Theo dõi queue thời gian thực | Patient, Doctor, Receptionist | Baseline cốt lõi |
+| UC-07 | Gọi lượt tiếp theo | Doctor | Baseline cốt lõi |
+| UC-08 | Hoàn thành lượt khám hoặc xác nhận NoShow | Doctor | Baseline cốt lõi |
+| UC-09 | Tra cứu Appointment/queue | Patient, Doctor, Receptionist | Baseline cốt lõi |
 | UC-10 | Đăng ký/đăng nhập/phân luồng Role | Patient và các Role | Mở rộng |
 | UC-11 | Quản trị dữ liệu nền/tài khoản | Admin | Mở rộng |
 | UC-12 | Xem báo cáo tổng hợp | Admin | Mở rộng |
@@ -53,7 +53,7 @@ flowchart LR
     Admin --> Report
 ```
 
-## 3. Đặc tả Use Case bắt buộc
+## 3. Đặc tả Use Case cốt lõi
 
 ### UC-01 — Tra cứu Doctor/phòng khám
 

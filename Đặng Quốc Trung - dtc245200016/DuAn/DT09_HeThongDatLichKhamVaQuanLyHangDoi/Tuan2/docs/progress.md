@@ -6,15 +6,56 @@
 |---|---|
 | Nhánh | `duan-tuan2-dtc245200016` |
 | Thư mục nộp | `DT09_HeThongDatLichKhamVaQuanLyHangDoi/Tuan2` |
-| Tuần | Tuần 2 — Quản lý bác sĩ và bệnh nhân, Prompt 03.7 |
+| Tuần | Tuần 2 — Final Quality Gate |
 | Nguồn kế thừa | Commit Tuần 1 `dcee864` — 177 tracked file |
 | Pull Request | Chưa tạo; dự kiến `DuAn-Tuan2 - dtc245200016 - Đặng Quốc Trung` |
 | Hạn nộp | Chưa được cung cấp |
-| Trạng thái mã nguồn | Prompt 03.6 đã commit tại `9c515e7`; Prompt 03.7 đã hoàn thành, chờ sinh viên review/commit |
+| Trạng thái mã nguồn | Prompt 03.7 đã commit tại `2e589ca`; Final Quality Gate đang được kiểm tra |
 | Trạng thái database | Duy nhất `MediQueue`; đủ hai migration đã apply, Prompt 03.5.1 chỉ xác minh read-only và không ghi dữ liệu |
 | Trạng thái Git | Baseline `Tuan2` sạch trước Prompt 03.5; không sửa tracked file ngoài `Tuan2` |
 
 ## 2. Nhật ký thực tế
+
+### 2026-11-21 — Sidebar navigation stability & font layout shift
+
+- Xác định trạng thái thu gọn trước đây chỉ được đọc từ `localStorage` ở cuối trang, khiến sidebar có thể render ở 260px rồi mới chuyển 80px sau mỗi điều hướng MVC. Layout nay đặt class bootstrap trên `html` trước khi tải CSS; `dashboard.js` tiếp quản mà không đổi computed layout.
+- Active link không còn đổi font từ 500 sang 600. Màu nền, màu chữ, indicator, hover/focus/click feedback và mobile slide vẫn giữ nguyên.
+- Dashboard preload đúng ba font dùng ngay ở first viewport: Regular 400, Medium 500 và Bold 700. Main workspace không còn chạy `page-enter` dịch dọc mỗi lần chuyển trang; scrollbar giữ gutter ổn định.
+- Bổ sung test cho prepaint bootstrap, font/static asset và đúng một active sidebar item trên chín tuyến Admin/Doctor/Receptionist/Patient.
+- Quality gate Release: build 0 error; Unit 34/34, Integration 122 pass + 4 SQL opt-in skip; format và `git diff --check` đạt. Build Debug ban đầu bị khóa bởi một process `MediQueue.Web.exe` đang chạy nên không tự dừng process của người dùng.
+- `BROWSER VISUAL QA – NOT VERIFIED`: chưa đo CLS/Computed Font/Network trong browser thật. Không thay đổi database, Migration, package, routing, authentication hay authorization.
+
+### 2026-11-21 — Final Quality Gate Tuần 2
+
+| Milestone | Trạng thái | Kết quả hiện tại | Bước tiếp theo |
+|---|---|---|---|
+| A — Git & nguồn Đề tài 09 | COMPLETED | Đúng branch/HEAD `2e589ca`, Tuan2 sạch ở baseline; nguồn lớp chỉ xác nhận tên đề tài, sinh viên, đường dẫn và quy định 9 tuần | Duy trì truy vết trung thực |
+| B — Architecture & Database Audit | COMPLETED | Chín project, reference một chiều, Web không dùng DbContext; schema/migration không thay đổi | Quality gate cuối |
+| C — Functional Regression | COMPLETED | Restore/build đạt; Unit 34/34, Integration hiện tại 122 pass + 4 SQL opt-in skip | Hoàn tất |
+| D — Security & SQL Verification | COMPLETED | Authorization/cookie/JWT/antiforgery được audit; 4 SQL read-only fail ở kết nối do mã hóa client, không có lệnh ghi | Ghi NOT VERIFIED |
+| E — Product-ready UI/UX Audit | COMPLETED | Bốn dashboard và module quản trị đã rà soát; bỏ nội dung “giai đoạn tiếp theo”, chuẩn hóa trạng thái | Browser QA nếu môi trường cho phép |
+| F — Targeted Fixes & Automated Tests | COMPLETED | Đã thêm regression assertion cho microcopy dashboard; full solution test đạt | Hoàn tất |
+| G — Repository & Documentation Cleanup | COMPLETED | README được tinh gọn; thêm traceability và acceptance report; roadmap/requirements phân biệt nguồn chính thức và baseline nội bộ | Kiểm tra link/UTF-8 |
+| H — Final Acceptance & Study Notes | COMPLETED | Acceptance report/checklist hoàn tất; ghi chú ôn tập được bàn giao ngoài repository | Sinh viên nghiệm thu browser |
+
+**Checkpoint A–D:**
+
+- Nguồn chính thức: `upstream/main:README.md` tại commit `d7ada987025fa087d6290ddbc7e31903260edae7`. Không có đặc tả chi tiết tám nhóm chức năng hay sáu API; đánh dấu `OFFICIAL TOPIC 09 REQUIREMENTS – NOT VERIFIED`.
+- Restore locked-mode và build thành công; cảnh báo `NU1900` vì môi trường không truy cập được nguồn advisory NuGet.
+- SQL read-only đã thử với đúng `LAPTOP-AQFGUM9Q\SQLEXPRESS/MediQueue`: 4/4 test dừng ở kết nối do máy không hỗ trợ chế độ mã hóa server yêu cầu. Không thay TLS, không Migration, không ghi dữ liệu.
+
+**Checkpoint E–G:**
+
+- Microcopy Dashboard không còn nói về prompt/mốc phát triển; tên trạng thái UI dùng “Đang hoạt động”, “Ngừng hoạt động”, “Kích hoạt lại”.
+- Không phát hiện `href="#"` hoặc `javascript:` trong Razor Views. Không thêm package, framework hay asset nặng.
+- Tài liệu mới chỉ gồm `topic09-requirements-traceability.md` và `week02-acceptance-report.md`, đúng hai đầu ra cần cho truy vết/nghiệm thu.
+
+**Checkpoint H — final gate:**
+
+- Full solution hiện tại: 34 Unit + 122 Integration pass, 0 fail; 4 SQL opt-in skip khi không truyền connection string. Lần chạy SQL riêng 4/4 fail do lỗi mã hóa môi trường và được báo cáo tách biệt, không che bằng skip.
+- `dotnet format --verify-no-changes`, `git diff --check`, UTF-8 và liên kết Markdown nội bộ đều đạt. Không có `bin/obj` hoặc cấu hình local được track; scan không phát hiện signing key/connection string thật trong source.
+- NuGet vulnerability audit **NOT VERIFIED** do sandbox chặn kết nối `api.nuget.org:443` (`NU1900`). Kestrel HTTPS và browser visual QA **NOT VERIFIED** do thiếu development certificate; không làm yếu bảo mật để chạy.
+- Không tạo/apply Migration, không ghi database, không stage/commit/push/PR và không sửa ngoài `Tuan2`.
 
 ### 2026-11-21 — Prompt 03.7: Doctor & Patient Management
 

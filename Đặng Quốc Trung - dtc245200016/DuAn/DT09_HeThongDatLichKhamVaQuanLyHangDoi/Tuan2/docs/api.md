@@ -11,7 +11,7 @@ Hai controller `/api/departments` và `/api/rooms` yêu cầu JWT role `Admin`, 
 ## 1. Quy ước chung
 
 - Base URL Development của Appointment API: `http://localhost:5101` hoặc `https://localhost:7101`.
-- Các route tối thiểu giữ nguyên đúng đề bài, không bắt buộc prefix version ở giai đoạn đầu.
+- Sáu route nghiệp vụ trong baseline nội bộ được giữ ổn định, không thêm prefix version ở giai đoạn đầu. Nguồn chính thức chi tiết chưa được xác minh; xem `topic09-requirements-traceability.md`.
 - Content type: `application/json; charset=utf-8`.
 - Định danh trong ví dụ dùng UUID giả lập.
 - Thời gian kỹ thuật dùng ISO 8601 UTC; ngày nghiệp vụ dùng `yyyy-MM-dd`.
@@ -29,7 +29,7 @@ Cả Web và Backend chỉ tổ chức theo nghiệp vụ: `AccountController`, 
 
 Không tạo riêng `PatientController`, `DoctorController`, `ReceptionistController` hoặc `AdminController` để biểu diễn Role. Cùng một nghiệp vụ dùng chung controller/service; Role-based authorization và resource ownership quyết định Actor nào được thao tác. Frontend vẫn có các khu vực Auth/Patient/Doctor/Receptionist/Admin.
 
-MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route bắt buộc.
+MVC Controller kế thừa `Controller`, nhận tương tác UI, dùng ViewModel và gọi backend qua HTTP API; không tham chiếu DbContext/Infrastructure. API Controller kế thừa `ControllerBase`, dùng `[ApiController]`, kiểm tra Role/quyền trên tài nguyên, gọi service/domain và trả DTO hoặc `ProblemDetails`. Không lặp nghiệp vụ đặt lịch giữa Patient/Receptionist, không truy cập SQL trực tiếp và không gọi controller khác. Route API được khai báo tường minh để bảo toàn sáu route trong baseline.
 
 Hiện trạng sau Prompt 03.7: API và Web MVC có controller/client thật cho Account, Dashboard, Users, Departments, Rooms, Doctors và Patients. Các controller booking/queue/schedule/slot chưa được triển khai. Không có endpoint placeholder giả thành công.
 
@@ -76,7 +76,7 @@ Không nhận `role` từ request đăng ký. Doctor và Receptionist chỉ do A
 
 Khi Access Token hết hạn, v1 yêu cầu đăng nhập lại; cookie không được gia hạn vượt quá hạn token. API/SignalR không ghi token vào log. Thiết kế SignalR ở giai đoạn sau phải xác thực và kiểm tra group mà không làm lộ JWT cho JavaScript.
 
-## 3. API bắt buộc của đề tài 09
+## 3. API nghiệp vụ trong baseline nội bộ
 
 | Method | Route | Quyền dự kiến | Requirement |
 |---|---|---|---|
@@ -361,7 +361,7 @@ Event cá nhân có thể thêm `myTicket`, nhưng chỉ phát group `user:{user
 
 - Sinh OpenAPI từ API và giữ ví dụ/response code đồng bộ tài liệu.
 - Tạo `.http` REST Client cho happy path, authorization failure, conflict, idempotency.
-- Integration test tối thiểu cho sáu endpoint bắt buộc.
+- Integration test tối thiểu cho sáu endpoint trong baseline.
 - Test resource-based authorization để Patient/Doctor không vượt scope.
 
 ## 11. Tham số kỹ thuật sẽ chốt khi triển khai
@@ -369,5 +369,5 @@ Event cá nhân có thể thêm `myTicket`, nhưng chỉ phát group `user:{user
 - Thời lượng JWT Access Token và giới hạn khoảng ngày tra cứu slot.
 - `reason` khi hủy có bắt buộc hay chỉ phục vụ audit.
 - CORS và chính sách HTTPS/WSS giữa các tiến trình Windows; port phát triển đã chốt: API `5101/7101`, Web `5102/7102`, Notification `5103/7103`.
-- Route versioning (`/api/v1`) chỉ bổ sung nếu vẫn duy trì/đáp ứng sáu route tối thiểu giảng viên yêu cầu.
+- Route versioning (`/api/v1`) chỉ bổ sung nếu vẫn duy trì sáu route baseline hoặc khi đặc tả chính thức yêu cầu khác.
 

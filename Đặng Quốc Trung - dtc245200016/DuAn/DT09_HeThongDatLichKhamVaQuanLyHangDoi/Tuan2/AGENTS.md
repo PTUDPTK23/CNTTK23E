@@ -5,9 +5,10 @@ Tệp này áp dụng cho toàn bộ cây thư mục `DuAn/DT09_HeThongDatLichKh
 ## 1. Bối cảnh cố định
 
 - Sản phẩm: `MediQueue`, mã đề tài `09`.
+- Nguồn chính thức `upstream/main:README.md` hiện chỉ xác nhận sinh viên, tên đề tài, đường dẫn và quy định 9 tuần. Tám nhóm chức năng/sáu REST API trong tài liệu là baseline nội bộ **chưa xác minh** với đặc tả chi tiết của giảng viên; luôn đối chiếu `docs/topic09-requirements-traceability.md` và không báo cáo chúng như yêu cầu chính thức khi chưa có nguồn mới.
 - Nhánh làm việc: `duan-tuan2-dtc245200016`; nền tảng được kế thừa từ commit Tuần 1 `dcee864`.
 - Stack: C# / .NET 10 / ASP.NET Core MVC / ASP.NET Core Web API / EF Core.
-- Module Department/Room của Prompt 03.6 là Admin-only, không xóa vật lý; vô hiệu hóa phải kiểm tra Doctor/DoctorSchedule/TimeSlot đang hoạt động. Web chỉ gọi API qua `ICatalogApiClient`, command MVC dùng POST + antiforgery.
+- Module Department/Room là Admin-only, không xóa vật lý; thao tác ngừng hoạt động phải kiểm tra Doctor/DoctorSchedule/TimeSlot đang hoạt động. Web chỉ gọi API qua `ICatalogApiClient`, command MVC dùng POST + antiforgery.
 - Module Doctor/Patient của Prompt 03.7 là Admin-only cho quản trị; Doctor chỉ đọc `/api/doctors/me`, Patient chỉ đọc `/api/patients/me`. Account/profile tách biệt, `UserId` liên kết duy nhất, Doctor bắt buộc thuộc Department active, update dùng rowversion và audit; không có DELETE. Web chỉ gọi API qua `IProfilesApiClient`.
 - Không tự thêm migration/rowversion cho Department hoặc Room. Schema hiện tại dùng unique Code; command ghi audit cùng transaction `Serializable`. Mọi thay đổi schema tương lai phải được review riêng.
 - SQL Server: `LAPTOP-AQFGUM9Q\SQLEXPRESS`; duy nhất database `MediQueue` được dùng xuyên suốt 9 tuần. Không tạo database theo tuần.

@@ -38,7 +38,7 @@ public sealed class RoomsController(ICatalogApiClient api, IMvcAuthenticationSer
     [HttpPost("{id:guid}/activate"), ValidateAntiForgeryToken] public Task<IActionResult> Activate(Guid id, CancellationToken ct) => Command(id, true, ct);
     [HttpPost("{id:guid}/deactivate"), ValidateAntiForgeryToken] public Task<IActionResult> Deactivate(Guid id, CancellationToken ct) => Command(id, false, ct);
     private async Task<IActionResult> Command(Guid id, bool active, CancellationToken ct)
-    { AuthenticationSession? s = await Session(ct); if (s is null) return Expired(); var r = await api.SetRoomActiveAsync(s.AccessToken, id, active, ct); if (!r.Succeeded) return Failure(r.Problem!); TempData["SuccessMessage"] = active ? "Đã kích hoạt phòng khám." : "Đã vô hiệu hóa phòng khám."; return RedirectToAction(nameof(Details), new { id }); }
+    { AuthenticationSession? s = await Session(ct); if (s is null) return Expired(); var r = await api.SetRoomActiveAsync(s.AccessToken, id, active, ct); if (!r.Succeeded) return Failure(r.Problem!); TempData["SuccessMessage"] = active ? "Đã kích hoạt lại phòng khám." : "Đã ngừng hoạt động phòng khám."; return RedirectToAction(nameof(Details), new { id }); }
     private async Task<(RoomDetailsResponse? Value, IActionResult? Result)> Get(Guid id, CancellationToken ct)
     { AuthenticationSession? s = await Session(ct); if (s is null) return (null, Expired()); var r = await api.GetRoomAsync(s.AccessToken, id, ct); return r.Succeeded ? (r.Value, null) : (null, Failure(r.Problem!)); }
     private Task<AuthenticationSession?> Session(CancellationToken ct) => authentication.GetCurrentSessionAsync(HttpContext, ct);

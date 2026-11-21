@@ -57,7 +57,7 @@
 .sidebar-link svg { flex: 0 0 20px; width: 20px; height: 20px; }
 .sidebar-link:hover { color: var(--role-accent); background: var(--role-soft); transform: translateX(2px); }
 .sidebar-link:active { transform: scale(.985); }
-.sidebar-link.active { color: var(--role-accent); background: var(--role-soft); font-weight: 600; }
+.sidebar-link.active { color: var(--role-accent); background: var(--role-soft); }
 .sidebar-link.active::before { opacity: 1; transform: scaleY(1); }
 .sidebar-footer { display: grid; gap: .3rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
 .sidebar-footer form { margin: 0; }
@@ -110,23 +110,27 @@
 .dashboard-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.2rem clamp(1rem, 3vw, 2rem); color: var(--muted); border-top: 1px solid var(--border); font-size: .68rem; }
 .dashboard-overlay { position: fixed; z-index: 1030; inset: 0; visibility: hidden; background: rgba(15, 23, 42, .45); opacity: 0; transition: opacity var(--motion-normal), visibility var(--motion-normal); }
 
-.sidebar-is-collapsed .dashboard-sidebar { width: var(--sidebar-collapsed-width); }
-.sidebar-is-collapsed .dashboard-workspace { margin-left: var(--sidebar-collapsed-width); }
-.sidebar-is-collapsed .sidebar-label { width: 0; opacity: 0; }
-.sidebar-is-collapsed .sidebar-brand { justify-content: center; width: 100%; }
-.sidebar-is-collapsed .sidebar-workspace { justify-content: center; padding-inline: .35rem; }
-.sidebar-is-collapsed .sidebar-link, .sidebar-is-collapsed .sidebar-collapse { justify-content: center; padding-inline: .5rem; }
-.sidebar-is-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .dashboard-sidebar { width: var(--sidebar-collapsed-width); }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .dashboard-workspace { margin-left: var(--sidebar-collapsed-width); }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-label { width: 0; opacity: 0; }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-brand { justify-content: center; width: 100%; }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-workspace { justify-content: center; padding-inline: .35rem; }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-link,
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-collapse { justify-content: center; padding-inline: .5rem; }
+:is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-collapse svg { transform: rotate(180deg); }
 
 @keyframes menu-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 991.98px) {
     .dashboard-sidebar { width: min(290px, 86vw); transform: translateX(-105%); box-shadow: var(--shadow-lg); }
-    .dashboard-workspace, .sidebar-is-collapsed .dashboard-workspace { margin-left: 0; }
-    .sidebar-is-collapsed .dashboard-sidebar { width: min(290px, 86vw); }
-    .sidebar-is-collapsed .sidebar-label { width: auto; opacity: 1; }
-    .sidebar-is-collapsed .sidebar-brand, .sidebar-is-collapsed .sidebar-link, .sidebar-is-collapsed .sidebar-collapse { justify-content: flex-start; }
-    .sidebar-is-collapsed .sidebar-collapse svg { transform: none; }
+    .dashboard-workspace,
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .dashboard-workspace { margin-left: 0; }
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .dashboard-sidebar { width: min(290px, 86vw); }
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-label { width: auto; opacity: 1; }
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-brand,
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-link,
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-collapse { justify-content: flex-start; }
+    :is(.sidebar-is-collapsed, .sidebar-preference-collapsed) .sidebar-collapse svg { transform: none; }
     .sidebar-collapse { display: none; }
     .sidebar-close, .header-menu-button { display: grid; }
     .sidebar-is-open { overflow: hidden; }

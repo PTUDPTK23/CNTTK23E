@@ -95,9 +95,9 @@ public sealed class UsersController(IUsersApiClient usersApiClient, IMvcAuthenti
     }
 
     [HttpPost("{id:guid}/deactivate"), ValidateAntiForgeryToken]
-    public Task<IActionResult> Deactivate(Guid id, CancellationToken ct) => CommandAsync(id, "vô hiệu hóa", usersApiClient.DeactivateAsync, ct);
+    public Task<IActionResult> Deactivate(Guid id, CancellationToken ct) => CommandAsync(id, "ngừng hoạt động", usersApiClient.DeactivateAsync, ct);
     [HttpPost("{id:guid}/activate"), ValidateAntiForgeryToken]
-    public Task<IActionResult> Activate(Guid id, CancellationToken ct) => CommandAsync(id, "kích hoạt", usersApiClient.ActivateAsync, ct);
+    public Task<IActionResult> Activate(Guid id, CancellationToken ct) => CommandAsync(id, "kích hoạt lại", usersApiClient.ActivateAsync, ct);
     [HttpPost("{id:guid}/unlock"), ValidateAntiForgeryToken]
     public Task<IActionResult> Unlock(Guid id, CancellationToken ct) => CommandAsync(id, "mở khóa đăng nhập", usersApiClient.UnlockAsync, ct);
 
