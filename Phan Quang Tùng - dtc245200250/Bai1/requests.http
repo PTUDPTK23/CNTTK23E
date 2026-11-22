@@ -1,0 +1,40 @@
+@api = http://localhost:5000
+
+### 1. Kiem tra trang thai API
+GET {{api}}/
+
+### 2. Lay danh sach bai tap
+GET {{api}}/api/assignments
+
+### 3. Nop bai hop le (201 Created)
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "DTC245200250",
+  "repositoryUrl": "https://github.com/ambrose-mas/EduSubmit-DTC245200250.git"
+}
+
+### 4. Nop bai loi: Thieu studentCode (400 Bad Request)
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": 1,
+  "studentCode": "",
+  "repositoryUrl": "https://github.com/ambrose-mas/EduSubmit-DTC245200250.git"
+}
+
+### 5. Nop bai loi: assignmentId khong hop le (400 Bad Request)
+POST {{api}}/api/submissions
+Content-Type: application/json
+
+{
+  "assignmentId": -1,
+  "studentCode": "DTC245200250",
+  "repositoryUrl": "https://github.com/ambrose-mas/EduSubmit-DTC245200250.git"
+}
+
+### 6. Doc lai luot nop khong ton tai (404 Not Found)
+GET {{api}}/api/submissions/00000000-0000-0000-0000-000000000000
