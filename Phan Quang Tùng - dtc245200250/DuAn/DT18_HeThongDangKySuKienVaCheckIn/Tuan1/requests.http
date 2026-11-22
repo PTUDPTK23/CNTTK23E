@@ -1,0 +1,90 @@
+@baseUrl = http://localhost:5000
+
+### 1. Kiểm tra trạng thái máy chủ API (Health Check)
+GET {{baseUrl}}/health
+Accept: application/json
+
+###
+
+### 2. Lấy danh sách toàn bộ sự kiện và số chỗ còn lại
+GET {{baseUrl}}/events
+Accept: application/json
+
+###
+
+### 3. Lấy chi tiết một sự kiện cụ thể (Sử dụng Event ID mẫu)
+@eventId = 11111111-1111-1111-1111-111111111111
+GET {{baseUrl}}/events/{{eventId}}
+Accept: application/json
+
+###
+
+### 4. Tạo một sự kiện mới
+POST {{baseUrl}}/events
+Content-Type: application/json
+
+{
+  "name": "Hội thảo Công nghệ Phần mềm Phân tán 2026",
+  "description": "Chuyên đề về kiến trúc vi dịch vụ và xử lý phân tán.",
+  "location": "Hội trường A, Đại học Công nghệ Thông tin & Truyền thông Thái Nguyên",
+  "startTime": "2026-12-15T08:30:00Z",
+  "endTime": "2026-12-15T11:30:00Z",
+  "maxCapacity": 120
+}
+
+###
+
+### 5. Đăng ký tham dự sự kiện (Hợp lệ - Tạo vé điện tử & sinh Registration Code)
+# @name registerSuccess
+POST {{baseUrl}}/events/{{eventId}}/registrations
+Content-Type: application/json
+
+{
+  "fullName": "Phan Quang Tùng",
+  "email": "phantung121206@gmail.com",
+  "phoneNumber": "0912345678"
+}
+
+###
+
+### 6. Đăng ký tham dự KHÔNG hợp lệ (Test lỗi 400 Bad Request: Thiếu thông tin bắt buộc)
+POST {{baseUrl}}/events/{{eventId}}/registrations
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "email-khong-hop-le",
+  "phoneNumber": ""
+}
+
+###
+
+### 7. Tra cứu danh sách người tham dự của sự kiện
+GET {{baseUrl}}/events/{{eventId}}/registrations
+Accept: application/json
+
+###
+
+### 8. Thực hiện Check-in bằng Registration ID / Registration Code (Lần 1 - Thành công)
+# Thay ID/Code bằng mã sinh ra từ yêu cầu số 5
+@regId = {{registerSuccess.response.body.id}}
+POST {{baseUrl}}/registrations/{{regId}}/checkin
+Accept: application/json
+
+###
+
+### 9. Thử Check-in lần 2 (Test chặn gian lận: Báo lỗi vé đã check-in trước đó)
+POST {{baseUrl}}/registrations/{{regId}}/checkin
+Accept: application/json
+
+###
+
+### 10. Hủy lượt đăng ký sự kiện (Hoàn trả lại chỗ trống)
+DELETE {{baseUrl}}/registrations/{{regId}}
+Accept: application/json
+
+###
+
+### 11. Thống kê KPI tổng quan (Dashboard Baseline)
+GET {{baseUrl}}/dashboard/stats
+Accept: application/json
