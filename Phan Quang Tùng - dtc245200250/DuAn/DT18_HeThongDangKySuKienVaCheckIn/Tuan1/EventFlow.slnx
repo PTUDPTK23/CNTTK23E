@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EventFlow.EventApi/EventFlow.EventApi.csproj" />
+    <Project Path="src/EventFlow.Shared/EventFlow.Shared.csproj" />
+  </Folder>
+</Solution>
