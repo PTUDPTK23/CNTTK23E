@@ -1,0 +1,18 @@
+## Build and IDE artifacts
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+.vscode/
+[Dd]ebug/
+[Rr]elease/
+
+## Python artifacts
+__pycache__/
+*.pyc
+
+## Reference documents
+*.pdf

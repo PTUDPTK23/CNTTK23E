@@ -1,0 +1,180 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. Message Broker (RabbitMQ with Management UI)
+  # -------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: auction-rabbitmq
+    ports:
+      - "5672:5672"     # AMQP Protocol
+      - "15672:15672"   # Management Web UI (http://localhost:15672)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - auction-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # -------------------------------------------------------------
+  # 2. Database (PostgreSQL)
+  # -------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: auction-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auction_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - auction-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------------------------
+  # 3. Bid Validation Service (gRPC Server)
+  # -------------------------------------------------------------
+  bid-validation-service:
+    build:
+      context: .
+      dockerfile: src/Services/BidValidation.Service/Dockerfile
+    container_name: auction-bid-validation
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - ASPNETCORE_URLS=http://+:5002
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - auction-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5002/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # -------------------------------------------------------------
+  # 4. Auction API (REST Minimal API)
+  # -------------------------------------------------------------
+  auction-api:
+    build:
+      context: .
+      dockerfile: src/Services/Auction.API/Dockerfile
+    container_name: auction-api
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - ASPNETCORE_URLS=http://+:5001
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DatabaseType=PostgreSql
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=auction_db;Username=postgres;Password=postgres
+      - Services__BidValidationUrl=http://bid-validation-service:5002
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    networks:
+      - auction-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      bid-validation-service:
+        condition: service_healthy
+
+  # -------------------------------------------------------------
+  # 5. Auction Hub (SignalR Broadcast Service)
+  # -------------------------------------------------------------
+  auction-hub:
+    build:
+      context: .
+      dockerfile: src/Services/Auction.Hub/Dockerfile
+    container_name: auction-hub
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - ASPNETCORE_URLS=http://+:5003
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    networks:
+      - auction-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  # -------------------------------------------------------------
+  # 6. Audit Worker (History & Audit Logging)
+  # -------------------------------------------------------------
+  audit-worker:
+    build:
+      context: .
+      dockerfile: src/Services/Audit.Worker/Dockerfile
+    container_name: auction-audit-worker
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+      - ASPNETCORE_URLS=http://+:5004
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DatabaseType=PostgreSql
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=auction_db;Username=postgres;Password=postgres
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    networks:
+      - auction-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  # -------------------------------------------------------------
+  # 7. Auction Web Client (User Interface)
+  # -------------------------------------------------------------
+  web-client:
+    build:
+      context: .
+      dockerfile: src/Clients/Auction.WebClient/Dockerfile
+    container_name: auction-web-client
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - ASPNETCORE_URLS=http://+:5000
+      - ApiUrl=http://localhost:5001
+      - HubUrl=http://localhost:5003
+      - AuditUrl=http://localhost:5004
+    networks:
+      - auction-network
+    depends_on:
+      - auction-api
+      - auction-hub
+
+networks:
+  auction-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

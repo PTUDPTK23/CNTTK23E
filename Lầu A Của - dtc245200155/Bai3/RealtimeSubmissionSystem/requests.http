@@ -1,0 +1,51 @@
+@host = http://localhost:5000
+@pingHost = http://localhost:5200
+
+### 1. GET / : Kiểm tra API đang chạy → 200 OK
+GET {{host}}/
+
+### 2. GET /api/assignments : Lấy danh sách bài tập → 200 OK
+GET {{host}}/api/assignments
+
+### 3. POST /api/assignments/1/submissions : Tạo lượt nộp hợp lệ → 201 Created + Location
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 4. GET /api/submissions/{id} : Đọc lại lượt nộp (received -> processing -> graded) → 200 OK
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### 5. POST thiếu dữ liệu studentCode hoặc repositoryUrl → 400 Bad Request
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### 6. POST với assignmentId không tồn tại (999) → 404 Not Found
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### 7. GET lượt nộp không tồn tại (GUID rỗng) → 404 Not Found
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### 8. Bắt tay SignalR negotiate → 200 OK + connectionId
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### 9. Sai đường dẫn hub (/hub/ thay vì /hubs/) → 404 Not Found
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1
+
+### 10. Bắt tay negotiate với PingSignalR (port 5200) → 200 OK
+POST {{pingHost}}/hubs/ping/negotiate?negotiateVersion=1

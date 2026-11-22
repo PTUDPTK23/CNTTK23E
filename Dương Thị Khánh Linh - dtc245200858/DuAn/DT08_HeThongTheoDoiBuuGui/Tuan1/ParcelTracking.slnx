@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Parcel.Api/Parcel.Api.csproj" />
+    <Project Path="src/Parcel.Client/Parcel.Client.csproj" />
+  </Folder>
+</Solution>

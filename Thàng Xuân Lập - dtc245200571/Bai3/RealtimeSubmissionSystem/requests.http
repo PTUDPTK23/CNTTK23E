@@ -1,0 +1,47 @@
+@host = http://localhost:5000
+
+### Ca 1: GET / - Kiểm tra trạng thái máy chủ (Kỳ vọng: 200 OK)
+GET {{host}}/
+
+### Ca 2: GET /api/assignments - Lấy danh sách bài tập (Kỳ vọng: 200 OK)
+GET {{host}}/api/assignments
+
+### Ca 3: POST /api/assignments/1/submissions - Tạo lượt nộp hợp lệ (Kỳ vọng: 201 Created + Location)
+# @name createSubmission
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### Ca 4: GET /api/submissions/{id} - Đọc lại trạng thái lượt nộp (Kỳ vọng: 200 OK, received -> processing -> graded)
+GET {{host}}/api/submissions/{{createSubmission.response.body.$.id}}
+
+### Ca 5: POST /api/assignments/1/submissions - Thiếu thông tin (Kỳ vọng: 400 Bad Request)
+POST {{host}}/api/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "",
+  "repositoryUrl": ""
+}
+
+### Ca 6: POST /api/assignments/999/submissions - Nộp vào bài tập không tồn tại (Kỳ vọng: 404 Not Found)
+POST {{host}}/api/assignments/999/submissions
+Content-Type: application/json
+
+{
+  "studentCode": "SV001",
+  "repositoryUrl": "https://example.com/sv001/signalr"
+}
+
+### Ca 7: GET /api/submissions/{id} - Lấy lượt nộp không tồn tại (Kỳ vọng: 404 Not Found)
+GET {{host}}/api/submissions/00000000-0000-0000-0000-000000000000
+
+### Ca 8: POST /hubs/submissions/negotiate - Bắt tay kết nối SignalR (Kỳ vọng: 200 OK + connectionId)
+POST {{host}}/hubs/submissions/negotiate?negotiateVersion=1
+
+### Ca 9: POST /hub/submissions/negotiate - Bắt tay sai endpoint (Kỳ vọng: 404 Not Found)
+POST {{host}}/hub/submissions/negotiate?negotiateVersion=1

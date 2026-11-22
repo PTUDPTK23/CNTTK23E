@@ -1,0 +1,38 @@
+## .NET / C#
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+dist/
+
+## Database / SQLite / Temp
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+## Docker
+.dockerignore
+!src/**/Dockerfile
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Dotnet CLI home
+.dotnet/
+
+## Local NuGet packages
+.nuget/

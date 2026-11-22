@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ thống Đấu giá Trực tuyến Phân tán</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --accent-color: #f59e0b;
+      --bg-light: #f8fafc;
+    }
+    body {
+      background-color: var(--bg-light);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .hero-banner {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 2.5rem 0;
+      border-bottom: 3px solid var(--primary-color);
+    }
+    .auction-card {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      background: white;
+    }
+    .auction-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.15);
+    }
+    .auction-img-container {
+      height: 200px;
+      position: relative;
+      background-color: #e2e8f0;
+      overflow: hidden;
+    }
+    .auction-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .price-highlight {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #dc2626;
+      transition: all 0.4s ease;
+    }
+    .price-updated-flash {
+      animation: pulse-green 1.2s ease-out;
+    }
+    @keyframes pulse-green {
+      0% { transform: scale(1.1); color: #16a34a; background-color: #dcfce7; }
+      100% { transform: scale(1); color: #dc2626; background-color: transparent; }
+    }
+    .badge-status {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    .countdown-timer {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: #ea580c;
+    }
+    .bid-history-table {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: blink 1.5s infinite;
+    }
+    .pulse-dot.online { background-color: #22c55e; }
+    .pulse-dot.offline { background-color: #ef4444; }
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+    .architecture-pill {
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand text-primary" href="#">
+        <i class="fa-solid fa-gavel me-2"></i>AUCTION<span class="text-white">SYSTEM</span>
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-light small me-2 d-none d-md-inline">
+          <span id="signalr-dot" class="pulse-dot offline"></span>
+          <span id="signalr-status">SignalR: Đang kết nối...</span>
+        </span>
+        <button class="btn btn-outline-info btn-sm" onclick="openAuditModal()">
+          <i class="fa-solid fa-clock-rotate-left me-1"></i> Audit Logs
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">
+          <i class="fa-solid fa-plus me-1"></i> Tạo phiên mới
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <header class="hero-banner">
+    <div class="container text-center">
+      <h2 class="fw-bold mb-2">Hệ Thống Đấu Giá Trực Tuyến Phân Tán</h2>
+      <p class="text-light opacity-75 mb-3">
+        Đề tài 10: .NET 10 Minimal API &bull; gRPC Bid Validation &bull; RabbitMQ Event Bus &bull; SignalR Hub &bull; Audit Worker
+      </p>
+      <div>
+        <span class="architecture-pill"><i class="fa-solid fa-server me-1"></i> REST API (5001)</span>
+        <span class="architecture-pill"><i class="fa-solid fa-bolt me-1"></i> gRPC (5002)</span>
+        <span class="architecture-pill"><i class="fa-brands fa-signal-messenger me-1"></i> SignalR (5003)</span>
+        <span class="architecture-pill"><i class="fa-solid fa-shield me-1"></i> Audit (5004)</span>
+        <span class="architecture-pill"><i class="fa-solid fa-cubes me-1"></i> RabbitMQ</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container my-4">
+    <!-- Filter Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary active" onclick="filterAuctions('all', this)">Tất cả (<span id="count-all">0</span>)</button>
+        <button type="button" class="btn btn-outline-success" onclick="filterAuctions('Active', this)">Đang diễn ra (<span id="count-active">0</span>)</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="filterAuctions('Ended', this)">Đã kết thúc (<span id="count-ended">0</span>)</button>
+      </div>
+      <div>
+        <button class="btn btn-outline-dark btn-sm" onclick="loadAuctions()">
+          <i class="fa-solid fa-arrows-rotate me-1"></i> Làm mới
+        </button>
+      </div>
+    </div>
+
+    <!-- Auction Cards Grid -->
+    <div id="auctions-container" class="row g-4">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <p class="mt-2 text-muted">Đang tải danh sách phiên đấu giá...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: Live Auction Detail & Bidding Room -->
+  <div class="modal fade" id="auctionDetailModal" tabindex="-1" aria-labelledby="detailModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold" id="detailModalTitle">Chi tiết phiên đấu giá</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-4">
+            <!-- Left col: Image & info -->
+            <div class="col-md-6">
+              <div class="rounded overflow-hidden mb-3 shadow-sm" style="max-height: 250px;">
+                <img id="detail-img" src="" alt="Sản phẩm" class="w-100 h-100 object-fit-cover">
+              </div>
+              <p id="detail-description" class="text-muted small"></p>
+              
+              <ul class="list-group list-group-flush small">
+                <li class="list-group-item d-flex justify-content-between">
+                  <span class="text-muted">Giá khởi điểm:</span>
+                  <span id="detail-startprice" class="fw-semibold">0 đ</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span class="text-muted">Bước giá tối thiểu:</span>
+                  <span id="detail-stepprice" class="fw-semibold text-primary">+0 đ</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span class="text-muted">Bắt đầu:</span>
+                  <span id="detail-starttime" class="fw-semibold">-</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span class="text-muted">Kết thúc:</span>
+                  <span id="detail-endtime" class="fw-semibold">-</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Right col: Realtime Bidding & Status -->
+            <div class="col-md-6">
+              <!-- Live Card -->
+              <div class="card border-primary mb-3">
+                <div class="card-body text-center">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span id="detail-status-badge" class="badge bg-success">Đang diễn ra</span>
+                    <span class="small countdown-timer" id="detail-countdown"><i class="fa-regular fa-clock me-1"></i> --:--:--</span>
+                  </div>
+                  <div class="text-muted small">MỨC GIÁ HIỆN TẠI</div>
+                  <div id="detail-currentprice" class="price-highlight my-2">0 đ</div>
+                  <div class="small text-muted">
+                    Người trả giá cao nhất: <span id="detail-winner" class="fw-bold text-dark">Chưa có</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Winner Banner if Ended -->
+              <div id="winner-banner" class="alert alert-warning text-center d-none" role="alert">
+                <i class="fa-solid fa-trophy text-warning fa-2x mb-2 d-block"></i>
+                <div class="fw-bold">PHIÊN ĐẤU GIÁ ĐÃ KẾT THÚC!</div>
+                <div id="winner-banner-text" class="small mt-1"></div>
+              </div>
+
+              <!-- Bid Form -->
+              <div id="bid-form-container" class="card bg-light border-0 p-3 mb-3">
+                <h6 class="fw-bold mb-2"><i class="fa-solid fa-hand-holding-dollar me-1 text-primary"></i> Đặt mức giá mới</h6>
+                <div class="mb-2">
+                  <label class="form-label small mb-1">Tên của bạn / Người trả giá:</label>
+                  <input type="text" id="bidder-name" class="form-control form-control-sm" placeholder="VD: TranVanB..." required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small mb-1">Số tiền đặt giá (VNĐ):</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" id="bid-amount" class="form-control" placeholder="Nhập số tiền..." step="100000">
+                    <button class="btn btn-outline-secondary" type="button" onclick="incrementBid(1)">+1 Bước</button>
+                    <button class="btn btn-outline-secondary" type="button" onclick="incrementBid(2)">+2 Bước</button>
+                  </div>
+                  <div class="form-text small" id="bid-hint">Mức giá tối thiểu hợp lệ: 0 đ</div>
+                </div>
+                <button type="button" id="btn-submit-bid" class="btn btn-primary btn-sm w-100 fw-bold" onclick="submitBid()">
+                  <i class="fa-solid fa-paper-plane me-1"></i> GỬI MỨC GIÁ (REST API -> gRPC)
+                </button>
+                <div id="bid-alert" class="alert mt-2 py-1 px-2 small d-none" role="alert"></div>
+              </div>
+
+              <!-- End Auction Manual Button for Demo -->
+              <div class="d-flex justify-content-end mb-2">
+                <button type="button" id="btn-manual-end" class="btn btn-outline-danger btn-sm" onclick="manualEndAuction()">
+                  <i class="fa-solid fa-flag-checkered me-1"></i> Kết thúc phiên ngay (Demo)
+                </button>
+              </div>
+
+              <!-- Realtime Bids Table -->
+              <div>
+                <h6 class="fw-bold small mb-2"><i class="fa-solid fa-list-ol me-1"></i> Lịch sử trả giá realtime</h6>
+                <div class="bid-history-table border rounded">
+                  <table class="table table-sm table-hover mb-0 small">
+                    <thead class="table-light sticky-top">
+                      <tr>
+                        <th>Thời gian</th>
+                        <th>Người trả giá</th>
+                        <th class="text-end">Mức giá</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody id="bids-history-body">
+                      <tr>
+                        <td colspan="4" class="text-center text-muted py-3">Chưa có lượt trả giá nào</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create New Auction -->
+  <div class="modal fade" id="createAuctionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle text-primary me-2"></i>Tạo phiên đấu giá mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="createAuctionForm" onsubmit="handleCreateAuction(event)">
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Tên sản phẩm / Tài sản *</label>
+              <input type="text" id="create-title" class="form-control form-control-sm" placeholder="VD: Laptop Gaming Dell Alienware" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Mô tả chi tiết</label>
+              <textarea id="create-description" class="form-control form-control-sm" rows="2" placeholder="Mô tả thông số, nguồn gốc sản phẩm..."></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">URL Hình ảnh</label>
+              <input type="url" id="create-image" class="form-control form-control-sm" placeholder="https://..." value="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=60">
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Giá khởi điểm (đ) *</label>
+                <input type="number" id="create-startprice" class="form-control form-control-sm" value="10000000" min="10000" step="10000" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Bước giá tối thiểu (đ) *</label>
+                <input type="number" id="create-stepprice" class="form-control form-control-sm" value="500000" min="1000" step="1000" required>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Thời lượng (Phút)</label>
+                <input type="number" id="create-duration" class="form-control form-control-sm" value="30" min="1" max="1440" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">
+              <i class="fa-solid fa-check me-1"></i> TẠO VÀ PHÁT SỰ KIỆN QUA RABBITMQ
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Audit Logs -->
+  <div class="modal fade" id="auditLogsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-shield-halved text-info me-2"></i>Nhật ký Kiểm toán (Audit Worker & RabbitMQ)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Dữ liệu được lưu trữ độc lập bởi <strong>Audit.Worker</strong> sau khi tiêu thụ message từ <strong>RabbitMQ</strong>.</span>
+            <button class="btn btn-sm btn-outline-primary" onclick="loadAuditLogs()"><i class="fa-solid fa-rotate me-1"></i> Làm mới</button>
+          </div>
+          <div class="table-responsive" style="max-height: 480px;">
+            <table class="table table-sm table-striped table-hover mb-0 small">
+              <thead class="table-dark sticky-top">
+                <tr>
+                  <th>Thời gian (UTC)</th>
+                  <th>Routing Key (Event)</th>
+                  <th>Auction ID</th>
+                  <th>Correlation ID</th>
+                  <th>Payload JSON</th>
+                </tr>
+              </thead>
+              <tbody id="audit-table-body">
+                <tr><td colspan="5" class="text-center py-4">Đang tải audit logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage">Thông báo mới</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: Bootstrap, SignalR JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+  <script>
+    // Configuration & State
+    let config = {
+      apiUrl: "http://localhost:5001",
+      hubUrl: "http://localhost:5003",
+      auditUrl: "http://localhost:5004"
+    };
+
+    let allAuctions = [];
+    let currentFilter = 'all';
+    let currentActiveAuctionId = null;
+    let signalRConnection = null;
+    let timerInterval = null;
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Saved bidder name
+      const savedBidder = localStorage.getItem("auction_bidder_name");
+      if (savedBidder) {
+        document.getElementById("bidder-name").value = savedBidder;
+      }
+
+      // Fetch dynamic backend config
+      try {
+        const res = await fetch("/config");
+        if (res.ok) {
+          const cfg = await res.json();
+          config = { ...config, ...cfg };
+        }
+      } catch (e) {
+        console.warn("Using default config URLs", e);
+      }
+
+      // Connect SignalR & Load data
+      initSignalR();
+      loadAuctions();
+
+      // Refresh countdowns every second
+      setInterval(updateCountdownsOnCards, 1000);
+    });
+
+    // Format currency VND
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    // Format DateTime
+    function formatDateTime(dtStr) {
+      if (!dtStr) return '-';
+      const d = new Date(dtStr);
+      return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + d.toLocaleDateString('vi-VN');
+    }
+
+    // SignalR Initialization
+    function initSignalR() {
+      const dot = document.getElementById("signalr-dot");
+      const statusText = document.getElementById("signalr-status");
+
+      try {
+        signalRConnection = new signalR.HubConnectionBuilder()
+          .withUrl(`${config.hubUrl}/hubs/auction`, {
+            skipNegotiation: false,
+            transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
+          })
+          .withAutomaticReconnect([0, 2000, 5000, 10000])
+          .configureLogging(signalR.LogLevel.Information)
+          .build();
+
+        // Listen for Bid Accepted
+        signalRConnection.on("ReceiveBidUpdate", (bidEvent) => {
+          console.log("SignalR ReceiveBidUpdate:", bidEvent);
+          handleRealtimeBidUpdate(bidEvent);
+        });
+
+        // Listen for Auction Ended
+        signalRConnection.on("ReceiveAuctionEnded", (endedEvent) => {
+          console.log("SignalR ReceiveAuctionEnded:", endedEvent);
+          handleRealtimeAuctionEnded(endedEvent);
+        });
+
+        // Listen for New Auction
+        signalRConnection.on("ReceiveNewAuction", (newAuctionEvent) => {
+          console.log("SignalR ReceiveNewAuction:", newAuctionEvent);
+          showToast(`🔔 Có phiên đấu giá mới: "${newAuctionEvent.title}"!`);
+          loadAuctions();
+        });
+
+        signalRConnection.onreconnecting(() => {
+          dot.className = "pulse-dot offline";
+          statusText.innerText = "SignalR: Đang kết nối lại...";
+        });
+
+        signalRConnection.onreconnected(() => {
+          dot.className = "pulse-dot online";
+          statusText.innerText = "SignalR: Đã kết nối";
+          if (currentActiveAuctionId) {
+            signalRConnection.invoke("JoinAuction", currentActiveAuctionId);
+          }
+        });
+
+        signalRConnection.onclose(() => {
+          dot.className = "pulse-dot offline";
+          statusText.innerText = "SignalR: Mất kết nối";
+        });
+
+        signalRConnection.start()
+          .then(() => {
+            dot.className = "pulse-dot online";
+            statusText.innerText = "SignalR: Trực tuyến";
+          })
+          .catch(err => {
+            console.error("SignalR Connection Error:", err);
+            dot.className = "pulse-dot offline";
+            statusText.innerText = "SignalR: Lỗi kết nối";
+          });
+
+      } catch (err) {
+        console.error("SignalR Init Error:", err);
+      }
+    }
+
+    // Load auctions from Auction.API
+    async function loadAuctions() {
+      try {
+        const res = await fetch(`${config.apiUrl}/auctions`);
+        if (!res.ok) throw new Error("Không thể tải danh sách đấu giá");
+        allAuctions = await res.json();
+        renderAuctions();
+      } catch (err) {
+        console.error(err);
+        document.getElementById("auctions-container").innerHTML = `
+          <div class="col-12 text-center text-danger py-4">
+            <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i>
+            <p>Không kết nối được với Auction.API (${config.apiUrl}). Vui lòng kiểm tra service đã chạy chưa.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Filter Auctions
+    function filterAuctions(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll(".btn-group button").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      renderAuctions();
+    }
+
+    // Render Auction Cards
+    function renderAuctions() {
+      const container = document.getElementById("auctions-container");
+      
+      const activeCount = allAuctions.filter(a => a.statusName === 'Active').length;
+      const endedCount = allAuctions.filter(a => a.statusName === 'Ended').length;
+      document.getElementById("count-all").innerText = allAuctions.length;
+      document.getElementById("count-active").innerText = activeCount;
+      document.getElementById("count-ended").innerText = endedCount;
+
+      let filtered = allAuctions;
+      if (currentFilter !== 'all') {
+        filtered = allAuctions.filter(a => a.statusName.toLowerCase() === currentFilter.toLowerCase());
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-box-open fa-2x mb-2"></i><p>Không có phiên đấu giá nào trong danh mục này.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(a => {
+        const isEnded = a.statusName === 'Ended';
+        const badgeClass = isEnded ? 'bg-secondary' : 'bg-success';
+        const badgeText = isEnded ? 'Đã kết thúc' : 'Đang diễn ra';
+
+        return `
+          <div class="col-md-6 col-lg-4" id="card-${a.id}">
+            <div class="card auction-card h-100 shadow-sm">
+              <div class="auction-img-container">
+                <img src="${a.imageUrl}" class="auction-img" alt="${a.title}" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800'">
+                <span class="badge ${badgeClass} badge-status">${badgeText}</span>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold text-truncate" title="${a.title}">${a.title}</h5>
+                <p class="card-text text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                  ${a.description || 'Không có mô tả'}
+                </p>
+                
+                <div class="border-top pt-2 mt-2">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small">Giá hiện tại:</span>
+                    <span class="price-highlight" id="card-price-${a.id}">${formatMoney(a.currentPrice)}</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-1 small">
+                    <span class="text-muted">Đang dẫn đầu:</span>
+                    <span class="fw-semibold text-truncate" style="max-width: 140px;" id="card-winner-${a.id}">
+                      ${a.currentWinner || 'Chưa có'}
+                    </span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center small text-muted">
+                    <span>Thời gian còn:</span>
+                    <span class="countdown-timer" id="card-timer-${a.id}" data-endtime="${a.endTime}">Tính toán...</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer bg-white border-0 pt-0 pb-3">
+                <button class="btn btn-outline-primary w-100 fw-bold btn-sm" onclick="openAuctionRoom('${a.id}')">
+                  <i class="fa-solid fa-gavel me-1"></i> ${isEnded ? 'Xem kết quả' : 'Tham gia đấu giá'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateCountdownsOnCards();
+    }
+
+    // Update countdown timers on cards
+    function updateCountdownsOnCards() {
+      const now = new Date().getTime();
+      document.querySelectorAll("[data-endtime]").forEach(el => {
+        const endTime = new Date(el.getAttribute("data-endtime")).getTime();
+        const diff = endTime - now;
+
+        if (diff <= 0) {
+          el.innerText = "Đã hết giờ";
+          el.className = "text-secondary fw-semibold";
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          el.innerText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+      });
+
+      // Also update detail modal countdown
+      if (currentActiveAuctionId) {
+        const auction = allAuctions.find(a => a.id === currentActiveAuctionId);
+        if (auction) {
+          const endTime = new Date(auction.endTime).getTime();
+          const diff = endTime - now;
+          const detailTimer = document.getElementById("detail-countdown");
+          if (diff <= 0 || auction.statusName === 'Ended') {
+            detailTimer.innerText = "Phiên đấu giá đã kết thúc";
+          } else {
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            detailTimer.innerHTML = `<i class="fa-regular fa-clock me-1"></i> Còn: ${pad(h)}:${pad(m)}:${pad(s)}`;
+          }
+        }
+      }
+    }
+
+    function pad(n) { return n < 10 ? '0' + n : n; }
+
+    // Open Auction Room Modal & Join SignalR Group
+    async function openAuctionRoom(auctionId) {
+      currentActiveAuctionId = auctionId;
+      const auction = allAuctions.find(a => a.id === auctionId);
+      if (!auction) return;
+
+      // Populate Modal Fields
+      document.getElementById("detailModalTitle").innerText = auction.title;
+      document.getElementById("detail-img").src = auction.imageUrl;
+      document.getElementById("detail-description").innerText = auction.description;
+      document.getElementById("detail-startprice").innerText = formatMoney(auction.startingPrice);
+      document.getElementById("detail-stepprice").innerText = `+${formatMoney(auction.stepPrice)}`;
+      document.getElementById("detail-starttime").innerText = formatDateTime(auction.startTime);
+      document.getElementById("detail-endtime").innerText = formatDateTime(auction.endTime);
+      document.getElementById("detail-currentprice").innerText = formatMoney(auction.currentPrice);
+      document.getElementById("detail-winner").innerText = auction.currentWinner || 'Chưa có';
+
+      const isEnded = auction.statusName === 'Ended';
+      const badge = document.getElementById("detail-status-badge");
+      const winnerBanner = document.getElementById("winner-banner");
+      const bidForm = document.getElementById("bid-form-container");
+      const manualEndBtn = document.getElementById("btn-manual-end");
+
+      if (isEnded) {
+        badge.className = "badge bg-secondary";
+        badge.innerText = "Đã kết thúc";
+        winnerBanner.classList.remove("d-none");
+        document.getElementById("winner-banner-text").innerHTML = auction.winner 
+          ? `Người chiến thắng: <strong class="text-primary">${auction.winner}</strong> với mức giá <strong class="text-danger">${formatMoney(auction.currentPrice)}</strong>`
+          : "Không có người đặt giá.";
+        bidForm.classList.add("d-none");
+        manualEndBtn.classList.add("d-none");
+      } else {
+        badge.className = "badge bg-success";
+        badge.innerText = "Đang diễn ra";
+        winnerBanner.classList.add("d-none");
+        bidForm.classList.remove("d-none");
+        manualEndBtn.classList.remove("d-none");
+
+        // Calculate minimum valid bid
+        updateSuggestedBid(auction);
+      }
+
+      // Hide alert
+      const alert = document.getElementById("bid-alert");
+      alert.className = "alert mt-2 py-1 px-2 small d-none";
+
+      // Join SignalR group
+      if (signalRConnection && signalRConnection.state === signalR.HubConnectionState.Connected) {
+        signalRConnection.invoke("JoinAuction", auctionId)
+          .then(() => console.log(`Joined SignalR group for ${auctionId}`))
+          .catch(err => console.error("Error joining group:", err));
+      }
+
+      // Load Bid History
+      await loadBidHistory(auctionId);
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById("auctionDetailModal"));
+      modal.show();
+
+      // Leave SignalR group on modal close
+      document.getElementById("auctionDetailModal").addEventListener('hidden.bs.modal', function onHide() {
+        if (signalRConnection && signalRConnection.state === signalR.HubConnectionState.Connected) {
+          signalRConnection.invoke("LeaveAuction", auctionId).catch(() => {});
+        }
+        currentActiveAuctionId = null;
+        document.getElementById("auctionDetailModal").removeEventListener('hidden.bs.modal', onHide);
+      });
+    }
+
+    // Calculate suggested bid
+    function updateSuggestedBid(auction) {
+      let minBid = auction.currentPrice > 0 ? (auction.currentPrice + auction.stepPrice) : auction.startingPrice;
+      document.getElementById("bid-amount").value = minBid;
+      document.getElementById("bid-hint").innerText = `Mức giá tối thiểu hợp lệ: ${formatMoney(minBid)}`;
+    }
+
+    // Increment bid by N steps
+    function incrementBid(steps) {
+      if (!currentActiveAuctionId) return;
+      const auction = allAuctions.find(a => a.id === currentActiveAuctionId);
+      if (!auction) return;
+
+      const currentInput = parseFloat(document.getElementById("bid-amount").value) || auction.currentPrice;
+      const newBid = currentInput + (auction.stepPrice * steps);
+      document.getElementById("bid-amount").value = newBid;
+    }
+
+    // Load Bid History
+    async function loadBidHistory(auctionId) {
+      const tbody = document.getElementById("bids-history-body");
+      try {
+        const res = await fetch(`${config.apiUrl}/auctions/${auctionId}/bids`);
+        if (!res.ok) throw new Error("Failed to load bids");
+        const bids = await res.json();
+
+        if (bids.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">Chưa có lượt trả giá nào</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = bids.map(b => `
+          <tr class="${b.isAccepted ? '' : 'table-danger'}">
+            <td>${formatDateTime(b.bidTime)}</td>
+            <td class="fw-semibold">${b.bidder}</td>
+            <td class="text-end fw-bold ${b.isAccepted ? 'text-danger' : 'text-muted'}">${formatMoney(b.amount)}</td>
+            <td>
+              ${b.isAccepted 
+                ? '<span class="badge bg-success">Hợp lệ</span>' 
+                : `<span class="badge bg-danger" title="${b.reason}">Bị từ chối</span>`}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        console.error("Error loading bids:", e);
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-2">Lỗi tải lịch sử trả giá</td></tr>`;
+      }
+    }
+
+    // Submit Bid (REST API -> Auction.API -> gRPC -> RabbitMQ)
+    async function submitBid() {
+      const bidder = document.getElementById("bidder-name").value.trim();
+      const amount = parseFloat(document.getElementById("bid-amount").value);
+      const alert = document.getElementById("bid-alert");
+      const btn = document.getElementById("btn-submit-bid");
+
+      if (!bidder) {
+        alert.className = "alert alert-warning mt-2 py-1 px-2 small";
+        alert.innerText = "Vui lòng nhập tên người trả giá.";
+        return;
+      }
+
+      if (isNaN(amount) || amount <= 0) {
+        alert.className = "alert alert-warning mt-2 py-1 px-2 small";
+        alert.innerText = "Vui lòng nhập mức giá hợp lệ.";
+        return;
+      }
+
+      // Save bidder name
+      localStorage.setItem("auction_bidder_name", bidder);
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Đang xác thực qua gRPC...`;
+
+      try {
+        const correlationId = 'web-' + Math.random().toString(36).substring(2, 9);
+        const res = await fetch(`${config.apiUrl}/auctions/${currentActiveAuctionId}/bids`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Correlation-Id': correlationId
+          },
+          body: JSON.stringify({ bidder, amount })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          alert.className = "alert alert-success mt-2 py-1 px-2 small";
+          alert.innerText = "✅ " + data.message;
+        } else {
+          alert.className = "alert alert-danger mt-2 py-1 px-2 small";
+          alert.innerText = "❌ gRPC từ chối: " + (data.message || "Đặt giá không thành công.");
+          if (data.minRequiredPrice) {
+            document.getElementById("bid-amount").value = data.minRequiredPrice;
+          }
+        }
+
+        // Reload bids history
+        await loadBidHistory(currentActiveAuctionId);
+
+      } catch (err) {
+        console.error(err);
+        alert.className = "alert alert-danger mt-2 py-1 px-2 small";
+        alert.innerText = "❌ Lỗi kết nối đến Auction API.";
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane me-1"></i> GỬI MỨC GIÁ (REST API -> gRPC)`;
+      }
+    }
+
+    // Handle Realtime Bid Update received from SignalR
+    function handleRealtimeBidUpdate(bidEvent) {
+      // 1. Update in-memory cache
+      const auction = allAuctions.find(a => a.id === bidEvent.auctionId);
+      if (auction) {
+        auction.currentPrice = bidEvent.amount;
+        auction.currentWinner = bidEvent.bidder;
+      }
+
+      // 2. Update Card on main grid
+      const cardPrice = document.getElementById(`card-price-${bidEvent.auctionId}`);
+      if (cardPrice) {
+        cardPrice.innerText = formatMoney(bidEvent.amount);
+        cardPrice.classList.add("price-updated-flash");
+        setTimeout(() => cardPrice.classList.remove("price-updated-flash"), 1200);
+      }
+      const cardWinner = document.getElementById(`card-winner-${bidEvent.auctionId}`);
+      if (cardWinner) {
+        cardWinner.innerText = bidEvent.bidder;
+      }
+
+      // 3. Update Modal if active
+      if (currentActiveAuctionId === bidEvent.auctionId) {
+        const detailPrice = document.getElementById("detail-currentprice");
+        detailPrice.innerText = formatMoney(bidEvent.amount);
+        detailPrice.classList.add("price-updated-flash");
+        setTimeout(() => detailPrice.classList.remove("price-updated-flash"), 1200);
+
+        document.getElementById("detail-winner").innerText = bidEvent.bidder;
+        if (auction) {
+          updateSuggestedBid(auction);
+        }
+
+        // Prepend new row to table
+        const tbody = document.getElementById("bids-history-body");
+        const newRow = `
+          <tr class="table-success">
+            <td>${formatDateTime(bidEvent.timestamp)}</td>
+            <td class="fw-semibold">${bidEvent.bidder}</td>
+            <td class="text-end fw-bold text-danger">${formatMoney(bidEvent.amount)}</td>
+            <td><span class="badge bg-success">Hợp lệ</span></td>
+          </tr>
+        `;
+        if (tbody.innerHTML.includes("Chưa có lượt trả giá nào")) {
+          tbody.innerHTML = newRow;
+        } else {
+          tbody.insertAdjacentHTML("afterbegin", newRow);
+        }
+      }
+
+      showToast(`⚡ [${bidEvent.bidder}] vừa trả ${formatMoney(bidEvent.amount)}!`);
+    }
+
+    // Handle Realtime Auction Ended received from SignalR
+    function handleRealtimeAuctionEnded(endedEvent) {
+      const auction = allAuctions.find(a => a.id === endedEvent.auctionId);
+      if (auction) {
+        auction.statusName = 'Ended';
+        auction.winner = endedEvent.winner;
+        auction.currentPrice = endedEvent.finalPrice;
+      }
+
+      // If viewing detail modal
+      if (currentActiveAuctionId === endedEvent.auctionId) {
+        const badge = document.getElementById("detail-status-badge");
+        badge.className = "badge bg-secondary";
+        badge.innerText = "Đã kết thúc";
+
+        document.getElementById("bid-form-container").classList.add("d-none");
+        document.getElementById("btn-manual-end").classList.add("d-none");
+
+        const winnerBanner = document.getElementById("winner-banner");
+        winnerBanner.classList.remove("d-none");
+        document.getElementById("winner-banner-text").innerHTML = endedEvent.winner 
+          ? `Người chiến thắng: <strong class="text-primary">${endedEvent.winner}</strong> với mức giá <strong class="text-danger">${formatMoney(endedEvent.finalPrice)}</strong>`
+          : "Không có người đặt giá.";
+      }
+
+      showToast(`🏆 Phiên "${endedEvent.title}" đã kết thúc! Người thắng: ${endedEvent.winner || 'Không có'}`);
+      renderAuctions();
+    }
+
+    // Manual End Auction for Demo
+    async function manualEndAuction() {
+      if (!currentActiveAuctionId) return;
+      if (!confirm("Bạn có chắc chắn muốn kết thúc phiên đấu giá này để chốt kết quả demo không?")) return;
+
+      try {
+        const res = await fetch(`${config.apiUrl}/auctions/${currentActiveAuctionId}/end`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        showToast(data.message || "Đã kết thúc phiên!");
+      } catch (e) {
+        alert("Lỗi khi kết thúc phiên: " + e.message);
+      }
+    }
+
+    // Create Auction Modal Handler
+    function openCreateModal() {
+      const modal = new bootstrap.Modal(document.getElementById("createAuctionModal"));
+      modal.show();
+    }
+
+    async function handleCreateAuction(e) {
+      e.preventDefault();
+      const title = document.getElementById("create-title").value.trim();
+      const description = document.getElementById("create-description").value.trim();
+      const imageUrl = document.getElementById("create-image").value.trim();
+      const startingPrice = parseFloat(document.getElementById("create-startprice").value);
+      const stepPrice = parseFloat(document.getElementById("create-stepprice").value);
+      const durationMinutes = parseInt(document.getElementById("create-duration").value);
+
+      const now = new Date();
+      const startTime = now.toISOString();
+      const endTime = new Date(now.getTime() + durationMinutes * 60000).toISOString();
+
+      try {
+        const res = await fetch(`${config.apiUrl}/auctions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            description,
+            imageUrl,
+            startingPrice,
+            stepPrice,
+            startTime,
+            endTime
+          })
+        });
+
+        if (res.ok) {
+          bootstrap.Modal.getInstance(document.getElementById("createAuctionModal")).hide();
+          document.getElementById("createAuctionForm").reset();
+          showToast("🎉 Đã tạo phiên đấu giá thành công và phát sự kiện qua RabbitMQ!");
+          await loadAuctions();
+        } else {
+          const err = await res.json();
+          alert("Lỗi tạo phiên: " + (err.message || "Không xác định"));
+        }
+      } catch (err) {
+        alert("Lỗi kết nối: " + err.message);
+      }
+    }
+
+    // Audit Logs Modal
+    function openAuditModal() {
+      const modal = new bootstrap.Modal(document.getElementById("auditLogsModal"));
+      modal.show();
+      loadAuditLogs();
+    }
+
+    async function loadAuditLogs() {
+      const tbody = document.getElementById("audit-table-body");
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div> Đang tải logs từ Audit Worker...</td></tr>`;
+
+      try {
+        const res = await fetch(`${config.auditUrl}/api/audit-logs?limit=50`);
+        if (!res.ok) throw new Error("Không thể tải logs");
+        const logs = await res.json();
+
+        if (logs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Chưa có log sự kiện nào được ghi nhận.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td class="text-nowrap">${formatDateTime(l.timestamp)}</td>
+            <td><span class="badge bg-primary">${l.eventType}</span></td>
+            <td><code>${l.auctionId.substring(0, 8)}...</code></td>
+            <td><code>${l.correlationId || 'N/A'}</code></td>
+            <td>
+              <pre class="mb-0 p-1 bg-light rounded text-dark" style="max-width: 450px; font-size: 0.75rem; white-space: pre-wrap;">${l.payload}</pre>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Lỗi kết nối tới Audit.Worker (${config.auditUrl})</td></tr>`;
+      }
+    }
+
+    // Toast Helper
+    function showToast(msg) {
+      document.getElementById("toastMessage").innerText = msg;
+      const toast = new bootstrap.Toast(document.getElementById("liveToast"));
+      toast.show();
+    }
+  </script>
+</body>
+</html>
