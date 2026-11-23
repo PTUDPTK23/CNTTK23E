@@ -3,4 +3,5 @@
     <Project Path="src/Ping.Api/Ping.Api.csproj" />
     <Project Path="src/Ping.Client/Ping.Client.csproj" />
   </Folder>
+  <Project Path="../RealtimeSubmissionSystem/src/Submission.RealtimeApi/Submission.RealtimeApi.csproj" />
 </Solution>
