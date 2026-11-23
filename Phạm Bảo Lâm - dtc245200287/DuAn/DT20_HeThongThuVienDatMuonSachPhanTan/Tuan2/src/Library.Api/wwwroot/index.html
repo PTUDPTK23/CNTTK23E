@@ -7,114 +7,267 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div class="container topbar__inner">
-      <div>
-        <span class="badge badge--accent">ĐỀ TÀI 20 • TUẦN 2</span>
-        <h1>Hệ thống thư viện đặt mượn sách phân tán</h1>
-        <p class="subtitle">Tra cứu danh mục sách, đặt mượn bất đồng bộ qua RabbitMQ &amp; Worker, quản lý mượn/trả</p>
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <div class="navbar__brand">
+        <div class="brand-mark">📚</div>
+        <div>
+          <div class="brand-row">
+            <strong>LibFlow Distributed</strong>
+            <span class="pill pill--indigo">Đề tài 20 • Tuần 2</span>
+            <span id="healthBadge" class="pill pill--amber">Đang kiểm tra...</span>
+          </div>
+          <span class="brand-sub">Hệ thống thư viện &amp; đặt mượn sách phân tán (.NET 10 • RabbitMQ)</span>
+        </div>
       </div>
-      <div class="topbar__meta">
-        <span>SV: <strong>Phạm Bảo Lâm</strong> (<code>dtc245200287</code>)</span>
-        <span>Lớp: <strong>CNTTK23E</strong></span>
+
+      <div id="sessionBar" class="session-bar">
+        <span id="sessionInfo" class="session-text">Chưa đăng nhập</span>
+        <button id="btnLogout" class="btn btn--outline btn--sm hidden" type="button">Đăng xuất</button>
+      </div>
+
+      <div class="navbar__meta">
+        <span class="student-chip">Phạm Bảo Lâm • <code>dtc245200287</code> • <code>CNTTK23E</code></span>
       </div>
     </div>
   </header>
 
-  <main class="container main-grid">
-    <section class="stats-row">
-      <div class="stat-card">
-        <span class="stat-card__label">Đầu sách hiển thị</span>
-        <strong id="statBooks" class="stat-card__value">0</strong>
-      </div>
-      <div class="stat-card">
-        <span class="stat-card__label">Tổng bản sách khả dụng</span>
-        <strong id="statAvailable" class="stat-card__value">0</strong>
-      </div>
-      <div class="stat-card">
-        <span class="stat-card__label">Phiếu đặt mượn của người dùng</span>
-        <strong id="statReservations" class="stat-card__value">0</strong>
-      </div>
-    </section>
+  <main class="container workspace">
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <section id="authSection" class="auth-shell">
+      <div class="auth-card">
+        <div class="auth-card__header">
+          <span class="pill pill--indigo">Cổng đăng nhập báo cáo / demo</span>
+          <h1>Đăng nhập hệ thống thư viện</h1>
+          <p>Chọn tài khoản <strong>Độc giả</strong> hoặc <strong>Thủ thư</strong> bên cạnh để điền nhanh hoặc vào trực tiếp.</p>
+        </div>
 
-    <section class="panel panel--wide">
-      <div class="panel__header">
-        <h2>Danh mục sách thư viện</h2>
-        <div class="toolbar">
-          <input id="keywordInput" type="search" placeholder="Tìm theo tên sách, tác giả..." />
-          <button id="btnSearch" class="btn btn--primary" type="button">Tra cứu</button>
-          <button id="btnResetBooks" class="btn btn--ghost" type="button">Tất cả</button>
+        <div class="auth-grid">
+          <form id="loginForm" class="login-box" autocomplete="off">
+            <div class="field">
+              <label for="loginUsername">Tên đăng nhập</label>
+              <input id="loginUsername" type="text" placeholder="Nhập docgia hoặc thuthu" required />
+            </div>
+            <div class="field">
+              <label for="loginPassword">Mật khẩu</label>
+              <input id="loginPassword" type="password" placeholder="Nhập mật khẩu (123456)" required />
+            </div>
+            <button class="btn btn--primary btn--block" type="submit">Đăng nhập vào hệ thống</button>
+            <div id="loginFeedback" class="feedback" role="status"></div>
+          </form>
+
+          <div class="demo-panel">
+            <div class="demo-panel__title">Tài khoản mẫu có sẵn để demo nhanh</div>
+            <div class="demo-grid">
+              <div class="acc-card acc-card--reader">
+                <div class="acc-card__top">
+                  <span class="acc-role">🧑‍💻 Độc giả</span>
+                  <span class="pill pill--green">Reader</span>
+                </div>
+                <div class="acc-meta">
+                  <div>Tài khoản: <code>docgia</code></div>
+                  <div>Mật khẩu: <code>123456</code></div>
+                  <div>Mã độc giả: <code>User #1</code></div>
+                </div>
+                <div class="acc-actions">
+                  <button class="btn btn--ghost btn--sm js-fill-cred" type="button" data-user="docgia" data-pass="123456">Điền</button>
+                  <button class="btn btn--primary btn--sm js-quick-login" type="button" data-user="docgia" data-pass="123456">Vào ngay</button>
+                </div>
+              </div>
+
+              <div class="acc-card acc-card--librarian">
+                <div class="acc-card__top">
+                  <span class="acc-role">🛠️ Thủ thư</span>
+                  <span class="pill pill--blue">Librarian</span>
+                </div>
+                <div class="acc-meta">
+                  <div>Tài khoản: <code>thuthu</code></div>
+                  <div>Mật khẩu: <code>123456</code></div>
+                  <div>Nghiệp vụ: <code>Mượn / Trả &amp; Kho</code></div>
+                </div>
+                <div class="acc-actions">
+                  <button class="btn btn--ghost btn--sm js-fill-cred" type="button" data-user="thuthu" data-pass="123456">Điền</button>
+                  <button class="btn btn--primary btn--sm js-quick-login" type="button" data-user="thuthu" data-pass="123456">Vào ngay</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tên sách</th>
-              <th>Tác giả</th>
-              <th>Khả dụng / Tổng</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody id="booksTableBody">
-            <tr><td colspan="5" class="muted">Đang tải danh mục sách...</td></tr>
-          </tbody>
-        </table>
-      </div>
     </section>
 
-    <section class="panel">
-      <div class="panel__header">
-        <h2>Tạo phiếu đặt mượn sách</h2>
-      </div>
-      <form id="reservationForm" class="form-stack">
-        <label>
-          Mã người dùng (User ID – số nguyên &gt; 0)
-          <input id="userIdInput" type="number" min="1" value="1" required />
-        </label>
-        <label>
-          Mã sách (Book ID – số nguyên &gt; 0)
-          <input id="bookIdInput" type="number" min="1" value="1" required />
-        </label>
-        <button class="btn btn--primary" type="submit">Gửi yêu cầu đặt mượn</button>
-      </form>
-      <div id="formFeedback" class="feedback" role="status"></div>
-    </section>
+    <!-- KHU VỰC NGHIỆP VỤ SAU ĐĂNG NHẬP -->
+    <div id="appWorkspace" class="hidden">
+      <!-- ĐỘC GIẢ -->
+      <section id="readerView" class="layout-main hidden">
+        <div class="col-primary">
+          <div class="surface-card">
+            <div class="search-row">
+              <input id="keywordInput" type="search" placeholder="Tra cứu theo tên sách hoặc tác giả..." />
+              <button id="btnSearch" class="btn btn--primary" type="button">Tìm kiếm</button>
+              <button id="btnResetBooks" class="btn btn--outline" type="button">Đặt lại</button>
+            </div>
+            <div class="info-strip">
+              <span class="info-strip__dot"></span>
+              <span>Yêu cầu đặt mượn được đẩy qua <strong>RabbitMQ</strong> để <strong>Library.Worker</strong> kiểm tra số bản khả dụng và cập nhật trạng thái (<code>Pending</code> → <code>Reserved</code> / <code>Rejected</code>).</span>
+            </div>
+          </div>
 
-    <section class="panel">
-      <div class="panel__header">
-        <h2>Lịch sử &amp; xử lý phiếu đặt mượn</h2>
-        <div class="toolbar">
-          <input id="filterUserInput" type="number" min="1" value="1" style="width: 110px;" title="User ID" />
-          <select id="filterStatusSelect">
-            <option value="">Tất cả trạng thái</option>
-            <option value="Pending">Pending</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Rejected">Rejected</option>
-            <option value="Borrowed">Borrowed</option>
-            <option value="Returned">Returned</option>
-          </select>
-          <button id="btnLoadReservations" class="btn btn--secondary" type="button">Tải lại</button>
+          <div class="surface-card">
+            <div class="card-head">
+              <div>
+                <h2>Danh mục sách thư viện</h2>
+                <p class="card-sub">Chọn sách để đặt mượn hoặc xem chi tiết số bản khả dụng</p>
+              </div>
+              <span id="readerBookCount" class="pill pill--indigo">0 đầu sách</span>
+            </div>
+            <div id="bookCardsGrid" class="books-grid">
+              <p class="empty-msg">Đang tải danh mục sách...</p>
+            </div>
+            <div id="bookDetailBox" class="detail-callout hidden"></div>
+          </div>
         </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Mã phiếu</th>
-              <th>Sách</th>
-              <th>Trạng thái</th>
-              <th>Ghi chú</th>
-              <th>Nghiệp vụ thủ thư</th>
-            </tr>
-          </thead>
-          <tbody id="reservationsTableBody">
-            <tr><td colspan="5" class="muted">Đang tải lịch sử...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+
+        <aside class="col-side">
+          <div class="surface-card">
+            <div class="card-head">
+              <div>
+                <h2>Gửi yêu cầu đặt mượn</h2>
+                <p class="card-sub">Xử lý bất đồng bộ qua hàng đợi</p>
+              </div>
+            </div>
+            <form id="reservationForm" class="form-stack">
+              <div class="field">
+                <label for="userIdInput">Mã người dùng (User ID)</label>
+                <input id="userIdInput" type="number" min="1" value="1" required />
+              </div>
+              <div class="field">
+                <label for="bookIdInput">Mã sách (Book ID)</label>
+                <input id="bookIdInput" type="number" min="1" value="1" required />
+              </div>
+              <button class="btn btn--primary btn--block" type="submit">Gửi yêu cầu đặt mượn</button>
+            </form>
+            <div id="formFeedback" class="feedback" role="status"></div>
+          </div>
+
+          <div class="surface-card">
+            <div class="card-head">
+              <div>
+                <h2>Yêu cầu của tôi</h2>
+                <p class="card-sub">Theo dõi trạng thái phiếu &amp; lý do xử lý</p>
+              </div>
+              <div class="inline-controls">
+                <input id="filterUserInput" type="number" min="1" value="1" class="input-xs" title="User ID" />
+                <button id="btnLoadReservations" class="btn btn--outline btn--sm" type="button">Tải lại</button>
+              </div>
+            </div>
+
+            <div class="lookup-row">
+              <input id="lookupIdInput" type="text" placeholder="Tra cứu theo Mã phiếu (UUID)..." />
+              <button id="btnLookupId" class="btn btn--ghost btn--sm" type="button">Tra cứu</button>
+            </div>
+            <div id="lookupResultBox" class="detail-callout hidden"></div>
+
+            <div id="myReservationsList" class="ticket-list">
+              <p class="empty-msg">Đang tải danh sách phiếu...</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- THỦ THƯ -->
+      <section id="librarianView" class="layout-librarian hidden">
+        <aside class="col-side">
+          <div class="surface-card">
+            <div class="card-head">
+              <div>
+                <h2>Tổng quan thủ thư</h2>
+                <p class="card-sub">Số liệu hệ thống hiện tại</p>
+              </div>
+            </div>
+            <div class="kpi-list">
+              <div class="kpi-box kpi-box--indigo">
+                <span>Tổng đầu sách</span>
+                <strong id="kpiBooks">0</strong>
+              </div>
+              <div class="kpi-box kpi-box--green">
+                <span>Bản sách khả dụng</span>
+                <strong id="kpiAvailable">0</strong>
+              </div>
+              <div class="kpi-box kpi-box--blue">
+                <span>Phiếu đang theo dõi</span>
+                <strong id="kpiReservations">0</strong>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="col-primary">
+          <div class="surface-card">
+            <div class="card-head">
+              <div>
+                <h2>Quản lý mượn / trả phiếu đặt mượn</h2>
+                <p class="card-sub">Xác nhận cho mượn khi <code>Reserved</code> hoặc nhận trả khi <code>Borrowed</code></p>
+              </div>
+              <div class="inline-controls">
+                <input id="libUserInput" type="number" min="1" value="1" class="input-xs" title="User ID" />
+                <select id="filterStatusSelect" title="Lọc trạng thái">
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Reserved">Reserved</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Borrowed">Borrowed</option>
+                  <option value="Returned">Returned</option>
+                </select>
+                <button id="btnLibRefresh" class="btn btn--primary btn--sm" type="button">Làm mới</button>
+              </div>
+            </div>
+            <div id="libFeedback" class="feedback" role="status"></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Mã phiếu</th>
+                    <th>Đầu sách</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                    <th class="col-action">Nghiệp vụ</th>
+                  </tr>
+                </thead>
+                <tbody id="libReservationsBody">
+                  <tr><td colspan="5" class="empty-msg">Đang tải dữ liệu...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="surface-card">
+            <div class="card-head">
+              <div>
+                <h2>Tình trạng tồn kho đầu sách</h2>
+                <p class="card-sub">Số bản khả dụng trên tổng số bản của từng đầu sách</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên sách</th>
+                    <th>Tác giả</th>
+                    <th>Khả dụng / Tổng</th>
+                    <th class="col-action">Tình trạng</th>
+                  </tr>
+                </thead>
+                <tbody id="libBooksBody">
+                  <tr><td colspan="5" class="empty-msg">Đang tải danh sách sách...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
   <script src="app.js"></script>
