@@ -42,7 +42,7 @@ services:
       RabbitMq__Password: ${RABBITMQ_PASS}
       Logging__LogLevel__Microsoft.EntityFrameworkCore: Warning
     ports:
-      - "${API_PORT:-8080}:8080"
+      - "8082:8080"
     depends_on:
       postgres: { condition: service_healthy }
       rabbitmq: { condition: service_healthy }

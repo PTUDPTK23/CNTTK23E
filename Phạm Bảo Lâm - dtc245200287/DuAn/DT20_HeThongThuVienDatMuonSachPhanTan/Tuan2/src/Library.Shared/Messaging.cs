@@ -11,7 +11,12 @@ public class RabbitMqSettings
 }
 
 // Message mà API gửi sang Worker
-public record ReservationRequested(Guid ReservationId, int UserId, int BookId, DateTime RequestedAt);
+public record ReservationRequested(
+    Guid ReservationId,
+    int UserId,
+    int BookId,
+    DateTime RequestedAt,
+    string? CorrelationId = null);
 
 public static class RabbitMqTopology
 {
@@ -27,8 +32,8 @@ public static class RabbitMqTopology
         await channel.QueueDeclareAsync(RequestQueue, durable: true, exclusive: false, autoDelete: false,
             arguments: new Dictionary<string, object?>
             {
-                ["x-dead-letter-exchange"] = "",                        // default exchange
-                ["x-dead-letter-routing-key"] = DeadLetterQueue         // message bị nack -> sang DLQ
+                ["x-dead-letter-exchange"] = "",
+                ["x-dead-letter-routing-key"] = DeadLetterQueue
             }, cancellationToken: ct);
     }
 }

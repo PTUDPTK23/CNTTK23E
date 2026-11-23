@@ -10,6 +10,8 @@ builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection("R
 builder.Services.AddSingleton<ReservationPublisher>();
 
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 await InitDatabaseAsync(app);
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
@@ -34,7 +36,7 @@ app.MapGet("/books/{id:int:min(1)}", async (int id, LibraryDbContext db) =>
 });
 
 // ===================== RESERVATIONS =====================
-app.MapPost("/reservations", async (CreateReservationRequest req, LibraryDbContext db,
+app.MapPost("/reservations", async (HttpContext httpContext, CreateReservationRequest req, LibraryDbContext db,
     ReservationPublisher publisher, ILogger<Program> log, CancellationToken ct) =>
 {
     // 1. Validation -> 400
@@ -62,8 +64,16 @@ app.MapPost("/reservations", async (CreateReservationRequest req, LibraryDbConte
     // 4. Đưa yêu cầu vào RabbitMQ
     try
     {
+        var corrId = httpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(corrId)) corrId = reservation.Id.ToString();
+        httpContext.Response.Headers["X-Correlation-Id"] = corrId;
+        using var _ = log.BeginScope(new Dictionary<string, object?>
+        {
+            ["CorrelationId"] = corrId,
+            ["ReservationId"] = reservation.Id
+        });
         await publisher.PublishAsync(
-            new ReservationRequested(reservation.Id, reservation.UserId, reservation.BookId, now), ct);
+            new ReservationRequested(reservation.Id, reservation.UserId, reservation.BookId, now, corrId), ct);
     }
     catch (Exception ex)
     {
@@ -98,7 +108,9 @@ app.MapGet("/users/{userId:int:min(1)}/reservations", async (int userId, string?
     var q = db.Reservations.AsNoTracking().Include(r => r.Book).Where(r => r.UserId == userId);
     if (!string.IsNullOrWhiteSpace(status))
     {
-        if (!Enum.TryParse<ReservationStatus>(status, ignoreCase: true, out var st))
+        var allowedStatuses = new[] { "Pending", "Reserved", "Rejected", "Borrowed", "Returned" };
+        var matched = allowedStatuses.FirstOrDefault(s => string.Equals(s, status, StringComparison.OrdinalIgnoreCase));
+        if (matched is null || !Enum.TryParse<ReservationStatus>(matched, out var st))
             return Results.BadRequest(new { error = "status phải là Pending|Reserved|Rejected|Borrowed|Returned" });
         q = q.Where(r => r.Status == st);
     }

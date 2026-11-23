@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DT20 – Hệ thống thư viện đặt mượn sách phân tán</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div>
+        <span class="badge badge--accent">ĐỀ TÀI 20 • TUẦN 2</span>
+        <h1>Hệ thống thư viện đặt mượn sách phân tán</h1>
+        <p class="subtitle">Tra cứu danh mục sách, đặt mượn bất đồng bộ qua RabbitMQ &amp; Worker, quản lý mượn/trả</p>
+      </div>
+      <div class="topbar__meta">
+        <span>SV: <strong>Phạm Bảo Lâm</strong> (<code>dtc245200287</code>)</span>
+        <span>Lớp: <strong>CNTTK23E</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-grid">
+    <section class="stats-row">
+      <div class="stat-card">
+        <span class="stat-card__label">Đầu sách hiển thị</span>
+        <strong id="statBooks" class="stat-card__value">0</strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Tổng bản sách khả dụng</span>
+        <strong id="statAvailable" class="stat-card__value">0</strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Phiếu đặt mượn của người dùng</span>
+        <strong id="statReservations" class="stat-card__value">0</strong>
+      </div>
+    </section>
+
+    <section class="panel panel--wide">
+      <div class="panel__header">
+        <h2>Danh mục sách thư viện</h2>
+        <div class="toolbar">
+          <input id="keywordInput" type="search" placeholder="Tìm theo tên sách, tác giả..." />
+          <button id="btnSearch" class="btn btn--primary" type="button">Tra cứu</button>
+          <button id="btnResetBooks" class="btn btn--ghost" type="button">Tất cả</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên sách</th>
+              <th>Tác giả</th>
+              <th>Khả dụng / Tổng</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="booksTableBody">
+            <tr><td colspan="5" class="muted">Đang tải danh mục sách...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <h2>Tạo phiếu đặt mượn sách</h2>
+      </div>
+      <form id="reservationForm" class="form-stack">
+        <label>
+          Mã người dùng (User ID – số nguyên &gt; 0)
+          <input id="userIdInput" type="number" min="1" value="1" required />
+        </label>
+        <label>
+          Mã sách (Book ID – số nguyên &gt; 0)
+          <input id="bookIdInput" type="number" min="1" value="1" required />
+        </label>
+        <button class="btn btn--primary" type="submit">Gửi yêu cầu đặt mượn</button>
+      </form>
+      <div id="formFeedback" class="feedback" role="status"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <h2>Lịch sử &amp; xử lý phiếu đặt mượn</h2>
+        <div class="toolbar">
+          <input id="filterUserInput" type="number" min="1" value="1" style="width: 110px;" title="User ID" />
+          <select id="filterStatusSelect">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Pending">Pending</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Borrowed">Borrowed</option>
+            <option value="Returned">Returned</option>
+          </select>
+          <button id="btnLoadReservations" class="btn btn--secondary" type="button">Tải lại</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã phiếu</th>
+              <th>Sách</th>
+              <th>Trạng thái</th>
+              <th>Ghi chú</th>
+              <th>Nghiệp vụ thủ thư</th>
+            </tr>
+          </thead>
+          <tbody id="reservationsTableBody">
+            <tr><td colspan="5" class="muted">Đang tải lịch sử...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

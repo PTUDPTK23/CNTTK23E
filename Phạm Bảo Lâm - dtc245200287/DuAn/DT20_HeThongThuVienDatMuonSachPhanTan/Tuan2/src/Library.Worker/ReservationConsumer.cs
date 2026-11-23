@@ -52,6 +52,14 @@ public sealed class ReservationConsumer(IOptions<RabbitMqSettings> options,
         {
             var msg = JsonSerializer.Deserialize<ReservationRequested>(ea.Body.Span)
                       ?? throw new JsonException("Message rỗng");
+            var corrId = string.IsNullOrWhiteSpace(msg.CorrelationId)
+                ? msg.ReservationId.ToString()
+                : msg.CorrelationId;
+            using var _ = log.BeginScope(new Dictionary<string, object?>
+            {
+                ["CorrelationId"] = corrId,
+                ["ReservationId"] = msg.ReservationId
+            });
             await ProcessWithRetryAsync(msg, ct);
             processed = true;
         }
