@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocFlow — Hệ thống Phê duyệt Tài liệu Phân tán</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=4" />
+    <script src="/config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">
+            <svg
+              width="21"
+              height="21"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <path d="m9 15 2 2 4-4"></path>
+            </svg>
+          </div>
+          <div>
+            <h1>Hệ thống Phê duyệt Tài liệu Phân tán</h1>
+            <p class="brand-sub">
+              Đề tài 12 &bull; Microservices &bull; RabbitMQ &bull; SignalR
+              Real-time
+            </p>
+          </div>
+        </div>
+
+        <div class="topbar-status">
+          <span class="pulse-dot"></span>
+          <span>Hệ thống trực tuyến</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <!-- Hàng 5 thẻ thống kê KPI -->
+      <section class="stats-grid">
+        <div class="stat-card kpi-total">
+          <div>
+            <div class="stat-label">TỔNG HỒ SƠ</div>
+            <div id="statTotal" class="stat-value">0</div>
+          </div>
+          <div class="stat-icon icon-total">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card kpi-draft">
+          <div>
+            <div class="stat-label">BẢN NHÁP (DRAFT)</div>
+            <div id="statDraft" class="stat-value">0</div>
+          </div>
+          <div class="stat-icon icon-draft">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card kpi-submitted">
+          <div>
+            <div class="stat-label">CHỜ PHÊ DUYỆT</div>
+            <div id="statSubmitted" class="stat-value text-amber">0</div>
+          </div>
+          <div class="stat-icon icon-submitted">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card kpi-approved">
+          <div>
+            <div class="stat-label">ĐÃ PHÊ DUYỆT</div>
+            <div id="statApproved" class="stat-value text-green">0</div>
+          </div>
+          <div class="stat-icon icon-approved">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card kpi-rejected">
+          <div>
+            <div class="stat-label">TỪ CHỐI</div>
+            <div id="statRejected" class="stat-value text-red">0</div>
+          </div>
+          <div class="stat-icon icon-rejected">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lưới 3 cột quy trình chính -->
+      <main class="container">
+        <!-- Cột 1: Khởi tạo hồ sơ mới -->
+        <section class="card card-create">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="step-badge">1</span>
+              <h2>Khởi tạo hồ sơ mới</h2>
+            </div>
+            <button
+              type="button"
+              class="btn btn-sample btn-sm"
+              onclick="fillSampleData()"
+            >
+              ✨ Điền mẫu
+            </button>
+          </div>
+
+          <form id="createForm">
+            <div class="form-group">
+              <label for="title"
+                >Tiêu đề tài liệu <span class="req">*</span></label
+              >
+              <input
+                id="title"
+                required
+                placeholder="VD: Đề xuất mua sắm thiết bị phòng Lab"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="category">Phân loại hồ sơ</label>
+              <select id="category">
+                <option value="Đề xuất">Đề xuất</option>
+                <option value="Đề xuất kỹ thuật">Đề xuất kỹ thuật</option>
+                <option value="Hợp đồng">Hợp đồng</option>
+                <option value="Kế hoạch">Kế hoạch</option>
+                <option value="Tài chính - Thanh toán">
+                  Tài chính - Thanh toán
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="content">Nội dung tóm tắt</label>
+              <textarea
+                id="content"
+                rows="3"
+                placeholder="Mô tả chi tiết nội dung hồ sơ cần trình duyệt..."
+              ></textarea>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="creator"
+                  >Người tạo <span class="req">*</span></label
+                >
+                <input id="creator" required value="Lường Thị Giang" />
+              </div>
+              <div class="form-group">
+                <label for="approver"
+                  >Người duyệt <span class="req">*</span></label
+                >
+                <input id="approver" required value="Giảng viên hướng dẫn" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              + Tạo hồ sơ (Draft)
+            </button>
+          </form>
+        </section>
+
+        <!-- Cột 2: Danh sách & Quy trình phê duyệt -->
+        <section class="card card-workspace">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="step-badge">2</span>
+              <h2>Danh sách &amp; Quy trình phê duyệt</h2>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              onclick="loadDocuments()"
+            >
+              ↻ Làm mới
+            </button>
+          </div>
+
+          <div class="filter-bar">
+            <select id="filterStatus" onchange="applyClientFilters()">
+              <option value="">Tất cả trạng thái</option>
+              <option value="Draft">Draft (Nháp)</option>
+              <option value="Submitted">Submitted (Chờ duyệt)</option>
+              <option value="Approved">Approved (Đã duyệt)</option>
+              <option value="Rejected">Rejected (Từ chối)</option>
+            </select>
+            <input
+              id="filterApprover"
+              placeholder="Lọc người duyệt..."
+              oninput="applyClientFilters()"
+            />
+            <input
+              id="filterCreator"
+              placeholder="Lọc người tạo..."
+              oninput="applyClientFilters()"
+            />
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              onclick="resetFilters()"
+            >
+              Đặt lại
+            </button>
+          </div>
+
+          <div id="docList" class="doc-list"></div>
+        </section>
+
+        <!-- Cột 3: Thông báo -->
+        <section class="card card-notif">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="step-badge">3</span>
+              <h2>Thông báo</h2>
+              <span id="notifCount" class="count-pill">0 mới</span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              onclick="markAllNotifsRead()"
+            >
+              ✓ Đọc tất cả
+            </button>
+          </div>
+
+          <div class="notif-filter-box">
+            <input
+              id="notifRecipientFilter"
+              placeholder="Tìm hoặc lọc theo người nhận..."
+              oninput="renderNotifications()"
+            />
+            <div id="notifQuickChips" class="chip-group"></div>
+          </div>
+
+          <div id="notifList" class="notif-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Modal Lịch sử xử lý -->
+    <div
+      id="detailModal"
+      class="modal-backdrop"
+      onclick="if (event.target === this) closeModal();"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Chi tiết tài liệu</h3>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            onclick="closeModal()"
+          >
+            ✕ Đóng
+          </button>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+      </div>
+    </div>
+
+    <script src="app.js?v=3"></script>
+  </body>
+</html>
