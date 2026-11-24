@@ -1,0 +1,58 @@
+﻿=================================================================
+ BỘ KIỂM THỬ TỰ ĐỘNG DỰ ÁN TUẦN 2 - 4 KỊCH BẢN CHUẨN BÀI 3
+=================================================================
+
+[SETUP] Kiểm tra kết nối máy chủ FoodOrdering.RealtimeApi tại http://localhost:5227
+[SETUP OK] Server phản hồi: {"service":"FoodOrdering.RealtimeApi","status":"running","realtime":"SignalR Enabled","hub":"/hubs/orders","serverTime":"2026-11-24T08:13:26.1846112+00:00"}
+
+=================================================================
+>>> KỊCH BẢN 1: KIỂM THỬ LUỒNG HOÀN CHỈNH (END-TO-END REALTIME FLOW)
+=================================================================
+  [1.1] Bếp đã kết nối Hub và tham gia nhóm 'kitchen'.
+  [1.2] Khách gửi REST POST /api/orders...
+  [1.2 OK] Đã tạo Đơn #1 thành công (HTTP 201 Created)!
+  [Kitchen Event] Nhận NewOrderPlaced: Đơn #1 (Ban 01 - Nguyen Van A)
+  [1.3 PASS] Bếp đã nhận NewOrderPlaced của Đơn #1 theo thời gian thực!
+  [1.4] Khách A đã kết nối Hub và tham gia nhóm 'order:1'.
+  [1.5] Bếp gọi REST POST /api/kitchen/orders/1/start...
+  [Customer A Event] Nhận OrderStatusChanged: Đơn #1 -> [Preparing]: Bếp đã nhận đơn #1 và đang bắt đầu chế biến món ăn!
+  [1.6 PASS] Khách A nhận được trạng thái [Preparing] thời gian thực!
+  [1.7] Bếp gọi REST POST /api/kitchen/orders/1/complete...
+  [Customer A Event] Nhận OrderStatusChanged: Đơn #1 -> [Ready]: Đơn hàng #1 đã được nấu xong và sẵn sàng phục vụ! Kính mời quý khách nhận món.
+  [1.8 PASS] Khách A nhận được trạng thái [Ready] thời gian thực!
+>>> KẾT QUẢ KỊCH BẢN 1: HOÀN TOÀN ĐẠT (PASS)!
+
+=================================================================
+>>> KỊCH BẢN 2: KIỂM THỬ TÍNH CÔ LẬP NHÓM (GROUP ISOLATION)
+=================================================================
+  [Kitchen Event] Nhận NewOrderPlaced: Đơn #2 (Ban 02 - Tran Thi B)
+  [2.1] Đã tạo Đơn #2 cho Khách B.
+  [2.2] Khách B tham gia nhóm 'order:2'. Khách A vẫn đang ở 'order:1'.
+  [2.3] Bếp bắt đầu nấu Đơn #2 (POST /start)...
+  [Customer B Event] Nhận OrderStatusChanged: Đơn #2 -> [Preparing]
+  [2.4 PASS] CHỈ Khách B nhận thông báo của Đơn #2. Khách A hoàn toàn không bị rò rỉ dữ liệu!
+>>> KẾT QUẢ KỊCH BẢN 2: HOÀN TOÀN ĐẠT (PASS)!
+
+=================================================================
+>>> KỊCH BẢN 3: KIỂM THỬ PHỤC HỒI KẾT NỐI & NGUỒN SỰ THẬT (RECONNECT & SOURCE OF TRUTH)
+=================================================================
+  [3.1] Client kết nối thành công tới Hub: e6uLtKhTAIORN3ryS0v-Hg
+  [3.2] Kiểm tra đồng bộ Nguồn sự thật: Gọi REST GET /api/orders/1...
+  [3.3 PASS] Đồng bộ thành công từ Nguồn sự thật: Đơn #1 có trạng thái [Ready] (Cập nhật: 08:13:26)
+>>> KẾT QUẢ KỊCH BẢN 3: HOÀN TOÀN ĐẠT (PASS)!
+
+=================================================================
+>>> KỊCH BẢN 4: KIỂM THỬ TRẠNG THÁI KHÔNG HỢP LỆ & PHÁ VỠ NGHIỆP VỤ
+=================================================================
+  [4.1] Đã tạo Đơn #3 với trạng thái ban đầu: [Pending].
+  [Kitchen Event] Nhận NewOrderPlaced: Đơn #3 (Ban 03 - Le Van C)
+  [4.2] Cố tình gọi POST /api/kitchen/orders/3/complete khi đơn đang Pending...
+  [4.3] Mã HTTP phản hồi: 400 BadRequest
+  [4.4] Nội dung lỗi từ Server: Mã [INVALID_ORDER_STATE] - 'Don hang ID 3 phai o trang thai 'Preparing' moi co the hoan thanh (hien tai la 'Pending').'
+  [4.5 PASS] Server đã từ chối chuyển trạng thái sai, mã lỗi 400 INVALID_ORDER_STATE chuẩn xác!
+  [4.6 PASS] Hub không phát bất kỳ thông báo sai lệch nào xuống Khách C!
+>>> KẾT QUẢ KỊCH BẢN 4: HOÀN TOÀN ĐẠT (PASS)!
+
+=================================================================
+ TỔNG KẾT: CẢ 4 KỊCH BẢN KIỂM THỬ ĐÃ THỰC THI VÀ ĐẠT 100% (PASS)!
+=================================================================

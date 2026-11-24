@@ -1,0 +1,112 @@
+@baseUrl = http://localhost:5227
+
+### 1. Kiểm tra trạng thái máy chủ và kết nối SignalR (GET /)
+# Kỳ vọng: HTTP 200 OK, service = FoodOrdering.RealtimeApi, realtime = SignalR Enabled
+GET {{baseUrl}}/
+Accept: application/json
+
+### 2. Xem danh sách thực đơn món ăn (GET /api/menu-items)
+# Kỳ vọng: HTTP 200 OK, trả về 4 món ăn mẫu
+GET {{baseUrl}}/api/menu-items
+Accept: application/json
+
+### 3. Xem chi tiết món ăn hợp lệ (GET /api/menu-items/1)
+# Kỳ vọng: HTTP 200 OK, chi tiết Phở Bò Tái Lăn
+GET {{baseUrl}}/api/menu-items/1
+Accept: application/json
+
+### 4. Xem chi tiết món ăn KHÔNG tồn tại (GET /api/menu-items/999)
+# Kỳ vọng: HTTP 404 Not Found, ApiError ITEM_NOT_FOUND
+GET {{baseUrl}}/api/menu-items/999
+Accept: application/json
+
+### 5. Khách hàng tạo đơn đặt món hợp lệ (POST /api/orders)
+# Kỳ vọng: HTTP 201 Created, Location Header, Server tự động bắn NewOrderPlaced sang nhóm kitchen
+# @name createOrder
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "Vuong Quoc Khoa",
+  "tableNumber": "Ban 09",
+  "items": [
+    {
+      "menuItemId": 1,
+      "quantity": 2
+    },
+    {
+      "menuItemId": 3,
+      "quantity": 1
+    }
+  ]
+}
+
+### 6. Xem chi tiết đơn hàng vừa tạo bằng Response Chaining (GET /api/orders/{id})
+# Kỳ vọng: HTTP 200 OK, thông tin đơn hàng vừa tạo ở request #5
+GET {{baseUrl}}/api/orders/{{createOrder.response.body.$.id}}
+Accept: application/json
+
+### 7. Nhân viên bếp xem danh sách toàn bộ đơn hàng (GET /api/kitchen/orders)
+# Kỳ vọng: HTTP 200 OK, danh sách đơn hàng kèm trạng thái và thời gian cập nhật
+GET {{baseUrl}}/api/kitchen/orders
+Accept: application/json
+
+### 8. Bếp bắt đầu chế biến đơn hàng (POST /api/kitchen/orders/1/start)
+# Kỳ vọng: HTTP 200 OK, Status chuyển sang "Preparing", Server tự động bắn OrderStatusChanged sang order:1
+POST {{baseUrl}}/api/kitchen/orders/1/start
+Accept: application/json
+
+### 9. Bếp hoàn thành chế biến đơn hàng (POST /api/kitchen/orders/1/complete)
+# Kỳ vọng: HTTP 200 OK, Status chuyển sang "Ready", Server tự động bắn OrderStatusChanged sang order:1
+POST {{baseUrl}}/api/kitchen/orders/1/complete
+Accept: application/json
+
+### 10. Phá vỡ nghiệp vụ: Cố tình hoàn thành lại đơn đã "Ready" (POST .../complete)
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_ORDER_STATE
+POST {{baseUrl}}/api/kitchen/orders/1/complete
+Accept: application/json
+
+### 11. Phá vỡ nghiệp vụ: Bắt đầu chế biến đơn không tồn tại (POST /api/kitchen/orders/999/start)
+# Kỳ vọng: HTTP 404 Not Found, ApiError ORDER_NOT_FOUND
+POST {{baseUrl}}/api/kitchen/orders/999/start
+Accept: application/json
+
+### 12. Phá vỡ nghiệp vụ: Khách đặt món đã hết hàng (Món 4 - Bánh Mì Chảo)
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_ORDER
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "Khach Loi",
+  "tableNumber": "Ban 01",
+  "items": [
+    {
+      "menuItemId": 4,
+      "quantity": 1
+    }
+  ]
+}
+
+### 13. Phá vỡ nghiệp vụ: Khách đặt số lượng món <= 0
+# Kỳ vọng: HTTP 400 Bad Request, ApiError INVALID_ORDER
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "Khach So Luong Khong",
+  "tableNumber": "Ban 03",
+  "items": [
+    {
+      "menuItemId": 2,
+      "quantity": 0
+    }
+  ]
+}
+
+### 14. Kiểm tra endpoint Negotiate của SignalR Hub (POST /hubs/orders/negotiate?negotiateVersion=1)
+# Kỳ vọng: HTTP 200 OK, connectionId, connectionToken, availableTransports
+POST {{baseUrl}}/hubs/orders/negotiate?negotiateVersion=1
+Accept: application/json
