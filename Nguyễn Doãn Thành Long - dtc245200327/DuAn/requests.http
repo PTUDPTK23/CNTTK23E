@@ -1,0 +1,20 @@
+@host = http://localhost:5050
+
+### 1. GET /assignments : Lấy danh sách bài tập
+GET {{host}}/assignments
+
+### 2. POST /assignments/{id}/submissions : Nộp bài cho bài tập có mã {id}
+# @name createSubmission
+POST {{host}}/assignments/1/submissions
+Content-Type: application/json
+
+{
+  "studentId": "SV001",
+  "content": "https://github.com/sv001/assignment-1-solution-pass"
+}
+
+### 3. GET /submissions/{id} : Tra cứu chi tiết một bài nộp (trạng thái, điểm, nhận xét)
+GET {{host}}/submissions/1
+
+### 4. GET /students/{studentId}/submissions : Tra cứu danh sách các bài đã nộp của sinh viên
+GET {{host}}/students/SV001/submissions
