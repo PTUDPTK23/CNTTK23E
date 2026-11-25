@@ -1,0 +1,15 @@
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.exe
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.deps.json
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.runtimeconfig.json
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.dll
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\bin\Debug\net10.0\Submission.Client.pdb
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.GeneratedMSBuildEditorConfig.editorconfig
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.AssemblyInfoInputs.cache
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.AssemblyInfo.cs
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.csproj.CoreCompileInputs.cache
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.sourcelink.json
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.dll
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\refint\Submission.Client.dll
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.pdb
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\Submission.Client.genruntimeconfig.cache
+D:\PTCNPT\Bai1\MiniDistributedSystem\src\Submission.Client\obj\Debug\net10.0\ref\Submission.Client.dll
