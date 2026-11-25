@@ -1,0 +1,24 @@
+{
+  "name": "mass-notification-backend",
+  "version": "1.0.0",
+  "description": "Backend API cho Hệ thống gửi thông báo hàng loạt - Kiến trúc phân tán",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "distributed-system",
+    "express",
+    "rabbitmq",
+    "mysql",
+    "mass-notification"
+  ],
+  "author": "Trần Thị Dung - DTC245200209",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

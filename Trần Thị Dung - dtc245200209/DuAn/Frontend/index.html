@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng điều khiển - Hệ thống gửi thông báo hàng loạt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-badge">📢</span>
+        <div>
+          <div>NotifyDist</div>
+          <small style="font-size: 11px; color: #94a3b8; font-weight: normal;">Hệ thống phân tán</small>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="sidebar-section-title">Menu Chính</li>
+        <li class="sidebar-item">
+          <a href="index.html" class="sidebar-link active">
+            <span>📊</span> Bảng điều khiển
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Module Quản lý người nhận sẽ được kết nối ở Tuần 2 (CRUD MySQL).'); return false;">
+            <span>👥</span> Người nhận (Recipients)
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Module Nhóm người nhận sẽ được hoàn thiện ở Tuần 2.'); return false;">
+            <span>📁</span> Nhóm người nhận
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Module Quản lý chiến dịch sẽ được phát triển ở Tuần 3.'); return false;">
+            <span>🚀</span> Chiến dịch thông báo
+          </a>
+        </li>
+
+        <li class="sidebar-section-title">Hệ Thống Phân Tán</li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Module RabbitMQ & Producer sẽ tích hợp ở Tuần 4.'); return false;">
+            <span>🐇</span> Hàng đợi RabbitMQ
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Module Đa Worker xử lý phân tán sẽ chạy ở Tuần 5.'); return false;">
+            <span>⚙️</span> Tiến trình Workers
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Module Lịch sử & Báo cáo gửi sẽ hoàn thiện ở Tuần 7.'); return false;">
+            <span>📜</span> Lịch sử & Nhật ký gửi
+          </a>
+        </li>
+
+        <li class="sidebar-section-title">Cấu Hình</li>
+        <li class="sidebar-item">
+          <a href="#" class="sidebar-link" onclick="alert('Trang cài đặt hệ thống (SMTP, Database, Queue) sẽ cập nhật ở các tuần sau.'); return false;">
+            <span>🛠️</span> Cài đặt hệ thống
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <div class="user-avatar" id="currentUserAvatar">A</div>
+          <div class="user-info">
+            <div class="user-name" id="currentUserName">Admin User</div>
+            <div class="user-role" id="currentUserRole">Quản trị viên</div>
+          </div>
+        </div>
+        <button id="btnLogout" class="btn btn-sm btn-primary" title="Đăng xuất" style="padding: 6px 10px;">
+          🚪
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-title">
+          Bảng Điều Khiển Tổng Quan (Dashboard)
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="header-status-pill" id="systemStatusPill">
+            <span class="status-dot" id="systemStatusDot"></span>
+            <span id="systemStatusText">Đang kết nối API...</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Body -->
+      <main class="content-body">
+        <!-- Banner Kiến trúc phân tán tuần 1 -->
+        <div class="panel" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff; border: none;">
+          <div class="panel-body">
+            <h2 style="font-size: 20px; margin-bottom: 8px;">🏛️ Kiến Trúc Hệ Thống Gửi Thông Báo Hàng Loạt (Phân Tán)</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">
+              Đồ án môn Phát triển ứng dụng phân tán. Hệ thống hoạt động theo mô hình Producer - Message Broker - Multiple Workers, đảm bảo tải cao, không nghẽn máy chủ và gửi tin cậy.
+            </p>
+
+            <div class="flow-diagram">
+              <div class="flow-step" style="background: rgba(255, 255, 255, 0.05); color: #fff;">
+                <span class="step-number">1</span>
+                <h4 style="color: #fff;">Frontend UI</h4>
+                <p style="color: #94a3b8;">Giao diện quản lý & tạo chiến dịch</p>
+              </div>
+              <div class="flow-step" style="background: rgba(255, 255, 255, 0.05); color: #fff;">
+                <span class="step-number">2</span>
+                <h4 style="color: #fff;">Backend API (Producer)</h4>
+                <p style="color: #94a3b8;">Express.js lưu CSDL & đẩy tác vụ vào Queue</p>
+              </div>
+              <div class="flow-step" style="background: rgba(255, 255, 255, 0.05); color: #fff;">
+                <span class="step-number">3</span>
+                <h4 style="color: #fff;">RabbitMQ Broker</h4>
+                <p style="color: #94a3b8;">Hàng đợi tin nhắn bền vững (Durable)</p>
+              </div>
+              <div class="flow-step" style="background: rgba(255, 255, 255, 0.05); color: #fff;">
+                <span class="step-number">4</span>
+                <h4 style="color: #fff;">Đa Worker Độc Lập</h4>
+                <p style="color: #94a3b8;">Xử lý song song, gửi Email & ACK</p>
+              </div>
+              <div class="flow-step" style="background: rgba(255, 255, 255, 0.05); color: #fff;">
+                <span class="step-number">5</span>
+                <h4 style="color: #fff;">MySQL Database</h4>
+                <p style="color: #94a3b8;">Lưu dữ liệu thật, lịch sử & trạng thái</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thống kê mẫu -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">📬</div>
+            <div class="stat-content">
+              <h3>533</h3>
+              <p>Tổng số thông báo</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-content">
+              <h3>480</h3>
+              <p>Đã gửi thành công</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">❌</div>
+            <div class="stat-content">
+              <h3>12</h3>
+              <p>Thất bại (Cần gửi lại)</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">⏳</div>
+            <div class="stat-content">
+              <h3>41</h3>
+              <p>Đang chờ trong hàng đợi</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Kiểm tra Live Health Check Backend API -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">🩺 Kiểm Tra Trực Tiếp Backend Express API (/api/health)</div>
+              <div id="healthMeta" style="margin-top: 4px;"></div>
+            </div>
+            <button id="btnRefreshHealth" class="btn btn-primary btn-sm">
+              🔄 Kiểm tra lại kết nối
+            </button>
+          </div>
+          <div class="panel-body">
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
+              Giao diện Frontend tự động thực hiện truy vấn <code>GET http://localhost:5000/api/health</code> để nghiệm thu tiêu chí Tuần 1:
+            </p>
+            <div id="healthBoxContent" class="health-box">// Đang kết nối tới Backend API...</div>
+          </div>
+        </div>
+
+        <!-- Panel Bảng chiến dịch mẫu -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📋 Chiến Dịch Thông Báo Mẫu (Khung giao diện)</div>
+            <button class="btn btn-primary btn-sm" onclick="alert('Form tạo chiến dịch sẽ hoàn thiện và kết nối API ở Tuần 3.');">
+              + Tạo chiến dịch mới
+            </button>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã CD</th>
+                    <th>Tên Chiến Dịch</th>
+                    <th>Nhóm Người Nhận</th>
+                    <th>Số Lượng</th>
+                    <th>Trạng Thái</th>
+                    <th>Thời Gian Tạo</th>
+                    <th>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody id="campaignTableBody">
+                  <!-- Được nạp bằng JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lộ trình 8 tuần -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🗺️ Lộ Trình Triển Khai 8 Tuần (Kế hoạch đồ án)</div>
+            <span class="badge badge-success">Đang ở: Tuần 1</span>
+          </div>
+          <div class="panel-body">
+            <ul style="font-size: 13px; line-height: 1.8; color: #475569; padding-left: 20px;">
+              <li><b>Tuần 1 (Hiện tại):</b> Khởi tạo dự án, phân tích chức năng/vai trò/luồng, khung giao diện Frontend, Backend Express có <code>/api/health</code>.</li>
+              <li><b>Tuần 2:</b> Thiết kế CSDL MySQL, <code>database.sql</code>, kết nối CSDL và xây dựng API CRUD người nhận/nhóm người nhận.</li>
+              <li><b>Tuần 3:</b> Xác thực đăng nhập, phân quyền, API quản lý chiến dịch và tạo danh sách thông báo chờ gửi.</li>
+              <li><b>Tuần 4:</b> Cài đặt RabbitMQ trên Windows, cấu hình AMQP, queue bền vững và Producer đẩy tác vụ.</li>
+              <li><b>Tuần 5:</b> Xây dựng Worker độc lập, chạy ít nhất 3 Worker xử lý song song, ACK/NACK, retry và ghi nhận trạng thái.</li>
+              <li><b>Tuần 6:</b> Tích hợp Nodemailer/SMTP gửi email, chế độ test an toàn, kết nối toàn diện Frontend với API.</li>
+              <li><b>Tuần 7:</b> Dashboard thống kê, lịch sử gửi, bộ lọc, kiểm thử các tình huống sự cố (Worker crash, SMTP lỗi, RabbitMQ reconnect).</li>
+              <li><b>Tuần 8:</b> Rà soát mã nguồn, hoàn thiện tài liệu, sơ đồ kiến trúc, kịch bản demo và bảo vệ đồ án.</li>
+            </ul>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

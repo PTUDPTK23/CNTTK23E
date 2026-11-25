@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option csharp_namespace = "AuctionSystem.Contracts";
+
+package auction.bids;
+
+service BidValidation {
+  rpc ValidateBid (ValidateBidRequest) returns (ValidateBidResponse);
+}
+
+message ValidateBidRequest {
+  string auction_id = 1;
+  string bidder = 2;
+  double amount = 3;
+  double current_price = 4;
+  double step_price = 5;
+  string auction_status = 6;
+  string start_time = 7;
+  string end_time = 8;
+  double starting_price = 9;
+}
+
+message ValidateBidResponse {
+  bool is_valid = 1;
+  string reason = 2;
+  double min_required_price = 3;
+}

@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Chay Submission.RealtimeApi (Cong 5000)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-api",
+      "program": "${workspaceFolder}/src/Submission.RealtimeApi/bin/Debug/net10.0/Submission.RealtimeApi.dll",
+      "args": ["--urls", "http://localhost:5000"],
+      "cwd": "${workspaceFolder}/src/Submission.RealtimeApi",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Chay Submission.RealtimeClient (Console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-client",
+      "program": "${workspaceFolder}/src/Submission.RealtimeClient/bin/Debug/net10.0/Submission.RealtimeClient.dll",
+      "args": ["http://localhost:5000", "SV001"],
+      "cwd": "${workspaceFolder}/src/Submission.RealtimeClient",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Chay ca hai (Api + Client)",
+      "configurations": [
+        "Chay Submission.RealtimeApi (Cong 5000)",
+        "Chay Submission.RealtimeClient (Console)"
+      ],
+      "stopAll": true
+    }
+  ]
+}
