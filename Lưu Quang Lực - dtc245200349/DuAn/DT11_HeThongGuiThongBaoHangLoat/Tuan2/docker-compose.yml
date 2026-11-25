@@ -1,0 +1,94 @@
+name: notifylab
+x-app-environment: &app-environment
+  ConnectionStrings__Database: Host=postgres;Port=5432;Database=notifylab;Username=notifylab;Password=${POSTGRES_PASSWORD:-notifylab_local_demo}
+  RabbitMQ__Host: rabbitmq
+  RabbitMQ__Username: notifylab
+  RabbitMQ__Password: ${RABBITMQ_PASSWORD:-notifylab_local_demo}
+  Delivery__MaxAttempts: "3"
+  Delivery__EnableDemoFailures: ${ENABLE_DEMO_FAILURES:-true}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: notifylab
+      POSTGRES_USER: notifylab
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notifylab_local_demo}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notifylab -d notifylab"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: notifylab
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-notifylab_local_demo}
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
+      - "127.0.0.1:${RABBITMQ_UI_PORT:-15672}:15672"
+    volumes: ["rabbitmq-data:/var/lib/rabbitmq"]
+    hostname: rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
+      - "127.0.0.1:${SMTP_PORT:-1025}:1025"
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    volumes: ["mailpit-data:/data"]
+    restart: unless-stopped
+  campaign-api:
+    build:
+      context: .
+      dockerfile: src/Campaign.Api/Dockerfile
+    environment:
+      <<: *app-environment
+      ASPNETCORE_HTTP_PORTS: "8080"
+      Admin__Username: ${ADMIN_USERNAME:-admin}
+      Admin__Password: ${ADMIN_PASSWORD:-notifylab_demo_admin}
+    ports: ["127.0.0.1:${API_PORT:-5080}:8080"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+  notification-worker:
+    build:
+      context: .
+      dockerfile: src/Notification.Worker/Dockerfile
+    environment:
+      <<: *app-environment
+      Smtp__Host: mailpit
+      Smtp__Port: "1025"
+      Smtp__From: notifications@example.test
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      mailpit: { condition: service_started }
+    deploy:
+      replicas: 2
+    restart: unless-stopped
+  notification-audit:
+    build:
+      context: .
+      dockerfile: src/Notification.Audit/Dockerfile
+    environment:
+      <<: *app-environment
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  mailpit-data:

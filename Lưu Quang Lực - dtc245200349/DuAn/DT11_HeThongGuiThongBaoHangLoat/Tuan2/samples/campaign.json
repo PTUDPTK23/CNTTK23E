@@ -1,0 +1,6 @@
+{
+  "name": "Thông báo lịch học",
+  "subject": "Lịch học tuần mới",
+  "body": "Chào bạn, vui lòng kiểm tra lịch học trên hệ thống của trường.",
+  "recipients": ["an@example.test", "binh@example.test", "retry+demo@example.test", "fail+demo@example.test"]
+}
