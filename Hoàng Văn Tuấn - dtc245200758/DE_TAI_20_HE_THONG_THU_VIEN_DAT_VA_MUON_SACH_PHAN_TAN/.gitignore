@@ -1,0 +1,36 @@
+# Bí mật & môi trường
+.env
+.env.local
+*.env
+!.env.example
+# Java / Maven
+target/
+*.class
+*.log
+# IDE
+.idea/
+.vscode/*
+!.vscode/launch.json
+*.iml
+# Node
+node_modules/
+dist/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Backup files
+*.bak
+*.before-*
+*.backup
+*.backup-*
+
+# Build and dependencies
+node_modules/
+target/
+dist/
+build/
+coverage/
+*.log
