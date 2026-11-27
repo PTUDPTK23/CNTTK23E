@@ -106,6 +106,50 @@ class ReservationProcessorTest {
         assertEquals(ReservationStatus.CANCELLED, reservation.getStatus());
     }
 
+
+    @Test
+    void rejectsWhenUserIsInactive() {
+        when(processedEvents.markProcessed(any(), any())).thenReturn(true);
+        when(reservationRepo.findByIdForUpdate(event.reservationId())).thenReturn(Optional.of(reservation));
+        when(userRepo.existsByIdAndStatus(any(), eq("ACTIVE"))).thenReturn(false);
+
+        assertEquals(Outcome.REJECTED, processor.process(event));
+        assertEquals(ReservationStatus.REJECTED, reservation.getStatus());
+        assertEquals("Người dùng không tồn tại hoặc đã bị khóa", reservation.getRejectionReason());
+        verify(bookRepo, never()).existsByIdAndActiveTrue(any());
+        verify(copyRepo, never()).lockFirstAvailable(any());
+        verify(history).record(any(), eq("PENDING"), eq("REJECTED"), anyString());
+    }
+
+    @Test
+    void rejectsWhenBookIsInactive() {
+        when(processedEvents.markProcessed(any(), any())).thenReturn(true);
+        when(reservationRepo.findByIdForUpdate(event.reservationId())).thenReturn(Optional.of(reservation));
+        when(userRepo.existsByIdAndStatus(any(), eq("ACTIVE"))).thenReturn(true);
+        when(bookRepo.existsByIdAndActiveTrue(any())).thenReturn(false);
+
+        assertEquals(Outcome.REJECTED, processor.process(event));
+        assertEquals(ReservationStatus.REJECTED, reservation.getStatus());
+        assertEquals("Đầu sách không còn được phục vụ", reservation.getRejectionReason());
+        verify(copyRepo, never()).lockFirstAvailable(any());
+        verify(history).record(any(), eq("PENDING"), eq("REJECTED"), anyString());
+    }
+
+    @Test
+    void recordsHistoryWhenReservationIsRejectedBecauseAllCopiesAreTaken() {
+        when(processedEvents.markProcessed(any(), any())).thenReturn(true);
+        when(reservationRepo.findByIdForUpdate(event.reservationId())).thenReturn(Optional.of(reservation));
+        when(userRepo.existsByIdAndStatus(any(), eq("ACTIVE"))).thenReturn(true);
+        when(bookRepo.existsByIdAndActiveTrue(any())).thenReturn(true);
+        when(copyRepo.lockFirstAvailable(event.bookId())).thenReturn(Optional.empty());
+
+        assertEquals(Outcome.REJECTED, processor.process(event));
+        assertEquals(ReservationStatus.REJECTED, reservation.getStatus());
+        assertEquals("Hết bản sách khả dụng", reservation.getRejectionReason());
+        assertNotNull(reservation.getProcessedAt());
+        verify(history).record(event.reservationId(), "PENDING", "REJECTED", "Hết bản sách khả dụng");
+    }
+
     @Test
     void throwsWhenReservationMissingSoMessageIsRetried() {
         when(processedEvents.markProcessed(any(), any())).thenReturn(true);

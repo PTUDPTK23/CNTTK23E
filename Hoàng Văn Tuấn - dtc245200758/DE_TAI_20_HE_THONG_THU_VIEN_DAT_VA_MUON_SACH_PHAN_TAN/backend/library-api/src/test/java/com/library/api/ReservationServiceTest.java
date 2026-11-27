@@ -86,6 +86,36 @@ class ReservationServiceTest {
         verify(outboxRepo, never()).save(any());
     }
 
+
+    @Test
+    void createRejectsLockedAccountWithoutCreatingReservationOrOutbox() {
+        User u = user();
+        u.setStatus(UserStatus.LOCKED);
+        when(userRepo.findByEmailIgnoreCase("test@library.local")).thenReturn(Optional.of(u));
+
+        ApiException ex = assertThrows(ApiException.class, () -> service.create(
+                new ReservationRequest(u.getId(), UUID.randomUUID()), "test@library.local"));
+
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
+        verifyNoInteractions(bookRepo, reservationRepo, eventRepo, outboxRepo);
+    }
+
+    @Test
+    void createDoesNotWriteOutboxWhenBookDoesNotExist() {
+        User u = user();
+        UUID missingBookId = UUID.randomUUID();
+        when(userRepo.findByEmailIgnoreCase("test@library.local")).thenReturn(Optional.of(u));
+        when(bookRepo.findByIdAndActiveTrue(missingBookId)).thenReturn(Optional.empty());
+
+        ApiException ex = assertThrows(ApiException.class, () -> service.create(
+                new ReservationRequest(u.getId(), missingBookId), "test@library.local"));
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+        verify(reservationRepo, never()).saveAndFlush(any());
+        verify(eventRepo, never()).save(any());
+        verify(outboxRepo, never()).save(any());
+    }
+
     @Test
     void createFailsWhenUserNotFound() {
         UUID id = UUID.randomUUID();
