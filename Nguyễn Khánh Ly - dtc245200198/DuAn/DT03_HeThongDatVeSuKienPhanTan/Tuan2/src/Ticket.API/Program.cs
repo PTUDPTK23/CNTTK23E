@@ -1,0 +1,39 @@
+using EventBooking.Infrastructure.Data;
+using EventBooking.Infrastructure.Messaging;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Cấu hình kết nối PostgreSQL
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Cấu hình RabbitMQ Producer
+builder.Services.Configure<RabbitMqOptions>(
+    builder.Configuration.GetSection(RabbitMqOptions.SectionName));
+builder.Services.AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>();
+builder.Services.AddSingleton<IBookingMessagePublisher, RabbitMqBookingMessagePublisher>();
+
+builder.Services.AddMemoryCache();
+
+// Add services to the container.
+builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
